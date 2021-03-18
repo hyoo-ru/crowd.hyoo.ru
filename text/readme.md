@@ -47,3 +47,7 @@ Delta is partial state dump which depends on the inner stores.
 
 - `text` Replace full text with reconciliation.
 - `write( flow, from, to, text )` Coming soon.
+
+## [Online sandbox](https://crowd.hyoo.ru/)
+
+- Currently binded to native textarea. It's simple, but slow on large texts. 
