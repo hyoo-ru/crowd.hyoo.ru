@@ -1,0 +1,22 @@
+$hyoo_crowd_app $mol_book2
+	Placeholder null
+	plugins /
+		<= Theme $mol_theme_auto
+	pages /
+		<= Left_page $mol_page
+			title \CROWD Text Left
+			tools /
+				<= Lights $mol_lights_toggle
+				<= Source $mol_link_source
+					uri \https://github.com/hyoo-ru/crowd.hyoo.ru/
+				<= Sync $mol_button_major
+					title \Sync
+					click?event <=> sync?event null
+			body /
+				<= Left $mol_textarea
+					value?val <=> left?val \
+		<= Right_page $mol_page
+			title \CROWD Text Right
+			body /
+				<= Right $mol_textarea
+					value?val <=> right?val \

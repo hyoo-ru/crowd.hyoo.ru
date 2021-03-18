@@ -1,0 +1,12 @@
+[hyoo_crowd_app_left_page],
+[hyoo_crowd_app_right_page] {
+	flex: 1000 0 20rem;
+}
+
+/* [hyoo_crowd_app_crowd_body] {
+	padding: var(--mol_gap_block);
+}
+
+[hyoo_crowd_app_html_body] {
+	padding: var(--mol_gap_block);
+} */
