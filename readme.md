@@ -86,14 +86,17 @@
 ## Usage Example
 
 ```typescript
-import {
-  $hyoo_crowd_numb,
-  $hyoo_crowd_reg,
-  $hyoo_crowd_set
-  $hyoo_crowd_list,
-  $hyoo_crowd_union,
-  $hyoo_crowd_dict,
-} from 'mol_crowd_all'
+// // Usage from NPM. Isn't required in MAM.
+// import {
+//   $hyoo_crowd_numb,
+//   $hyoo_crowd_reg,
+//   $hyoo_crowd_set
+//   $hyoo_crowd_list,
+//   $hyoo_crowd_union,
+//   $hyoo_crowd_dict,
+//   $hyoo_crowd_tuple,
+//   $hyoo_crowd_text,
+// } from 'hyoo_crowd_lib'
 
 // Dynamic typing in custom store
 const MyStore = $hyoo_crowd_dict.of(
