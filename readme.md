@@ -54,11 +54,11 @@
 - [CROWD Counter](./numb) - Equivalent of dCRDT PN-Counter with same properties.
 - [CROWD Register](./reg) - Just CvRDT LWW-Register with same properties.
 - [CROWD Unordered Set](./set) - Equivalent of dCRDT LWW-Element-Set with same properties.
-- [CROWD Ordered Set](./list) - No CRDT alternatives.
-- [CROWD Tagged Union](./union) - No CRDT alternatives.
-- [CROWD Dictionary](./dict) - No CRDT alternatives.
-- [CROWD Tuple](./tuple) - No CRDT alternatives.
-- [CROWD Text](./text) - No CRDT alternatives.
+- [CROWD Ordered Set](./list) - No equal structure in the CRDT.
+- [CROWD Tagged Union](./union) - No equal structure in the CRDT.
+- [CROWD Dictionary](./dict) - No equal structure in the CRDT.
+- [CROWD Tuple](./tuple) - No equal structure in the CRDT.
+- [CROWD Text](./text) - No equal structure in the CRDT.
 - CROWD JSON - Coming soon.
 - CROWD Graph - Coming soon.
 
