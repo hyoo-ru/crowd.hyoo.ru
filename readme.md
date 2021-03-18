@@ -153,7 +153,7 @@ console.log(
 |                     | [$hyoo_crowd](https://github.com/hyoo-ru/crowd.hyoo.ru) | [Automerge](https://github.com/automerge/automerge) | [YJS](https://github.com/yjs/yjs)   | [delta-crdt](https://github.com/peer-base/js-delta-crdts)
 |---------------------|------------|-----------|-------|-----------
 | Approach            | CROWD      | CRDT      | CRDT  | CRDT
-| Gzipped Bundle Size | [3 KB](https://bundlephobia.com/result?p=hyoo_crowd_lib@1.0.2)       | [60 KB](https://bundlephobia.com/result?p=automerge@0.14.2)     | [23 KB](https://bundlephobia.com/result?p=yjs@13.5.2) | [43 KB](https://bundlephobia.com/result?p=delta-crdts@0.10.3)
+| Gzipped Bundle Size | [4 KB](https://bundlephobia.com/result?p=hyoo_crowd_lib@1.0.2)       | [60 KB](https://bundlephobia.com/result?p=automerge@0.14.2)     | [23 KB](https://bundlephobia.com/result?p=yjs@13.5.2) | [43 KB](https://bundlephobia.com/result?p=delta-crdts@0.10.3)
 
 ## Benchmarks
 
