@@ -22,8 +22,16 @@ namespace $ {
 			return Math.abs( stamp )
 		}
 		
+		index_from( stamp: number ) {
+			return Math.floor( Math.abs( stamp ) / concurrency )
+		}
+		
 		actor_from( stamp: number ) {
 			return Math.abs( stamp ) % concurrency
+		}
+		
+		make( index: number, actor = this.actor ) {
+			return index * concurrency + actor
 		}
 		
 		feed( version: number ) {
