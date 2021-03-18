@@ -1,5 +1,16 @@
 # CROWD Text
 
+Rich text.
+
+## Properties
+
+May be binded to native `<textarea>`.
+
+## Work in progress
+
+- Currently support only plain text.
+- Currently support only full text replacement API (with reconciliation of course). More precise mutations are coming soon.
+
 ## State Format
 
 ```javascript
@@ -20,3 +31,16 @@
 
 Size = 6 * Size( Text ) + 4 * Count( Flows ) + 2
 ```
+
+## Delta Format
+
+Delta is partial state dump which depends on the inner stores.
+
+## Views
+
+- `text` Plain text as string
+
+## Mutations
+
+- `text` Replace full text with reconciliation.
+- `write( flow, from, to, text )` Coming soon.
