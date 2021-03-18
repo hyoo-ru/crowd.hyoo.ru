@@ -4,7 +4,10 @@ Rich text.
 
 ## Properties
 
-May be binded to native `<textarea>`.
+- Can be binded to native `<textarea>`.
+- Uses tokenizer to split text by tokens.
+- Token's value on tokens order are stored separately.
+- Merge never produces unreadable token value. Only one of valid (LWW).
 
 ## Work in progress
 
