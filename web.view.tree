@@ -10,6 +10,23 @@ $mol_scroll $mol_view
 		^
 		scroll?event <=> event_scroll?event null
 
+$mol_page $mol_view
+	sub /
+		<= Head $mol_view
+			minimal_height 64
+			sub <= head /
+				<= Title $mol_view
+					dom_name \h1
+					sub /
+						<= title
+				<= Tools $mol_view
+					sub <= tools /$mol_view_content
+		<= Body $mol_scroll
+			scroll_top?val <=> body_scroll_top?val 0
+			sub <= body /$mol_view_content
+		<= Foot $mol_view
+			sub <= foot /$mol_view
+
 $mol_book2 $mol_scroll
 	sub <= pages /$mol_view
 	minimal_width 0
@@ -396,23 +413,6 @@ $mol_textarea $mol_view
 			render_visible_only false
 			row_numb!index <= row_numb!index 0
 			sidebar_showed <= sidebar_showed
-
-$mol_page $mol_view
-	sub /
-		<= Head $mol_view
-			minimal_height 64
-			sub <= head /
-				<= Title $mol_view
-					dom_name \h1
-					sub /
-						<= title
-				<= Tools $mol_view
-					sub <= tools /$mol_view_content
-		<= Body $mol_scroll
-			scroll_top?val <=> body_scroll_top?val 0
-			sub <= body /$mol_view_content
-		<= Foot $mol_view
-			sub <= foot /$mol_view
 
 $hyoo_crowd_app $mol_book2
 	Placeholder null
