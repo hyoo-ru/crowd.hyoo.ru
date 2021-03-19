@@ -1,48 +1,92 @@
 namespace $.$$ {
 
 	export class $hyoo_crowd_app extends $.$hyoo_crowd_app {
+		
+		sync_enabled() {
+			return this.Left().changes() + this.Right().changes() > 0
+		}
 
-		left_store = $hyoo_crowd_text.make()
-		right_store = $hyoo_crowd_text.make()
-		
-		@ $mol_mem
-		left( next?: string ) {
-			
-			this.sync()
-			
-			if( next !== undefined ) this.left_store.text = next
-			return this.left_store.text
-			
-		}
-		
-		@ $mol_mem
-		right( next?: string ) {
-			
-			this.sync()
-			
-			if( next !== undefined ) this.right_store.text = next
-			return this.right_store.text
-			
-		}
-		
-		left_sync_version = 0
-		right_sync_version = 0
-		
 		@ $mol_mem
 		sync( next?: Event ) {
 			
-			const left_delta = this.left_store.toJSON( this.left_sync_version )
-			const right_delta = this.right_store.toJSON( this.right_sync_version )
+			if( next == undefined ) return 0
 			
-			this.left_sync_version = this.left_store.stamper.version_max
-			this.right_sync_version = this.right_store.stamper.version_max
+			const left_delta = this.Left().delta()
+			const right_delta = this.Right().delta()
 			
-			this.left_store.apply( right_delta )
-			this.right_store.apply( left_delta )
+			this.Left().store().apply( right_delta )
+			this.Right().store().apply( left_delta )
+			
+			this.Left().sync_stamp( this.Left().store().stamper.version_max )
+			this.Right().sync_stamp( this.Right().store().stamper.version_max )
 			
 			return Math.random()
 		}
 
 	}
 
+	export class $hyoo_crowd_app_actor extends $.$hyoo_crowd_app_actor {
+
+		@ $mol_mem
+		sync_stamp( next = 0 ) {
+			return next
+		}
+		
+		@ $mol_mem
+		text( next?: string ) {
+			
+			this.sync()
+			
+			if( next !== undefined ) this.store().text = next
+			return this.store().text
+			
+		}
+		
+		delta() {
+			this.text()
+			return this.store().toJSON( this.sync_stamp() )
+		}
+		
+		changes() {
+			this.text()
+			const stamper = this.store().stamper
+			return stamper.index_from( stamper.version_max ) - stamper.index_from( this.sync_stamp() )
+		}
+		
+		size_state() {
+			this.text()
+			return JSON.stringify( this.store() ).length
+		}
+		
+		size_delta() {
+			return JSON.stringify( this.delta() ).length
+		}
+		
+		tokens_alive() {
+			this.text()
+			return this.store().root.items_internal.length
+		}
+		
+		tokens_dead() {
+			this.text()
+			this.sync_stamp()
+			return this.store().for( 'token' ).stores.size
+		}
+		
+		stats() {
+			this.text()
+			return super.stats()
+			.replace( '{actor}', this.store().stamper.actor.toLocaleString() )
+			.replace( '{changes}', this.changes().toLocaleString() )
+			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
+			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
+			.replace( '{stamp:now}', this.store().stamper.version_max.toLocaleString() )
+			.replace( '{stamp:sync}', this.sync_stamp().toLocaleString() )
+			.replace( '{size:text}', this.text().length.toLocaleString() )
+			.replace( '{size:state}', this.size_state().toLocaleString() )
+			.replace( '{size:delta}', this.size_delta().toLocaleString() )
+		}
+		
+	}
+	
 }
