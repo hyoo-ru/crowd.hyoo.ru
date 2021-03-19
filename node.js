@@ -3213,196 +3213,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_page extends $.$mol_view {
-        sub() {
-            return [
-                this.Head(),
-                this.Body(),
-                this.Foot()
-            ];
-        }
-        Title() {
-            const obj = new this.$.$mol_view();
-            obj.dom_name = () => "h1";
-            obj.sub = () => [
-                this.title()
-            ];
-            return obj;
-        }
-        tools() {
-            return [];
-        }
-        Tools() {
-            const obj = new this.$.$mol_view();
-            obj.sub = () => this.tools();
-            return obj;
-        }
-        head() {
-            return [
-                this.Title(),
-                this.Tools()
-            ];
-        }
-        Head() {
-            const obj = new this.$.$mol_view();
-            obj.minimal_height = () => 64;
-            obj.sub = () => this.head();
-            return obj;
-        }
-        body_scroll_top(val) {
-            if (val !== undefined)
-                return val;
-            return 0;
-        }
-        body() {
-            return [];
-        }
-        Body() {
-            const obj = new this.$.$mol_scroll();
-            obj.scroll_top = (val) => this.body_scroll_top(val);
-            obj.sub = () => this.body();
-            return obj;
-        }
-        foot() {
-            return [];
-        }
-        Foot() {
-            const obj = new this.$.$mol_view();
-            obj.sub = () => this.foot();
-            return obj;
-        }
-    }
-    __decorate([
-        $.$mol_mem
-    ], $mol_page.prototype, "Title", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_page.prototype, "Tools", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_page.prototype, "Head", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_page.prototype, "body_scroll_top", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_page.prototype, "Body", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_page.prototype, "Foot", null);
-    $.$mol_page = $mol_page;
-})($ || ($ = {}));
-//page.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        const { per, rem } = $.$mol_style_unit;
-        $.$mol_style_define($$.$mol_page, {
-            display: 'flex',
-            margin: 0,
-            flex: {
-                basis: 'auto',
-                direction: 'column',
-            },
-            position: 'relative',
-            alignSelf: 'stretch',
-            maxWidth: per(100),
-            maxHeight: per(100),
-            boxSizing: 'border-box',
-            background: {
-                color: $.$mol_theme.back,
-            },
-            color: $.$mol_theme.text,
-            ':focus': {
-                outline: 'none',
-            },
-            Head: {
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'flex-end',
-                flex: 'none',
-                position: 'relative',
-                margin: 0,
-                minHeight: rem(4),
-                padding: $.$mol_gap.block,
-                background: {
-                    color: $.$mol_theme.back,
-                },
-                boxShadow: `0 0.5rem 0.5rem -0.5rem hsla(0,0%,0%,.25)`,
-            },
-            Title: {
-                minHeight: rem(2),
-                margin: 0,
-                padding: $.$mol_gap.text,
-                wordBreak: 'normal',
-                textShadow: '0 0',
-                font: {
-                    size: 'inherit',
-                    weight: 'normal',
-                },
-                flex: {
-                    grow: 1000,
-                    shrink: 1,
-                    basis: per(50),
-                },
-            },
-            Tools: {
-                flex: {
-                    basis: 'auto',
-                    grow: 0,
-                    shrink: 1,
-                },
-                display: 'flex',
-                justifyContent: 'flex-end',
-                alignItems: 'flex-start',
-                flexWrap: 'wrap',
-            },
-            Body: {
-                flex: {
-                    grow: 1000,
-                    shrink: 1,
-                    basis: per(100),
-                },
-                margin: 0,
-            },
-            Foot: {
-                display: 'flex',
-                justifyContent: 'space-between',
-                flex: 'none',
-                margin: 0,
-                overflow: 'hidden',
-                background: {
-                    color: $.$mol_theme.back,
-                },
-                boxShadow: `0 -0.5rem 0.5rem -0.5rem hsla(0,0%,0%,.25)`,
-                zIndex: 1,
-            },
-        });
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//page.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_page extends $.$mol_page {
-            body_scroll_top(next) {
-                return $.$mol_state_session.value(`${this}.body_scroll_top()`, next) || 0;
-            }
-        }
-        $$.$mol_page = $mol_page;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//page.view.js.map
-;
-"use strict";
-var $;
-(function ($) {
     class $mol_book2 extends $.$mol_scroll {
         sub() {
             return this.pages();
@@ -3889,6 +3699,25 @@ var $;
     $.$mol_style_attach("mol/button/typed/typed.view.css", "[mol_button_typed] {\n\tdisplay: inline-block;\n\talign-content: center;\n\talign-items: center;\n\tvertical-align: middle;\n\ttext-align: center;\n\tpadding: var(--mol_gap_text);\n\tborder-radius: var(--mol_skin_round);\n}\n\n[mol_button_typed][disabled] {\n\tcolor: var(--mol_theme_text);\n\tpointer-events: none;\n}\n\n[mol_button_typed]:hover ,\n[mol_button_typed]:focus {\n\tcursor: pointer;\n\tbackground-color: var(--mol_theme_hover);\n}\n");
 })($ || ($ = {}));
 //typed.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_button_major extends $.$mol_button_typed {
+        attr() {
+            return Object.assign(Object.assign({}, super.attr()), { mol_theme: "$mol_theme_accent" });
+        }
+    }
+    $.$mol_button_major = $mol_button_major;
+})($ || ($ = {}));
+//major.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_style_attach("mol/button/major/major.view.css", "[mol_button_major][disabled] {\n\topacity: .5;\n\tfilter: grayscale();\n}\n");
+})($ || ($ = {}));
+//major.view.css.js.map
 ;
 "use strict";
 var $;
@@ -4941,21 +4770,818 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_button_major extends $.$mol_button_typed {
-        attr() {
-            return Object.assign(Object.assign({}, super.attr()), { mol_theme: "$mol_theme_accent" });
+    class $mol_page extends $.$mol_view {
+        sub() {
+            return [
+                this.Head(),
+                this.Body(),
+                this.Foot()
+            ];
+        }
+        Title() {
+            const obj = new this.$.$mol_view();
+            obj.dom_name = () => "h1";
+            obj.sub = () => [
+                this.title()
+            ];
+            return obj;
+        }
+        tools() {
+            return [];
+        }
+        Tools() {
+            const obj = new this.$.$mol_view();
+            obj.sub = () => this.tools();
+            return obj;
+        }
+        head() {
+            return [
+                this.Title(),
+                this.Tools()
+            ];
+        }
+        Head() {
+            const obj = new this.$.$mol_view();
+            obj.minimal_height = () => 64;
+            obj.sub = () => this.head();
+            return obj;
+        }
+        body_scroll_top(val) {
+            if (val !== undefined)
+                return val;
+            return 0;
+        }
+        body() {
+            return [];
+        }
+        Body() {
+            const obj = new this.$.$mol_scroll();
+            obj.scroll_top = (val) => this.body_scroll_top(val);
+            obj.sub = () => this.body();
+            return obj;
+        }
+        foot() {
+            return [];
+        }
+        Foot() {
+            const obj = new this.$.$mol_view();
+            obj.sub = () => this.foot();
+            return obj;
         }
     }
-    $.$mol_button_major = $mol_button_major;
+    __decorate([
+        $.$mol_mem
+    ], $mol_page.prototype, "Title", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_page.prototype, "Tools", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_page.prototype, "Head", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_page.prototype, "body_scroll_top", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_page.prototype, "Body", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_page.prototype, "Foot", null);
+    $.$mol_page = $mol_page;
 })($ || ($ = {}));
-//major.view.tree.js.map
+//page.view.tree.js.map
 ;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/button/major/major.view.css", "[mol_button_major][disabled] {\n\topacity: .5;\n\tfilter: grayscale();\n}\n");
+    var $$;
+    (function ($$) {
+        const { per, rem } = $.$mol_style_unit;
+        $.$mol_style_define($$.$mol_page, {
+            display: 'flex',
+            margin: 0,
+            flex: {
+                basis: 'auto',
+                direction: 'column',
+            },
+            position: 'relative',
+            alignSelf: 'stretch',
+            maxWidth: per(100),
+            maxHeight: per(100),
+            boxSizing: 'border-box',
+            background: {
+                color: $.$mol_theme.back,
+            },
+            color: $.$mol_theme.text,
+            ':focus': {
+                outline: 'none',
+            },
+            Head: {
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'flex-end',
+                flex: 'none',
+                position: 'relative',
+                margin: 0,
+                minHeight: rem(4),
+                padding: $.$mol_gap.block,
+                background: {
+                    color: $.$mol_theme.back,
+                },
+                boxShadow: `0 0.5rem 0.5rem -0.5rem hsla(0,0%,0%,.25)`,
+            },
+            Title: {
+                minHeight: rem(2),
+                margin: 0,
+                padding: $.$mol_gap.text,
+                wordBreak: 'normal',
+                textShadow: '0 0',
+                font: {
+                    size: 'inherit',
+                    weight: 'normal',
+                },
+                flex: {
+                    grow: 1000,
+                    shrink: 1,
+                    basis: per(50),
+                },
+            },
+            Tools: {
+                flex: {
+                    basis: 'auto',
+                    grow: 0,
+                    shrink: 1,
+                },
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'flex-start',
+                flexWrap: 'wrap',
+            },
+            Body: {
+                flex: {
+                    grow: 1000,
+                    shrink: 1,
+                    basis: per(100),
+                },
+                margin: 0,
+            },
+            Foot: {
+                display: 'flex',
+                justifyContent: 'space-between',
+                flex: 'none',
+                margin: 0,
+                overflow: 'hidden',
+                background: {
+                    color: $.$mol_theme.back,
+                },
+                boxShadow: `0 -0.5rem 0.5rem -0.5rem hsla(0,0%,0%,.25)`,
+                zIndex: 1,
+            },
+        });
+    })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
-//major.view.css.js.map
+//page.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_page extends $.$mol_page {
+            body_scroll_top(next) {
+                return $.$mol_state_session.value(`${this}.body_scroll_top()`, next) || 0;
+            }
+        }
+        $$.$mol_page = $mol_page;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//page.view.js.map
+;
+"use strict";
+//intersect.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_regexp extends RegExp {
+        constructor(source, flags = '', groups = []) {
+            super(source, flags);
+            this.groups = groups;
+        }
+        get parse() {
+            const self = this;
+            return function* (str, from = 0) {
+                while (from < str.length) {
+                    self.lastIndex = from;
+                    const res = self.exec(str);
+                    if (res === null) {
+                        yield { 0: str.substring(from) };
+                        return null;
+                    }
+                    if (from === self.lastIndex) {
+                        $.$mol_fail(new Error('Captured empty substring'));
+                    }
+                    const found = {};
+                    const skipped = str.slice(from, self.lastIndex - res[0].length);
+                    if (skipped)
+                        yield { 0: skipped };
+                    from = self.lastIndex;
+                    for (let i = 0; i < self.groups.length; ++i) {
+                        const group = self.groups[i];
+                        found[group] = found[group] || res[i + 1] || '';
+                    }
+                    yield found;
+                }
+            };
+        }
+        static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
+            const regexp = $mol_regexp.from(source);
+            const upper = Number.isFinite(max) ? max : '';
+            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}?`, regexp.flags, regexp.groups);
+        }
+        static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
+            const regexp = $mol_regexp.from(source);
+            const upper = Number.isFinite(max) ? max : '';
+            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}`, regexp.flags, regexp.groups);
+        }
+        static optional(source) {
+            return $mol_regexp.repeat_greedy(source, 0, 1);
+        }
+        static force_after(source) {
+            const regexp = $mol_regexp.from(source);
+            return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
+        }
+        static forbid_after(source) {
+            const regexp = $mol_regexp.from(source);
+            return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
+        }
+        static from(source, { ignoreCase, multiline } = {
+            ignoreCase: false,
+            multiline: false,
+        }) {
+            let flags = 'gu';
+            if (multiline)
+                flags += 'm';
+            if (ignoreCase)
+                flags += 'i';
+            if (typeof source === 'string') {
+                return new $mol_regexp(source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+            }
+            else if (source instanceof RegExp) {
+                if (source instanceof $mol_regexp)
+                    return source;
+                const test = new $mol_regexp('|' + source.source);
+                const groups = Array.from({ length: test.exec('').length - 1 }, (_, i) => String(i + 1));
+                return new $mol_regexp(source.source, source.flags, groups);
+            }
+            if (Array.isArray(source)) {
+                const sources = [];
+                const groups = [];
+                let index = 0;
+                for (const item of source) {
+                    const regexp = $mol_regexp.from(item);
+                    sources.push(regexp.source);
+                    for (let group of regexp.groups) {
+                        if (Number(group) >= 0) {
+                            groups.push(String(index++));
+                        }
+                        else {
+                            groups.push(group);
+                        }
+                    }
+                }
+                return new $mol_regexp(sources.join(''), flags, groups);
+            }
+            else {
+                const groups = [];
+                const chunks = Object.keys(source).map(name => {
+                    groups.push(name);
+                    const regexp = $mol_regexp.from(source[name]);
+                    groups.push(...regexp.groups);
+                    return `(${regexp.source})`;
+                });
+                return new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
+            }
+        }
+        static char_code(code) {
+            return new $mol_regexp(`\\u${code.toString(16).padStart(4, '0')}`);
+        }
+        static byte_except(...forbidden) {
+            const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
+            return new $mol_regexp(`[^${regexp}]`);
+        }
+    }
+    $mol_regexp.byte = $mol_regexp.from(/[\s\S]/);
+    $mol_regexp.digit = $mol_regexp.from(/\d/);
+    $mol_regexp.letter = $mol_regexp.from(/\w/);
+    $mol_regexp.space = $mol_regexp.from(/\s/);
+    $mol_regexp.tab = $mol_regexp.from(/\t/);
+    $mol_regexp.slash_back = $mol_regexp.from(/\\/);
+    $mol_regexp.word_break = $mol_regexp.from(/\b/);
+    $mol_regexp.line_end = $mol_regexp.from(/\r?\n/);
+    $mol_regexp.begin = $mol_regexp.from(/^/);
+    $mol_regexp.end = $mol_regexp.from(/$/);
+    $mol_regexp.or = $mol_regexp.from(/|/);
+    $.$mol_regexp = $mol_regexp;
+})($ || ($ = {}));
+//regexp.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    const concurrency = 1000;
+    class $hyoo_crowd_stamper {
+        constructor(actor, version_max = 0) {
+            this.version_max = version_max;
+            this.actor = actor
+                ? actor % concurrency
+                : Math.floor(concurrency * Math.random());
+        }
+        version_from(stamp) {
+            return Math.abs(stamp);
+        }
+        index_from(stamp) {
+            return Math.floor(Math.abs(stamp) / concurrency);
+        }
+        actor_from(stamp) {
+            return Math.abs(stamp) % concurrency;
+        }
+        make(index, actor = this.actor) {
+            return index * concurrency + actor;
+        }
+        feed(version) {
+            if (this.version_max > version)
+                return;
+            this.version_max = version;
+        }
+        genegate() {
+            return this.version_max = (Math.floor(this.version_max / concurrency) + 1) * concurrency + this.actor;
+        }
+        fork(actor) {
+            return new $hyoo_crowd_stamper(actor, this.version_max);
+        }
+    }
+    $.$hyoo_crowd_stamper = $hyoo_crowd_stamper;
+})($ || ($ = {}));
+//stamper.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $hyoo_crowd_delta(values, stamps) {
+        return { values, stamps };
+    }
+    $.$hyoo_crowd_delta = $hyoo_crowd_delta;
+})($ || ($ = {}));
+//delta.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_store {
+        constructor(stamper = new $.$hyoo_crowd_stamper) {
+            this.stamper = stamper;
+        }
+        static make() {
+            return new this();
+        }
+        toJSON(version_min) {
+            return $.$hyoo_crowd_delta([], []);
+        }
+        delta(base) {
+            return this.toJSON(base.stamper.version_max);
+        }
+        apply(delta) {
+            return this;
+        }
+        fork(actor) {
+            const Fork = this.constructor;
+            const fork = new Fork(this.stamper.fork(actor));
+            fork.apply(this.toJSON());
+            return fork;
+        }
+    }
+    $.$hyoo_crowd_store = $hyoo_crowd_store;
+})($ || ($ = {}));
+//store.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_tuple extends $.$hyoo_crowd_store {
+        constructor() {
+            super(...arguments);
+            this.stores = {};
+        }
+        static of(Types) {
+            return class Tuple extends this {
+                constructor() {
+                    super(...arguments);
+                    this.Fields = Types;
+                }
+            };
+        }
+        for(field) {
+            if (this.stores[field])
+                return this.stores[field];
+            this.stores[field] = new this.Fields[field](this.stamper);
+            return this.stores[field];
+        }
+        toJSON(version_min = 0) {
+            const delta = $.$hyoo_crowd_delta([], []);
+            for (let field in this.Fields) {
+                const patch = this.for(field).toJSON(version_min);
+                if (patch.values.length === 0)
+                    continue;
+                delta.values.push(field, ...patch.values);
+                delta.stamps.push(-patch.values.length, ...patch.stamps);
+            }
+            return delta;
+        }
+        apply(delta) {
+            let key;
+            let count = 0;
+            let patch = $.$hyoo_crowd_delta([], []);
+            const dump = () => {
+                if (patch.values.length === 0)
+                    return;
+                this.for(key).apply(patch);
+                patch = $.$hyoo_crowd_delta([], []);
+            };
+            for (let i = 0; i < delta.values.length; ++i) {
+                const val = delta.values[i];
+                const stamp = delta.stamps[i];
+                if (count === 0) {
+                    dump();
+                    key = val;
+                    count = -stamp;
+                    continue;
+                }
+                else {
+                    patch.values.push(val);
+                    patch.stamps.push(stamp);
+                    --count;
+                }
+            }
+            dump();
+            return this;
+        }
+    }
+    $.$hyoo_crowd_tuple = $hyoo_crowd_tuple;
+})($ || ($ = {}));
+//tuple.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_dict extends $.$hyoo_crowd_store {
+        constructor() {
+            super(...arguments);
+            this.stores = new Map();
+        }
+        static of(Value) {
+            return class Dictionary extends this {
+                constructor() {
+                    super(...arguments);
+                    this.Value = Value;
+                }
+            };
+        }
+        toJSON(version_min = 0) {
+            const delta = $.$hyoo_crowd_delta([], []);
+            for (const [key, value] of this.stores) {
+                const patch = value.toJSON(version_min);
+                if (patch.values.length === 0)
+                    continue;
+                delta.values.push(key, ...patch.values);
+                delta.stamps.push(-patch.values.length, ...patch.stamps);
+            }
+            return delta;
+        }
+        has(key) {
+            return this.stores.has(key);
+        }
+        for(key) {
+            let store = this.stores.get(key);
+            if (store)
+                return store;
+            store = new this.Value(this.stamper);
+            this.stores.set(key, store);
+            return store;
+        }
+        apply(delta) {
+            let key;
+            let count = 0;
+            let patch = $.$hyoo_crowd_delta([], []);
+            const dump = () => {
+                if (patch.values.length === 0)
+                    return;
+                this.for(key).apply(patch);
+                patch = $.$hyoo_crowd_delta([], []);
+            };
+            for (let i = 0; i < delta.values.length; ++i) {
+                const val = delta.values[i];
+                const stamp = delta.stamps[i];
+                if (count === 0) {
+                    dump();
+                    key = val;
+                    count = -stamp;
+                    continue;
+                }
+                else {
+                    patch.values.push(val);
+                    patch.stamps.push(stamp);
+                    --count;
+                }
+            }
+            dump();
+            return this;
+        }
+    }
+    $.$hyoo_crowd_dict = $hyoo_crowd_dict;
+})($ || ($ = {}));
+//dict.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_list extends $.$hyoo_crowd_store {
+        constructor() {
+            super(...arguments);
+            this.version = 0;
+            this.array = [];
+            this.stamps = new Map();
+        }
+        get count() {
+            return this.array.length;
+        }
+        get items() {
+            return this.array.slice();
+        }
+        get items_internal() {
+            return this.array;
+        }
+        has(val) {
+            return this.stamps.get(val) > 0;
+        }
+        version_item(val) {
+            var _a;
+            return Math.abs((_a = this.stamps.get(val)) !== null && _a !== void 0 ? _a : 0);
+        }
+        version_feed(version) {
+            this.stamper.feed(version);
+            if (version <= this.version)
+                return;
+            this.version = version;
+        }
+        toJSON(version_min = 0) {
+            const delta = $.$hyoo_crowd_delta([], []);
+            if (this.version <= version_min)
+                return delta;
+            for (const key of this.array) {
+                delta.values.push(key);
+                delta.stamps.push(this.stamps.get(key));
+            }
+            for (const [key, stamp] of this.stamps) {
+                if (stamp > 0)
+                    continue;
+                delta.values.push(key);
+                delta.stamps.push(stamp);
+            }
+            return delta;
+        }
+        insert(key, pos = this.array.length) {
+            const exists = this.array[pos];
+            if (exists === key)
+                return this;
+            const delta = $.$hyoo_crowd_delta([], []);
+            if (pos > 0) {
+                const anchor = this.array[pos - 1];
+                delta.values.push(anchor);
+                delta.stamps.push(this.stamps.get(anchor));
+            }
+            delta.values.push(key);
+            delta.stamps.push(this.stamper.genegate());
+            this.apply(delta);
+            return this;
+        }
+        cut(key) {
+            var _a;
+            const stamp = (_a = this.stamps.get(key)) !== null && _a !== void 0 ? _a : 0;
+            if (stamp <= 0)
+                return this;
+            this.apply($.$hyoo_crowd_delta([key], [-this.stamper.genegate()]));
+            return this;
+        }
+        apply(delta) {
+            var _a;
+            const patch_array = [];
+            const patch_stamps = new Map();
+            for (let i = 0; i < delta.values.length; ++i) {
+                const key = delta.values[i];
+                const stamp = delta.stamps[i];
+                patch_stamps.set(key, stamp);
+                if (stamp > 0)
+                    patch_array.push(key);
+            }
+            for (let i = 0; i < delta.values.length; ++i) {
+                const current_key = delta.values[i];
+                const current_patch_stamp = delta.stamps[i];
+                const current_self_stamp = (_a = this.stamps.get(current_key)) !== null && _a !== void 0 ? _a : 0;
+                const current_patch_version = this.stamper.version_from(current_patch_stamp);
+                if (this.version_item(current_key) >= current_patch_version)
+                    continue;
+                this.stamps.set(current_key, current_patch_stamp);
+                this.version_feed(current_patch_version);
+                if (current_patch_stamp <= 0) {
+                    if (current_self_stamp > 0) {
+                        this.array.splice(this.array.indexOf(current_key), 1);
+                    }
+                    continue;
+                }
+                for (let anchor = patch_array.indexOf(current_key) - 1;; anchor--) {
+                    const anchor_key = patch_array[anchor];
+                    if (anchor >= 0) {
+                        const anchor_self_version = this.version_item(anchor_key);
+                        if (anchor_self_version === 0)
+                            continue;
+                        if (anchor_self_version > this.stamper.version_from(patch_stamps.get(anchor_key)))
+                            continue;
+                    }
+                    let next_pos = anchor_key !== undefined ? this.array.indexOf(anchor_key) + 1 : 0;
+                    while (next_pos < this.array.length) {
+                        if (this.version_item(this.array[next_pos]) <= current_patch_version)
+                            break;
+                        next_pos++;
+                    }
+                    if (current_self_stamp <= 0) {
+                        this.array.splice(next_pos, 0, current_key);
+                        break;
+                    }
+                    const current_pos = this.array.indexOf(current_key);
+                    if (current_pos === next_pos)
+                        break;
+                    if (current_pos > next_pos) {
+                        this.array.splice(next_pos, current_pos - next_pos + 1, current_key, ...this.array.slice(next_pos, current_pos));
+                    }
+                    else {
+                        this.array.splice(current_pos, next_pos - current_pos + 1, ...this.array.slice(current_pos + 1, next_pos + 1), current_key);
+                    }
+                    break;
+                }
+            }
+            return this;
+        }
+    }
+    $.$hyoo_crowd_list = $hyoo_crowd_list;
+})($ || ($ = {}));
+//list.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_reg extends $.$hyoo_crowd_store {
+        constructor() {
+            super(...arguments);
+            this._value = null;
+            this._stamp = 0;
+        }
+        get version() {
+            return this._stamp;
+        }
+        get str() {
+            var _a;
+            return String((_a = this._value) !== null && _a !== void 0 ? _a : '');
+        }
+        set str(next) {
+            this.value = next;
+        }
+        get numb() {
+            var _a;
+            return Number((_a = this._value) !== null && _a !== void 0 ? _a : 0);
+        }
+        set numb(next) {
+            this.value = next;
+        }
+        get bool() {
+            var _a;
+            return Boolean((_a = this._value) !== null && _a !== void 0 ? _a : false);
+        }
+        set bool(next) {
+            this.value = next;
+        }
+        toJSON(version_min = 0) {
+            if (this.version <= version_min)
+                return $.$hyoo_crowd_delta([], []);
+            return $.$hyoo_crowd_delta([this._value], [this._stamp]);
+        }
+        get value() {
+            return this._value;
+        }
+        set value(val) {
+            if (this._value === val)
+                return;
+            this._value = val;
+            this._stamp = this.stamper.genegate();
+        }
+        apply(delta) {
+            for (let i = 0; i < delta.values.length; ++i) {
+                const val = delta.values[i];
+                const stamp = delta.stamps[i];
+                if (stamp <= this._stamp)
+                    continue;
+                this._value = val;
+                this._stamp = stamp;
+                this.stamper.feed(stamp);
+            }
+            return this;
+        }
+    }
+    $.$hyoo_crowd_reg = $hyoo_crowd_reg;
+})($ || ($ = {}));
+//reg.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_guid(length = 8, exists = () => false) {
+        for (;;) {
+            let id = Math.random().toString(36).substring(2, length + 2).toUpperCase();
+            if (exists(id))
+                continue;
+            return id;
+        }
+    }
+    $.$mol_guid = $mol_guid;
+})($ || ($ = {}));
+//guid.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    const tokenizer = $.$mol_regexp.from({
+        token: {
+            'line-break': /(?:\r?\n|\r)/,
+            'word+': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]+[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]*[^\S\n\r]*/,
+            'separator': /[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]+[^\S\n\r]*/,
+        },
+    });
+    class $hyoo_crowd_text extends $.$hyoo_crowd_tuple.of({
+        flow: $.$hyoo_crowd_dict.of($.$hyoo_crowd_list),
+        token: $.$hyoo_crowd_dict.of($.$hyoo_crowd_reg),
+    }) {
+        get root() {
+            return this.for('flow').for(null);
+        }
+        get tokens() {
+            return this.root.items;
+        }
+        value_of(token) {
+            return this.for('token').for(token).str;
+        }
+        get text() {
+            const tokens = this.for('token');
+            return this.tokens.map(id => tokens.for(id).str).join('');
+        }
+        set text(next) {
+            this.splice_line(null, 0, this.root.count, next);
+        }
+        splice_line(id, from, to, text) {
+            var _a;
+            const flow = this.for('flow').for(id);
+            const token_ids = flow.items_internal;
+            const tokens = this.for('token');
+            const words = [...tokenizer.parse(text)];
+            while (from < to || words.length > 0) {
+                const prev = from < token_ids.length ? tokens.for(token_ids[from]).str : null;
+                const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
+                if (prev === next) {
+                    ++from;
+                    words.shift();
+                }
+                else if (words.length > to - from) {
+                    const key = $.$mol_guid(4, id => tokens.has(id));
+                    tokens.for(key).str = next;
+                    flow.insert(key, from);
+                    words.shift();
+                    ++from;
+                    ++to;
+                }
+                else if (words.length < to - from) {
+                    flow.cut(token_ids[from]);
+                    --to;
+                }
+                else {
+                    tokens.for(token_ids[from]).str = next;
+                    ++from;
+                    words.shift();
+                }
+            }
+        }
+    }
+    $.$hyoo_crowd_text = $hyoo_crowd_text;
+})($ || ($ = {}));
+//text.js.map
 ;
 "use strict";
 var $;
@@ -5581,135 +6207,6 @@ var $;
     $.$mol_dimmer = $mol_dimmer;
 })($ || ($ = {}));
 //dimmer.view.tree.js.map
-;
-"use strict";
-//intersect.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_regexp extends RegExp {
-        constructor(source, flags = '', groups = []) {
-            super(source, flags);
-            this.groups = groups;
-        }
-        get parse() {
-            const self = this;
-            return function* (str, from = 0) {
-                while (from < str.length) {
-                    self.lastIndex = from;
-                    const res = self.exec(str);
-                    if (res === null) {
-                        yield { 0: str.substring(from) };
-                        return null;
-                    }
-                    if (from === self.lastIndex) {
-                        $.$mol_fail(new Error('Captured empty substring'));
-                    }
-                    const found = {};
-                    const skipped = str.slice(from, self.lastIndex - res[0].length);
-                    if (skipped)
-                        yield { 0: skipped };
-                    from = self.lastIndex;
-                    for (let i = 0; i < self.groups.length; ++i) {
-                        const group = self.groups[i];
-                        found[group] = found[group] || res[i + 1] || '';
-                    }
-                    yield found;
-                }
-            };
-        }
-        static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
-            const regexp = $mol_regexp.from(source);
-            const upper = Number.isFinite(max) ? max : '';
-            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}?`, regexp.flags, regexp.groups);
-        }
-        static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
-            const regexp = $mol_regexp.from(source);
-            const upper = Number.isFinite(max) ? max : '';
-            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}`, regexp.flags, regexp.groups);
-        }
-        static optional(source) {
-            return $mol_regexp.repeat_greedy(source, 0, 1);
-        }
-        static force_after(source) {
-            const regexp = $mol_regexp.from(source);
-            return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
-        }
-        static forbid_after(source) {
-            const regexp = $mol_regexp.from(source);
-            return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
-        }
-        static from(source, { ignoreCase, multiline } = {
-            ignoreCase: false,
-            multiline: false,
-        }) {
-            let flags = 'gu';
-            if (multiline)
-                flags += 'm';
-            if (ignoreCase)
-                flags += 'i';
-            if (typeof source === 'string') {
-                return new $mol_regexp(source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
-            }
-            else if (source instanceof RegExp) {
-                if (source instanceof $mol_regexp)
-                    return source;
-                const test = new $mol_regexp('|' + source.source);
-                const groups = Array.from({ length: test.exec('').length - 1 }, (_, i) => String(i + 1));
-                return new $mol_regexp(source.source, source.flags, groups);
-            }
-            if (Array.isArray(source)) {
-                const sources = [];
-                const groups = [];
-                let index = 0;
-                for (const item of source) {
-                    const regexp = $mol_regexp.from(item);
-                    sources.push(regexp.source);
-                    for (let group of regexp.groups) {
-                        if (Number(group) >= 0) {
-                            groups.push(String(index++));
-                        }
-                        else {
-                            groups.push(group);
-                        }
-                    }
-                }
-                return new $mol_regexp(sources.join(''), flags, groups);
-            }
-            else {
-                const groups = [];
-                const chunks = Object.keys(source).map(name => {
-                    groups.push(name);
-                    const regexp = $mol_regexp.from(source[name]);
-                    groups.push(...regexp.groups);
-                    return `(${regexp.source})`;
-                });
-                return new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
-            }
-        }
-        static char_code(code) {
-            return new $mol_regexp(`\\u${code.toString(16).padStart(4, '0')}`);
-        }
-        static byte_except(...forbidden) {
-            const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
-            return new $mol_regexp(`[^${regexp}]`);
-        }
-    }
-    $mol_regexp.byte = $mol_regexp.from(/[\s\S]/);
-    $mol_regexp.digit = $mol_regexp.from(/\d/);
-    $mol_regexp.letter = $mol_regexp.from(/\w/);
-    $mol_regexp.space = $mol_regexp.from(/\s/);
-    $mol_regexp.tab = $mol_regexp.from(/\t/);
-    $mol_regexp.slash_back = $mol_regexp.from(/\\/);
-    $mol_regexp.word_break = $mol_regexp.from(/\b/);
-    $mol_regexp.line_end = $mol_regexp.from(/\r?\n/);
-    $mol_regexp.begin = $mol_regexp.from(/^/);
-    $mol_regexp.end = $mol_regexp.from(/$/);
-    $mol_regexp.or = $mol_regexp.from(/|/);
-    $.$mol_regexp = $mol_regexp;
-})($ || ($ = {}));
-//regexp.js.map
 ;
 "use strict";
 var $;
@@ -7226,12 +7723,36 @@ var $;
         }
         pages() {
             return [
-                this.Left_page(),
-                this.Right_page()
+                this.Left(),
+                this.Right()
             ];
         }
         Theme() {
             const obj = new this.$.$mol_theme_auto();
+            return obj;
+        }
+        sync_enabled() {
+            return false;
+        }
+        sync(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        Sync() {
+            const obj = new this.$.$mol_button_major();
+            obj.title = () => "Sync";
+            obj.enabled = () => this.sync_enabled();
+            obj.click = (event) => this.sync(event);
+            return obj;
+        }
+        Left() {
+            const obj = new this.$.$hyoo_crowd_app_actor();
+            obj.title = () => "CROWD Text: Left";
+            obj.sync = () => this.sync();
+            obj.tools = () => [
+                this.Sync()
+            ];
             return obj;
         }
         Lights() {
@@ -7243,55 +7764,13 @@ var $;
             obj.uri = () => "https://github.com/hyoo-ru/crowd.hyoo.ru/";
             return obj;
         }
-        sync(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        Sync() {
-            const obj = new this.$.$mol_button_major();
-            obj.title = () => "Sync";
-            obj.click = (event) => this.sync(event);
-            return obj;
-        }
-        left(val) {
-            if (val !== undefined)
-                return val;
-            return "";
-        }
-        Left() {
-            const obj = new this.$.$mol_textarea();
-            obj.value = (val) => this.left(val);
-            return obj;
-        }
-        Left_page() {
-            const obj = new this.$.$mol_page();
-            obj.title = () => "CROWD Text Left";
+        Right() {
+            const obj = new this.$.$hyoo_crowd_app_actor();
+            obj.title = () => "CROWD Text: Right";
+            obj.sync = () => this.sync();
             obj.tools = () => [
                 this.Lights(),
-                this.Source(),
-                this.Sync()
-            ];
-            obj.body = () => [
-                this.Left()
-            ];
-            return obj;
-        }
-        right(val) {
-            if (val !== undefined)
-                return val;
-            return "";
-        }
-        Right() {
-            const obj = new this.$.$mol_textarea();
-            obj.value = (val) => this.right(val);
-            return obj;
-        }
-        Right_page() {
-            const obj = new this.$.$mol_page();
-            obj.title = () => "CROWD Text Right";
-            obj.body = () => [
-                this.Right()
+                this.Source()
             ];
             return obj;
         }
@@ -7301,528 +7780,71 @@ var $;
     ], $hyoo_crowd_app.prototype, "Theme", null);
     __decorate([
         $.$mol_mem
-    ], $hyoo_crowd_app.prototype, "Lights", null);
-    __decorate([
-        $.$mol_mem
-    ], $hyoo_crowd_app.prototype, "Source", null);
-    __decorate([
-        $.$mol_mem
     ], $hyoo_crowd_app.prototype, "sync", null);
     __decorate([
         $.$mol_mem
     ], $hyoo_crowd_app.prototype, "Sync", null);
     __decorate([
         $.$mol_mem
-    ], $hyoo_crowd_app.prototype, "left", null);
-    __decorate([
-        $.$mol_mem
     ], $hyoo_crowd_app.prototype, "Left", null);
     __decorate([
         $.$mol_mem
-    ], $hyoo_crowd_app.prototype, "Left_page", null);
+    ], $hyoo_crowd_app.prototype, "Lights", null);
     __decorate([
         $.$mol_mem
-    ], $hyoo_crowd_app.prototype, "right", null);
+    ], $hyoo_crowd_app.prototype, "Source", null);
     __decorate([
         $.$mol_mem
     ], $hyoo_crowd_app.prototype, "Right", null);
+    $.$hyoo_crowd_app = $hyoo_crowd_app;
+    class $hyoo_crowd_app_actor extends $.$mol_page {
+        store() {
+            const obj = new this.$.$hyoo_crowd_text();
+            return obj;
+        }
+        sync() {
+            return 0;
+        }
+        body() {
+            return [
+                this.Text(),
+                this.Stats()
+            ];
+        }
+        text(val) {
+            if (val !== undefined)
+                return val;
+            return "";
+        }
+        Text() {
+            const obj = new this.$.$mol_textarea();
+            obj.value = (val) => this.text(val);
+            return obj;
+        }
+        stats() {
+            return "Actor: **{actor}**\nChanges: **{changes}**\n\n| | Alive | Dead\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}**\n\n| | Now | Sync\n|--|--|--\n| Stamp | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n";
+        }
+        Stats() {
+            const obj = new this.$.$mol_text();
+            obj.text = () => this.stats();
+            return obj;
+        }
+    }
     __decorate([
         $.$mol_mem
-    ], $hyoo_crowd_app.prototype, "Right_page", null);
-    $.$hyoo_crowd_app = $hyoo_crowd_app;
+    ], $hyoo_crowd_app_actor.prototype, "store", null);
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_crowd_app_actor.prototype, "text", null);
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_crowd_app_actor.prototype, "Text", null);
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_crowd_app_actor.prototype, "Stats", null);
+    $.$hyoo_crowd_app_actor = $hyoo_crowd_app_actor;
 })($ || ($ = {}));
 //app.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    const concurrency = 1000;
-    class $hyoo_crowd_stamper {
-        constructor(actor, version_max = 0) {
-            this.version_max = version_max;
-            this.actor = actor
-                ? actor % concurrency
-                : Math.floor(concurrency * Math.random());
-        }
-        version_from(stamp) {
-            return Math.abs(stamp);
-        }
-        actor_from(stamp) {
-            return Math.abs(stamp) % concurrency;
-        }
-        feed(version) {
-            if (this.version_max > version)
-                return;
-            this.version_max = version;
-        }
-        genegate() {
-            return this.version_max = (Math.floor(this.version_max / concurrency) + 1) * concurrency + this.actor;
-        }
-        fork(actor) {
-            return new $hyoo_crowd_stamper(actor, this.version_max);
-        }
-    }
-    $.$hyoo_crowd_stamper = $hyoo_crowd_stamper;
-})($ || ($ = {}));
-//stamper.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $hyoo_crowd_delta(values, stamps) {
-        return { values, stamps };
-    }
-    $.$hyoo_crowd_delta = $hyoo_crowd_delta;
-})($ || ($ = {}));
-//delta.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_store {
-        constructor(stamper = new $.$hyoo_crowd_stamper) {
-            this.stamper = stamper;
-        }
-        static make() {
-            return new this();
-        }
-        toJSON(version_min) {
-            return $.$hyoo_crowd_delta([], []);
-        }
-        delta(base) {
-            return this.toJSON(base.stamper.version_max);
-        }
-        apply(delta) {
-            return this;
-        }
-        fork(actor) {
-            const Fork = this.constructor;
-            const fork = new Fork(this.stamper.fork(actor));
-            fork.apply(this.toJSON());
-            return fork;
-        }
-    }
-    $.$hyoo_crowd_store = $hyoo_crowd_store;
-})($ || ($ = {}));
-//store.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_tuple extends $.$hyoo_crowd_store {
-        constructor() {
-            super(...arguments);
-            this.stores = {};
-        }
-        static of(Types) {
-            return class Tuple extends this {
-                constructor() {
-                    super(...arguments);
-                    this.Fields = Types;
-                }
-            };
-        }
-        for(field) {
-            if (this.stores[field])
-                return this.stores[field];
-            this.stores[field] = new this.Fields[field](this.stamper);
-            return this.stores[field];
-        }
-        toJSON(version_min = 0) {
-            const delta = $.$hyoo_crowd_delta([], []);
-            for (let field in this.Fields) {
-                const patch = this.for(field).toJSON(version_min);
-                if (patch.values.length === 0)
-                    continue;
-                delta.values.push(field, ...patch.values);
-                delta.stamps.push(-patch.values.length, ...patch.stamps);
-            }
-            return delta;
-        }
-        apply(delta) {
-            let key;
-            let count = 0;
-            let patch = $.$hyoo_crowd_delta([], []);
-            const dump = () => {
-                if (patch.values.length === 0)
-                    return;
-                this.for(key).apply(patch);
-                patch = $.$hyoo_crowd_delta([], []);
-            };
-            for (let i = 0; i < delta.values.length; ++i) {
-                const val = delta.values[i];
-                const stamp = delta.stamps[i];
-                if (count === 0) {
-                    dump();
-                    key = val;
-                    count = -stamp;
-                    continue;
-                }
-                else {
-                    patch.values.push(val);
-                    patch.stamps.push(stamp);
-                    --count;
-                }
-            }
-            dump();
-            return this;
-        }
-    }
-    $.$hyoo_crowd_tuple = $hyoo_crowd_tuple;
-})($ || ($ = {}));
-//tuple.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_dict extends $.$hyoo_crowd_store {
-        constructor() {
-            super(...arguments);
-            this.stores = new Map();
-        }
-        static of(Value) {
-            return class Dictionary extends this {
-                constructor() {
-                    super(...arguments);
-                    this.Value = Value;
-                }
-            };
-        }
-        toJSON(version_min = 0) {
-            const delta = $.$hyoo_crowd_delta([], []);
-            for (const [key, value] of this.stores) {
-                const patch = value.toJSON(version_min);
-                if (patch.values.length === 0)
-                    continue;
-                delta.values.push(key, ...patch.values);
-                delta.stamps.push(-patch.values.length, ...patch.stamps);
-            }
-            return delta;
-        }
-        has(key) {
-            return this.stores.has(key);
-        }
-        for(key) {
-            let store = this.stores.get(key);
-            if (store)
-                return store;
-            store = new this.Value(this.stamper);
-            this.stores.set(key, store);
-            return store;
-        }
-        apply(delta) {
-            let key;
-            let count = 0;
-            let patch = $.$hyoo_crowd_delta([], []);
-            const dump = () => {
-                if (patch.values.length === 0)
-                    return;
-                this.for(key).apply(patch);
-                patch = $.$hyoo_crowd_delta([], []);
-            };
-            for (let i = 0; i < delta.values.length; ++i) {
-                const val = delta.values[i];
-                const stamp = delta.stamps[i];
-                if (count === 0) {
-                    dump();
-                    key = val;
-                    count = -stamp;
-                    continue;
-                }
-                else {
-                    patch.values.push(val);
-                    patch.stamps.push(stamp);
-                    --count;
-                }
-            }
-            dump();
-            return this;
-        }
-    }
-    $.$hyoo_crowd_dict = $hyoo_crowd_dict;
-})($ || ($ = {}));
-//dict.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_list extends $.$hyoo_crowd_store {
-        constructor() {
-            super(...arguments);
-            this.version = 0;
-            this.array = [];
-            this.stamps = new Map();
-        }
-        get count() {
-            return this.array.length;
-        }
-        get items() {
-            return this.array.slice();
-        }
-        get items_internal() {
-            return this.array;
-        }
-        has(val) {
-            return this.stamps.get(val) > 0;
-        }
-        version_item(val) {
-            var _a;
-            return Math.abs((_a = this.stamps.get(val)) !== null && _a !== void 0 ? _a : 0);
-        }
-        version_feed(version) {
-            this.stamper.feed(version);
-            if (version <= this.version)
-                return;
-            this.version = version;
-        }
-        toJSON(version_min = 0) {
-            const delta = $.$hyoo_crowd_delta([], []);
-            if (this.version <= version_min)
-                return delta;
-            for (const key of this.array) {
-                delta.values.push(key);
-                delta.stamps.push(this.stamps.get(key));
-            }
-            for (const [key, stamp] of this.stamps) {
-                if (stamp > 0)
-                    continue;
-                delta.values.push(key);
-                delta.stamps.push(stamp);
-            }
-            return delta;
-        }
-        insert(key, pos = this.array.length) {
-            const exists = this.array[pos];
-            if (exists === key)
-                return this;
-            const delta = $.$hyoo_crowd_delta([], []);
-            if (pos > 0) {
-                const anchor = this.array[pos - 1];
-                delta.values.push(anchor);
-                delta.stamps.push(this.stamps.get(anchor));
-            }
-            delta.values.push(key);
-            delta.stamps.push(this.stamper.genegate());
-            this.apply(delta);
-            return this;
-        }
-        cut(key) {
-            var _a;
-            const stamp = (_a = this.stamps.get(key)) !== null && _a !== void 0 ? _a : 0;
-            if (stamp <= 0)
-                return this;
-            this.apply($.$hyoo_crowd_delta([key], [-this.stamper.genegate()]));
-            return this;
-        }
-        apply(delta) {
-            var _a;
-            const patch_array = [];
-            const patch_stamps = new Map();
-            for (let i = 0; i < delta.values.length; ++i) {
-                const key = delta.values[i];
-                const stamp = delta.stamps[i];
-                patch_stamps.set(key, stamp);
-                if (stamp > 0)
-                    patch_array.push(key);
-            }
-            for (let i = 0; i < delta.values.length; ++i) {
-                const current_key = delta.values[i];
-                const current_patch_stamp = delta.stamps[i];
-                const current_self_stamp = (_a = this.stamps.get(current_key)) !== null && _a !== void 0 ? _a : 0;
-                const current_patch_version = this.stamper.version_from(current_patch_stamp);
-                if (this.version_item(current_key) >= current_patch_version)
-                    continue;
-                this.stamps.set(current_key, current_patch_stamp);
-                this.version_feed(current_patch_version);
-                if (current_patch_stamp <= 0) {
-                    if (current_self_stamp > 0) {
-                        this.array.splice(this.array.indexOf(current_key), 1);
-                    }
-                    continue;
-                }
-                for (let anchor = patch_array.indexOf(current_key) - 1;; anchor--) {
-                    const anchor_key = patch_array[anchor];
-                    if (anchor >= 0) {
-                        const anchor_self_version = this.version_item(anchor_key);
-                        if (anchor_self_version === 0)
-                            continue;
-                        if (anchor_self_version > this.stamper.version_from(patch_stamps.get(anchor_key)))
-                            continue;
-                    }
-                    let next_pos = anchor_key !== undefined ? this.array.indexOf(anchor_key) + 1 : 0;
-                    while (next_pos < this.array.length) {
-                        if (this.version_item(this.array[next_pos]) <= current_patch_version)
-                            break;
-                        next_pos++;
-                    }
-                    if (current_self_stamp <= 0) {
-                        this.array.splice(next_pos, 0, current_key);
-                        break;
-                    }
-                    const current_pos = this.array.indexOf(current_key);
-                    if (current_pos === next_pos)
-                        break;
-                    if (current_pos > next_pos) {
-                        this.array.splice(next_pos, current_pos - next_pos + 1, current_key, ...this.array.slice(next_pos, current_pos));
-                    }
-                    else {
-                        this.array.splice(current_pos, next_pos - current_pos + 1, ...this.array.slice(current_pos + 1, next_pos + 1), current_key);
-                    }
-                    break;
-                }
-            }
-            return this;
-        }
-    }
-    $.$hyoo_crowd_list = $hyoo_crowd_list;
-})($ || ($ = {}));
-//list.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_reg extends $.$hyoo_crowd_store {
-        constructor() {
-            super(...arguments);
-            this._value = null;
-            this._stamp = 0;
-        }
-        get version() {
-            return this._stamp;
-        }
-        get str() {
-            var _a;
-            return String((_a = this._value) !== null && _a !== void 0 ? _a : '');
-        }
-        set str(next) {
-            this.value = next;
-        }
-        get numb() {
-            var _a;
-            return Number((_a = this._value) !== null && _a !== void 0 ? _a : 0);
-        }
-        set numb(next) {
-            this.value = next;
-        }
-        get bool() {
-            var _a;
-            return Boolean((_a = this._value) !== null && _a !== void 0 ? _a : false);
-        }
-        set bool(next) {
-            this.value = next;
-        }
-        toJSON(version_min = 0) {
-            if (this.version <= version_min)
-                return $.$hyoo_crowd_delta([], []);
-            return $.$hyoo_crowd_delta([this._value], [this._stamp]);
-        }
-        get value() {
-            return this._value;
-        }
-        set value(val) {
-            if (this._value === val)
-                return;
-            this._value = val;
-            this._stamp = this.stamper.genegate();
-        }
-        apply(delta) {
-            for (let i = 0; i < delta.values.length; ++i) {
-                const val = delta.values[i];
-                const stamp = delta.stamps[i];
-                if (stamp <= this._stamp)
-                    continue;
-                this._value = val;
-                this._stamp = stamp;
-                this.stamper.feed(stamp);
-            }
-            return this;
-        }
-    }
-    $.$hyoo_crowd_reg = $hyoo_crowd_reg;
-})($ || ($ = {}));
-//reg.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_guid(length = 8, exists = () => false) {
-        for (;;) {
-            let id = Math.random().toString(36).substring(2, length + 2).toUpperCase();
-            if (exists(id))
-                continue;
-            return id;
-        }
-    }
-    $.$mol_guid = $mol_guid;
-})($ || ($ = {}));
-//guid.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    const tokenizer = $.$mol_regexp.from({
-        token: {
-            'line-break': /(?:\r?\n|\r)/,
-            'word+': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]+[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]*[^\S\n\r]*/,
-            'separator': /[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]+[^\S\n\r]*/,
-        },
-    });
-    class $hyoo_crowd_text extends $.$hyoo_crowd_tuple.of({
-        flow: $.$hyoo_crowd_dict.of($.$hyoo_crowd_list),
-        token: $.$hyoo_crowd_dict.of($.$hyoo_crowd_reg),
-    }) {
-        get root() {
-            return this.for('flow').for(null);
-        }
-        get tokens() {
-            return this.root.items;
-        }
-        value_of(token) {
-            return this.for('token').for(token).str;
-        }
-        get text() {
-            const tokens = this.for('token');
-            return this.tokens.map(id => tokens.for(id).str).join('');
-        }
-        set text(next) {
-            this.splice_line(null, 0, this.root.count, next);
-        }
-        splice_line(id, from, to, text) {
-            var _a;
-            const flow = this.for('flow').for(id);
-            const token_ids = flow.items_internal;
-            const tokens = this.for('token');
-            const words = [...tokenizer.parse(text)];
-            while (from < to || words.length > 0) {
-                const prev = from < token_ids.length ? tokens.for(token_ids[from]).str : null;
-                const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
-                if (prev === next) {
-                    ++from;
-                    words.shift();
-                }
-                else if (words.length > to - from) {
-                    const key = $.$mol_guid(4, id => tokens.has(id));
-                    tokens.for(key).str = next;
-                    flow.insert(key, from);
-                    words.shift();
-                    ++from;
-                    ++to;
-                }
-                else if (words.length < to - from) {
-                    flow.cut(token_ids[from]);
-                    --to;
-                }
-                else {
-                    tokens.for(token_ids[from]).str = next;
-                    ++from;
-                    words.shift();
-                }
-            }
-        }
-    }
-    $.$hyoo_crowd_text = $hyoo_crowd_text;
-})($ || ($ = {}));
-//text.js.map
 ;
 "use strict";
 var $;
@@ -7830,18 +7852,13 @@ var $;
     var $$;
     (function ($$) {
         const { rem } = $.$mol_style_unit;
-        $.$mol_style_define($$.$hyoo_crowd_app, {
-            $mol_page: {
-                flex: {
-                    grow: 1000,
-                    shrink: 0,
-                    basis: rem(20),
-                },
+        $.$mol_style_define($$.$hyoo_crowd_app_actor, {
+            flex: {
+                grow: 1000,
+                shrink: 0,
+                basis: rem(20),
             },
-            Left: {
-                margin: $.$mol_gap.block,
-            },
-            Right: {
+            Body: {
                 margin: $.$mol_gap.block,
             },
         });
@@ -7855,45 +7872,81 @@ var $;
     var $$;
     (function ($$) {
         class $hyoo_crowd_app extends $.$hyoo_crowd_app {
-            constructor() {
-                super(...arguments);
-                this.left_store = $.$hyoo_crowd_text.make();
-                this.right_store = $.$hyoo_crowd_text.make();
-                this.left_sync_version = 0;
-                this.right_sync_version = 0;
-            }
-            left(next) {
-                this.sync();
-                if (next !== undefined)
-                    this.left_store.text = next;
-                return this.left_store.text;
-            }
-            right(next) {
-                this.sync();
-                if (next !== undefined)
-                    this.right_store.text = next;
-                return this.right_store.text;
+            sync_enabled() {
+                return this.Left().changes() + this.Right().changes() > 0;
             }
             sync(next) {
-                const left_delta = this.left_store.toJSON(this.left_sync_version);
-                const right_delta = this.right_store.toJSON(this.right_sync_version);
-                this.left_sync_version = this.left_store.stamper.version_max;
-                this.right_sync_version = this.right_store.stamper.version_max;
-                this.left_store.apply(right_delta);
-                this.right_store.apply(left_delta);
+                if (next == undefined)
+                    return 0;
+                const left_delta = this.Left().delta();
+                const right_delta = this.Right().delta();
+                this.Left().store().apply(right_delta);
+                this.Right().store().apply(left_delta);
+                this.Left().sync_stamp(this.Left().store().stamper.version_max);
+                this.Right().sync_stamp(this.Right().store().stamper.version_max);
                 return Math.random();
             }
         }
         __decorate([
             $.$mol_mem
-        ], $hyoo_crowd_app.prototype, "left", null);
-        __decorate([
-            $.$mol_mem
-        ], $hyoo_crowd_app.prototype, "right", null);
-        __decorate([
-            $.$mol_mem
         ], $hyoo_crowd_app.prototype, "sync", null);
         $$.$hyoo_crowd_app = $hyoo_crowd_app;
+        class $hyoo_crowd_app_actor extends $.$hyoo_crowd_app_actor {
+            sync_stamp(next = 0) {
+                return next;
+            }
+            text(next) {
+                this.sync();
+                if (next !== undefined)
+                    this.store().text = next;
+                return this.store().text;
+            }
+            delta() {
+                this.text();
+                return this.store().toJSON(this.sync_stamp());
+            }
+            changes() {
+                this.text();
+                const stamper = this.store().stamper;
+                return stamper.index_from(stamper.version_max) - stamper.index_from(this.sync_stamp());
+            }
+            size_state() {
+                this.text();
+                return JSON.stringify(this.store()).length;
+            }
+            size_delta() {
+                return JSON.stringify(this.delta()).length;
+            }
+            tokens_alive() {
+                this.text();
+                return this.store().root.items_internal.length;
+            }
+            tokens_dead() {
+                this.text();
+                this.sync_stamp();
+                return this.store().for('token').stores.size;
+            }
+            stats() {
+                this.text();
+                return super.stats()
+                    .replace('{actor}', this.store().stamper.actor.toLocaleString())
+                    .replace('{changes}', this.changes().toLocaleString())
+                    .replace('{tokens:alive}', this.tokens_alive().toLocaleString())
+                    .replace('{tokens:dead}', this.tokens_dead().toLocaleString())
+                    .replace('{stamp:now}', this.store().stamper.version_max.toLocaleString())
+                    .replace('{stamp:sync}', this.sync_stamp().toLocaleString())
+                    .replace('{size:text}', this.text().length.toLocaleString())
+                    .replace('{size:state}', this.size_state().toLocaleString())
+                    .replace('{size:delta}', this.size_delta().toLocaleString());
+            }
+        }
+        __decorate([
+            $.$mol_mem
+        ], $hyoo_crowd_app_actor.prototype, "sync_stamp", null);
+        __decorate([
+            $.$mol_mem
+        ], $hyoo_crowd_app_actor.prototype, "text", null);
+        $$.$hyoo_crowd_app_actor = $hyoo_crowd_app_actor;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
 //app.view.js.map

@@ -991,31 +991,6 @@ declare namespace $.$$ {
 }
 
 declare namespace $ {
-    class $mol_page extends $mol_view {
-        sub(): readonly any[];
-        Title(): $mol_view;
-        tools(): readonly $mol_view_content[];
-        Tools(): $mol_view;
-        head(): readonly any[];
-        Head(): $mol_view;
-        body_scroll_top(val?: any): any;
-        body(): readonly $mol_view_content[];
-        Body(): $$.$mol_scroll;
-        foot(): readonly $mol_view[];
-        Foot(): $mol_view;
-    }
-}
-
-declare namespace $.$$ {
-}
-
-declare namespace $.$$ {
-    class $mol_page extends $.$mol_page {
-        body_scroll_top(next?: number): number;
-    }
-}
-
-declare namespace $ {
     class $mol_book2 extends $mol_scroll {
         sub(): readonly $mol_view[];
         minimal_width(): number;
@@ -1249,6 +1224,21 @@ declare namespace $.$$ {
 
 declare namespace $ {
     class $mol_button_typed extends $mol_button {
+    }
+}
+
+declare namespace $ {
+}
+
+declare namespace $ {
+    class $mol_button_major extends $mol_button_typed {
+        attr(): {
+            mol_theme: string;
+            disabled: boolean;
+            role: string;
+            tabindex: number;
+            title: string;
+        };
     }
 }
 
@@ -1598,18 +1588,516 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    class $mol_button_major extends $mol_button_typed {
-        attr(): {
-            mol_theme: string;
-            disabled: boolean;
-            role: string;
-            tabindex: number;
-            title: string;
-        };
+    class $mol_page extends $mol_view {
+        sub(): readonly any[];
+        Title(): $mol_view;
+        tools(): readonly $mol_view_content[];
+        Tools(): $mol_view;
+        head(): readonly any[];
+        Head(): $mol_view;
+        body_scroll_top(val?: any): any;
+        body(): readonly $mol_view_content[];
+        Body(): $$.$mol_scroll;
+        foot(): readonly $mol_view[];
+        Foot(): $mol_view;
+    }
+}
+
+declare namespace $.$$ {
+}
+
+declare namespace $.$$ {
+    class $mol_page extends $.$mol_page {
+        body_scroll_top(next?: number): number;
     }
 }
 
 declare namespace $ {
+    type $mol_type_intersect<Union> = (Union extends any ? (_: Union) => void : never) extends ((_: infer Intersection) => void) ? Intersection : never;
+}
+
+declare namespace $ {
+    type $mol_regexp_source = string | RegExp | {
+        [key in string]: $mol_regexp_source;
+    } | readonly [$mol_regexp_source, ...$mol_regexp_source[]];
+    type $mol_regexp_groups<Source extends $mol_regexp_source> = Source extends string ? {} : Source extends $mol_regexp<infer Groups> ? Groups : Source extends $mol_regexp_source[] ? $mol_type_intersect<{
+        [key in Extract<keyof Source, number>]: $mol_regexp_groups<Source[key]>;
+    }[Extract<keyof Source, number>]> : Source extends RegExp ? {} : Source extends {
+        readonly [key in string]: $mol_regexp_source;
+    } ? Extract<$mol_type_intersect<{
+        [key in Extract<keyof Source, string>]: string;
+    } | {
+        [key in keyof Source]: $mol_regexp_groups<Source[key]>;
+    }[keyof Source]>, Record<string, string>> : never;
+    class $mol_regexp<Groups extends Record<string, string>> extends RegExp {
+        readonly groups: (Extract<keyof Groups, string>)[];
+        constructor(source: string, flags?: string, groups?: (Extract<keyof Groups, string>)[]);
+        get parse(): (str: string, from?: number) => Generator<{ [key in keyof Groups]: string; } & {
+            [key: number]: string;
+        }, null | undefined, unknown>;
+        static repeat<Source extends $mol_regexp_source>(source: Source, min?: number, max?: number): $mol_regexp<$mol_regexp_groups<Source>>;
+        static repeat_greedy<Source extends $mol_regexp_source>(source: Source, min?: number, max?: number): $mol_regexp<$mol_regexp_groups<Source>>;
+        static optional<Source extends $mol_regexp_source>(source: Source): $mol_regexp<$mol_regexp_groups<Source>>;
+        static force_after(source: $mol_regexp_source): $mol_regexp<Record<string, string>>;
+        static forbid_after(source: $mol_regexp_source): $mol_regexp<Record<string, string>>;
+        static from<Source extends $mol_regexp_source>(source: Source, { ignoreCase, multiline }?: Partial<Pick<RegExp, 'ignoreCase' | 'multiline'>>): $mol_regexp<$mol_regexp_groups<Source>>;
+        static char_code(code: number): $mol_regexp<Record<string, string>>;
+        static byte_except(...forbidden: readonly [$mol_regexp_source, ...$mol_regexp_source[]]): $mol_regexp<never>;
+        static byte: $mol_regexp<{}>;
+        static digit: $mol_regexp<{}>;
+        static letter: $mol_regexp<{}>;
+        static space: $mol_regexp<{}>;
+        static tab: $mol_regexp<{}>;
+        static slash_back: $mol_regexp<{}>;
+        static word_break: $mol_regexp<{}>;
+        static line_end: $mol_regexp<{}>;
+        static begin: $mol_regexp<{}>;
+        static end: $mol_regexp<{}>;
+        static or: $mol_regexp<{}>;
+    }
+}
+
+declare namespace $ {
+    class $hyoo_crowd_stamper {
+        version_max: number;
+        readonly actor: number;
+        constructor(actor?: number, version_max?: number);
+        version_from(stamp: number): number;
+        index_from(stamp: number): number;
+        actor_from(stamp: number): number;
+        make(index: number, actor?: number): number;
+        feed(version: number): void;
+        genegate(): number;
+        fork(actor: number): $hyoo_crowd_stamper;
+    }
+}
+
+declare namespace $ {
+    type $hyoo_crowd_delta_value = string | number | boolean | null;
+    function $hyoo_crowd_delta(values: $hyoo_crowd_delta_value[], stamps: number[]): {
+        values: $hyoo_crowd_delta_value[];
+        stamps: number[];
+    };
+}
+
+declare namespace $ {
+    class $hyoo_crowd_store {
+        stamper: $hyoo_crowd_stamper;
+        static make<Instance>(this: new () => Instance): Instance;
+        constructor(stamper?: $hyoo_crowd_stamper);
+        toJSON(version_min?: number): ReturnType<typeof $hyoo_crowd_delta>;
+        delta(base: this): {
+            values: $hyoo_crowd_delta_value[];
+            stamps: number[];
+        };
+        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
+        fork(actor: number): this;
+    }
+}
+
+declare namespace $ {
+    class $hyoo_crowd_tuple<Fields extends Record<string, typeof $hyoo_crowd_store>> extends $hyoo_crowd_store {
+        static of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
+            new (stamper?: $hyoo_crowd_stamper): {
+                Fields: Types;
+                stores: { [key in keyof Types]: InstanceType<Types[key]>; };
+                for<Field extends keyof Types>(field: Field): InstanceType<Types[Field]>;
+                toJSON(version_min?: number): {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                };
+                apply(delta: {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                }): any;
+                stamper: $hyoo_crowd_stamper;
+                delta(base: any): {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                };
+                fork(actor: number): any;
+            };
+            of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
+            make<Instance>(this: new () => Instance): Instance;
+        };
+        Fields: Fields;
+        stores: { [key in keyof Fields]: InstanceType<Fields[key]>; };
+        for<Field extends keyof Fields>(field: Field): InstanceType<Fields[Field]>;
+        toJSON(version_min?: number): {
+            values: $hyoo_crowd_delta_value[];
+            stamps: number[];
+        };
+        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
+    }
+}
+
+declare namespace $ {
+    class $hyoo_crowd_dict<Value extends typeof $hyoo_crowd_store> extends $hyoo_crowd_store {
+        static of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+            new (stamper?: $hyoo_crowd_stamper): {
+                Value: Value;
+                stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                toJSON(version_min?: number): {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                };
+                has(key: $hyoo_crowd_delta_value): boolean;
+                for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
+                apply(delta: {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                }): any;
+                stamper: $hyoo_crowd_stamper;
+                delta(base: any): {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                };
+                fork(actor: number): any;
+            };
+            of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+            make<Instance>(this: new () => Instance): Instance;
+        };
+        Value: Value;
+        stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+        toJSON(version_min?: number): {
+            values: $hyoo_crowd_delta_value[];
+            stamps: number[];
+        };
+        has(key: $hyoo_crowd_delta_value): boolean;
+        for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
+        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
+    }
+}
+
+declare namespace $ {
+    class $hyoo_crowd_list extends $hyoo_crowd_store {
+        protected version: number;
+        protected readonly array: $hyoo_crowd_delta_value[];
+        protected readonly stamps: Map<$hyoo_crowd_delta_value, number>;
+        get count(): number;
+        get items(): $hyoo_crowd_delta_value[];
+        get items_internal(): readonly $hyoo_crowd_delta_value[];
+        has(val: $hyoo_crowd_delta_value): boolean;
+        version_item(val: $hyoo_crowd_delta_value): number;
+        version_feed(version: number): void;
+        toJSON(version_min?: number): ReturnType<typeof $hyoo_crowd_delta>;
+        insert(key: $hyoo_crowd_delta_value, pos?: number): this;
+        cut(key: $hyoo_crowd_delta_value): this;
+        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
+    }
+}
+
+declare namespace $ {
+    class $hyoo_crowd_reg extends $hyoo_crowd_store {
+        protected _value: $hyoo_crowd_delta_value;
+        protected _stamp: number;
+        get version(): number;
+        get str(): string;
+        set str(next: string);
+        get numb(): number;
+        set numb(next: number);
+        get bool(): boolean;
+        set bool(next: boolean);
+        toJSON(version_min?: number): {
+            values: $hyoo_crowd_delta_value[];
+            stamps: number[];
+        };
+        get value(): $hyoo_crowd_delta_value;
+        set value(val: $hyoo_crowd_delta_value);
+        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
+    }
+}
+
+declare namespace $ {
+    function $mol_guid(length?: number, exists?: (id: string) => boolean): string;
+}
+
+declare namespace $ {
+    const $hyoo_crowd_text_base: {
+        new (stamper?: $hyoo_crowd_stamper): {
+            Fields: {
+                flow: {
+                    new (stamper?: $hyoo_crowd_stamper): {
+                        Value: typeof $hyoo_crowd_list;
+                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
+                        toJSON(version_min?: number): {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        };
+                        has(key: $hyoo_crowd_delta_value): boolean;
+                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
+                        apply(delta: {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        }): any;
+                        stamper: $hyoo_crowd_stamper;
+                        delta(base: any): {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        };
+                        fork(actor: number): any;
+                    };
+                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+                        new (stamper?: $hyoo_crowd_stamper): {
+                            Value: Value;
+                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                            toJSON(version_min?: number): {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            };
+                            has(key: $hyoo_crowd_delta_value): boolean;
+                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
+                            apply(delta: {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            }): any;
+                            stamper: $hyoo_crowd_stamper;
+                            delta(base: any): {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            };
+                            fork(actor: number): any;
+                        };
+                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+                        make<Instance>(this: new () => Instance): Instance;
+                    };
+                    make<Instance>(this: new () => Instance): Instance;
+                };
+                token: {
+                    new (stamper?: $hyoo_crowd_stamper): {
+                        Value: typeof $hyoo_crowd_reg;
+                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
+                        toJSON(version_min?: number): {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        };
+                        has(key: $hyoo_crowd_delta_value): boolean;
+                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
+                        apply(delta: {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        }): any;
+                        stamper: $hyoo_crowd_stamper;
+                        delta(base: any): {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        };
+                        fork(actor: number): any;
+                    };
+                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+                        new (stamper?: $hyoo_crowd_stamper): {
+                            Value: Value;
+                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                            toJSON(version_min?: number): {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            };
+                            has(key: $hyoo_crowd_delta_value): boolean;
+                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
+                            apply(delta: {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            }): any;
+                            stamper: $hyoo_crowd_stamper;
+                            delta(base: any): {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            };
+                            fork(actor: number): any;
+                        };
+                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+                        make<Instance>(this: new () => Instance): Instance;
+                    };
+                    make<Instance>(this: new () => Instance): Instance;
+                };
+            };
+            stores: {
+                flow: {
+                    Value: typeof $hyoo_crowd_list;
+                    stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
+                    toJSON(version_min?: number): {
+                        values: $hyoo_crowd_delta_value[];
+                        stamps: number[];
+                    };
+                    has(key: $hyoo_crowd_delta_value): boolean;
+                    for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
+                    apply(delta: {
+                        values: $hyoo_crowd_delta_value[];
+                        stamps: number[];
+                    }): any;
+                    stamper: $hyoo_crowd_stamper;
+                    delta(base: any): {
+                        values: $hyoo_crowd_delta_value[];
+                        stamps: number[];
+                    };
+                    fork(actor: number): any;
+                };
+                token: {
+                    Value: typeof $hyoo_crowd_reg;
+                    stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
+                    toJSON(version_min?: number): {
+                        values: $hyoo_crowd_delta_value[];
+                        stamps: number[];
+                    };
+                    has(key: $hyoo_crowd_delta_value): boolean;
+                    for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
+                    apply(delta: {
+                        values: $hyoo_crowd_delta_value[];
+                        stamps: number[];
+                    }): any;
+                    stamper: $hyoo_crowd_stamper;
+                    delta(base: any): {
+                        values: $hyoo_crowd_delta_value[];
+                        stamps: number[];
+                    };
+                    fork(actor: number): any;
+                };
+            };
+            for<Field extends "flow" | "token">(field: Field): InstanceType<{
+                flow: {
+                    new (stamper?: $hyoo_crowd_stamper): {
+                        Value: typeof $hyoo_crowd_list;
+                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
+                        toJSON(version_min?: number): {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        };
+                        has(key: $hyoo_crowd_delta_value): boolean;
+                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
+                        apply(delta: {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        }): any;
+                        stamper: $hyoo_crowd_stamper;
+                        delta(base: any): {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        };
+                        fork(actor: number): any;
+                    };
+                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+                        new (stamper?: $hyoo_crowd_stamper): {
+                            Value: Value;
+                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                            toJSON(version_min?: number): {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            };
+                            has(key: $hyoo_crowd_delta_value): boolean;
+                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
+                            apply(delta: {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            }): any;
+                            stamper: $hyoo_crowd_stamper;
+                            delta(base: any): {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            };
+                            fork(actor: number): any;
+                        };
+                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+                        make<Instance>(this: new () => Instance): Instance;
+                    };
+                    make<Instance>(this: new () => Instance): Instance;
+                };
+                token: {
+                    new (stamper?: $hyoo_crowd_stamper): {
+                        Value: typeof $hyoo_crowd_reg;
+                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
+                        toJSON(version_min?: number): {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        };
+                        has(key: $hyoo_crowd_delta_value): boolean;
+                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
+                        apply(delta: {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        }): any;
+                        stamper: $hyoo_crowd_stamper;
+                        delta(base: any): {
+                            values: $hyoo_crowd_delta_value[];
+                            stamps: number[];
+                        };
+                        fork(actor: number): any;
+                    };
+                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+                        new (stamper?: $hyoo_crowd_stamper): {
+                            Value: Value;
+                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                            toJSON(version_min?: number): {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            };
+                            has(key: $hyoo_crowd_delta_value): boolean;
+                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
+                            apply(delta: {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            }): any;
+                            stamper: $hyoo_crowd_stamper;
+                            delta(base: any): {
+                                values: $hyoo_crowd_delta_value[];
+                                stamps: number[];
+                            };
+                            fork(actor: number): any;
+                        };
+                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+                        make<Instance>(this: new () => Instance): Instance;
+                    };
+                    make<Instance>(this: new () => Instance): Instance;
+                };
+            }[Field]>;
+            toJSON(version_min?: number): {
+                values: $hyoo_crowd_delta_value[];
+                stamps: number[];
+            };
+            apply(delta: {
+                values: $hyoo_crowd_delta_value[];
+                stamps: number[];
+            }): any;
+            stamper: $hyoo_crowd_stamper;
+            delta(base: any): {
+                values: $hyoo_crowd_delta_value[];
+                stamps: number[];
+            };
+            fork(actor: number): any;
+        };
+        of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
+            new (stamper?: $hyoo_crowd_stamper): {
+                Fields: Types;
+                stores: { [key in keyof Types]: InstanceType<Types[key]>; };
+                for<Field_1 extends keyof Types>(field: Field_1): InstanceType<Types[Field_1]>;
+                toJSON(version_min?: number): {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                };
+                apply(delta: {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                }): any;
+                stamper: $hyoo_crowd_stamper;
+                delta(base: any): {
+                    values: $hyoo_crowd_delta_value[];
+                    stamps: number[];
+                };
+                fork(actor: number): any;
+            };
+            of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
+            make<Instance>(this: new () => Instance): Instance;
+        };
+        make<Instance>(this: new () => Instance): Instance;
+    };
+    export class $hyoo_crowd_text extends $hyoo_crowd_text_base {
+        get root(): $hyoo_crowd_list;
+        get tokens(): string[];
+        value_of(token: string): string;
+        get text(): string;
+        set text(next: string);
+        splice_line(id: string | null, from: number, to: number, text: string): void;
+    }
+    export {};
 }
 
 declare namespace $ {
@@ -1887,51 +2375,6 @@ declare namespace $ {
         High(id: any): $$.$mol_paragraph;
         parts(): readonly $mol_view_content[];
         string(id: any): string;
-    }
-}
-
-declare namespace $ {
-    type $mol_type_intersect<Union> = (Union extends any ? (_: Union) => void : never) extends ((_: infer Intersection) => void) ? Intersection : never;
-}
-
-declare namespace $ {
-    type $mol_regexp_source = string | RegExp | {
-        [key in string]: $mol_regexp_source;
-    } | readonly [$mol_regexp_source, ...$mol_regexp_source[]];
-    type $mol_regexp_groups<Source extends $mol_regexp_source> = Source extends string ? {} : Source extends $mol_regexp<infer Groups> ? Groups : Source extends $mol_regexp_source[] ? $mol_type_intersect<{
-        [key in Extract<keyof Source, number>]: $mol_regexp_groups<Source[key]>;
-    }[Extract<keyof Source, number>]> : Source extends RegExp ? {} : Source extends {
-        readonly [key in string]: $mol_regexp_source;
-    } ? Extract<$mol_type_intersect<{
-        [key in Extract<keyof Source, string>]: string;
-    } | {
-        [key in keyof Source]: $mol_regexp_groups<Source[key]>;
-    }[keyof Source]>, Record<string, string>> : never;
-    class $mol_regexp<Groups extends Record<string, string>> extends RegExp {
-        readonly groups: (Extract<keyof Groups, string>)[];
-        constructor(source: string, flags?: string, groups?: (Extract<keyof Groups, string>)[]);
-        get parse(): (str: string, from?: number) => Generator<{ [key in keyof Groups]: string; } & {
-            [key: number]: string;
-        }, null | undefined, unknown>;
-        static repeat<Source extends $mol_regexp_source>(source: Source, min?: number, max?: number): $mol_regexp<$mol_regexp_groups<Source>>;
-        static repeat_greedy<Source extends $mol_regexp_source>(source: Source, min?: number, max?: number): $mol_regexp<$mol_regexp_groups<Source>>;
-        static optional<Source extends $mol_regexp_source>(source: Source): $mol_regexp<$mol_regexp_groups<Source>>;
-        static force_after(source: $mol_regexp_source): $mol_regexp<Record<string, string>>;
-        static forbid_after(source: $mol_regexp_source): $mol_regexp<Record<string, string>>;
-        static from<Source extends $mol_regexp_source>(source: Source, { ignoreCase, multiline }?: Partial<Pick<RegExp, 'ignoreCase' | 'multiline'>>): $mol_regexp<$mol_regexp_groups<Source>>;
-        static char_code(code: number): $mol_regexp<Record<string, string>>;
-        static byte_except(...forbidden: readonly [$mol_regexp_source, ...$mol_regexp_source[]]): $mol_regexp<never>;
-        static byte: $mol_regexp<{}>;
-        static digit: $mol_regexp<{}>;
-        static letter: $mol_regexp<{}>;
-        static space: $mol_regexp<{}>;
-        static tab: $mol_regexp<{}>;
-        static slash_back: $mol_regexp<{}>;
-        static word_break: $mol_regexp<{}>;
-        static line_end: $mol_regexp<{}>;
-        static begin: $mol_regexp<{}>;
-        static end: $mol_regexp<{}>;
-        static or: $mol_regexp<{}>;
     }
 }
 
@@ -2376,458 +2819,23 @@ declare namespace $ {
         plugins(): readonly any[];
         pages(): readonly any[];
         Theme(): $$.$mol_theme_auto;
-        Lights(): $$.$mol_lights_toggle;
-        Source(): $mol_link_source;
+        sync_enabled(): boolean;
         sync(event?: any): any;
         Sync(): $mol_button_major;
-        left(val?: any): any;
-        Left(): $$.$mol_textarea;
-        Left_page(): $$.$mol_page;
-        right(val?: any): any;
-        Right(): $$.$mol_textarea;
-        Right_page(): $$.$mol_page;
+        Left(): $$.$hyoo_crowd_app_actor;
+        Lights(): $$.$mol_lights_toggle;
+        Source(): $mol_link_source;
+        Right(): $$.$hyoo_crowd_app_actor;
     }
-}
-
-declare namespace $ {
-    class $hyoo_crowd_stamper {
-        version_max: number;
-        readonly actor: number;
-        constructor(actor?: number, version_max?: number);
-        version_from(stamp: number): number;
-        actor_from(stamp: number): number;
-        feed(version: number): void;
-        genegate(): number;
-        fork(actor: number): $hyoo_crowd_stamper;
+    class $hyoo_crowd_app_actor extends $mol_page {
+        store(): $hyoo_crowd_text;
+        sync(): number;
+        body(): readonly any[];
+        text(val?: any): any;
+        Text(): $$.$mol_textarea;
+        stats(): string;
+        Stats(): $$.$mol_text;
     }
-}
-
-declare namespace $ {
-    type $hyoo_crowd_delta_value = string | number | boolean | null;
-    function $hyoo_crowd_delta(values: $hyoo_crowd_delta_value[], stamps: number[]): {
-        values: $hyoo_crowd_delta_value[];
-        stamps: number[];
-    };
-}
-
-declare namespace $ {
-    class $hyoo_crowd_store {
-        stamper: $hyoo_crowd_stamper;
-        static make<Instance>(this: new () => Instance): Instance;
-        constructor(stamper?: $hyoo_crowd_stamper);
-        toJSON(version_min?: number): ReturnType<typeof $hyoo_crowd_delta>;
-        delta(base: this): {
-            values: $hyoo_crowd_delta_value[];
-            stamps: number[];
-        };
-        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
-        fork(actor: number): this;
-    }
-}
-
-declare namespace $ {
-    class $hyoo_crowd_tuple<Fields extends Record<string, typeof $hyoo_crowd_store>> extends $hyoo_crowd_store {
-        static of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
-            new (stamper?: $hyoo_crowd_stamper): {
-                Fields: Types;
-                stores: { [key in keyof Types]: InstanceType<Types[key]>; };
-                for<Field extends keyof Types>(field: Field): InstanceType<Types[Field]>;
-                toJSON(version_min?: number): {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                };
-                apply(delta: {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                }): any;
-                stamper: $hyoo_crowd_stamper;
-                delta(base: any): {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                };
-                fork(actor: number): any;
-            };
-            of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
-            make<Instance>(this: new () => Instance): Instance;
-        };
-        Fields: Fields;
-        stores: { [key in keyof Fields]: InstanceType<Fields[key]>; };
-        for<Field extends keyof Fields>(field: Field): InstanceType<Fields[Field]>;
-        toJSON(version_min?: number): {
-            values: $hyoo_crowd_delta_value[];
-            stamps: number[];
-        };
-        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
-    }
-}
-
-declare namespace $ {
-    class $hyoo_crowd_dict<Value extends typeof $hyoo_crowd_store> extends $hyoo_crowd_store {
-        static of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
-            new (stamper?: $hyoo_crowd_stamper): {
-                Value: Value;
-                stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
-                toJSON(version_min?: number): {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                };
-                has(key: $hyoo_crowd_delta_value): boolean;
-                for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
-                apply(delta: {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                }): any;
-                stamper: $hyoo_crowd_stamper;
-                delta(base: any): {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                };
-                fork(actor: number): any;
-            };
-            of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
-            make<Instance>(this: new () => Instance): Instance;
-        };
-        Value: Value;
-        stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
-        toJSON(version_min?: number): {
-            values: $hyoo_crowd_delta_value[];
-            stamps: number[];
-        };
-        has(key: $hyoo_crowd_delta_value): boolean;
-        for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
-        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
-    }
-}
-
-declare namespace $ {
-    class $hyoo_crowd_list extends $hyoo_crowd_store {
-        protected version: number;
-        protected readonly array: $hyoo_crowd_delta_value[];
-        protected readonly stamps: Map<$hyoo_crowd_delta_value, number>;
-        get count(): number;
-        get items(): $hyoo_crowd_delta_value[];
-        get items_internal(): readonly $hyoo_crowd_delta_value[];
-        has(val: $hyoo_crowd_delta_value): boolean;
-        version_item(val: $hyoo_crowd_delta_value): number;
-        version_feed(version: number): void;
-        toJSON(version_min?: number): ReturnType<typeof $hyoo_crowd_delta>;
-        insert(key: $hyoo_crowd_delta_value, pos?: number): this;
-        cut(key: $hyoo_crowd_delta_value): this;
-        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
-    }
-}
-
-declare namespace $ {
-    class $hyoo_crowd_reg extends $hyoo_crowd_store {
-        protected _value: $hyoo_crowd_delta_value;
-        protected _stamp: number;
-        get version(): number;
-        get str(): string;
-        set str(next: string);
-        get numb(): number;
-        set numb(next: number);
-        get bool(): boolean;
-        set bool(next: boolean);
-        toJSON(version_min?: number): {
-            values: $hyoo_crowd_delta_value[];
-            stamps: number[];
-        };
-        get value(): $hyoo_crowd_delta_value;
-        set value(val: $hyoo_crowd_delta_value);
-        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
-    }
-}
-
-declare namespace $ {
-    function $mol_guid(length?: number, exists?: (id: string) => boolean): string;
-}
-
-declare namespace $ {
-    const $hyoo_crowd_text_base: {
-        new (stamper?: $hyoo_crowd_stamper): {
-            Fields: {
-                flow: {
-                    new (stamper?: $hyoo_crowd_stamper): {
-                        Value: typeof $hyoo_crowd_list;
-                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
-                        toJSON(version_min?: number): {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        };
-                        has(key: $hyoo_crowd_delta_value): boolean;
-                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
-                        apply(delta: {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        }): any;
-                        stamper: $hyoo_crowd_stamper;
-                        delta(base: any): {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        };
-                        fork(actor: number): any;
-                    };
-                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
-                        new (stamper?: $hyoo_crowd_stamper): {
-                            Value: Value;
-                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
-                            toJSON(version_min?: number): {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            };
-                            has(key: $hyoo_crowd_delta_value): boolean;
-                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
-                            apply(delta: {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            }): any;
-                            stamper: $hyoo_crowd_stamper;
-                            delta(base: any): {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            };
-                            fork(actor: number): any;
-                        };
-                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
-                        make<Instance>(this: new () => Instance): Instance;
-                    };
-                    make<Instance>(this: new () => Instance): Instance;
-                };
-                token: {
-                    new (stamper?: $hyoo_crowd_stamper): {
-                        Value: typeof $hyoo_crowd_reg;
-                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
-                        toJSON(version_min?: number): {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        };
-                        has(key: $hyoo_crowd_delta_value): boolean;
-                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
-                        apply(delta: {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        }): any;
-                        stamper: $hyoo_crowd_stamper;
-                        delta(base: any): {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        };
-                        fork(actor: number): any;
-                    };
-                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
-                        new (stamper?: $hyoo_crowd_stamper): {
-                            Value: Value;
-                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
-                            toJSON(version_min?: number): {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            };
-                            has(key: $hyoo_crowd_delta_value): boolean;
-                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
-                            apply(delta: {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            }): any;
-                            stamper: $hyoo_crowd_stamper;
-                            delta(base: any): {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            };
-                            fork(actor: number): any;
-                        };
-                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
-                        make<Instance>(this: new () => Instance): Instance;
-                    };
-                    make<Instance>(this: new () => Instance): Instance;
-                };
-            };
-            stores: {
-                flow: {
-                    Value: typeof $hyoo_crowd_list;
-                    stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
-                    toJSON(version_min?: number): {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    };
-                    has(key: $hyoo_crowd_delta_value): boolean;
-                    for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
-                    apply(delta: {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    }): any;
-                    stamper: $hyoo_crowd_stamper;
-                    delta(base: any): {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    };
-                    fork(actor: number): any;
-                };
-                token: {
-                    Value: typeof $hyoo_crowd_reg;
-                    stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
-                    toJSON(version_min?: number): {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    };
-                    has(key: $hyoo_crowd_delta_value): boolean;
-                    for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
-                    apply(delta: {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    }): any;
-                    stamper: $hyoo_crowd_stamper;
-                    delta(base: any): {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    };
-                    fork(actor: number): any;
-                };
-            };
-            for<Field extends "flow" | "token">(field: Field): InstanceType<{
-                flow: {
-                    new (stamper?: $hyoo_crowd_stamper): {
-                        Value: typeof $hyoo_crowd_list;
-                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
-                        toJSON(version_min?: number): {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        };
-                        has(key: $hyoo_crowd_delta_value): boolean;
-                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
-                        apply(delta: {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        }): any;
-                        stamper: $hyoo_crowd_stamper;
-                        delta(base: any): {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        };
-                        fork(actor: number): any;
-                    };
-                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
-                        new (stamper?: $hyoo_crowd_stamper): {
-                            Value: Value;
-                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
-                            toJSON(version_min?: number): {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            };
-                            has(key: $hyoo_crowd_delta_value): boolean;
-                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
-                            apply(delta: {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            }): any;
-                            stamper: $hyoo_crowd_stamper;
-                            delta(base: any): {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            };
-                            fork(actor: number): any;
-                        };
-                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
-                        make<Instance>(this: new () => Instance): Instance;
-                    };
-                    make<Instance>(this: new () => Instance): Instance;
-                };
-                token: {
-                    new (stamper?: $hyoo_crowd_stamper): {
-                        Value: typeof $hyoo_crowd_reg;
-                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
-                        toJSON(version_min?: number): {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        };
-                        has(key: $hyoo_crowd_delta_value): boolean;
-                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
-                        apply(delta: {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        }): any;
-                        stamper: $hyoo_crowd_stamper;
-                        delta(base: any): {
-                            values: $hyoo_crowd_delta_value[];
-                            stamps: number[];
-                        };
-                        fork(actor: number): any;
-                    };
-                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
-                        new (stamper?: $hyoo_crowd_stamper): {
-                            Value: Value;
-                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
-                            toJSON(version_min?: number): {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            };
-                            has(key: $hyoo_crowd_delta_value): boolean;
-                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
-                            apply(delta: {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            }): any;
-                            stamper: $hyoo_crowd_stamper;
-                            delta(base: any): {
-                                values: $hyoo_crowd_delta_value[];
-                                stamps: number[];
-                            };
-                            fork(actor: number): any;
-                        };
-                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
-                        make<Instance>(this: new () => Instance): Instance;
-                    };
-                    make<Instance>(this: new () => Instance): Instance;
-                };
-            }[Field]>;
-            toJSON(version_min?: number): {
-                values: $hyoo_crowd_delta_value[];
-                stamps: number[];
-            };
-            apply(delta: {
-                values: $hyoo_crowd_delta_value[];
-                stamps: number[];
-            }): any;
-            stamper: $hyoo_crowd_stamper;
-            delta(base: any): {
-                values: $hyoo_crowd_delta_value[];
-                stamps: number[];
-            };
-            fork(actor: number): any;
-        };
-        of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
-            new (stamper?: $hyoo_crowd_stamper): {
-                Fields: Types;
-                stores: { [key in keyof Types]: InstanceType<Types[key]>; };
-                for<Field_1 extends keyof Types>(field: Field_1): InstanceType<Types[Field_1]>;
-                toJSON(version_min?: number): {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                };
-                apply(delta: {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                }): any;
-                stamper: $hyoo_crowd_stamper;
-                delta(base: any): {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                };
-                fork(actor: number): any;
-            };
-            of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
-            make<Instance>(this: new () => Instance): Instance;
-        };
-        make<Instance>(this: new () => Instance): Instance;
-    };
-    export class $hyoo_crowd_text extends $hyoo_crowd_text_base {
-        get root(): $hyoo_crowd_list;
-        get tokens(): string[];
-        value_of(token: string): string;
-        get text(): string;
-        set text(next: string);
-        splice_line(id: string | null, from: number, to: number, text: string): void;
-    }
-    export {};
 }
 
 declare namespace $.$$ {
@@ -2835,13 +2843,22 @@ declare namespace $.$$ {
 
 declare namespace $.$$ {
     class $hyoo_crowd_app extends $.$hyoo_crowd_app {
-        left_store: $hyoo_crowd_text;
-        right_store: $hyoo_crowd_text;
-        left(next?: string): string;
-        right(next?: string): string;
-        left_sync_version: number;
-        right_sync_version: number;
+        sync_enabled(): boolean;
         sync(next?: Event): number;
+    }
+    class $hyoo_crowd_app_actor extends $.$hyoo_crowd_app_actor {
+        sync_stamp(next?: number): number;
+        text(next?: string): string;
+        delta(): {
+            values: $hyoo_crowd_delta_value[];
+            stamps: number[];
+        };
+        changes(): number;
+        size_state(): number;
+        size_delta(): number;
+        tokens_alive(): number;
+        tokens_dead(): number;
+        stats(): string;
     }
 }
 

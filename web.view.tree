@@ -10,23 +10,6 @@ $mol_scroll $mol_view
 		^
 		scroll?event <=> event_scroll?event null
 
-$mol_page $mol_view
-	sub /
-		<= Head $mol_view
-			minimal_height 64
-			sub <= head /
-				<= Title $mol_view
-					dom_name \h1
-					sub /
-						<= title
-				<= Tools $mol_view
-					sub <= tools /$mol_view_content
-		<= Body $mol_scroll
-			scroll_top?val <=> body_scroll_top?val 0
-			sub <= body /$mol_view_content
-		<= Foot $mol_view
-			sub <= foot /$mol_view
-
 $mol_book2 $mol_scroll
 	sub <= pages /$mol_view
 	minimal_width 0
@@ -65,6 +48,11 @@ $mol_button $mol_view
 	Speck $mol_speck
 
 $mol_button_typed $mol_button
+
+$mol_button_major $mol_button_typed
+	attr *
+		^
+		mol_theme \$mol_theme_accent
 
 $mol_button_minor $mol_button_typed
 
@@ -141,10 +129,22 @@ $mol_link_source $mol_link
 	sub /
 		<= Icon $mol_icon_github_circle
 
-$mol_button_major $mol_button_typed
-	attr *
-		^
-		mol_theme \$mol_theme_accent
+$mol_page $mol_view
+	sub /
+		<= Head $mol_view
+			minimal_height 64
+			sub <= head /
+				<= Title $mol_view
+					dom_name \h1
+					sub /
+						<= title
+				<= Tools $mol_view
+					sub <= tools /$mol_view_content
+		<= Body $mol_scroll
+			scroll_top?val <=> body_scroll_top?val 0
+			sub <= body /$mol_view_content
+		<= Foot $mol_view
+			sub <= foot /$mol_view
 
 $mol_hotkey $mol_plugin
 	event *
@@ -419,23 +419,45 @@ $hyoo_crowd_app $mol_book2
 	plugins /
 		<= Theme $mol_theme_auto
 	pages /
-		<= Left_page $mol_page
-			title \CROWD Text Left
+		<= Left $hyoo_crowd_app_actor
+			title \CROWD Text: Left
+			sync <= sync
+			tools /
+				<= Sync $mol_button_major
+					title \Sync
+					enabled <= sync_enabled false
+					click?event <=> sync?event null
+		<= Right $hyoo_crowd_app_actor
+			title \CROWD Text: Right
+			sync <= sync
 			tools /
 				<= Lights $mol_lights_toggle
 				<= Source $mol_link_source
 					uri \https://github.com/hyoo-ru/crowd.hyoo.ru/
-				<= Sync $mol_button_major
-					title \Sync
-					click?event <=> sync?event null
-			body /
-				<= Left $mol_textarea
-					value?val <=> left?val \
-		<= Right_page $mol_page
-			title \CROWD Text Right
-			body /
-				<= Right $mol_textarea
-					value?val <=> right?val \
+
+$hyoo_crowd_app_actor $mol_page
+	store $hyoo_crowd_text
+	sync 0
+	body /
+		<= Text $mol_textarea
+			value?val <=> text?val \
+		<= Stats $mol_text
+			text <= stats \
+				\Actor: **{actor}**
+				\Changes: **{changes}**
+				\
+				\| | Alive | Dead
+				\|--|--|--
+				\| Tokens | **{tokens:alive}** | **{tokens:dead}**
+				\
+				\| | Now | Sync
+				\|--|--|--
+				\| Stamp | **{stamp:now}** | **{stamp:sync}**
+				\
+				\| | Text | State (JSON) | Delta (JSON)
+				\|--|--|--|--
+				\| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**
+				\
 
 $mol_view_tree_test_attributes_super $mol_view
 	some *
