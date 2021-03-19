@@ -4,7 +4,10 @@ Rich text.
 
 ## Properties
 
-May be binded to native `<textarea>`.
+- Can be binded to native `<textarea>`.
+- Uses tokenizer to split text by tokens.
+- Token's value and tokens order are stored separately.
+- Merge never produces unreadable token value. Only one of valid (LWW).
 
 ## Work in progress
 
@@ -44,3 +47,7 @@ Delta is partial state dump which depends on the inner stores.
 
 - `text` Replace full text with reconciliation.
 - `write( flow, from, to, text )` Coming soon.
+
+## [Online sandbox](https://crowd.hyoo.ru/)
+
+- Currently binded to native textarea. It's simple, but slow on large texts. 
