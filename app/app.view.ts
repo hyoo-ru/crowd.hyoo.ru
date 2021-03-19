@@ -67,10 +67,13 @@ namespace $.$$ {
 			return this.store().root.items_internal.length
 		}
 		
-		tokens_dead() {
+		tokens_total() {
 			this.text()
-			this.sync_stamp()
-			return this.store().for( 'token' ).stores.size
+			return this.store().root.items_internal.length
+		}
+		
+		tokens_dead() {
+			return this.tokens_total() - this.tokens_alive()
 		}
 		
 		stats() {
@@ -80,6 +83,7 @@ namespace $.$$ {
 			.replace( '{changes}', this.changes().toLocaleString() )
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
+			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
 			.replace( '{stamp:now}', this.store().stamper.version_max.toLocaleString() )
 			.replace( '{stamp:sync}', this.sync_stamp().toLocaleString() )
 			.replace( '{size:text}', this.text().length.toLocaleString() )

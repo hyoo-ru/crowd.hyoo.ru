@@ -30,9 +30,9 @@ $hyoo_crowd_app_actor $mol_page
 				\Actor: **{actor}**
 				\Changes: **{changes}**
 				\
-				\| | Alive | Dead
+				\| | Alive | Dead | Total
 				\|--|--|--
-				\| Tokens | **{tokens:alive}** | **{tokens:dead}**
+				\| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**
 				\
 				\| | Now | Sync
 				\|--|--|--
