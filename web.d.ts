@@ -2857,6 +2857,7 @@ declare namespace $.$$ {
         size_state(): number;
         size_delta(): number;
         tokens_alive(): number;
+        tokens_total(): number;
         tokens_dead(): number;
         stats(): string;
     }

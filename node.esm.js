@@ -7822,7 +7822,7 @@ var $;
             return obj;
         }
         stats() {
-            return "Actor: **{actor}**\nChanges: **{changes}**\n\n| | Alive | Dead\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}**\n\n| | Now | Sync\n|--|--|--\n| Stamp | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n";
+            return "Actor: **{actor}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Stamp | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n";
         }
         Stats() {
             const obj = new this.$.$mol_text();
@@ -7921,10 +7921,12 @@ var $;
                 this.text();
                 return this.store().root.items_internal.length;
             }
-            tokens_dead() {
+            tokens_total() {
                 this.text();
-                this.sync_stamp();
-                return this.store().for('token').stores.size;
+                return this.store().root.items_internal.length;
+            }
+            tokens_dead() {
+                return this.tokens_total() - this.tokens_alive();
             }
             stats() {
                 this.text();
@@ -7933,6 +7935,7 @@ var $;
                     .replace('{changes}', this.changes().toLocaleString())
                     .replace('{tokens:alive}', this.tokens_alive().toLocaleString())
                     .replace('{tokens:dead}', this.tokens_dead().toLocaleString())
+                    .replace('{tokens:total}', this.tokens_total().toLocaleString())
                     .replace('{stamp:now}', this.store().stamper.version_max.toLocaleString())
                     .replace('{stamp:sync}', this.sync_stamp().toLocaleString())
                     .replace('{size:text}', this.text().length.toLocaleString())
