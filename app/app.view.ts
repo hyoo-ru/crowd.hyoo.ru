@@ -69,7 +69,7 @@ namespace $.$$ {
 		
 		tokens_total() {
 			this.text()
-			return this.store().root.items_internal.length
+			return this.store().for( 'token' ).stores.size
 		}
 		
 		tokens_dead() {
