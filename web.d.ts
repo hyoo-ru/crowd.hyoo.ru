@@ -1809,10 +1809,6 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_guid(length?: number, exists?: (id: string) => boolean): string;
-}
-
-declare namespace $ {
     const $hyoo_crowd_text_base: {
         new (stamper?: $hyoo_crowd_stamper): {
             Fields: {
@@ -2831,6 +2827,7 @@ declare namespace $ {
         store(): $hyoo_crowd_text;
         sync(): number;
         body(): readonly any[];
+        hint(): string;
         text(val?: any): any;
         Text(): $$.$mol_textarea;
         stats(): string;

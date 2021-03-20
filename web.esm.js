@@ -5290,21 +5290,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_guid(length = 8, exists = () => false) {
-        for (;;) {
-            let id = Math.random().toString(36).substring(2, length + 2).toUpperCase();
-            if (exists(id))
-                continue;
-            return id;
-        }
-    }
-    $.$mol_guid = $mol_guid;
-})($ || ($ = {}));
-//guid.js.map
-;
-"use strict";
-var $;
-(function ($) {
     const tokenizer = $.$mol_regexp.from({
         token: {
             'line-break': /(?:\r?\n|\r)/,
@@ -5346,7 +5331,10 @@ var $;
                     words.shift();
                 }
                 else if (words.length > to - from) {
-                    const key = $.$mol_guid(4, id => tokens.has(id));
+                    let key;
+                    do {
+                        key = Math.floor(Math.random() * 1000000);
+                    } while (tokens.has(key));
                     tokens.for(key).str = next;
                     flow.insert(key, from);
                     words.shift();
@@ -7534,7 +7522,8 @@ var $;
         }
         Left() {
             const obj = new this.$.$hyoo_crowd_app_actor();
-            obj.title = () => "CROWD Text: Left";
+            obj.title = () => "CROWD Text Demo";
+            obj.hint = () => "Text of Alice";
             obj.sync = () => this.sync();
             obj.tools = () => [
                 this.Sync()
@@ -7552,7 +7541,8 @@ var $;
         }
         Right() {
             const obj = new this.$.$hyoo_crowd_app_actor();
-            obj.title = () => "CROWD Text: Right";
+            obj.title = () => "";
+            obj.hint = () => "Text of Bob";
             obj.sync = () => this.sync();
             obj.tools = () => [
                 this.Lights(),
@@ -7597,6 +7587,9 @@ var $;
                 this.Stats()
             ];
         }
+        hint() {
+            return "";
+        }
         text(val) {
             if (val !== undefined)
                 return val;
@@ -7604,11 +7597,12 @@ var $;
         }
         Text() {
             const obj = new this.$.$mol_textarea();
+            obj.hint = () => this.hint();
             obj.value = (val) => this.text(val);
             return obj;
         }
         stats() {
-            return "Actor: **{actor}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Stamp | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n";
+            return "Actor: **{actor}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Stamp | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n\n# Delta\n```\n{dump:delta}\n```";
         }
         Stats() {
             const obj = new this.$.$mol_text();
@@ -7646,6 +7640,11 @@ var $;
             },
             Body: {
                 margin: $.$mol_gap.block,
+            },
+            Text: {
+                flex: {
+                    grow: 0,
+                },
             },
         });
     })($$ = $.$$ || ($.$$ = {}));
@@ -7726,7 +7725,8 @@ var $;
                     .replace('{stamp:sync}', this.sync_stamp().toLocaleString())
                     .replace('{size:text}', this.text().length.toLocaleString())
                     .replace('{size:state}', this.size_state().toLocaleString())
-                    .replace('{size:delta}', this.size_delta().toLocaleString());
+                    .replace('{size:delta}', this.size_delta().toLocaleString())
+                    .replace('{dump:delta}', JSON.stringify(this.delta()));
             }
         }
         __decorate([
