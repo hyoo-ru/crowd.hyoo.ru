@@ -7602,7 +7602,7 @@ var $;
             return obj;
         }
         stats() {
-            return "Actor: **{actor}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Stamp | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n\n# Delta\n```\n{dump:delta}\n```";
+            return "# Stats\n\nActor: **{actor}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Stamp | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n\n# Delta\n```\n{dump:delta}\n```";
         }
         Stats() {
             const obj = new this.$.$mol_text();
@@ -7638,10 +7638,8 @@ var $;
                 shrink: 0,
                 basis: rem(20),
             },
-            Body: {
-                margin: $.$mol_gap.block,
-            },
             Text: {
+                margin: $.$mol_gap.block,
                 flex: {
                     grow: 0,
                 },
