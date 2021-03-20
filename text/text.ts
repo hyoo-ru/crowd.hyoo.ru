@@ -52,7 +52,11 @@ namespace $ {
 					
 				} else if( words.length > to - from ) {
 					
-					const key = $mol_guid( 4, id => tokens.has( id ) )
+					let key
+					do {
+						key = Math.floor( Math.random() * 1_000_000 )
+					} while( tokens.has( key ) )
+					
 					tokens.for( key ).str = next
 					
 					flow.insert( key, from )
