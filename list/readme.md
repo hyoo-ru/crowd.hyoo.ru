@@ -46,7 +46,3 @@ Delta is full state dump.
 - `insert( key, pos? )` Pos points to the end by default.
 - `cut( key )`
 
-## Can be reinterpreted as
-
-- [CROWD Register](../reg) then last value wins.
-- [CROWD Unordered Set](../set)
