@@ -2491,27 +2491,27 @@ var $;
 (function ($) {
     $.$mol_test({
         'Put values to end'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').toJSON(), $.$hyoo_crowd_delta(['foo', 'bar'], [+1001, +2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').toJSON(), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001]));
         },
         'Ignore existen values'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('foo').toJSON(), $.$hyoo_crowd_delta(['foo'], [+2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('foo').toJSON(), $.$hyoo_crowd_delta(['foo'], [+2000001]));
         },
         'Slice after version'() {
             const store = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
-            $.$mol_assert_like(store.toJSON(+1001), $.$hyoo_crowd_delta(['foo', 'bar'], [+1001, +2001]));
-            $.$mol_assert_like(store.toJSON(+2001), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.toJSON(+1000001), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001]));
+            $.$mol_assert_like(store.toJSON(+2000001), $.$hyoo_crowd_delta([], []));
         },
         'Put value to the middle'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').insert('xxx', 1).toJSON(), $.$hyoo_crowd_delta(['foo', 'xxx', 'bar'], [+1001, +3001, +2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').insert('xxx', 1).toJSON(), $.$hyoo_crowd_delta(['foo', 'xxx', 'bar'], [+1000001, +3000001, +2000001]));
         },
         'Put value to the start'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar', 0).toJSON(), $.$hyoo_crowd_delta(['bar', 'foo'], [+2001, +1001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar', 0).toJSON(), $.$hyoo_crowd_delta(['bar', 'foo'], [+2000001, +1000001]));
         },
         'Partial cut values'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').cut('foo').toJSON(), $.$hyoo_crowd_delta(['bar', 'foo'], [+2001, -3001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').cut('foo').toJSON(), $.$hyoo_crowd_delta(['bar', 'foo'], [+2000001, -3000001]));
         },
         'Ignore already cutted values'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').cut('foo').cut('foo').toJSON(), $.$hyoo_crowd_delta(['foo'], [-2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').cut('foo').cut('foo').toJSON(), $.$hyoo_crowd_delta(['foo'], [-2000001]));
         },
         'Convert to native array'() {
             const store = new $.$hyoo_crowd_list().fork(1)
@@ -2526,7 +2526,7 @@ var $;
             const right = new $.$hyoo_crowd_list().fork(2).insert('xxx').insert('yyy');
             const left_delta = left.toJSON();
             const right_delta = right.toJSON();
-            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['xxx', 'yyy', 'foo', 'bar'], [+1002, +2002, +1001, +2001]));
+            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['xxx', 'yyy', 'foo', 'bar'], [+1000002, +2000002, +1000001, +2000001]));
         },
         'Insert in the same place'() {
             const base = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
@@ -2534,7 +2534,7 @@ var $;
             const right = base.fork(3).insert('yyy', 1);
             const left_delta = left.delta(base);
             const right_delta = right.delta(base);
-            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 'yyy', 'xxx', 'bar'], [+1001, +3003, +3002, +2001]));
+            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 'yyy', 'xxx', 'bar'], [+1000001, +3000003, +3000002, +2000001]));
         },
         'Insert after moved'() {
             const base = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
@@ -2542,7 +2542,7 @@ var $;
             const right = base.fork(3).insert('foo', 2);
             const left_delta = left.delta(base);
             const right_delta = right.delta(base);
-            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['xxx', 'bar', 'foo'], [+3002, +2001, +3003]));
+            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['xxx', 'bar', 'foo'], [+3000002, +2000001, +3000003]));
         },
         'Insert after cutted'() {
             const base = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
@@ -2550,10 +2550,10 @@ var $;
             const right = base.fork(3).cut('foo');
             const left_delta = left.delta(base);
             const right_delta = right.delta(base);
-            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['xxx', 'bar', 'foo'], [+3002, +2001, -3003]));
+            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['xxx', 'bar', 'foo'], [+3000002, +2000001, -3000003]));
         },
         'Number ids support'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert(1).insert(2).insert(3, 1).toJSON(), $.$hyoo_crowd_delta([1, 3, 2], [+1001, +3001, +2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert(1).insert(2).insert(3, 1).toJSON(), $.$hyoo_crowd_delta([1, 3, 2], [+1000001, +3000001, +2000001]));
         },
     });
 })($ || ($ = {}));
@@ -2564,21 +2564,21 @@ var $;
 (function ($) {
     $.$mol_test({
         'Add keys'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('bar').toJSON(), $.$hyoo_crowd_delta(['foo', 'bar'], [+1001, +2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('bar').toJSON(), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001]));
         },
         'Slice after version'() {
             const val = new $.$hyoo_crowd_set().fork(1).add('foo').add('bar');
-            $.$mol_assert_like(val.toJSON(+1001), $.$hyoo_crowd_delta(['bar'], [+2001]));
-            $.$mol_assert_like(val.toJSON(+2001), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(val.toJSON(+1000001), $.$hyoo_crowd_delta(['bar'], [+2000001]));
+            $.$mol_assert_like(val.toJSON(+2000001), $.$hyoo_crowd_delta([], []));
         },
         'Ignore existen keys'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('foo').toJSON(), $.$hyoo_crowd_delta(['foo'], [+1001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('foo').toJSON(), $.$hyoo_crowd_delta(['foo'], [+1000001]));
         },
         'Partial remove keys'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('bar').remove('foo').toJSON(), $.$hyoo_crowd_delta(['foo', 'bar'], [-3001, +2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('bar').remove('foo').toJSON(), $.$hyoo_crowd_delta(['foo', 'bar'], [-3000001, +2000001]));
         },
         'Ignore already removed keys'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').remove('foo').remove('foo').toJSON(), $.$hyoo_crowd_delta(['foo'], [-2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').remove('foo').remove('foo').toJSON(), $.$hyoo_crowd_delta(['foo'], [-2000001]));
         },
         'Convert to native Set'() {
             const store = new $.$hyoo_crowd_set().fork(1).add('foo').add('xxx').remove('foo');
@@ -2608,7 +2608,7 @@ var $;
             $.$mol_assert_like(left.apply(right_delta).items.sort(), right.apply(left_delta).items.sort(), ['bar']);
         },
         'Number ids support'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add(1).add(2).add(2).toJSON(), $.$hyoo_crowd_delta([1, 2], [+1001, +2001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add(1).add(2).add(2).toJSON(), $.$hyoo_crowd_delta([1, 2], [+1000001, +2000001]));
         },
     });
 })($ || ($ = {}));
@@ -2689,20 +2689,20 @@ var $;
             const store = new $.$hyoo_crowd_reg().fork(1);
             store.str = 'foo';
             store.str = 'bar';
-            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['bar'], [+2001]));
+            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['bar'], [+2000001]));
         },
         'Ignore same changes'() {
             const store = new $.$hyoo_crowd_reg().fork(1);
             store.str = 'foo';
             store.str = 'foo';
-            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['foo'], [+1001]));
+            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['foo'], [+1000001]));
         },
         'Slice after version'() {
             const store = new $.$hyoo_crowd_reg().fork(1);
             store.str = 'foo';
             store.str = 'bar';
-            $.$mol_assert_like(store.toJSON(+1001), $.$hyoo_crowd_delta(['bar'], [+2001]));
-            $.$mol_assert_like(store.toJSON(+2001), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.toJSON(+1000001), $.$hyoo_crowd_delta(['bar'], [+2000001]));
+            $.$mol_assert_like(store.toJSON(+2000001), $.$hyoo_crowd_delta([], []));
         },
         'Cuncurrent changes'() {
             const base = new $.$hyoo_crowd_reg().fork(1);
@@ -2715,7 +2715,7 @@ var $;
             const right_delta = right.delta(base);
             $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), {
                 values: ['xxx'],
-                stamps: [+2003],
+                stamps: [+2000003],
             });
         },
     });
@@ -2733,16 +2733,16 @@ var $;
         },
         'Serial changes'() {
             const store = new $.$hyoo_crowd_numb().fork(1).shift(+5).shift(-3);
-            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta([+2], [+2001]));
+            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta([+2], [+2000001]));
             $.$mol_assert_like(store.value, 2);
         },
         'Slice after version'() {
             const val = new $.$hyoo_crowd_numb()
                 .fork(1).shift(+5).shift(-3)
                 .fork(2).shift(-2);
-            $.$mol_assert_like(val.toJSON(+1001), $.$hyoo_crowd_delta([+2, -2], [+2001, +3002]));
-            $.$mol_assert_like(val.toJSON(+2001), $.$hyoo_crowd_delta([-2], [+3002]));
-            $.$mol_assert_like(val.toJSON(+3002), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(val.toJSON(+1000001), $.$hyoo_crowd_delta([+2, -2], [+2000001, +3000002]));
+            $.$mol_assert_like(val.toJSON(+2000001), $.$hyoo_crowd_delta([-2], [+3000002]));
+            $.$mol_assert_like(val.toJSON(+3000002), $.$hyoo_crowd_delta([], []));
         },
         'Concurrent changes'() {
             const base = new $.$hyoo_crowd_numb().fork(1).shift(+5);
@@ -2846,7 +2846,7 @@ var $;
                 array: $.$hyoo_crowd_list,
             }).make().fork(1);
             store.to('counter').shift(+5).shift(-2);
-            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['counter', +3], [+1001, +3001]));
+            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['counter', +3], [+1000001, +3000001]));
         },
         'Slice after version'() {
             const store = $.$hyoo_crowd_union.of({
@@ -2856,8 +2856,8 @@ var $;
                 array: $.$hyoo_crowd_list,
             }).make().fork(1);
             store.to('object').add('foo').add('bar');
-            $.$mol_assert_like(store.toJSON(+2001), $.$hyoo_crowd_delta(['object', 'bar'], [+1001, +3001]));
-            $.$mol_assert_like(store.toJSON(+3001), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.toJSON(+2000001), $.$hyoo_crowd_delta(['object', 'bar'], [+1000001, +3000001]));
+            $.$mol_assert_like(store.toJSON(+3000001), $.$hyoo_crowd_delta([], []));
         },
         'Reinterpret list as reg'() {
             const store = $.$hyoo_crowd_union.of({
@@ -2886,7 +2886,7 @@ var $;
             right.to('array').insert('xxx');
             const left_delta = left.delta(base);
             const right_delta = right.delta(base);
-            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['array', 'bar', 'foo', 'xxx'], [+3003, +3002, +2001, +4003]));
+            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['array', 'bar', 'foo', 'xxx'], [+3000003, +3000002, +2000001, +4000003]));
         },
     });
 })($ || ($ = {}));
@@ -2966,7 +2966,7 @@ var $;
             val.for('bar').insert(777);
             val.for('foo').insert(888, 0);
             val.for('bar').cut(777);
-            $.$mol_assert_like(val.toJSON(), $.$hyoo_crowd_delta(['foo', 888, 666, 'bar', 777], [-2, 3001, 1001, -1, -4001]));
+            $.$mol_assert_like(val.toJSON(), $.$hyoo_crowd_delta(['foo', 888, 666, 'bar', 777], [-2, 3000001, 1000001, -1, -4000001]));
         },
         'Slice after version'() {
             const val = $.$hyoo_crowd_dict.of($.$hyoo_crowd_set).make().fork(1);
@@ -2976,8 +2976,8 @@ var $;
             val.for('foo').add(4);
             val.for('bar').add(5);
             val.for('xxx').add(6);
-            $.$mol_assert_like(val.toJSON(+3001), $.$hyoo_crowd_delta(['foo', 4, 'bar', 5, 'xxx', 6], [-1, +4001, -1, +5001, -1, +6001]));
-            $.$mol_assert_like(val.toJSON(+6001), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(val.toJSON(+3000001), $.$hyoo_crowd_delta(['foo', 4, 'bar', 5, 'xxx', 6], [-1, +4000001, -1, +5000001, -1, +6000001]));
+            $.$mol_assert_like(val.toJSON(+6000001), $.$hyoo_crowd_delta([], []));
         },
         'Merge different documents'() {
             const left = $.$hyoo_crowd_dict.of($.$hyoo_crowd_list).make().fork(1);
@@ -2989,7 +2989,7 @@ var $;
             right.for('bar').insert('zzz');
             const left_delta = left.toJSON();
             const right_delta = right.toJSON();
-            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 777, 666, 'bar', 'yyy', 'zzz', 'xxx'], [-2, 1002, 1001, -3, 2002, 3002, 2001]));
+            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 777, 666, 'bar', 'yyy', 'zzz', 'xxx'], [-2, 1000002, 1000001, -3, 2000002, 3000002, 2000001]));
         },
         'Merge increases versions'() {
             const base = $.$hyoo_crowd_dict.of($.$hyoo_crowd_list).make();
@@ -3000,7 +3000,7 @@ var $;
             right.for('bar').insert(18);
             left.apply(right.toJSON());
             left.for('foo').insert('yyy');
-            $.$mol_assert_like(left.toJSON(), $.$hyoo_crowd_delta(['foo', 'xxx', 'yyy', 'bar', 17, 18], [-2, 1001, 3001, -2, 1002, 2002]));
+            $.$mol_assert_like(left.toJSON(), $.$hyoo_crowd_delta(['foo', 'xxx', 'yyy', 'bar', 17, 18], [-2, 1000001, 3000001, -2, 1000002, 2000002]));
         },
         'Dictionary of Union'() {
             const base = $.$hyoo_crowd_dict.of($.$hyoo_crowd_union.of({
@@ -3014,7 +3014,7 @@ var $;
             right.for('foo').to('array').insert('xxx');
             const left_delta = left.delta(base);
             const right_delta = right.delta(base);
-            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 'array', 'xxx', 'bar'], [-3, 1002, 2002, 2001]));
+            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 'array', 'xxx', 'bar'], [-3, 1000002, 2000002, 2000001]));
         },
         'Dictionary of Dictionary'() {
             const base = $.$hyoo_crowd_dict.of($.$hyoo_crowd_dict.of($.$hyoo_crowd_reg)).make();
@@ -3058,7 +3058,7 @@ var $;
             $.$mol_assert_like(store.for('vers').numb, 0);
             $.$mol_assert_like(store.for('keys').items, ['foo', 'bar']);
             $.$mol_assert_like(store.for('vals').for('xxx').str, 'yyy');
-            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['keys', 'foo', 'bar', 'vals', 'xxx', 'yyy'], [-2, +1001, +2001, -2, -1, +3001]));
+            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['keys', 'foo', 'bar', 'vals', 'xxx', 'yyy'], [-2, +1000001, +2000001, -2, -1, +3000001]));
         },
         'Tuple of tuples'() {
             const Point = $.$hyoo_crowd_tuple.of({
@@ -3078,7 +3078,7 @@ var $;
             $.$mol_assert_like(store.for('TL').for('Y').value, -3);
             $.$mol_assert_like(store.for('BR').for('X').value, +5);
             $.$mol_assert_like(store.for('BR').for('Y').value, +7);
-            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(["TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7], [-4, -1, +1001, -1, +2001, -4, -1, +3001, -1, +4001]));
+            $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(["TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7], [-4, -1, +1000001, -1, +2000001, -4, -1, +3000001, -1, +4000001]));
         },
     });
 })($ || ($ = {}));
@@ -3097,7 +3097,7 @@ var $;
             store.text = 'foo bar';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'foo bar');
-            $.$mol_assert_like(store.root.toJSON().stamps, [2001, 4001]);
+            $.$mol_assert_like(store.root.toJSON().stamps, [2000001, 4000001]);
         },
         'Replace with same tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3105,7 +3105,7 @@ var $;
             store.text = 'xxx yyy';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'xxx yyy');
-            $.$mol_assert_like(store.root.toJSON().stamps, [2001, 4001]);
+            $.$mol_assert_like(store.root.toJSON().stamps, [2000001, 4000001]);
         },
         'Replace with more tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3113,7 +3113,7 @@ var $;
             store.text = 'foo de bar';
             $.$mol_assert_like(store.tokens.length, 3);
             $.$mol_assert_like(store.text, 'foo de bar');
-            $.$mol_assert_like(store.root.toJSON().stamps, [2001, 6001, 4001]);
+            $.$mol_assert_like(store.root.toJSON().stamps, [2000001, 6000001, 4000001]);
         },
         'Replace with less tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3121,7 +3121,7 @@ var $;
             store.text = 'foo bar';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'foo bar');
-            $.$mol_assert_like(store.root.toJSON().stamps, [2001, 6001, -7001]);
+            $.$mol_assert_like(store.root.toJSON().stamps, [2000001, 6000001, -7000001]);
         },
         'Cut from end'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3129,7 +3129,7 @@ var $;
             store.text = 'foo';
             $.$mol_assert_like(store.tokens.length, 1);
             $.$mol_assert_like(store.text, 'foo');
-            $.$mol_assert_like(store.root.toJSON().stamps, [4001, -5001]);
+            $.$mol_assert_like(store.root.toJSON().stamps, [4000001, -5000001]);
         },
         'Concurrent changes'() {
             const base = new $.$hyoo_crowd_text();

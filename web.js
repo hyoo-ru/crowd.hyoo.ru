@@ -4875,7 +4875,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    const concurrency = 1000;
+    const concurrency = 1000000;
     class $hyoo_crowd_stamper {
         constructor(actor, version_max = 0) {
             this.version_max = version_max;
@@ -7709,7 +7709,7 @@ var $;
             }
             tokens_total() {
                 this.text();
-                return this.store().root.items_internal.length;
+                return this.store().for('token').stores.size;
             }
             tokens_dead() {
                 return this.tokens_total() - this.tokens_alive();
