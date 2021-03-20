@@ -30,6 +30,8 @@ $hyoo_crowd_app_actor $mol_page
 			value?val <=> text?val \
 		<= Stats $mol_text
 			text <= stats \
+				\# Stats
+				\
 				\Actor: **{actor}**
 				\Changes: **{changes}**
 				\

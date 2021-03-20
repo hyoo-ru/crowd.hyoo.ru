@@ -10,11 +10,8 @@ namespace $.$$ {
 			basis: rem(20),
 		},
 						
-		Body: {
-			margin: $mol_gap.block,
-		},
-		
 		Text: {
+			margin: $mol_gap.block,
 			flex: {
 				grow: 0,
 			},
