@@ -89,6 +89,7 @@ namespace $.$$ {
 			.replace( '{size:text}', this.text().length.toLocaleString() )
 			.replace( '{size:state}', this.size_state().toLocaleString() )
 			.replace( '{size:delta}', this.size_delta().toLocaleString() )
+			.replace( '{dump:delta}', JSON.stringify( this.delta() ) )
 		}
 		
 	}

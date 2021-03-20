@@ -4,7 +4,8 @@ $hyoo_crowd_app $mol_book2
 		<= Theme $mol_theme_auto
 	pages /
 		<= Left $hyoo_crowd_app_actor
-			title \CROWD Text: Left
+			title \CROWD Text Demo
+			hint \Text of Alice
 			sync <= sync
 			tools /
 				<= Sync $mol_button_major
@@ -12,7 +13,8 @@ $hyoo_crowd_app $mol_book2
 					enabled <= sync_enabled false
 					click?event <=> sync?event null
 		<= Right $hyoo_crowd_app_actor
-			title \CROWD Text: Right
+			title \
+			hint \Text of Bob
 			sync <= sync
 			tools /
 				<= Lights $mol_lights_toggle
@@ -24,6 +26,7 @@ $hyoo_crowd_app_actor $mol_page
 	sync 0
 	body /
 		<= Text $mol_textarea
+			hint <= hint \
 			value?val <=> text?val \
 		<= Stats $mol_text
 			text <= stats \
@@ -42,3 +45,7 @@ $hyoo_crowd_app_actor $mol_page
 				\|--|--|--|--
 				\| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**
 				\
+				\# Delta
+				\```
+				\{dump:delta}
+				\```

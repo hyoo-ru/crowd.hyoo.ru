@@ -14,6 +14,12 @@ namespace $.$$ {
 			margin: $mol_gap.block,
 		},
 		
+		Text: {
+			flex: {
+				grow: 0,
+			},
+		},
+		
 	} )
 	
 }
