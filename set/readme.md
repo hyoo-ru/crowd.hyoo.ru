@@ -49,8 +49,3 @@ Size = Size( ChangedKeys ) + 8 * Count( ChangedKeys )
 
 - `add( key )`
 - `remove( key )`
-
-## Can be reinterpreted as
-
-- [CROWD Register](../reg) then last value wins.
-- [CROWD Ordered Set](../list)
