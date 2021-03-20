@@ -36,7 +36,3 @@ Delta is full state dump.
 - `numb`
 - `str`
 
-## Can be reinterpreted as
-
-- [CROWD Counter](../numb)
-- [CROWD Ordered Set](../list)
