@@ -92,8 +92,8 @@
 | Unordered Set | ❌ | ⭕ Last added key | ✅ Same | ✅ Accidental order | ❌ | ❌ | ❌ | ❌
 | Ordered Set | ❌ | ⭕ Last inserted key | ✅ Remain order | ✅ Same | ❌ | ❌ | ❌ | ❌
 | Tagged Union | ❌ | ❌ | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same | ❌ | ❌ | ❌
-| Dictionary | ⭕ Values as summands | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Same | ❌ | ❌
-| Tuple | ⭕ Values as summands | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Field names as keys | ✅ Same | ❌
+| Dictionary | ❌ | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Same | ❌ | ❌
+| Tuple | ❌ | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Field names as keys | ✅ Same | ❌
 | Text | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ Same
 
 - ✅ Expected behaviour.
