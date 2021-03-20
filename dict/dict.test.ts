@@ -11,7 +11,7 @@ namespace $ {
 			
 			$mol_assert_like( val.toJSON(), $hyoo_crowd_delta(
 				[ 'foo', 888, 666, 'bar', 777 ],
-				[ -2, 3001, 1001, -1, -4001 ],
+				[ -2, 3000001, 1000001, -1, -4000001 ],
 			) )
 			
 		},
@@ -28,12 +28,12 @@ namespace $ {
 			val.for( 'bar' ).add( 5 )
 			val.for( 'xxx' ).add( 6 )
 
-			$mol_assert_like( val.toJSON( +3001 ), $hyoo_crowd_delta(
+			$mol_assert_like( val.toJSON( +3000001 ), $hyoo_crowd_delta(
 				[ 'foo', 4, 'bar', 5, 'xxx', 6 ],
-				[ -1, +4001, -1, +5001, -1, +6001 ],
+				[ -1, +4000001, -1, +5000001, -1, +6000001 ],
 			) )
 			
-			$mol_assert_like( val.toJSON( +6001 ), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( val.toJSON( +6000001 ), $hyoo_crowd_delta([],[]) )
 			
 		},
 		
@@ -56,7 +56,7 @@ namespace $ {
 				right.apply( left_delta ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'foo', 777, 666, 'bar', 'yyy', 'zzz', 'xxx' ],
-					[ -2, 1002, 1001, -3, 2002, 3002, 2001 ],
+					[ -2, 1000002, 1000001, -3, 2000002, 3000002, 2000001 ],
 				),
 			)
 			
@@ -78,7 +78,7 @@ namespace $ {
 			
 			$mol_assert_like( left.toJSON(), $hyoo_crowd_delta(
 				[ 'foo', 'xxx', 'yyy', 'bar', 17, 18 ],
-				[ -2, 1001, 3001, -2, 1002, 2002 ],
+				[ -2, 1000001, 3000001, -2, 1000002, 2000002 ],
 			) )
 			
 		},
@@ -105,7 +105,7 @@ namespace $ {
 				right.apply( left_delta ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'foo', 'array', 'xxx', 'bar' ],
-					[ -3, 1002, 2002, 2001 ],
+					[ -3, 1000002, 2000002, 2000001 ],
 				),
 			)
 			

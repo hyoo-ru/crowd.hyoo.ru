@@ -13,7 +13,7 @@ Ordered list of unique keys.
 ```javascript
 {
 	"values": [ "bar", "lol", "foo", "kek" ],
-	"stamps": [ +2001, +2002, +1001, -3002 ],
+	"stamps": [ +2000001, +2000002, +1000001, -3000002 ],
 }
 // Alice inserts "foo" at the end.
 // Alice inserts "bar" before "foo".

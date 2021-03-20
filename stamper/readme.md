@@ -4,10 +4,10 @@ Manages versions through composed CROWD stores.
 
 ## Stamp Format
 
-10 base digits: `V_VVV_VVV_VVV_VVV_AAA`
+10 base digits: `V_VVV_VVV_VVV_AAA_AAA`
 
-- `V` - version counter
-- `A` - actor id
+- `V` - version counter. ~ `10**10` ~ `2**32`
+- `A` - actor id. ~ `10**6` ~ `2**20`
 
 Negative stamps is used for tombstones.
 

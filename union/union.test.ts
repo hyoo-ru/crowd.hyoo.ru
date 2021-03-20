@@ -44,7 +44,7 @@ namespace $ {
 						
 			$mol_assert_like( store.toJSON(), $hyoo_crowd_delta(
 				[ 'counter', +3 ],
-				[ +1001, +3001 ],
+				[ +1000001, +3000001 ],
 			) )
 			
 		},
@@ -60,12 +60,12 @@ namespace $ {
 			
 			store.to( 'object' ).add( 'foo' ).add( 'bar' )
 						
-			$mol_assert_like( store.toJSON( +2001 ), $hyoo_crowd_delta(
+			$mol_assert_like( store.toJSON( +2000001 ), $hyoo_crowd_delta(
 				[ 'object', 'bar' ],
-				[ +1001, +3001 ],
+				[ +1000001, +3000001 ],
 			) )
 			
-			$mol_assert_like( store.toJSON( +3001 ), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( store.toJSON( +3000001 ), $hyoo_crowd_delta([],[]) )
 			
 		},
 		
@@ -114,7 +114,7 @@ namespace $ {
 				
 				$hyoo_crowd_delta(
 					[ 'array', 'bar', 'foo', 'xxx' ],
-					[ +3003, +3002, +2001, +4003 ],
+					[ +3000003, +3000002, +2000001, +4000003 ],
 				),
 				
 			)

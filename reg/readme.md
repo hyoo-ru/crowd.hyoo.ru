@@ -7,7 +7,7 @@ Single value store. Just CvRDT LWW-Register with same properties.
 ```javascript
 {
 	"values": [ "bar" ],
-	"stamps": [ +2002 ],
+	"stamps": [ +2000002 ],
 }
 // Alice puts "foo" then Bob puts "bar".
 

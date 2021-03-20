@@ -14,7 +14,7 @@ Number that can be shifted by any value. Equivalent of dCRDT PN-Counter with sam
 ```javascript
 {
 	"values": [ +5, +4, -1 ],
-	"stamps": [ +1001, +3002, -3003 ],
+	"stamps": [ +1000001, +3000002, -3000003 ],
 }
 // Alice increases by 5.
 // Bob increases by 3 then increases by 1.
@@ -34,7 +34,7 @@ Delta is partial state dump like:
 ```javascript
 {
 	"values": [ +4, -1 ],
-	"stamps": [ +3002, -3003 ],
+	"stamps": [ +3000002, -3000003 ],
 }
 // Bob increases by 3 then increases by 1.
 // Carol decreases by 2 then increases by 1.

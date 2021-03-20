@@ -146,7 +146,7 @@ console.log(
 );
 ```
 
-[Sandbox](https://codepen.io/nin-jin/pen/JjbqRYX?editors=0011)
+[Sandbox](https://codepen.io/nin-jin/pen/JjbqRYX?editors=0000011)
 
 # Comparison of Libraries
 

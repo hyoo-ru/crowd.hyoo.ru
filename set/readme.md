@@ -13,7 +13,7 @@ Unordered list of unique keys. Equivalent of dCRDT LWW-Element-Set with same pro
 ```javascript
 {
 	"values": [ "foo", "bar", "kek" ],
-	"stamps": [ +1001, +1002, -3002 ],
+	"stamps": [ +1000001, +1000002, -3000002 ],
 }
 // Alice adds "foo".
 // Bob adds "bar".
@@ -33,7 +33,7 @@ Delta is partial state dump like:
 ```javascript
 {
 	"values": [ "kek" ],
-	"stamps": [ -3002 ],
+	"stamps": [ -3000002 ],
 }
 // Alice adds "kek", but Bob removes it.
 

@@ -1,6 +1,6 @@
 namespace $ {
 	
-	const concurrency = 1000
+	const concurrency = 1_000_000
 	
 	/** Manages versions through composed CROWD stores */
 	export class $hyoo_crowd_stamper {

@@ -7,7 +7,7 @@ namespace $ {
 				new $hyoo_crowd_list().fork(1).insert( 'foo' ).insert( 'bar' ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'foo', 'bar' ],
-					[ +1001, +2001 ],
+					[ +1000001, +2000001 ],
 				),
 			)
 			
@@ -19,7 +19,7 @@ namespace $ {
 				new $hyoo_crowd_list().fork(1).insert( 'foo' ).insert( 'foo' ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'foo' ],
-					[ +2001 ],
+					[ +2000001 ],
 				),
 			)
 			
@@ -29,12 +29,12 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_list().fork(1).insert( 'foo' ).insert( 'bar' )
 
-			$mol_assert_like( store.toJSON( +1001 ), $hyoo_crowd_delta(
+			$mol_assert_like( store.toJSON( +1000001 ), $hyoo_crowd_delta(
 				[ 'foo', 'bar' ],
-				[ +1001, +2001 ],
+				[ +1000001, +2000001 ],
 			) )
 			
-			$mol_assert_like( store.toJSON( +2001 ), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( store.toJSON( +2000001 ), $hyoo_crowd_delta([],[]) )
 			
 		},
 		
@@ -44,7 +44,7 @@ namespace $ {
 				new $hyoo_crowd_list().fork(1).insert( 'foo' ).insert( 'bar' ).insert( 'xxx', 1 ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'foo', 'xxx', 'bar' ],
-					[ +1001, +3001, +2001 ],
+					[ +1000001, +3000001, +2000001 ],
 				),
 			)
 			
@@ -56,7 +56,7 @@ namespace $ {
 				new $hyoo_crowd_list().fork(1).insert( 'foo' ).insert( 'bar', 0 ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'bar', 'foo' ],
-					[ +2001, +1001 ],
+					[ +2000001, +1000001 ],
 				),
 			)
 			
@@ -68,7 +68,7 @@ namespace $ {
 				new $hyoo_crowd_list().fork(1).insert( 'foo' ).insert( 'bar' ).cut( 'foo' ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'bar', 'foo' ],
-					[ +2001, -3001 ],
+					[ +2000001, -3000001 ],
 				),
 			)
 			
@@ -80,7 +80,7 @@ namespace $ {
 				new $hyoo_crowd_list().fork(1).insert( 'foo' ).cut( 'foo' ).cut( 'foo' ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'foo' ],
-					[ -2001 ],
+					[ -2000001 ],
 				),
 			)
 			
@@ -111,7 +111,7 @@ namespace $ {
 				right.apply( left_delta ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'xxx', 'yyy', 'foo', 'bar' ],
-					[ +1002, +2002, +1001, +2001 ],
+					[ +1000002, +2000002, +1000001, +2000001 ],
 				),
 			)
 			
@@ -132,7 +132,7 @@ namespace $ {
 				right.apply( left_delta ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'foo', 'yyy', 'xxx', 'bar' ],
-					[ +1001, +3003, +3002, +2001 ],
+					[ +1000001, +3000003, +3000002, +2000001 ],
 				),
 			)
 			
@@ -153,7 +153,7 @@ namespace $ {
 				right.apply( left_delta ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'xxx', 'bar', 'foo' ],
-					[ +3002, +2001, +3003 ],
+					[ +3000002, +2000001, +3000003 ],
 				),
 			)
 			
@@ -174,7 +174,7 @@ namespace $ {
 				right.apply( left_delta ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'xxx', 'bar', 'foo' ],
-					[ +3002, +2001, -3003 ],
+					[ +3000002, +2000001, -3000003 ],
 				),
 			)
 			
@@ -186,7 +186,7 @@ namespace $ {
 				new $hyoo_crowd_list().fork(1).insert( 1 ).insert( 2 ).insert( 3, 1 ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 1, 3, 2 ],
-					[ +1001, +3001, +2001 ],
+					[ +1000001, +3000001, +2000001 ],
 				),
 			)
 			
