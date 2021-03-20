@@ -83,6 +83,23 @@
 }
 ```
 
+## Reinterpretations
+
+| From \ To | Counter | Register | Unordered Set | Ordered Set | Tagged Union | Dictionary | Tuple | Text
+|--|--|--|--|--|--|--|--|--
+| Counter | ✅ Same | ❌ | ⭕ Set of summands | ⭕ Set of summands | ❌ | ❌ | ❌ | ❌
+| Register | ✅ As summand | ✅ Same | ✅ As key | ✅ As key | ❌ | ❌ | ❌ | ❌
+| Unordered Set | ❌ | ⭕ Last added key | ✅ Same | ✅ Accidental order | ❌ | ❌ | ❌ | ❌
+| Ordered Set | ❌ | ⭕ Last inserted key | ✅ Remain order | ✅ Same | ❌ | ❌ | ❌ | ❌
+| Tagged Union | ❌ | ❌ | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same | ❌ | ❌ | ❌
+| Dictionary | ⭕ Values as summands | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Same | ❌ | ❌
+| Tuple | ⭕ Values as summands | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Field names as keys | ✅ Same | ❌
+| Text | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ Same
+
+- ✅ Expected behaviour.
+- ⭕ Unexpected but acceptable behaviour.
+- ❌ Unacceptable behaviour in most cases.
+
 ## Usage Example
 
 ```typescript
