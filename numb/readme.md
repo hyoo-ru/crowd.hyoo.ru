@@ -49,8 +49,3 @@ Size = 16 * ActorsInDelta
 ## Mutations
 
 - `shift( diff )`
-
-## Can be reinterpreted as
-
-- [CROWD Unordered Set](../set) as set of summands.
-- [CROWD Ordered Set](../list) as set of summands.
