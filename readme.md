@@ -8,18 +8,18 @@
 
 - Any states can be merged without conflicts.
 - Strong Eventual Consistency.
-- Merge result independent of merge order on different actors.
+- Merge result is independent of merge order on different actors.
 - Branch merge is semilattice.
 
 ### Reinterpretable
 
 - Same state can be reinterpreted as any CROWD Storage.
 - CROWD Storage type can be changed dynamicaly without data migration.
-- Cross-merge available between different CROWD Storages.
+- Cross-merge is available between different CROWD Storages.
 
 ### Ordered
 
-- Changes from same actor always ordered and can't be reordered.
+- Changes from same actor are always ordered and can't be reordered.
 - Deltas from same actor aren't commutative.
 - All deltas are idempotent.
 
@@ -38,13 +38,13 @@
 
 ## Comparison of Approaches
 
-### With CRDT
+### With [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)
 
-- CRDT has stronger guarantees for events commutativity. This gives a strong restriction for deleting old data. CROWD slightly weakens the guarantees, which gives more compact data representation without garbage collection and compactification.
-- Some CROWD storages is accidentally dCRDT too.
+- CRDT has stronger guarantees for events commutativity. It gives a strong restriction for deleting old data. CROWD slightly weakens the guarantees, which gives more compact data representation without garbage collection and compactification.
+- Some CROWD storages are accidentally dCRDT too.
 - Stored CROWD State can be reinterpredeted by different CROWD Storages. Different CROWD Storages may be cross merged. CRDT structures are incompatible in general.
 
-### With OT
+### With [OT](https://en.wikipedia.org/wiki/Operational_transformation)
 
 - OT stores full edit history which is redundant. CROWD competely erases history. For history navigation purposes periodically snapshots is better solution for both.
 - OT requires history rebase for convergence. This is too slow and complex. CROWD merge is very simple and fast.
