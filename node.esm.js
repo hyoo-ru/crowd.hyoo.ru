@@ -5093,6 +5093,7 @@ var $;
     class $hyoo_crowd_clock {
         constructor(peer, version_max = 0) {
             this.version_max = version_max;
+            this.saw_versions = new Map();
             this.peer = peer
                 ? peer % concurrency
                 : Math.floor(concurrency * Math.random());
@@ -5109,10 +5110,27 @@ var $;
         make(index, peer = this.peer) {
             return index * concurrency + peer;
         }
-        feed(version) {
-            if (this.version_max > version)
-                return;
-            this.version_max = version;
+        feed(stamp) {
+            var _a;
+            const version = this.version_from(stamp);
+            if (this.version_max < version) {
+                this.version_max = version;
+            }
+            if ((_a = this.saw_versions.get(version)) !== null && _a !== void 0 ? _a : 0 < version) {
+                this.saw_versions.set(this.peer_from(stamp), version);
+            }
+        }
+        is_new(stamp) {
+            var _a;
+            const version = this.version_from(stamp);
+            return version > ((_a = this.saw_versions.get(this.peer_from(stamp))) !== null && _a !== void 0 ? _a : 0);
+        }
+        is_ahead(clock) {
+            for (const version of this.saw_versions.values()) {
+                if (clock.is_new(version))
+                    return true;
+            }
+            return false;
         }
         genegate() {
             return this.version_max = (Math.floor(this.version_max / concurrency) + 1) * concurrency + this.peer;
@@ -5428,7 +5446,7 @@ var $;
                     continue;
                 this._value = val;
                 this._stamp = stamp;
-                this.clock.feed(this.clock.version_from(stamp));
+                this.clock.feed(stamp);
             }
             return this;
         }

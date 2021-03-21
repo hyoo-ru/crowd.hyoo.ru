@@ -1648,12 +1648,15 @@ declare namespace $ {
     class $hyoo_crowd_clock {
         version_max: number;
         readonly peer: number;
+        readonly saw_versions: Map<number, number>;
         constructor(peer?: number, version_max?: number);
         version_from(stamp: number): number;
         index_from(stamp: number): number;
         peer_from(stamp: number): number;
         make(index: number, peer?: number): number;
-        feed(version: number): void;
+        feed(stamp: number): void;
+        is_new(stamp: number): boolean;
+        is_ahead(clock: $hyoo_crowd_clock): boolean;
         genegate(): number;
         fork(peer: number): $hyoo_crowd_clock;
     }

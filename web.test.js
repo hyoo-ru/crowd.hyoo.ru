@@ -569,6 +569,42 @@ var $;
 var $;
 (function ($) {
     $.$mol_test({
+        'is_new'() {
+            const clock = new $.$hyoo_crowd_clock;
+            clock.feed(1000001);
+            clock.feed(-2000002);
+            $.$mol_assert_ok(clock.is_new(-2000003));
+            $.$mol_assert_ok(clock.is_new(2000003));
+            $.$mol_assert_ok(clock.is_new(3000001));
+            $.$mol_assert_not(clock.is_new(1000002));
+            $.$mol_assert_not(0);
+        },
+        'is_ahead'() {
+            const clock1 = new $.$hyoo_crowd_clock;
+            clock1.feed(1000001);
+            clock1.feed(-2000002);
+            const clock2 = new $.$hyoo_crowd_clock;
+            clock2.feed(1000001);
+            clock2.feed(-2000003);
+            const clock3 = new $.$hyoo_crowd_clock;
+            clock3.feed(1000001);
+            clock3.feed(2000002);
+            clock3.feed(2000003);
+            $.$mol_assert_ok(clock1.is_ahead(clock2));
+            $.$mol_assert_ok(clock2.is_ahead(clock1));
+            $.$mol_assert_ok(clock3.is_ahead(clock1));
+            $.$mol_assert_ok(clock3.is_ahead(clock2));
+            $.$mol_assert_not(clock1.is_ahead(clock3));
+            $.$mol_assert_not(clock2.is_ahead(clock3));
+        },
+    });
+})($ || ($ = {}));
+//clock.test.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_test({
         'Default state'() {
             const store = new $.$hyoo_crowd_reg();
             $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta([], []));
