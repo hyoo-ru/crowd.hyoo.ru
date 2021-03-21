@@ -51,16 +51,17 @@
 
 ## Available Stores
 
-- [CROWD Counter](./numb) - Equivalent of dCRDT PN-Counter with same properties.
-- [CROWD Register](./reg) - Just CvRDT LWW-Register with same properties.
-- [CROWD Unordered Set](./set) - Equivalent of dCRDT LWW-Element-Set with same properties.
-- [CROWD Ordered Set](./list) - No equal structure in the CRDT.
-- [CROWD Tagged Union](./union) - No equal structure in the CRDT.
-- [CROWD Dictionary](./dict) - No equal structure in the CRDT.
-- [CROWD Tuple](./tuple) - No equal structure in the CRDT.
-- [CROWD Text](./text) - No equal structure in the CRDT.
-- CROWD JSON - Coming soon.
-- CROWD Graph - Coming soon.
+| CROWD | CRDT |
+|-------|------|
+| [CROWD Counter](./numb) | Is equal to dCRDT PN-Counter
+| [CROWD Register](./reg) | Is same as CvRDT LWW-Register
+| [CROWD Unordered Set](./set) | Is equal to dCRDT LWW-Element-Set
+| [CROWD Ordered Set](./list) | No equal type
+| [CROWD Tagged Union](./union) | No equal type
+| [CROWD Dictionary](./dict) | No equal type
+| [CROWD Text](./text) | No equal type
+| CROWD JSON | No equal type
+| CROWD Graph | No equal type
 
 ## Utilites
 
@@ -85,16 +86,15 @@
 
 ## Reinterpretations
 
-| From \ To | Counter | Register | Unordered Set | Ordered Set | Tagged Union | Dictionary | Tuple | Text
-|--|--|--|--|--|--|--|--|--
-| Counter | ✅ Same | ❌ | ⭕ Set of summands | ⭕ Set of summands | ❌ | ❌ | ❌ | ❌
-| Register | ✅ As first summand | ✅ Same | ✅ As key | ✅ As key | ⭕ As first type | ❌ | ❌ | ❌
-| Unordered Set | ❌ | ⭕ Last added key | ✅ Same | ✅ Accidental order | ❌ | ❌ | ❌ | ❌
-| Ordered Set | ❌ | ⭕ Last inserted key | ✅ Remain order | ✅ Same | ❌ | ❌ | ❌ | ❌
-| Tagged Union | ✅ Value as first summand | ✅ Value | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same | ❌ | ❌ | ❌
-| Dictionary | ❌ | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Same | ❌ | ❌
-| Tuple | ❌ | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Field names as keys | ✅ Same | ❌
-| Text | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ Same
+| From \ To     | Counter                   | Register               | Unordered Set            | Ordered Set               | Tagged Union     | Dictionary                 | Text
+|---------------|---------------------------|------------------------|--------------------------|---------------------------|------------------|----------------------------|---------
+| Counter       | ✅ Same                   | ❌                    | ⭕ Set of summands       | ⭕ Set of summands       | ❌               | ❌                        | ❌
+| Register      | ✅ As first summand       | ✅ Same               | ✅ As key                | ✅ As key                | ⭕ As first type | ❌                        | ❌
+| Unordered Set | ❌                        | ⭕ Last added key     | ✅ Same                  | ✅ Accidental order      | ❌               | ❌                        | ❌
+| Ordered Set   | ❌                        | ⭕ Last inserted key  | ✅ Remain order          | ✅ Same                  | ❌               | ❌                        | ❌
+| Tagged Union  | ✅ Value as first summand | ✅ Value              | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same          | ❌                        | ❌
+| Dictionary    | ❌                        | ⭕ Last changed value | ⭕ Set of values         | ⭕ Set of values         | ❌               | ✅ Same                   | ❌
+| Text          | ❌                        | ❌                    | ❌                       | ❌                       | ❌               | ⭕ With keys: flow, tuple | ✅ Same
 
 - ✅ Expected behaviour.
 - ⭕ Unexpected but acceptable behaviour.
@@ -111,7 +111,6 @@
 //   $hyoo_crowd_list,
 //   $hyoo_crowd_union,
 //   $hyoo_crowd_dict,
-//   $hyoo_crowd_tuple,
 //   $hyoo_crowd_text,
 // } from 'hyoo_crowd_lib'
 
@@ -175,7 +174,7 @@ console.log(
 
 ## Benchmarks
 
-### [Sequence: Push+Shift](https://perf.js.hyoo.ru/#prefixes=%5B%22%24mol_import.script%28'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%401.0.2%2Fweb.js'%29%5Cnlet%20doc%20%3D%20%24hyoo_crowd_tuple.of%28%7B%5Cn%5Ctseq%3A%20%24hyoo_crowd_dict.of%28%20%24hyoo_crowd_list%20%29%2C%5Cn%7D%29.make%28%29%5Cnconst%20list%20%3D%20doc.for%28%20'seq'%20%29.for%28%20'list'%20%29%22%2C%22%24mol_import.script%28'https%3A%2F%2Funpkg.com%2Fautomerge%400.14.2%2Fdist%2Fautomerge.js'%29%5Cnlet%20doc%20%3D%20Automerge.from%28%7B%20list%3A%20%5B%5D%20%7D%29%22%2C%22const%20%7B%20Doc%20%7D%20%3D%20%24mol_import.module%28'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%29%5Cnconst%20doc%20%3D%20new%20Doc%5Cnconst%20list%20%3D%20doc.getArray%28%20'list'%20%29%22%5D/sources=%5B%22list.insert%28%20%7B%23%7D%20%29%5Cnif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ctlist.cut%28%20list.items%5B0%5D%20%29%5Cn%22%2C%22doc%20%3D%20Automerge.change%28%20doc%2C%20'op'%2C%20doc%20%3D%3E%20%7B%5Cn%5Ctdoc.list.push%28%7B%23%7D%29%5Cn%5Ctif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ct%5Ctdoc.list.shift%28%29%5Cn%7D%20%29%22%2C%22list.push%28%5B%7B%23%7D%5D%29%5Cnif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ctlist.delete%280%2C1%29%22%5D/prefix=const%20max_count%20%3D%20100)
+### [Sequence: Push+Shift](https://perf.js.hyoo.ru/#prefixes=%5B%22%24mol_import.script%28'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%401.0.4%2Fweb.js'%29%5Cnlet%20doc%20%3D%20%24hyoo_crowd_dict.of%28%7B%5Cn%5Ctseq%3A%20%24hyoo_crowd_dict.of%28%7B%20list%3A%20%24hyoo_crowd_list%20%7D%29%2C%5Cn%7D%29.make%28%29%5Cnconst%20list%20%3D%20doc.for%28%20'seq'%20%29.for%28%20'list'%20%29%22%2C%22%24mol_import.script%28'https%3A%2F%2Funpkg.com%2Fautomerge%400.14.2%2Fdist%2Fautomerge.js'%29%5Cnlet%20doc%20%3D%20Automerge.from%28%7B%20list%3A%20%5B%5D%20%7D%29%22%2C%22const%20%7B%20Doc%20%7D%20%3D%20%24mol_import.module%28'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%29%5Cnconst%20doc%20%3D%20new%20Doc%5Cnconst%20list%20%3D%20doc.getArray%28%20'list'%20%29%22%5D/sources=%5B%22list.insert%28%20%7B%23%7D%20%29%5Cnif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ctlist.cut%28%20list.items%5B0%5D%20%29%5Cn%22%2C%22doc%20%3D%20Automerge.change%28%20doc%2C%20'op'%2C%20doc%20%3D%3E%20%7B%5Cn%5Ctdoc.list.push%28%7B%23%7D%29%5Cn%5Ctif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ct%5Ctdoc.list.shift%28%29%5Cn%7D%20%29%22%2C%22list.push%28%5B%7B%23%7D%5D%29%5Cnif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ctlist.delete%280%2C1%29%22%5D/prefix=const%20max_count%20%3D%20100)
 
 ![](https://i.imgur.com/6ENhevv.png)
 

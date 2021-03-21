@@ -8,9 +8,9 @@ namespace $ {
 		},
 	} )
 	
-	export class $hyoo_crowd_text extends $hyoo_crowd_tuple.of({
-		flow: $hyoo_crowd_dict.of( $hyoo_crowd_list ),
-		token: $hyoo_crowd_dict.of( $hyoo_crowd_reg ),
+	export class $hyoo_crowd_text extends $hyoo_crowd_dict.of({
+		flow: $hyoo_crowd_dict.of({ val: $hyoo_crowd_list }),
+		token: $hyoo_crowd_dict.of({ val: $hyoo_crowd_reg }),
 	}) {
 		
 		get root() {

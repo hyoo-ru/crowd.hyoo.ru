@@ -2,28 +2,51 @@ namespace $ {
 	
 	/** CROWD Dictionary */
 	export class $hyoo_crowd_dict<
-		Value extends typeof $hyoo_crowd_store,
+		Fields extends Record< string, typeof $hyoo_crowd_store >
 	> extends $hyoo_crowd_store {
 		
 		static of<
-			Value extends typeof $hyoo_crowd_store
+			Types extends Record< string, typeof $hyoo_crowd_store >
 		>(
-			Value: Value,
+			Types: Types,
 		) {
-			return class Dictionary extends this<Value> {
-				Value = Value
+			return class Tuple extends this<Types> {
+				Fields = Types
 			}
 		}
 		
-		Value!: Value
+		Fields!: Fields
 		
-		stores = new Map< $hyoo_crowd_delta_value, InstanceType< Value > >()
+		stores = new Map< $hyoo_crowd_delta_value, InstanceType< Fields[string] > >()
+		
+		has( key: $hyoo_crowd_delta_value ) {
+			return this.stores.has( key )
+		}
+		
+		for< Field extends Extract< keyof Fields, string > | $hyoo_crowd_delta_value >(
+			key: Field
+		): InstanceType<
+			Fields[
+				Field extends keyof Fields ? Field : keyof Fields
+			]
+		> {
+			
+			let store = this.stores.get( key )
+			if( store ) return store as any
+			
+			const Type = this.Fields[ String( key ?? '' ) ] || Object.values( this.Fields )[0]
+			store = new Type( this.stamper ) as InstanceType< Fields[string] >
+			
+			this.stores.set( key, store )
+			return store as any
+			
+		}
 		
 		toJSON( version_min = 0 ) {
 			
 			const delta = $hyoo_crowd_delta([],[])
 			
-			for( const [ key, value ] of this.stores ) {
+			for( let [ key, value ] of this.stores ) {
 				
 				const patch = value.toJSON( version_min )
 				if( patch.values.length === 0 ) continue
@@ -35,22 +58,7 @@ namespace $ {
 			
 			return delta
 		}
-		
-		has( key: $hyoo_crowd_delta_value ) {
-			return this.stores.has( key )
-		}
-		
-		for( key: $hyoo_crowd_delta_value ) {
-			
-			let store = this.stores.get( key )
-			if( store ) return store
-			
-			store = new this.Value( this.stamper ) as InstanceType<Value>
-			this.stores.set( key, store )
-			
-			return store
-		}
-		
+				
 		apply(
 			delta: ReturnType< typeof $hyoo_crowd_delta >
 		) {

@@ -5,5 +5,4 @@ include \/hyoo/crowd/set
 include \/hyoo/crowd/list
 include \/hyoo/crowd/union
 include \/hyoo/crowd/dict
-include \/hyoo/crowd/tuple
 - include \/hyoo/crowd/json
