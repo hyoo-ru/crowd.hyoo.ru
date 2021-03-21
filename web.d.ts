@@ -1660,15 +1660,15 @@ declare namespace $ {
 declare namespace $ {
     class $hyoo_crowd_stamper {
         version_max: number;
-        readonly actor: number;
-        constructor(actor?: number, version_max?: number);
+        readonly peer: number;
+        constructor(peer?: number, version_max?: number);
         version_from(stamp: number): number;
         index_from(stamp: number): number;
-        actor_from(stamp: number): number;
-        make(index: number, actor?: number): number;
+        peer_from(stamp: number): number;
+        make(index: number, peer?: number): number;
         feed(version: number): void;
         genegate(): number;
-        fork(actor: number): $hyoo_crowd_stamper;
+        fork(peer: number): $hyoo_crowd_stamper;
     }
 }
 
@@ -1691,7 +1691,7 @@ declare namespace $ {
             stamps: number[];
         };
         apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
-        fork(actor: number): this;
+        fork(peer: number): this;
     }
 }
 
@@ -1716,7 +1716,7 @@ declare namespace $ {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
                 };
-                fork(actor: number): any;
+                fork(peer: number): any;
             };
             of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
             make<Instance>(this: new () => Instance): Instance;
@@ -1803,7 +1803,7 @@ declare namespace $ {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         };
-                        fork(actor: number): any;
+                        fork(peer: number): any;
                     };
                     of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
                         new (stamper?: $hyoo_crowd_stamper): {
@@ -1824,7 +1824,7 @@ declare namespace $ {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             };
-                            fork(actor: number): any;
+                            fork(peer: number): any;
                         };
                         of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
                         make<Instance>(this: new () => Instance): Instance;
@@ -1854,7 +1854,7 @@ declare namespace $ {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         };
-                        fork(actor: number): any;
+                        fork(peer: number): any;
                     };
                     of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
                         new (stamper?: $hyoo_crowd_stamper): {
@@ -1875,7 +1875,7 @@ declare namespace $ {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             };
-                            fork(actor: number): any;
+                            fork(peer: number): any;
                         };
                         of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
                         make<Instance>(this: new () => Instance): Instance;
@@ -1909,7 +1909,7 @@ declare namespace $ {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         };
-                        fork(actor: number): any;
+                        fork(peer: number): any;
                     };
                     of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
                         new (stamper?: $hyoo_crowd_stamper): {
@@ -1930,7 +1930,7 @@ declare namespace $ {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             };
-                            fork(actor: number): any;
+                            fork(peer: number): any;
                         };
                         of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
                         make<Instance>(this: new () => Instance): Instance;
@@ -1960,7 +1960,7 @@ declare namespace $ {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         };
-                        fork(actor: number): any;
+                        fork(peer: number): any;
                     };
                     of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
                         new (stamper?: $hyoo_crowd_stamper): {
@@ -1981,7 +1981,7 @@ declare namespace $ {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             };
-                            fork(actor: number): any;
+                            fork(peer: number): any;
                         };
                         of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
                         make<Instance>(this: new () => Instance): Instance;
@@ -2002,7 +2002,7 @@ declare namespace $ {
                 values: $hyoo_crowd_delta_value[];
                 stamps: number[];
             };
-            fork(actor: number): any;
+            fork(peer: number): any;
         };
         of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
             new (stamper?: $hyoo_crowd_stamper): {
@@ -2023,7 +2023,7 @@ declare namespace $ {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
                 };
-                fork(actor: number): any;
+                fork(peer: number): any;
             };
             of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
             make<Instance>(this: new () => Instance): Instance;
@@ -2763,12 +2763,12 @@ declare namespace $ {
         sync_enabled(): boolean;
         sync(event?: any): any;
         Sync(): $mol_button_major;
-        Left(): $$.$hyoo_crowd_app_actor;
+        Left(): $$.$hyoo_crowd_app_peer;
         Lights(): $$.$mol_lights_toggle;
         Source(): $mol_link_source;
-        Right(): $$.$hyoo_crowd_app_actor;
+        Right(): $$.$hyoo_crowd_app_peer;
     }
-    class $hyoo_crowd_app_actor extends $mol_page {
+    class $hyoo_crowd_app_peer extends $mol_page {
         store(): $hyoo_crowd_text;
         sync(): number;
         body(): readonly any[];
@@ -2788,7 +2788,7 @@ declare namespace $.$$ {
         sync_enabled(): boolean;
         sync(next?: Event): number;
     }
-    class $hyoo_crowd_app_actor extends $.$hyoo_crowd_app_actor {
+    class $hyoo_crowd_app_peer extends $.$hyoo_crowd_app_peer {
         sync_stamp(next?: number): number;
         text(next?: string): string;
         delta(): {

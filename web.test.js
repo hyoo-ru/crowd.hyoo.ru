@@ -686,15 +686,15 @@ var $;
             return store;
         }
         shift(diff = 1) {
-            const store = this.reg(this.stamper.actor);
+            const store = this.reg(this.stamper.peer);
             const prev = Number(store.numb);
             store.numb = prev + diff;
             return this;
         }
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
-                const actor = this.stamper.actor_from(delta.stamps[i]);
-                this.reg(actor).apply($.$hyoo_crowd_delta([delta.values[i]], [delta.stamps[i]]));
+                const peer = this.stamper.peer_from(delta.stamps[i]);
+                this.reg(peer).apply($.$hyoo_crowd_delta([delta.values[i]], [delta.stamps[i]]));
             }
             return this;
         }

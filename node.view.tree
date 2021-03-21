@@ -419,7 +419,7 @@ $hyoo_crowd_app $mol_book2
 	plugins /
 		<= Theme $mol_theme_auto
 	pages /
-		<= Left $hyoo_crowd_app_actor
+		<= Left $hyoo_crowd_app_peer
 			title \CROWD Text Demo
 			hint \Text of Alice
 			sync <= sync
@@ -428,7 +428,7 @@ $hyoo_crowd_app $mol_book2
 					title \Sync
 					enabled <= sync_enabled false
 					click?event <=> sync?event null
-		<= Right $hyoo_crowd_app_actor
+		<= Right $hyoo_crowd_app_peer
 			title \
 			hint \Text of Bob
 			sync <= sync
@@ -437,7 +437,7 @@ $hyoo_crowd_app $mol_book2
 				<= Source $mol_link_source
 					uri \https://github.com/hyoo-ru/crowd.hyoo.ru/
 
-$hyoo_crowd_app_actor $mol_page
+$hyoo_crowd_app_peer $mol_page
 	store $hyoo_crowd_text
 	sync 0
 	body /
@@ -449,7 +449,7 @@ $hyoo_crowd_app_actor $mol_page
 			text <= stats \
 				\# Stats
 				\
-				\Actor: **{actor}**
+				\Peer: **{peer}**
 				\Changes: **{changes}**
 				\
 				\| | Alive | Dead | Total
