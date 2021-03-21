@@ -21,7 +21,7 @@ namespace $ {
 		}
 		
 		version_item( val: $hyoo_crowd_delta_value ) {
-			return Math.abs( this.stamps.get( val ) ?? 0 )
+			return this.clock.version_from( this.stamps.get( val ) ?? 0 )
 		}
 		
 		toJSON( version_min = 0 ) {
