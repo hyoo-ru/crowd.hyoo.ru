@@ -13,6 +13,7 @@ Rich text.
 
 - Currently support only plain text.
 - Currently support only full text replacement API (with reconciliation of course). More precise mutations are coming soon.
+- Currently used full text tokenization. Split by lines should improve performance, reduce delta size and reduce changes overlapping.
 
 ## State Format
 
