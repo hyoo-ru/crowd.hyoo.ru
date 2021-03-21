@@ -7749,6 +7749,7 @@ var $;
             const obj = new this.$.$mol_textarea();
             obj.hint = () => this.hint();
             obj.value = (val) => this.text(val);
+            obj.sidebar_showed = () => true;
             return obj;
         }
         stats() {

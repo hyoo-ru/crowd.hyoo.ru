@@ -444,6 +444,7 @@ $hyoo_crowd_app_actor $mol_page
 		<= Text $mol_textarea
 			hint <= hint \
 			value?val <=> text?val \
+			sidebar_showed true
 		<= Stats $mol_text
 			text <= stats \
 				\# Stats
