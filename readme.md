@@ -94,7 +94,7 @@
 | Unordered Set | ❌                        | ⭕ Last added key     | ❌               | ✅ Same                  | ✅ Accidental order      | ❌                        | ❌
 | Ordered Set   | ❌                        | ⭕ Last inserted key  | ❌               | ✅ Remain order          | ✅ Same                  | ❌                        | ❌
 | Dictionary    | ❌                        | ⭕ Last changed value | ❌               | ⭕ Set of values         | ⭕ Set of values         | ✅ Same                   | ❌
-| Text          | ❌                        | ❌                    | ❌               | ❌                       | ❌                       | ⭕ With keys: flow, tuple | ✅ Same
+| Text          | ❌                        | ❌                    | ❌               | ❌                       | ❌                       | ⭕ With keys: flow, token | ✅ Same
 
 - ✅ Expected behaviour.
 - ⭕ Unexpected but acceptable behaviour.
