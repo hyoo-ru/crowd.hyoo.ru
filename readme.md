@@ -88,10 +88,10 @@
 | From \ To | Counter | Register | Unordered Set | Ordered Set | Tagged Union | Dictionary | Tuple | Text
 |--|--|--|--|--|--|--|--|--
 | Counter | ✅ Same | ❌ | ⭕ Set of summands | ⭕ Set of summands | ❌ | ❌ | ❌ | ❌
-| Register | ✅ As summand | ✅ Same | ✅ As key | ✅ As key | ⭕ As first type | ❌ | ❌ | ❌
+| Register | ✅ As first summand | ✅ Same | ✅ As key | ✅ As key | ⭕ As first type | ❌ | ❌ | ❌
 | Unordered Set | ❌ | ⭕ Last added key | ✅ Same | ✅ Accidental order | ❌ | ❌ | ❌ | ❌
 | Ordered Set | ❌ | ⭕ Last inserted key | ✅ Remain order | ✅ Same | ❌ | ❌ | ❌ | ❌
-| Tagged Union | ❌ | ✅ Reinterpreted value | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same | ❌ | ❌ | ❌
+| Tagged Union | ✅ Value as first summand | ✅ Value | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same | ❌ | ❌ | ❌
 | Dictionary | ❌ | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Same | ❌ | ❌
 | Tuple | ❌ | ⭕ Last changed value | ⭕ Set of values | ⭕ Set of values | ❌ | ✅ Field names as keys | ✅ Same | ❌
 | Text | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ Same
