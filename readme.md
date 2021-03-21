@@ -179,3 +179,8 @@ console.log(
 ![](https://i.imgur.com/6ENhevv.png)
 
 ### [crdt-benchmarks](https://github.com/dmonad/crdt-benchmarks)
+
+# Community
+
+- Leave us a feedback in [duscussions section](https://github.com/hyoo-ru/crowd.hyoo.ru/discussions).
+- Support [Hyoo Guild](https://github.com/hyoo-ru) to drive open source to the future.
