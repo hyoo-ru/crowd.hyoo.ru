@@ -5161,10 +5161,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crowd_tuple extends $.$hyoo_crowd_store {
+    class $hyoo_crowd_dict extends $.$hyoo_crowd_store {
         constructor() {
             super(...arguments);
-            this.stores = {};
+            this.stores = new Map();
         }
         static of(Types) {
             return class Tuple extends this {
@@ -5174,83 +5174,6 @@ var $;
                 }
             };
         }
-        for(field) {
-            if (this.stores[field])
-                return this.stores[field];
-            this.stores[field] = new this.Fields[field](this.stamper);
-            return this.stores[field];
-        }
-        toJSON(version_min = 0) {
-            const delta = $.$hyoo_crowd_delta([], []);
-            for (let field in this.Fields) {
-                const patch = this.for(field).toJSON(version_min);
-                if (patch.values.length === 0)
-                    continue;
-                delta.values.push(field, ...patch.values);
-                delta.stamps.push(-patch.values.length, ...patch.stamps);
-            }
-            return delta;
-        }
-        apply(delta) {
-            let key;
-            let count = 0;
-            let patch = $.$hyoo_crowd_delta([], []);
-            const dump = () => {
-                if (patch.values.length === 0)
-                    return;
-                this.for(key).apply(patch);
-                patch = $.$hyoo_crowd_delta([], []);
-            };
-            for (let i = 0; i < delta.values.length; ++i) {
-                const val = delta.values[i];
-                const stamp = delta.stamps[i];
-                if (count === 0) {
-                    dump();
-                    key = val;
-                    count = -stamp;
-                    continue;
-                }
-                else {
-                    patch.values.push(val);
-                    patch.stamps.push(stamp);
-                    --count;
-                }
-            }
-            dump();
-            return this;
-        }
-    }
-    $.$hyoo_crowd_tuple = $hyoo_crowd_tuple;
-})($ || ($ = {}));
-//tuple.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_dict extends $.$hyoo_crowd_store {
-        constructor() {
-            super(...arguments);
-            this.stores = new Map();
-        }
-        static of(Value) {
-            return class Dictionary extends this {
-                constructor() {
-                    super(...arguments);
-                    this.Value = Value;
-                }
-            };
-        }
-        toJSON(version_min = 0) {
-            const delta = $.$hyoo_crowd_delta([], []);
-            for (const [key, value] of this.stores) {
-                const patch = value.toJSON(version_min);
-                if (patch.values.length === 0)
-                    continue;
-                delta.values.push(key, ...patch.values);
-                delta.stamps.push(-patch.values.length, ...patch.stamps);
-            }
-            return delta;
-        }
         has(key) {
             return this.stores.has(key);
         }
@@ -5258,9 +5181,21 @@ var $;
             let store = this.stores.get(key);
             if (store)
                 return store;
-            store = new this.Value(this.stamper);
+            const Type = this.Fields[String(key !== null && key !== void 0 ? key : '')] || Object.values(this.Fields)[0];
+            store = new Type(this.stamper);
             this.stores.set(key, store);
             return store;
+        }
+        toJSON(version_min = 0) {
+            const delta = $.$hyoo_crowd_delta([], []);
+            for (let [key, value] of this.stores) {
+                const patch = value.toJSON(version_min);
+                if (patch.values.length === 0)
+                    continue;
+                delta.values.push(key, ...patch.values);
+                delta.stamps.push(-patch.values.length, ...patch.stamps);
+            }
+            return delta;
         }
         apply(delta) {
             let key;
@@ -5512,9 +5447,9 @@ var $;
             'separator': /[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]+[^\S\n\r]*/,
         },
     });
-    class $hyoo_crowd_text extends $.$hyoo_crowd_tuple.of({
-        flow: $.$hyoo_crowd_dict.of($.$hyoo_crowd_list),
-        token: $.$hyoo_crowd_dict.of($.$hyoo_crowd_reg),
+    class $hyoo_crowd_text extends $.$hyoo_crowd_dict.of({
+        flow: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }),
+        token: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
     }) {
         get root() {
             return this.for('flow').for(null);
@@ -11384,16 +11319,16 @@ var $;
 var $;
 (function ($) {
     $.$mol_test({
-        'Change by different keys'() {
-            const val = $.$hyoo_crowd_dict.of($.$hyoo_crowd_list).make().fork(1);
+        'Change dict by different keys'() {
+            const val = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(1);
             val.for('foo').insert(666);
             val.for('bar').insert(777);
             val.for('foo').insert(888, 0);
             val.for('bar').cut(777);
             $.$mol_assert_like(val.toJSON(), $.$hyoo_crowd_delta(['foo', 888, 666, 'bar', 777], [-2, 3000001, 1000001, -1, -4000001]));
         },
-        'Slice after version'() {
-            const val = $.$hyoo_crowd_dict.of($.$hyoo_crowd_set).make().fork(1);
+        'Slice dict after version'() {
+            const val = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_set }).make().fork(1);
             val.for('foo').add(1);
             val.for('bar').add(2);
             val.for('xxx').add(3);
@@ -11403,20 +11338,21 @@ var $;
             $.$mol_assert_like(val.toJSON(+3000001), $.$hyoo_crowd_delta(['foo', 4, 'bar', 5, 'xxx', 6], [-1, +4000001, -1, +5000001, -1, +6000001]));
             $.$mol_assert_like(val.toJSON(+6000001), $.$hyoo_crowd_delta([], []));
         },
-        'Merge different documents'() {
-            const left = $.$hyoo_crowd_dict.of($.$hyoo_crowd_list).make().fork(1);
+        'Merge different dicts'() {
+            const left = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(1);
             left.for('foo').insert(666);
-            left.for('bar').insert('xxx');
-            const right = $.$hyoo_crowd_dict.of($.$hyoo_crowd_list).make().fork(2);
+            left.for('').insert('xxx');
+            const right = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(2);
             right.for('foo').insert(777);
             right.for('bar').insert('yyy');
             right.for('bar').insert('zzz');
             const left_delta = left.toJSON();
             const right_delta = right.toJSON();
-            $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 777, 666, 'bar', 'yyy', 'zzz', 'xxx'], [-2, 1000002, 1000001, -3, 2000002, 3000002, 2000001]));
+            $.$mol_assert_like(left.apply(right_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 777, 666, '', 'xxx', 'bar', 'yyy', 'zzz'], [-2, 1000002, 1000001, -1, 2000001, -2, 2000002, 3000002]));
+            $.$mol_assert_like(right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 777, 666, 'bar', 'yyy', 'zzz', '', 'xxx'], [-2, 1000002, 1000001, -2, 2000002, 3000002, -1, 2000001]));
         },
-        'Merge increases versions'() {
-            const base = $.$hyoo_crowd_dict.of($.$hyoo_crowd_list).make();
+        'Merge increases versions in dicts'() {
+            const base = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make();
             const left = base.fork(1);
             left.for('foo').insert('xxx');
             const right = base.fork(2);
@@ -11427,11 +11363,13 @@ var $;
             $.$mol_assert_like(left.toJSON(), $.$hyoo_crowd_delta(['foo', 'xxx', 'yyy', 'bar', 17, 18], [-2, 1000001, 3000001, -2, 1000002, 2000002]));
         },
         'Dictionary of Union'() {
-            const base = $.$hyoo_crowd_dict.of($.$hyoo_crowd_union.of({
-                string: $.$hyoo_crowd_reg,
-                array: $.$hyoo_crowd_list,
-                object: $.$hyoo_crowd_set,
-            })).make();
+            const base = $.$hyoo_crowd_dict.of({
+                val: $.$hyoo_crowd_union.of({
+                    string: $.$hyoo_crowd_reg,
+                    array: $.$hyoo_crowd_list,
+                    object: $.$hyoo_crowd_set,
+                })
+            }).make();
             const left = base.fork(1);
             const right = base.fork(2);
             left.for('foo').to('string').str = 'bar';
@@ -11441,7 +11379,11 @@ var $;
             $.$mol_assert_like(left.apply(right_delta).toJSON(), right.apply(left_delta).toJSON(), $.$hyoo_crowd_delta(['foo', 'array', 'xxx', 'bar'], [-3, -1000002, 2000002, 2000001]));
         },
         'Dictionary of Dictionary'() {
-            const base = $.$hyoo_crowd_dict.of($.$hyoo_crowd_dict.of($.$hyoo_crowd_reg)).make();
+            const base = $.$hyoo_crowd_dict.of({
+                val: $.$hyoo_crowd_dict.of({
+                    val: $.$hyoo_crowd_reg,
+                }),
+            }).make();
             const left = base.fork(1);
             const right = base.fork(2);
             left.for('foo').for('xxx').str = '321';
@@ -11453,28 +11395,20 @@ var $;
             $.$mol_assert_like(left.for('foo').for('xxx').str, right.for('foo').for('xxx').str, '321');
             $.$mol_assert_like(left.for('foo').for('yyy').str, right.for('foo').for('yyy').str, '123');
         },
-    });
-})($ || ($ = {}));
-//dict.test.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_test({
-        'Default state'() {
-            const store = $.$hyoo_crowd_tuple.of({
+        'Default tuple state'() {
+            const store = $.$hyoo_crowd_dict.of({
                 keys: $.$hyoo_crowd_list,
-                vals: $.$hyoo_crowd_dict.of($.$hyoo_crowd_reg),
+                vals: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
             }).make();
             $.$mol_assert_like(store.for('keys').items, []);
             $.$mol_assert_like(store.for('vals').for('foo').str, '');
             $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta([], []));
         },
-        'Changed state'() {
-            const Map = $.$hyoo_crowd_tuple.of({
+        'Changed tuple state'() {
+            const Map = $.$hyoo_crowd_dict.of({
                 vers: $.$hyoo_crowd_numb,
                 keys: $.$hyoo_crowd_set,
-                vals: $.$hyoo_crowd_dict.of($.$hyoo_crowd_reg),
+                vals: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
             });
             const store = Map.make().fork(1);
             store.for('keys').add('foo').add('bar');
@@ -11485,11 +11419,11 @@ var $;
             $.$mol_assert_like(store.toJSON(), $.$hyoo_crowd_delta(['keys', 'foo', 'bar', 'vals', 'xxx', 'yyy'], [-2, +1000001, +2000001, -2, -1, +3000001]));
         },
         'Tuple of tuples'() {
-            const Point = $.$hyoo_crowd_tuple.of({
+            const Point = $.$hyoo_crowd_dict.of({
                 X: $.$hyoo_crowd_numb,
                 Y: $.$hyoo_crowd_numb,
             });
-            const Rect = $.$hyoo_crowd_tuple.of({
+            const Rect = $.$hyoo_crowd_dict.of({
                 TL: Point,
                 BR: Point,
             });
@@ -11506,7 +11440,7 @@ var $;
         },
     });
 })($ || ($ = {}));
-//tuple.test.js.map
+//dict.test.js.map
 ;
 "use strict";
 var $;

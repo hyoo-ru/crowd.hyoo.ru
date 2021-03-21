@@ -4954,10 +4954,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crowd_tuple extends $.$hyoo_crowd_store {
+    class $hyoo_crowd_dict extends $.$hyoo_crowd_store {
         constructor() {
             super(...arguments);
-            this.stores = {};
+            this.stores = new Map();
         }
         static of(Types) {
             return class Tuple extends this {
@@ -4967,83 +4967,6 @@ var $;
                 }
             };
         }
-        for(field) {
-            if (this.stores[field])
-                return this.stores[field];
-            this.stores[field] = new this.Fields[field](this.stamper);
-            return this.stores[field];
-        }
-        toJSON(version_min = 0) {
-            const delta = $.$hyoo_crowd_delta([], []);
-            for (let field in this.Fields) {
-                const patch = this.for(field).toJSON(version_min);
-                if (patch.values.length === 0)
-                    continue;
-                delta.values.push(field, ...patch.values);
-                delta.stamps.push(-patch.values.length, ...patch.stamps);
-            }
-            return delta;
-        }
-        apply(delta) {
-            let key;
-            let count = 0;
-            let patch = $.$hyoo_crowd_delta([], []);
-            const dump = () => {
-                if (patch.values.length === 0)
-                    return;
-                this.for(key).apply(patch);
-                patch = $.$hyoo_crowd_delta([], []);
-            };
-            for (let i = 0; i < delta.values.length; ++i) {
-                const val = delta.values[i];
-                const stamp = delta.stamps[i];
-                if (count === 0) {
-                    dump();
-                    key = val;
-                    count = -stamp;
-                    continue;
-                }
-                else {
-                    patch.values.push(val);
-                    patch.stamps.push(stamp);
-                    --count;
-                }
-            }
-            dump();
-            return this;
-        }
-    }
-    $.$hyoo_crowd_tuple = $hyoo_crowd_tuple;
-})($ || ($ = {}));
-//tuple.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_dict extends $.$hyoo_crowd_store {
-        constructor() {
-            super(...arguments);
-            this.stores = new Map();
-        }
-        static of(Value) {
-            return class Dictionary extends this {
-                constructor() {
-                    super(...arguments);
-                    this.Value = Value;
-                }
-            };
-        }
-        toJSON(version_min = 0) {
-            const delta = $.$hyoo_crowd_delta([], []);
-            for (const [key, value] of this.stores) {
-                const patch = value.toJSON(version_min);
-                if (patch.values.length === 0)
-                    continue;
-                delta.values.push(key, ...patch.values);
-                delta.stamps.push(-patch.values.length, ...patch.stamps);
-            }
-            return delta;
-        }
         has(key) {
             return this.stores.has(key);
         }
@@ -5051,9 +4974,21 @@ var $;
             let store = this.stores.get(key);
             if (store)
                 return store;
-            store = new this.Value(this.stamper);
+            const Type = this.Fields[String(key !== null && key !== void 0 ? key : '')] || Object.values(this.Fields)[0];
+            store = new Type(this.stamper);
             this.stores.set(key, store);
             return store;
+        }
+        toJSON(version_min = 0) {
+            const delta = $.$hyoo_crowd_delta([], []);
+            for (let [key, value] of this.stores) {
+                const patch = value.toJSON(version_min);
+                if (patch.values.length === 0)
+                    continue;
+                delta.values.push(key, ...patch.values);
+                delta.stamps.push(-patch.values.length, ...patch.stamps);
+            }
+            return delta;
         }
         apply(delta) {
             let key;
@@ -5305,9 +5240,9 @@ var $;
             'separator': /[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]+[^\S\n\r]*/,
         },
     });
-    class $hyoo_crowd_text extends $.$hyoo_crowd_tuple.of({
-        flow: $.$hyoo_crowd_dict.of($.$hyoo_crowd_list),
-        token: $.$hyoo_crowd_dict.of($.$hyoo_crowd_reg),
+    class $hyoo_crowd_text extends $.$hyoo_crowd_dict.of({
+        flow: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }),
+        token: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
     }) {
         get root() {
             return this.for('flow').for(null);

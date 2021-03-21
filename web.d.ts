@@ -1696,12 +1696,13 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    class $hyoo_crowd_tuple<Fields extends Record<string, typeof $hyoo_crowd_store>> extends $hyoo_crowd_store {
+    class $hyoo_crowd_dict<Fields extends Record<string, typeof $hyoo_crowd_store>> extends $hyoo_crowd_store {
         static of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
             new (stamper?: $hyoo_crowd_stamper): {
                 Fields: Types;
-                stores: { [key in keyof Types]: InstanceType<Types[key]>; };
-                for<Field extends keyof Types>(field: Field): InstanceType<Types[Field]>;
+                stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
+                has(key: $hyoo_crowd_delta_value): boolean;
+                for<Field extends $hyoo_crowd_delta_value | Extract<keyof Types, string>>(key: Field): InstanceType<Types[Field extends keyof Types ? Field : keyof Types]>;
                 toJSON(version_min?: number): {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
@@ -1721,50 +1722,13 @@ declare namespace $ {
             make<Instance>(this: new () => Instance): Instance;
         };
         Fields: Fields;
-        stores: { [key in keyof Fields]: InstanceType<Fields[key]>; };
-        for<Field extends keyof Fields>(field: Field): InstanceType<Fields[Field]>;
-        toJSON(version_min?: number): {
-            values: $hyoo_crowd_delta_value[];
-            stamps: number[];
-        };
-        apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
-    }
-}
-
-declare namespace $ {
-    class $hyoo_crowd_dict<Value extends typeof $hyoo_crowd_store> extends $hyoo_crowd_store {
-        static of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
-            new (stamper?: $hyoo_crowd_stamper): {
-                Value: Value;
-                stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
-                toJSON(version_min?: number): {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                };
-                has(key: $hyoo_crowd_delta_value): boolean;
-                for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
-                apply(delta: {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                }): any;
-                stamper: $hyoo_crowd_stamper;
-                delta(base: any): {
-                    values: $hyoo_crowd_delta_value[];
-                    stamps: number[];
-                };
-                fork(actor: number): any;
-            };
-            of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
-            make<Instance>(this: new () => Instance): Instance;
-        };
-        Value: Value;
-        stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
-        toJSON(version_min?: number): {
-            values: $hyoo_crowd_delta_value[];
-            stamps: number[];
-        };
+        stores: Map<$hyoo_crowd_delta_value, InstanceType<Fields[string]>>;
         has(key: $hyoo_crowd_delta_value): boolean;
-        for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
+        for<Field extends Extract<keyof Fields, string> | $hyoo_crowd_delta_value>(key: Field): InstanceType<Fields[Field extends keyof Fields ? Field : keyof Fields]>;
+        toJSON(version_min?: number): {
+            values: $hyoo_crowd_delta_value[];
+            stamps: number[];
+        };
         apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
     }
 }
@@ -1818,14 +1782,18 @@ declare namespace $ {
             Fields: {
                 flow: {
                     new (stamper?: $hyoo_crowd_stamper): {
-                        Value: typeof $hyoo_crowd_list;
-                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
+                        Fields: {
+                            val: typeof $hyoo_crowd_list;
+                        };
+                        stores: Map<$hyoo_crowd_delta_value, any>;
+                        has(key: $hyoo_crowd_delta_value): boolean;
+                        for<Field extends $hyoo_crowd_delta_value>(key: Field): InstanceType<{
+                            val: typeof $hyoo_crowd_list;
+                        }[Field extends "val" ? Field : "val"]>;
                         toJSON(version_min?: number): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         };
-                        has(key: $hyoo_crowd_delta_value): boolean;
-                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
                         apply(delta: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
@@ -1837,16 +1805,16 @@ declare namespace $ {
                         };
                         fork(actor: number): any;
                     };
-                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+                    of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
                         new (stamper?: $hyoo_crowd_stamper): {
-                            Value: Value;
-                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                            Fields: Types;
+                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
+                            has(key: $hyoo_crowd_delta_value): boolean;
+                            for<Field_1 extends $hyoo_crowd_delta_value | Extract<keyof Types, string>>(key: Field_1): InstanceType<Types[Field_1 extends keyof Types ? Field_1 : keyof Types]>;
                             toJSON(version_min?: number): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             };
-                            has(key: $hyoo_crowd_delta_value): boolean;
-                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
                             apply(delta: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
@@ -1858,21 +1826,25 @@ declare namespace $ {
                             };
                             fork(actor: number): any;
                         };
-                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+                        of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
                         make<Instance>(this: new () => Instance): Instance;
                     };
                     make<Instance>(this: new () => Instance): Instance;
                 };
                 token: {
                     new (stamper?: $hyoo_crowd_stamper): {
-                        Value: typeof $hyoo_crowd_reg;
-                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
+                        Fields: {
+                            val: typeof $hyoo_crowd_reg;
+                        };
+                        stores: Map<$hyoo_crowd_delta_value, any>;
+                        has(key: $hyoo_crowd_delta_value): boolean;
+                        for<Field_2 extends $hyoo_crowd_delta_value>(key: Field_2): InstanceType<{
+                            val: typeof $hyoo_crowd_reg;
+                        }[Field_2 extends "val" ? Field_2 : "val"]>;
                         toJSON(version_min?: number): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         };
-                        has(key: $hyoo_crowd_delta_value): boolean;
-                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
                         apply(delta: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
@@ -1884,16 +1856,16 @@ declare namespace $ {
                         };
                         fork(actor: number): any;
                     };
-                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+                    of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
                         new (stamper?: $hyoo_crowd_stamper): {
-                            Value: Value;
-                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                            Fields: Types;
+                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
+                            has(key: $hyoo_crowd_delta_value): boolean;
+                            for<Field_1 extends $hyoo_crowd_delta_value | Extract<keyof Types, string>>(key: Field_1): InstanceType<Types[Field_1 extends keyof Types ? Field_1 : keyof Types]>;
                             toJSON(version_min?: number): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             };
-                            has(key: $hyoo_crowd_delta_value): boolean;
-                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
                             apply(delta: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
@@ -1905,65 +1877,29 @@ declare namespace $ {
                             };
                             fork(actor: number): any;
                         };
-                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+                        of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
                         make<Instance>(this: new () => Instance): Instance;
                     };
                     make<Instance>(this: new () => Instance): Instance;
                 };
             };
-            stores: {
-                flow: {
-                    Value: typeof $hyoo_crowd_list;
-                    stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
-                    toJSON(version_min?: number): {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    };
-                    has(key: $hyoo_crowd_delta_value): boolean;
-                    for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
-                    apply(delta: {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    }): any;
-                    stamper: $hyoo_crowd_stamper;
-                    delta(base: any): {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    };
-                    fork(actor: number): any;
-                };
-                token: {
-                    Value: typeof $hyoo_crowd_reg;
-                    stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
-                    toJSON(version_min?: number): {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    };
-                    has(key: $hyoo_crowd_delta_value): boolean;
-                    for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
-                    apply(delta: {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    }): any;
-                    stamper: $hyoo_crowd_stamper;
-                    delta(base: any): {
-                        values: $hyoo_crowd_delta_value[];
-                        stamps: number[];
-                    };
-                    fork(actor: number): any;
-                };
-            };
-            for<Field extends "flow" | "token">(field: Field): InstanceType<{
+            stores: Map<$hyoo_crowd_delta_value, any>;
+            has(key: $hyoo_crowd_delta_value): boolean;
+            for<Field_3 extends $hyoo_crowd_delta_value>(key: Field_3): InstanceType<{
                 flow: {
                     new (stamper?: $hyoo_crowd_stamper): {
-                        Value: typeof $hyoo_crowd_list;
-                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_list>;
+                        Fields: {
+                            val: typeof $hyoo_crowd_list;
+                        };
+                        stores: Map<$hyoo_crowd_delta_value, any>;
+                        has(key: $hyoo_crowd_delta_value): boolean;
+                        for<Field extends $hyoo_crowd_delta_value>(key: Field): InstanceType<{
+                            val: typeof $hyoo_crowd_list;
+                        }[Field extends "val" ? Field : "val"]>;
                         toJSON(version_min?: number): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         };
-                        has(key: $hyoo_crowd_delta_value): boolean;
-                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_list;
                         apply(delta: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
@@ -1975,16 +1911,16 @@ declare namespace $ {
                         };
                         fork(actor: number): any;
                     };
-                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+                    of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
                         new (stamper?: $hyoo_crowd_stamper): {
-                            Value: Value;
-                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                            Fields: Types;
+                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
+                            has(key: $hyoo_crowd_delta_value): boolean;
+                            for<Field_1 extends $hyoo_crowd_delta_value | Extract<keyof Types, string>>(key: Field_1): InstanceType<Types[Field_1 extends keyof Types ? Field_1 : keyof Types]>;
                             toJSON(version_min?: number): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             };
-                            has(key: $hyoo_crowd_delta_value): boolean;
-                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
                             apply(delta: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
@@ -1996,21 +1932,25 @@ declare namespace $ {
                             };
                             fork(actor: number): any;
                         };
-                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+                        of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
                         make<Instance>(this: new () => Instance): Instance;
                     };
                     make<Instance>(this: new () => Instance): Instance;
                 };
                 token: {
                     new (stamper?: $hyoo_crowd_stamper): {
-                        Value: typeof $hyoo_crowd_reg;
-                        stores: Map<$hyoo_crowd_delta_value, $hyoo_crowd_reg>;
+                        Fields: {
+                            val: typeof $hyoo_crowd_reg;
+                        };
+                        stores: Map<$hyoo_crowd_delta_value, any>;
+                        has(key: $hyoo_crowd_delta_value): boolean;
+                        for<Field_2 extends $hyoo_crowd_delta_value>(key: Field_2): InstanceType<{
+                            val: typeof $hyoo_crowd_reg;
+                        }[Field_2 extends "val" ? Field_2 : "val"]>;
                         toJSON(version_min?: number): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         };
-                        has(key: $hyoo_crowd_delta_value): boolean;
-                        for(key: $hyoo_crowd_delta_value): $hyoo_crowd_reg;
                         apply(delta: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
@@ -2022,16 +1962,16 @@ declare namespace $ {
                         };
                         fork(actor: number): any;
                     };
-                    of<Value extends typeof $hyoo_crowd_store>(Value: Value): {
+                    of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
                         new (stamper?: $hyoo_crowd_stamper): {
-                            Value: Value;
-                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Value>>;
+                            Fields: Types;
+                            stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
+                            has(key: $hyoo_crowd_delta_value): boolean;
+                            for<Field_1 extends $hyoo_crowd_delta_value | Extract<keyof Types, string>>(key: Field_1): InstanceType<Types[Field_1 extends keyof Types ? Field_1 : keyof Types]>;
                             toJSON(version_min?: number): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             };
-                            has(key: $hyoo_crowd_delta_value): boolean;
-                            for(key: $hyoo_crowd_delta_value): InstanceType<Value>;
                             apply(delta: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
@@ -2043,12 +1983,12 @@ declare namespace $ {
                             };
                             fork(actor: number): any;
                         };
-                        of<Value extends typeof $hyoo_crowd_store>(Value: Value): any;
+                        of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): any;
                         make<Instance>(this: new () => Instance): Instance;
                     };
                     make<Instance>(this: new () => Instance): Instance;
                 };
-            }[Field]>;
+            }[Field_3 extends "flow" | "token" ? Field_3 : "flow" | "token"]>;
             toJSON(version_min?: number): {
                 values: $hyoo_crowd_delta_value[];
                 stamps: number[];
@@ -2067,8 +2007,9 @@ declare namespace $ {
         of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
             new (stamper?: $hyoo_crowd_stamper): {
                 Fields: Types;
-                stores: { [key in keyof Types]: InstanceType<Types[key]>; };
-                for<Field_1 extends keyof Types>(field: Field_1): InstanceType<Types[Field_1]>;
+                stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
+                has(key: $hyoo_crowd_delta_value): boolean;
+                for<Field_1 extends $hyoo_crowd_delta_value | Extract<keyof Types, string>>(key: Field_1): InstanceType<Types[Field_1 extends keyof Types ? Field_1 : keyof Types]>;
                 toJSON(version_min?: number): {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
