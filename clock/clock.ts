@@ -7,6 +7,8 @@ namespace $ {
 		
 		readonly peer: number
 		
+		readonly saw_versions = new Map< number, number >()
+		
 		constructor(
 			peer?: number,
 			public version_max = 0,
@@ -34,9 +36,32 @@ namespace $ {
 			return index * concurrency + peer
 		}
 		
-		feed( version: number ) {
-			if( this.version_max > version ) return
-			this.version_max = version
+		feed( stamp: number ) {
+			
+			const version = this.version_from( stamp )
+			
+			if( this.version_max < version ) {
+				this.version_max = version
+			}
+			
+			if( this.saw_versions.get( version ) ?? 0 < version ) {
+				this.saw_versions.set( this.peer_from( stamp ), version )
+			}
+			
+		}
+		
+		is_new( stamp: number ) {
+			const version = this.version_from( stamp )
+			return version > ( this.saw_versions.get( this.peer_from( stamp ) ) ?? 0 )
+		}
+		
+		is_ahead( clock: $hyoo_crowd_clock ) {
+			
+			for( const version of this.saw_versions.values() ) {
+				if( clock.is_new( version ) ) return true
+			}
+			
+			return false
 		}
 		
 		genegate() {

@@ -63,7 +63,7 @@ namespace $ {
 				this._value = val
 				this._stamp = stamp
 				
-				this.clock.feed( this.clock.version_from( stamp ) )
+				this.clock.feed( stamp )
 			}
 			
 			return this
