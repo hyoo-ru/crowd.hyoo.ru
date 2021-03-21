@@ -32,7 +32,7 @@ Rich text.
 	"stamps": [ ... ],
 }
 
-Size = 6 * Size( Text ) + 4 * Count( Flows ) + 2
+Size ~= 10 * Size( Text ) + 4 * Count( Flows ) + 2
 ```
 
 ## Delta Format
