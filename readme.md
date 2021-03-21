@@ -8,7 +8,7 @@
 
 - Any states can be merged without conflicts.
 - Strong Eventual Consistency.
-- Merge result is independent of merge order on different actors.
+- Merge result is independent of merge order on different peers.
 - Branch merge is semilattice.
 
 ### Reinterpretable
@@ -19,8 +19,8 @@
 
 ### Ordered
 
-- Changes from same actor are always ordered and can't be reordered.
-- Deltas from same actor aren't commutative.
+- Changes from same peer are always ordered and can't be reordered.
+- Deltas from same peer aren't commutative.
 - All deltas are idempotent.
 
 ### Washed
@@ -73,7 +73,7 @@
 - `toJSON( version_min = 0 )` Returns delta between `version_min` and current.
 - `apply( delta )` Merges delta to current state.
 - `delta( store )` Returns delta between base fork and current.
-- `fork( actor: number )` Makes independent clone with fixed actor id for testing purposes.
+- `fork( peer: number )` Makes independent clone with fixed peer id for testing purposes.
 
 ## State/Delta Format
 

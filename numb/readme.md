@@ -22,7 +22,7 @@ Number that can be shifted by any value. Equivalent of dCRDT PN-Counter with sam
 
 .value === 8
 
-Size = 16 * ActorsInState
+Size = 16 * PeersInState
 ```
 
 Stamp is always non negative.
@@ -39,7 +39,7 @@ Delta is partial state dump like:
 // Bob increases by 3 then increases by 1.
 // Carol decreases by 2 then increases by 1.
 
-Size = 16 * ActorsInDelta
+Size = 16 * PeersInDelta
 ```
 
 ## Views

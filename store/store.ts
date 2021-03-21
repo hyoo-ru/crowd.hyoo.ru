@@ -24,9 +24,9 @@ namespace $ {
 			return this
 		}
 		
-		fork( actor: number ): this {
+		fork( peer: number ): this {
 			const Fork = this.constructor as new( stamper: $hyoo_crowd_stamper )=> this
-			const fork = new Fork( this.stamper.fork( actor ) ) as this
+			const fork = new Fork( this.stamper.fork( peer ) ) as this
 			fork.apply( this.toJSON() )
 			return fork
 		}

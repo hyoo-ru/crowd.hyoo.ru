@@ -25,7 +25,7 @@ namespace $.$$ {
 
 	}
 
-	export class $hyoo_crowd_app_actor extends $.$hyoo_crowd_app_actor {
+	export class $hyoo_crowd_app_peer extends $.$hyoo_crowd_app_peer {
 
 		@ $mol_mem
 		sync_stamp( next = 0 ) {
@@ -79,7 +79,7 @@ namespace $.$$ {
 		stats() {
 			this.text()
 			return super.stats()
-			.replace( '{actor}', this.store().stamper.actor.toLocaleString() )
+			.replace( '{peer}', this.store().stamper.peer.toLocaleString() )
 			.replace( '{changes}', this.changes().toLocaleString() )
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )

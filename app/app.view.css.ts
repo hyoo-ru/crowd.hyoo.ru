@@ -2,7 +2,7 @@ namespace $.$$ {
 	
 	const { rem } = $mol_style_unit
 	
-	$mol_style_define( $hyoo_crowd_app_actor, {
+	$mol_style_define( $hyoo_crowd_app_peer, {
 		
 		flex: {
 			grow: 1000,

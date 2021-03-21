@@ -5,15 +5,15 @@ namespace $ {
 	/** Manages versions through composed CROWD stores */
 	export class $hyoo_crowd_stamper {
 		
-		readonly actor: number
+		readonly peer: number
 		
 		constructor(
-			actor?: number,
+			peer?: number,
 			public version_max = 0,
 		) {
 			
-			this.actor = actor
-				? actor % concurrency
+			this.peer = peer
+				? peer % concurrency
 				: Math.floor( concurrency * Math.random() )
 		
 		}
@@ -26,12 +26,12 @@ namespace $ {
 			return Math.floor( Math.abs( stamp ) / concurrency )
 		}
 		
-		actor_from( stamp: number ) {
+		peer_from( stamp: number ) {
 			return Math.abs( stamp ) % concurrency
 		}
 		
-		make( index: number, actor = this.actor ) {
-			return index * concurrency + actor
+		make( index: number, peer = this.peer ) {
+			return index * concurrency + peer
 		}
 		
 		feed( version: number ) {
@@ -40,11 +40,11 @@ namespace $ {
 		}
 		
 		genegate() {
-			return this.version_max = ( Math.floor( this.version_max / concurrency ) + 1 ) * concurrency + this.actor
+			return this.version_max = ( Math.floor( this.version_max / concurrency ) + 1 ) * concurrency + this.peer
 		}
 		
-		fork( actor: number ) {
-			return new $hyoo_crowd_stamper( actor, this.version_max )
+		fork( peer: number ) {
+			return new $hyoo_crowd_stamper( peer, this.version_max )
 		}
 		
 	}
