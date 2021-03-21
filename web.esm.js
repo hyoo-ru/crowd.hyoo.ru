@@ -4877,8 +4877,8 @@ var $;
 (function ($) {
     const concurrency = 1000000;
     class $hyoo_crowd_clock {
-        constructor(peer, version_max = 0) {
-            this.version_max = version_max;
+        constructor(peer) {
+            this.version_max = 0;
             this.saw_versions = new Map();
             this.peer = peer
                 ? peer % concurrency
@@ -4902,9 +4902,11 @@ var $;
             if (this.version_max < version) {
                 this.version_max = version;
             }
-            if ((_a = this.saw_versions.get(version)) !== null && _a !== void 0 ? _a : 0 < version) {
-                this.saw_versions.set(this.peer_from(stamp), version);
+            const peer = this.peer_from(stamp);
+            if (((_a = this.saw_versions.get(peer)) !== null && _a !== void 0 ? _a : 0) < version) {
+                this.saw_versions.set(peer, version);
             }
+            return version;
         }
         is_new(stamp) {
             var _a;
@@ -4918,11 +4920,15 @@ var $;
             }
             return false;
         }
-        genegate() {
-            return this.version_max = (Math.floor(this.version_max / concurrency) + 1) * concurrency + this.peer;
+        generate() {
+            return this.feed((Math.floor(this.version_max / concurrency) + 1) * concurrency + this.peer);
         }
         fork(peer) {
-            return new $hyoo_crowd_clock(peer, this.version_max);
+            const clock = new $hyoo_crowd_clock(peer);
+            for (const version of this.saw_versions.values()) {
+                clock.feed(version);
+            }
+            return clock;
         }
     }
     $.$hyoo_crowd_clock = $hyoo_crowd_clock;
@@ -4949,11 +4955,11 @@ var $;
         static make() {
             return new this();
         }
-        toJSON(version_min) {
+        delta(clock = new $.$hyoo_crowd_clock) {
             return $.$hyoo_crowd_delta([], []);
         }
-        delta(base) {
-            return this.toJSON(base.clock.version_max);
+        toJSON() {
+            return this.delta();
         }
         apply(delta) {
             return this;
@@ -4961,7 +4967,7 @@ var $;
         fork(peer) {
             const Fork = this.constructor;
             const fork = new Fork(this.clock.fork(peer));
-            fork.apply(this.toJSON());
+            fork.apply(this.delta());
             return fork;
         }
     }
@@ -4997,10 +5003,10 @@ var $;
             this.stores.set(key, store);
             return store;
         }
-        toJSON(version_min = 0) {
+        delta(clock = new $.$hyoo_crowd_clock) {
             const delta = $.$hyoo_crowd_delta([], []);
             for (let [key, value] of this.stores) {
-                const patch = value.toJSON(version_min);
+                const patch = value.delta(clock);
                 if (patch.values.length === 0)
                     continue;
                 delta.values.push(key, ...patch.values);
@@ -5047,7 +5053,7 @@ var $;
     class $hyoo_crowd_list extends $.$hyoo_crowd_store {
         constructor() {
             super(...arguments);
-            this.version = 0;
+            this.clock_self = new $.$hyoo_crowd_clock;
             this.array = [];
             this.stamps = new Map();
         }
@@ -5069,13 +5075,11 @@ var $;
         }
         version_feed(version) {
             this.clock.feed(version);
-            if (version <= this.version)
-                return;
-            this.version = version;
+            this.clock_self.feed(version);
         }
-        toJSON(version_min = 0) {
+        delta(clock = new $.$hyoo_crowd_clock) {
             const delta = $.$hyoo_crowd_delta([], []);
-            if (this.version <= version_min)
+            if (!this.clock_self.is_ahead(clock))
                 return delta;
             for (const key of this.array) {
                 delta.values.push(key);
@@ -5100,7 +5104,7 @@ var $;
                 delta.stamps.push(this.stamps.get(anchor));
             }
             delta.values.push(key);
-            delta.stamps.push(this.clock.genegate());
+            delta.stamps.push(this.clock.generate());
             this.apply(delta);
             return this;
         }
@@ -5109,7 +5113,7 @@ var $;
             const stamp = (_a = this.stamps.get(key)) !== null && _a !== void 0 ? _a : 0;
             if (stamp <= 0)
                 return this;
-            this.apply($.$hyoo_crowd_delta([key], [-this.clock.genegate()]));
+            this.apply($.$hyoo_crowd_delta([key], [-this.clock.generate()]));
             return this;
         }
         apply(delta) {
@@ -5210,8 +5214,8 @@ var $;
         set bool(next) {
             this.value = next;
         }
-        toJSON(version_min = 0) {
-            if (this.version <= version_min)
+        delta(clock = new $.$hyoo_crowd_clock) {
+            if (!clock.is_new(this._stamp))
                 return $.$hyoo_crowd_delta([], []);
             return $.$hyoo_crowd_delta([this._value], [this._stamp]);
         }
@@ -5222,17 +5226,17 @@ var $;
             if (this._value === val)
                 return;
             this._value = val;
-            this._stamp = this._mult * this.clock.genegate();
+            this.clock.feed(this._stamp = this._mult * this.clock.generate());
         }
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
                 const val = delta.values[i];
                 const stamp = delta.stamps[i];
+                this.clock.feed(stamp);
                 if (this._mult * stamp <= this._mult * this._stamp)
                     continue;
                 this._value = val;
                 this._stamp = stamp;
-                this.clock.feed(stamp);
             }
             return this;
         }
@@ -7627,8 +7631,8 @@ var $;
                 const right_delta = this.Right().delta();
                 this.Left().store().apply(right_delta);
                 this.Right().store().apply(left_delta);
-                this.Left().sync_stamp(this.Left().store().clock.version_max);
-                this.Right().sync_stamp(this.Right().store().clock.version_max);
+                this.Left().sync_clock(this.Left().store().clock.fork(0));
+                this.Right().sync_clock(this.Right().store().clock.fork(0));
                 return Math.random();
             }
         }
@@ -7637,7 +7641,7 @@ var $;
         ], $hyoo_crowd_app.prototype, "sync", null);
         $$.$hyoo_crowd_app = $hyoo_crowd_app;
         class $hyoo_crowd_app_peer extends $.$hyoo_crowd_app_peer {
-            sync_stamp(next = 0) {
+            sync_clock(next = new $.$hyoo_crowd_clock) {
                 return next;
             }
             text(next) {
@@ -7648,12 +7652,12 @@ var $;
             }
             delta() {
                 this.text();
-                return this.store().toJSON(this.sync_stamp());
+                return this.store().delta(this.sync_clock());
             }
             changes() {
                 this.text();
                 const clock = this.store().clock;
-                return clock.index_from(clock.version_max) - clock.index_from(this.sync_stamp());
+                return clock.index_from(clock.version_max) - clock.index_from(this.sync_clock().version_max);
             }
             size_state() {
                 this.text();
@@ -7682,7 +7686,7 @@ var $;
                     .replace('{tokens:dead}', this.tokens_dead().toLocaleString())
                     .replace('{tokens:total}', this.tokens_total().toLocaleString())
                     .replace('{stamp:now}', this.store().clock.version_max.toLocaleString())
-                    .replace('{stamp:sync}', this.sync_stamp().toLocaleString())
+                    .replace('{stamp:sync}', this.sync_clock().version_max.toLocaleString())
                     .replace('{size:text}', this.text().length.toLocaleString())
                     .replace('{size:state}', this.size_state().toLocaleString())
                     .replace('{size:delta}', this.size_delta().toLocaleString())
@@ -7691,7 +7695,7 @@ var $;
         }
         __decorate([
             $.$mol_mem
-        ], $hyoo_crowd_app_peer.prototype, "sync_stamp", null);
+        ], $hyoo_crowd_app_peer.prototype, "sync_clock", null);
         __decorate([
             $.$mol_mem
         ], $hyoo_crowd_app_peer.prototype, "text", null);
