@@ -53,4 +53,4 @@ Delta is partial state dump which depends on the inner stores.
 
 [![](https://i.imgur.com/4RJEWsB.png)](https://crowd.hyoo.ru/)
 
-- Currently binded to native textarea. It's simple, but slow on large texts. 
+- Currently bound to native textarea. It's simple, but slow on large texts. 
