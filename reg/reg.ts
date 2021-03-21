@@ -5,9 +5,10 @@ namespace $ {
 		
 		protected _value = null as $hyoo_crowd_delta_value | null
 		protected _stamp = 0
+		protected _mult = 1
 		
 		get version() {
-			return this._stamp
+			return this.stamper.version_from( this._stamp )
 		}
 		
 		get str() {
@@ -44,7 +45,7 @@ namespace $ {
 			if( this._value === val ) return
 			
 			this._value = val
-			this._stamp = this.stamper.genegate()
+			this._stamp = this._mult * this.stamper.genegate()
 
 		}
 		
@@ -57,17 +58,21 @@ namespace $ {
 				const val = delta.values[i]
 				const stamp = delta.stamps[i]
 			
-				if( stamp <= this._stamp ) continue
+				if( this._mult * stamp <= this._mult * this._stamp ) continue
 				
 				this._value = val
 				this._stamp = stamp
 				
-				this.stamper.feed( stamp )
+				this.stamper.feed( this.stamper.version_from( stamp ) )
 			}
 			
 			return this
 		}
-		
+			
+	}
+	
+	export class $hyoo_crowd_reg_back extends $hyoo_crowd_reg {
+		protected _mult = -1
 	}
 	
 }

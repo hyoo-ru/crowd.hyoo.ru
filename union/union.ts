@@ -17,7 +17,7 @@ namespace $ {
 		
 		Types!: Types
 		
-		type_store = new $hyoo_crowd_reg( this.stamper )
+		type_store = new $hyoo_crowd_reg_back( this.stamper )
 		value_store?: InstanceType< Types[string] >
 		
 		get type() {
@@ -40,7 +40,7 @@ namespace $ {
 			this.type_store.apply(
 				$hyoo_crowd_delta(
 					[ type as string ],
-					[ stamp || this.stamper.genegate() ],
+					[ stamp || - this.stamper.genegate() ],
 				)
 			)
 			
@@ -78,7 +78,15 @@ namespace $ {
 			
 			if( delta.values.length === 0 ) return this
 
-			const store = this.to( delta.values[0] as Extract< keyof Types, string >, delta.stamps[0] )
+			let type = delta.values[0] as Extract< keyof Types, string >
+			
+			if( !this.Types[ type ] ) {
+				type = Object.keys( this.Types )[0] as Extract< keyof Types, string >
+				this.to( type ).apply( delta )
+				return this
+			}
+			
+			const store = this.to( type, delta.stamps[0] )
 			
 			store.apply(
 				$hyoo_crowd_delta(

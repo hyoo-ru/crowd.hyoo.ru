@@ -105,7 +105,7 @@ namespace $ {
 				right.apply( left_delta ).toJSON(),
 				$hyoo_crowd_delta(
 					[ 'foo', 'array', 'xxx', 'bar' ],
-					[ -3, 1000002, 2000002, 2000001 ],
+					[ -3, -1000002, 2000002, 2000001 ],
 				),
 			)
 			
