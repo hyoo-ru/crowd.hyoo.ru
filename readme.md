@@ -88,7 +88,7 @@
 | From \ To | Counter | Register | Unordered Set | Ordered Set | Tagged Union | Dictionary | Tuple | Text
 |--|--|--|--|--|--|--|--|--
 | Counter | ✅ Same | ❌ | ⭕ Set of summands | ⭕ Set of summands | ❌ | ❌ | ❌ | ❌
-| Register | ✅ As summand | ✅ Same | ✅ As key | ✅ As key | ⭕ as first type | ❌ | ❌ | ❌
+| Register | ✅ As summand | ✅ Same | ✅ As key | ✅ As key | ⭕ As first type | ❌ | ❌ | ❌
 | Unordered Set | ❌ | ⭕ Last added key | ✅ Same | ✅ Accidental order | ❌ | ❌ | ❌ | ❌
 | Ordered Set | ❌ | ⭕ Last inserted key | ✅ Remain order | ✅ Same | ❌ | ❌ | ❌ | ❌
 | Tagged Union | ❌ | ✅ Reinterpreted value | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same | ❌ | ❌ | ❌
