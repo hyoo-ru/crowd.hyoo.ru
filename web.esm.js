@@ -5231,9 +5231,10 @@ var $;
             super(...arguments);
             this._value = null;
             this._stamp = 0;
+            this._mult = 1;
         }
         get version() {
-            return this._stamp;
+            return this.stamper.version_from(this._stamp);
         }
         get str() {
             var _a;
@@ -5268,22 +5269,29 @@ var $;
             if (this._value === val)
                 return;
             this._value = val;
-            this._stamp = this.stamper.genegate();
+            this._stamp = this._mult * this.stamper.genegate();
         }
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
                 const val = delta.values[i];
                 const stamp = delta.stamps[i];
-                if (stamp <= this._stamp)
+                if (this._mult * stamp <= this._mult * this._stamp)
                     continue;
                 this._value = val;
                 this._stamp = stamp;
-                this.stamper.feed(stamp);
+                this.stamper.feed(this.stamper.version_from(stamp));
             }
             return this;
         }
     }
     $.$hyoo_crowd_reg = $hyoo_crowd_reg;
+    class $hyoo_crowd_reg_back extends $hyoo_crowd_reg {
+        constructor() {
+            super(...arguments);
+            this._mult = -1;
+        }
+    }
+    $.$hyoo_crowd_reg_back = $hyoo_crowd_reg_back;
 })($ || ($ = {}));
 //reg.js.map
 ;

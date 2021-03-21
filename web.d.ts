@@ -1791,6 +1791,7 @@ declare namespace $ {
     class $hyoo_crowd_reg extends $hyoo_crowd_store {
         protected _value: $hyoo_crowd_delta_value;
         protected _stamp: number;
+        protected _mult: number;
         get version(): number;
         get str(): string;
         set str(next: string);
@@ -1805,6 +1806,9 @@ declare namespace $ {
         get value(): $hyoo_crowd_delta_value;
         set value(val: $hyoo_crowd_delta_value);
         apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
+    }
+    class $hyoo_crowd_reg_back extends $hyoo_crowd_reg {
+        protected _mult: number;
     }
 }
 
