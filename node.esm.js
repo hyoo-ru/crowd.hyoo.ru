@@ -5279,7 +5279,7 @@ var $;
         }
         version_item(val) {
             var _a;
-            return Math.abs((_a = this.stamps.get(val)) !== null && _a !== void 0 ? _a : 0);
+            return this.clock.version_from((_a = this.stamps.get(val)) !== null && _a !== void 0 ? _a : 0);
         }
         version_feed(version) {
             this.clock.feed(version);
