@@ -42,13 +42,13 @@ namespace $ {
 			
 		}
 		
-		toJSON( version_min = 0 ) {
+		delta( clock = new $hyoo_crowd_clock ) {
 			
 			const delta = $hyoo_crowd_delta([],[])
 			
 			for( let [ key, value ] of this.stores ) {
 				
-				const patch = value.toJSON( version_min )
+				const patch = value.delta( clock )
 				if( patch.values.length === 0 ) continue
 				
 				delta.values.push( key, ... patch.values )

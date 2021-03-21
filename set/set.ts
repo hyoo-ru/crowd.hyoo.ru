@@ -10,7 +10,7 @@ namespace $ {
 		}
 		
 		get items() {
-			const delta = this.toJSON()
+			const delta = this.delta()
 			return delta.values.filter(
 				( _, index )=> delta.stamps[ index ] > 0
 			)
@@ -24,13 +24,13 @@ namespace $ {
 			return this.clock.version_from( this.stamps.get( val ) ?? 0 )
 		}
 		
-		toJSON( version_min = 0 ) {
+		delta( clock = new $hyoo_crowd_clock ) {
 			
 			const delta = $hyoo_crowd_delta([],[])
 			
 			for( const [ key, stamp ] of this.stamps ) {
 				
-				if( this.clock.version_from( stamp ) <= version_min ) continue
+				if( !clock.is_new( stamp ) ) continue
 				
 				delta.values.push( key )
 				delta.stamps.push( stamp )
@@ -48,7 +48,7 @@ namespace $ {
 			
 			this.apply( $hyoo_crowd_delta(
 				[ key ],
-				[ this.clock.genegate() ],
+				[ this.clock.generate() ],
 			) )
 			
 			return this
@@ -62,7 +62,7 @@ namespace $ {
 			
 			this.apply( $hyoo_crowd_delta(
 				[ key ],
-				[ - this.clock.genegate() ],
+				[ - this.clock.generate() ],
 			) )
 			
 			return this

@@ -6,18 +6,18 @@ namespace $ {
 	export class $hyoo_crowd_clock {
 		
 		readonly peer: number
+		version_max = 0
 		
 		readonly saw_versions = new Map< number, number >()
 		
 		constructor(
 			peer?: number,
-			public version_max = 0,
 		) {
 			
 			this.peer = peer
 				? peer % concurrency
 				: Math.floor( concurrency * Math.random() )
-		
+				
 		}
 		
 		version_from( stamp: number ) {
@@ -44,10 +44,13 @@ namespace $ {
 				this.version_max = version
 			}
 			
-			if( this.saw_versions.get( version ) ?? 0 < version ) {
-				this.saw_versions.set( this.peer_from( stamp ), version )
+			const peer = this.peer_from( stamp )
+			
+			if( ( this.saw_versions.get( peer ) ?? 0 ) < version ) {
+				this.saw_versions.set( peer, version )
 			}
 			
+			return version
 		}
 		
 		is_new( stamp: number ) {
@@ -64,12 +67,19 @@ namespace $ {
 			return false
 		}
 		
-		genegate() {
-			return this.version_max = ( Math.floor( this.version_max / concurrency ) + 1 ) * concurrency + this.peer
+		generate() {
+			return this.feed( ( Math.floor( this.version_max / concurrency ) + 1 ) * concurrency + this.peer )
 		}
 		
 		fork( peer: number ) {
-			return new $hyoo_crowd_clock( peer, this.version_max )
+			
+			const clock = new $hyoo_crowd_clock( peer )
+			
+			for( const version of this.saw_versions.values() ) {
+				clock.feed( version )
+			}
+
+			return clock
 		}
 		
 	}

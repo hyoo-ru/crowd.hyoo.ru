@@ -32,8 +32,8 @@ namespace $ {
 			this.value = next
 		}
 		
-		toJSON( version_min = 0 ) {
-			if( this.version <= version_min ) return $hyoo_crowd_delta([],[])
+		delta( clock = new $hyoo_crowd_clock ) {
+			if( !clock.is_new( this._stamp ) ) return $hyoo_crowd_delta([],[])
 			return $hyoo_crowd_delta( [ this._value ], [ this._stamp ] )
 		}
 		
@@ -45,7 +45,7 @@ namespace $ {
 			if( this._value === val ) return
 			
 			this._value = val
-			this._stamp = this._mult * this.clock.genegate()
+			this.clock.feed( this._stamp = this._mult * this.clock.generate() )
 
 		}
 		
@@ -58,12 +58,12 @@ namespace $ {
 				const val = delta.values[i]
 				const stamp = delta.stamps[i]
 			
+				this.clock.feed( stamp )
+				
 				if( this._mult * stamp <= this._mult * this._stamp ) continue
 				
 				this._value = val
 				this._stamp = stamp
-				
-				this.clock.feed( stamp )
 			}
 			
 			return this

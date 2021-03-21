@@ -5,7 +5,7 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_reg()
 			
-			$mol_assert_like( store.toJSON(), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[]) )
 			$mol_assert_like( store.value, null )
 			$mol_assert_like( store.version, 0 )
 			
@@ -18,7 +18,7 @@ namespace $ {
 			store.str = 'bar'
 			
 			$mol_assert_like(
-				store.toJSON(),
+				store.delta(),
 				$hyoo_crowd_delta(
 					[ 'bar' ],
 					[ +2000001 ],
@@ -34,7 +34,7 @@ namespace $ {
 			store.str = 'foo'
 			
 			$mol_assert_like(
-				store.toJSON(),
+				store.delta(),
 				$hyoo_crowd_delta(
 					[ 'foo' ],
 					[ +1000001 ],
@@ -46,18 +46,22 @@ namespace $ {
 		'Slice after version'() {
 			
 			const store = new $hyoo_crowd_reg().fork(1)
+			
 			store.str = 'foo'
+			const clock1 = store.clock.fork(0)
+			
 			store.str = 'bar'
+			const clock2 = store.clock.fork(0)
 
 			$mol_assert_like(
-				store.toJSON( +1000001 ),
+				store.delta( clock1 ),
 				$hyoo_crowd_delta(
 					[ 'bar' ],
 					[ +2000001 ],
 				)
 			)
 			
-			$mol_assert_like( store.toJSON( +2000001 ), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( store.delta( clock2 ), $hyoo_crowd_delta([],[]) )
 			
 		},
 		
@@ -72,12 +76,12 @@ namespace $ {
 			const right = base.fork(3)
 			right.str = 'xxx'
 			
-			const left_delta = left.delta( base )
-			const right_delta = right.delta( base )
+			const left_delta = left.delta( base.clock )
+			const right_delta = right.delta( base.clock )
 			
 			$mol_assert_like(
-				left.apply( right_delta ).toJSON(),
-				right.apply( left_delta ).toJSON(),
+				left.apply( right_delta ).delta(),
+				right.apply( left_delta ).delta(),
 				{
 					values: [ 'xxx' ],
 					stamps: [ +2000003 ],

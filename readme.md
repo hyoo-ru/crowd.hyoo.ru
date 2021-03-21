@@ -70,9 +70,9 @@
 
 ## Common API
 
-- `toJSON( version_min = 0 )` Returns delta between `version_min` and current.
+- `delta( clock )` Returns delta between past clock and now.
 - `apply( delta )` Merges delta to current state.
-- `delta( store )` Returns delta between base fork and current.
+- `toJSON()` Returns full state dump.
 - `fork( peer: number )` Makes independent clone with fixed peer id for testing purposes.
 
 ## State/Delta Format

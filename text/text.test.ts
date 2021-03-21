@@ -13,7 +13,7 @@ namespace $ {
 			
 			$mol_assert_like( store.tokens.length, 2 )
 			$mol_assert_like( store.text, 'foo bar' )
-			$mol_assert_like( store.root.toJSON().stamps, [ 2000001, 4000001 ] )
+			$mol_assert_like( store.root.delta().stamps, [ 2000001, 4000001 ] )
 			
 		},
 		
@@ -25,7 +25,7 @@ namespace $ {
 			
 			$mol_assert_like( store.tokens.length, 2 )
 			$mol_assert_like( store.text, 'xxx yyy' )
-			$mol_assert_like( store.root.toJSON().stamps, [ 2000001, 4000001 ] )
+			$mol_assert_like( store.root.delta().stamps, [ 2000001, 4000001 ] )
 			
 		},
 		
@@ -37,7 +37,7 @@ namespace $ {
 			
 			$mol_assert_like( store.tokens.length, 3 )
 			$mol_assert_like( store.text, 'foo de bar' )
-			$mol_assert_like( store.root.toJSON().stamps, [ 2000001, 6000001, 4000001 ] )
+			$mol_assert_like( store.root.delta().stamps, [ 2000001, 6000001, 4000001 ] )
 			
 		},
 		
@@ -49,7 +49,7 @@ namespace $ {
 			
 			$mol_assert_like( store.tokens.length, 2 )
 			$mol_assert_like( store.text, 'foo bar' )
-			$mol_assert_like( store.root.toJSON().stamps, [ 2000001, 6000001, -7000001 ] )
+			$mol_assert_like( store.root.delta().stamps, [ 2000001, 6000001, -7000001 ] )
 			
 		},
 		
@@ -61,7 +61,7 @@ namespace $ {
 			
 			$mol_assert_like( store.tokens.length, 1 )
 			$mol_assert_like( store.text, 'foo' )
-			$mol_assert_like( store.root.toJSON().stamps, [ 4000001, -5000001 ] )
+			$mol_assert_like( store.root.delta().stamps, [ 4000001, -5000001 ] )
 			
 		},
 		
@@ -76,8 +76,8 @@ namespace $ {
 			left.text = 'Hello Alice and fun!'
 			right.text = 'Say: Hello World and fun!'
 			
-			const left_delta = left.toJSON()
-			const right_delta = right.toJSON()
+			const left_delta = left.delta()
+			const right_delta = right.delta()
 			
 			left.apply( right_delta )
 			right.apply( left_delta )

@@ -14,7 +14,7 @@ namespace $ {
 				count: $hyoo_crowd_reg,
 			}).make().fork(1)
 			
-			right.apply( left.toJSON() )
+			right.apply( left.delta() )
 			
 			$mol_assert_like( right.type, "index" )
 			$mol_assert_like( right.as( 'index' )!.numb, 123 )
@@ -33,7 +33,7 @@ namespace $ {
 			
 			let right = $hyoo_crowd_reg.make().fork(2)
 			
-			right.apply( left.toJSON() )
+			right.apply( left.delta() )
 			
 			$mol_assert_like( right.numb, 777 )
 			
@@ -51,7 +51,7 @@ namespace $ {
 			
 			let right = $hyoo_crowd_numb.make().fork(2)
 			
-			right.apply( left.toJSON() )
+			right.apply( left.delta() )
 			
 			$mol_assert_like( right.numb, 777 )
 			

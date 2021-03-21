@@ -40,24 +40,24 @@ namespace $ {
 			this.type_store.apply(
 				$hyoo_crowd_delta(
 					[ type as string ],
-					[ stamp || - this.clock.genegate() ],
+					[ stamp || - this.clock.generate() ],
 				)
 			)
 			
 			if( this.type !== type ) return this.as( this.type! )! as any
 			
 			const store = new this.Types[ type ]( this.clock )
-			if( this.value_store ) store.apply( this.value_store.toJSON() )
+			if( this.value_store ) store.apply( this.value_store.delta() )
 			
 			return this.value_store = store as any
 		}
 		
-		toJSON( version_min = 0 ) {
+		delta( clock = new $hyoo_crowd_clock ) {
 			
-			const val = this.value_store?.toJSON( version_min )
+			const val = this.value_store?.delta( clock )
 			if( val?.values.length === 0 ) return $hyoo_crowd_delta([],[])
 			
-			const type = this.type_store.toJSON()
+			const type = this.type_store.delta()
 			
 			return $hyoo_crowd_delta(
 				[

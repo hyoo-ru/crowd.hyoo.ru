@@ -3,7 +3,7 @@ namespace $ {
 	/** CROWD Ordered Set */
 	export class $hyoo_crowd_list extends $hyoo_crowd_store {
 		
-		protected version = 0
+		protected clock_self = new $hyoo_crowd_clock
 		protected readonly array = [] as $hyoo_crowd_delta_value[]
 		protected readonly stamps = new Map< $hyoo_crowd_delta_value, number >()
 		
@@ -27,18 +27,14 @@ namespace $ {
 		}
 		
 		version_feed( version: number ) {
-			
 			this.clock.feed( version )
-			
-			if( version <= this.version ) return
-			this.version = version
-			
+			this.clock_self.feed( version )
 		}
 		
-		toJSON( version_min = 0 ): ReturnType< typeof $hyoo_crowd_delta > {
+		delta( clock = new $hyoo_crowd_clock ): ReturnType< typeof $hyoo_crowd_delta > {
 			
 			const delta = $hyoo_crowd_delta([],[])
-			if( this.version <= version_min ) return delta
+			if( !this.clock_self.is_ahead( clock ) ) return delta
 			
 			for( const key of this.array ) {
 				delta.values.push( key )
@@ -71,7 +67,7 @@ namespace $ {
 			}
 			
 			delta.values.push( key )
-			delta.stamps.push( this.clock.genegate() )
+			delta.stamps.push( this.clock.generate() )
 				
 			this.apply( delta )
 			
@@ -87,7 +83,7 @@ namespace $ {
 			
 			this.apply( $hyoo_crowd_delta(
 				[ key ],
-				[ - this.clock.genegate() ]
+				[ - this.clock.generate() ]
 			) )
 			
 			return this

@@ -17,8 +17,8 @@ namespace $.$$ {
 			this.Left().store().apply( right_delta )
 			this.Right().store().apply( left_delta )
 			
-			this.Left().sync_stamp( this.Left().store().clock.version_max )
-			this.Right().sync_stamp( this.Right().store().clock.version_max )
+			this.Left().sync_clock( this.Left().store().clock.fork(0) )
+			this.Right().sync_clock( this.Right().store().clock.fork(0) )
 			
 			return Math.random()
 		}
@@ -28,7 +28,7 @@ namespace $.$$ {
 	export class $hyoo_crowd_app_peer extends $.$hyoo_crowd_app_peer {
 
 		@ $mol_mem
-		sync_stamp( next = 0 ) {
+		sync_clock( next = new $hyoo_crowd_clock ) {
 			return next
 		}
 		
@@ -44,13 +44,13 @@ namespace $.$$ {
 		
 		delta() {
 			this.text()
-			return this.store().toJSON( this.sync_stamp() )
+			return this.store().delta( this.sync_clock() )
 		}
 		
 		changes() {
 			this.text()
 			const clock = this.store().clock
-			return clock.index_from( clock.version_max ) - clock.index_from( this.sync_stamp() )
+			return clock.index_from( clock.version_max ) - clock.index_from( this.sync_clock().version_max )
 		}
 		
 		size_state() {
@@ -85,7 +85,7 @@ namespace $.$$ {
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
 			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
 			.replace( '{stamp:now}', this.store().clock.version_max.toLocaleString() )
-			.replace( '{stamp:sync}', this.sync_stamp().toLocaleString() )
+			.replace( '{stamp:sync}', this.sync_clock().version_max.toLocaleString() )
 			.replace( '{size:text}', this.text().length.toLocaleString() )
 			.replace( '{size:state}', this.size_state().toLocaleString() )
 			.replace( '{size:delta}', this.size_delta().toLocaleString() )

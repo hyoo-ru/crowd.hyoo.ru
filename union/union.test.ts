@@ -8,7 +8,7 @@ namespace $ {
 				string: $hyoo_crowd_reg,
 			}).make()
 			
-			$mol_assert_like( store.toJSON(), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[]) )
 			$mol_assert_like( store.type, null )
 			$mol_assert_like( store.as( 'counter' ), null )
 			$mol_assert_like( store.as( 'string' ), null )
@@ -42,7 +42,7 @@ namespace $ {
 			
 			store.to( 'counter' )!.shift( +5 ).shift( -2 )
 						
-			$mol_assert_like( store.toJSON(), $hyoo_crowd_delta(
+			$mol_assert_like( store.delta(), $hyoo_crowd_delta(
 				[ 'counter', +3 ],
 				[ -1000001, +3000001 ],
 			) )
@@ -58,14 +58,18 @@ namespace $ {
 				array: $hyoo_crowd_list,
 			}).make().fork(1)
 			
-			store.to( 'object' ).add( 'foo' ).add( 'bar' )
+			store.to( 'object' ).add( 'foo' )
+			const clock1 = store.clock.fork(0)
+			
+			store.to( 'object' ).add( 'bar' )
+			const clock2 = store.clock.fork(0)
 						
-			$mol_assert_like( store.toJSON( +2000001 ), $hyoo_crowd_delta(
+			$mol_assert_like( store.delta( clock1 ), $hyoo_crowd_delta(
 				[ 'object', 'bar' ],
 				[ -1000001, +3000001 ],
 			) )
 			
-			$mol_assert_like( store.toJSON( +3000001 ), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( store.delta( clock2 ), $hyoo_crowd_delta([],[]) )
 			
 		},
 		
@@ -104,13 +108,13 @@ namespace $ {
 			const right = base.fork(3)
 			right.to( 'array' ).insert( 'xxx' )
 			
-			const left_delta = left.delta( base )
-			const right_delta = right.delta( base )
+			const left_delta = left.delta( base.clock )
+			const right_delta = right.delta( base.clock )
 			
 			$mol_assert_like(
 				
-				left.apply( right_delta ).toJSON(),
-				right.apply( left_delta ).toJSON(),
+				left.apply( right_delta ).delta(),
+				right.apply( left_delta ).delta(),
 				
 				$hyoo_crowd_delta(
 					[ 'array', 'bar', 'foo', 'xxx' ],
