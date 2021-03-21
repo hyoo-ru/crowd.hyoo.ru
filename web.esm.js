@@ -5316,6 +5316,42 @@ var $;
                     words.shift();
                 }
             }
+            return this;
+        }
+        write(text, offset = -1, count = 0) {
+            if (offset < 0)
+                return this.splice_line(null, this.root.items_internal.length, 0, text);
+            const flow = this.for('flow').for(null);
+            const token_ids = flow.items_internal;
+            const tokens = this.for('token');
+            let from = 0;
+            let word = '';
+            while (true) {
+                if (from >= token_ids.length)
+                    break;
+                word = tokens.for(token_ids[from]).value;
+                if (offset < word.length) {
+                    text = word.slice(0, offset) + text;
+                    count += offset;
+                    break;
+                }
+                offset -= word.length;
+                from++;
+            }
+            let to = from;
+            while (true) {
+                if (to >= token_ids.length)
+                    break;
+                word = tokens.for(token_ids[to]).value;
+                to++;
+                if (count < word.length) {
+                    text = text + word.slice(count);
+                    break;
+                }
+                count -= word.length;
+            }
+            this.splice_line(null, from, to, text);
+            return this;
         }
     }
     $.$hyoo_crowd_text = $hyoo_crowd_text;

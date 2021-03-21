@@ -3269,6 +3269,34 @@ var $;
             right.apply(left_delta);
             $.$mol_assert_equal(left.text, right.text, 'Say: Hello Alice and fun!');
         },
+        'Splice inside token'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foobar';
+            store.write('XYZ', 2, 2);
+            $.$mol_assert_like(store.text, 'foXYZar');
+            $.$mol_assert_like(store.tokens.length, 2);
+        },
+        'Splice over some tokens'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'xxx foo bar yyy';
+            store.write('X Y Z', 6, 3);
+            $.$mol_assert_like(store.text, 'xxx foX Y Zar yyy');
+            $.$mol_assert_like(store.tokens.length, 5);
+        },
+        'Splice whole token'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'xxx foo yyy';
+            store.write('bar', 4, 4);
+            $.$mol_assert_like(store.text, 'xxx baryyy');
+            $.$mol_assert_like(store.tokens.length, 2);
+        },
+        'Splice whole text'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foo bar';
+            store.write('xxx', 0, 7);
+            $.$mol_assert_like(store.text, 'xxx');
+            $.$mol_assert_like(store.tokens.length, 1);
+        },
     });
 })($ || ($ = {}));
 //text.test.js.map

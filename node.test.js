@@ -5523,6 +5523,42 @@ var $;
                     words.shift();
                 }
             }
+            return this;
+        }
+        write(text, offset = -1, count = 0) {
+            if (offset < 0)
+                return this.splice_line(null, this.root.items_internal.length, 0, text);
+            const flow = this.for('flow').for(null);
+            const token_ids = flow.items_internal;
+            const tokens = this.for('token');
+            let from = 0;
+            let word = '';
+            while (true) {
+                if (from >= token_ids.length)
+                    break;
+                word = tokens.for(token_ids[from]).value;
+                if (offset < word.length) {
+                    text = word.slice(0, offset) + text;
+                    count += offset;
+                    break;
+                }
+                offset -= word.length;
+                from++;
+            }
+            let to = from;
+            while (true) {
+                if (to >= token_ids.length)
+                    break;
+                word = tokens.for(token_ids[to]).value;
+                to++;
+                if (count < word.length) {
+                    text = text + word.slice(count);
+                    break;
+                }
+                count -= word.length;
+            }
+            this.splice_line(null, from, to, text);
+            return this;
         }
     }
     $.$hyoo_crowd_text = $hyoo_crowd_text;
@@ -11602,6 +11638,34 @@ var $;
             left.apply(right_delta);
             right.apply(left_delta);
             $.$mol_assert_equal(left.text, right.text, 'Say: Hello Alice and fun!');
+        },
+        'Splice inside token'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foobar';
+            store.write('XYZ', 2, 2);
+            $.$mol_assert_like(store.text, 'foXYZar');
+            $.$mol_assert_like(store.tokens.length, 2);
+        },
+        'Splice over some tokens'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'xxx foo bar yyy';
+            store.write('X Y Z', 6, 3);
+            $.$mol_assert_like(store.text, 'xxx foX Y Zar yyy');
+            $.$mol_assert_like(store.tokens.length, 5);
+        },
+        'Splice whole token'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'xxx foo yyy';
+            store.write('bar', 4, 4);
+            $.$mol_assert_like(store.text, 'xxx baryyy');
+            $.$mol_assert_like(store.tokens.length, 2);
+        },
+        'Splice whole text'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foo bar';
+            store.write('xxx', 0, 7);
+            $.$mol_assert_like(store.text, 'xxx');
+            $.$mol_assert_like(store.tokens.length, 1);
         },
     });
 })($ || ($ = {}));

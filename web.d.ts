@@ -2039,7 +2039,8 @@ declare namespace $ {
         value_of(token: string): string;
         get text(): string;
         set text(next: string);
-        splice_line(id: string | null, from: number, to: number, text: string): void;
+        splice_line(id: string | null, from: number, to: number, text: string): this;
+        write(text: string, offset?: number, count?: number): this;
     }
     export {};
 }
