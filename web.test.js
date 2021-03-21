@@ -681,19 +681,19 @@ var $;
             let store = this.stores.get(path);
             if (store)
                 return store;
-            store = new $.$hyoo_crowd_reg(this.stamper);
+            store = new $.$hyoo_crowd_reg(this.clock);
             this.stores.set(path, store);
             return store;
         }
         shift(diff = 1) {
-            const store = this.reg(this.stamper.peer);
+            const store = this.reg(this.clock.peer);
             const prev = Number(store.numb);
             store.numb = prev + diff;
             return this;
         }
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
-                const peer = this.stamper.peer_from(delta.stamps[i]);
+                const peer = this.clock.peer_from(delta.stamps[i]);
                 this.reg(peer).apply($.$hyoo_crowd_delta([delta.values[i]], [delta.stamps[i]]));
             }
             return this;
@@ -783,7 +783,7 @@ var $;
         toJSON(version_min = 0) {
             const delta = $.$hyoo_crowd_delta([], []);
             for (const [key, stamp] of this.stamps) {
-                if (this.stamper.version_from(stamp) <= version_min)
+                if (this.clock.version_from(stamp) <= version_min)
                     continue;
                 delta.values.push(key);
                 delta.stamps.push(stamp);
@@ -793,24 +793,24 @@ var $;
         add(key) {
             if (this.has(key))
                 return this;
-            this.apply($.$hyoo_crowd_delta([key], [this.stamper.genegate()]));
+            this.apply($.$hyoo_crowd_delta([key], [this.clock.genegate()]));
             return this;
         }
         remove(key) {
             if (!this.has(key))
                 return this;
-            this.apply($.$hyoo_crowd_delta([key], [-this.stamper.genegate()]));
+            this.apply($.$hyoo_crowd_delta([key], [-this.clock.genegate()]));
             return this;
         }
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
                 const key = delta.values[i];
                 const stamp = delta.stamps[i];
-                const version = this.stamper.version_from(stamp);
+                const version = this.clock.version_from(stamp);
                 if (this.version_item(key) >= version)
                     continue;
                 this.stamps.set(key, stamp);
-                this.stamper.feed(version);
+                this.clock.feed(version);
             }
             return this;
         }
@@ -977,7 +977,7 @@ var $;
     class $hyoo_crowd_union extends $.$hyoo_crowd_store {
         constructor() {
             super(...arguments);
-            this.type_store = new $.$hyoo_crowd_reg_back(this.stamper);
+            this.type_store = new $.$hyoo_crowd_reg_back(this.clock);
         }
         static of(Types) {
             return class Union extends this {
@@ -1001,10 +1001,10 @@ var $;
         to(type, stamp) {
             if (this.type === type)
                 return this.as(type);
-            this.type_store.apply($.$hyoo_crowd_delta([type], [stamp || -this.stamper.genegate()]));
+            this.type_store.apply($.$hyoo_crowd_delta([type], [stamp || -this.clock.genegate()]));
             if (this.type !== type)
                 return this.as(this.type);
-            const store = new this.Types[type](this.stamper);
+            const store = new this.Types[type](this.clock);
             if (this.value_store)
                 store.apply(this.value_store.toJSON());
             return this.value_store = store;

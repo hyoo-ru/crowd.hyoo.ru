@@ -4876,7 +4876,7 @@ var $;
 var $;
 (function ($) {
     const concurrency = 1000000;
-    class $hyoo_crowd_stamper {
+    class $hyoo_crowd_clock {
         constructor(peer, version_max = 0) {
             this.version_max = version_max;
             this.peer = peer
@@ -4904,12 +4904,12 @@ var $;
             return this.version_max = (Math.floor(this.version_max / concurrency) + 1) * concurrency + this.peer;
         }
         fork(peer) {
-            return new $hyoo_crowd_stamper(peer, this.version_max);
+            return new $hyoo_crowd_clock(peer, this.version_max);
         }
     }
-    $.$hyoo_crowd_stamper = $hyoo_crowd_stamper;
+    $.$hyoo_crowd_clock = $hyoo_crowd_clock;
 })($ || ($ = {}));
-//stamper.js.map
+//clock.js.map
 ;
 "use strict";
 var $;
@@ -4925,8 +4925,8 @@ var $;
 var $;
 (function ($) {
     class $hyoo_crowd_store {
-        constructor(stamper = new $.$hyoo_crowd_stamper) {
-            this.stamper = stamper;
+        constructor(clock = new $.$hyoo_crowd_clock) {
+            this.clock = clock;
         }
         static make() {
             return new this();
@@ -4935,14 +4935,14 @@ var $;
             return $.$hyoo_crowd_delta([], []);
         }
         delta(base) {
-            return this.toJSON(base.stamper.version_max);
+            return this.toJSON(base.clock.version_max);
         }
         apply(delta) {
             return this;
         }
         fork(peer) {
             const Fork = this.constructor;
-            const fork = new Fork(this.stamper.fork(peer));
+            const fork = new Fork(this.clock.fork(peer));
             fork.apply(this.toJSON());
             return fork;
         }
@@ -4975,7 +4975,7 @@ var $;
             if (store)
                 return store;
             const Type = this.Fields[String(key !== null && key !== void 0 ? key : '')] || Object.values(this.Fields)[0];
-            store = new Type(this.stamper);
+            store = new Type(this.clock);
             this.stores.set(key, store);
             return store;
         }
@@ -5050,7 +5050,7 @@ var $;
             return Math.abs((_a = this.stamps.get(val)) !== null && _a !== void 0 ? _a : 0);
         }
         version_feed(version) {
-            this.stamper.feed(version);
+            this.clock.feed(version);
             if (version <= this.version)
                 return;
             this.version = version;
@@ -5082,7 +5082,7 @@ var $;
                 delta.stamps.push(this.stamps.get(anchor));
             }
             delta.values.push(key);
-            delta.stamps.push(this.stamper.genegate());
+            delta.stamps.push(this.clock.genegate());
             this.apply(delta);
             return this;
         }
@@ -5091,7 +5091,7 @@ var $;
             const stamp = (_a = this.stamps.get(key)) !== null && _a !== void 0 ? _a : 0;
             if (stamp <= 0)
                 return this;
-            this.apply($.$hyoo_crowd_delta([key], [-this.stamper.genegate()]));
+            this.apply($.$hyoo_crowd_delta([key], [-this.clock.genegate()]));
             return this;
         }
         apply(delta) {
@@ -5109,7 +5109,7 @@ var $;
                 const current_key = delta.values[i];
                 const current_patch_stamp = delta.stamps[i];
                 const current_self_stamp = (_a = this.stamps.get(current_key)) !== null && _a !== void 0 ? _a : 0;
-                const current_patch_version = this.stamper.version_from(current_patch_stamp);
+                const current_patch_version = this.clock.version_from(current_patch_stamp);
                 if (this.version_item(current_key) >= current_patch_version)
                     continue;
                 this.stamps.set(current_key, current_patch_stamp);
@@ -5126,7 +5126,7 @@ var $;
                         const anchor_self_version = this.version_item(anchor_key);
                         if (anchor_self_version === 0)
                             continue;
-                        if (anchor_self_version > this.stamper.version_from(patch_stamps.get(anchor_key)))
+                        if (anchor_self_version > this.clock.version_from(patch_stamps.get(anchor_key)))
                             continue;
                     }
                     let next_pos = anchor_key !== undefined ? this.array.indexOf(anchor_key) + 1 : 0;
@@ -5169,7 +5169,7 @@ var $;
             this._mult = 1;
         }
         get version() {
-            return this.stamper.version_from(this._stamp);
+            return this.clock.version_from(this._stamp);
         }
         get str() {
             var _a;
@@ -5204,7 +5204,7 @@ var $;
             if (this._value === val)
                 return;
             this._value = val;
-            this._stamp = this._mult * this.stamper.genegate();
+            this._stamp = this._mult * this.clock.genegate();
         }
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
@@ -5214,7 +5214,7 @@ var $;
                     continue;
                 this._value = val;
                 this._stamp = stamp;
-                this.stamper.feed(this.stamper.version_from(stamp));
+                this.clock.feed(this.clock.version_from(stamp));
             }
             return this;
         }
@@ -7609,8 +7609,8 @@ var $;
                 const right_delta = this.Right().delta();
                 this.Left().store().apply(right_delta);
                 this.Right().store().apply(left_delta);
-                this.Left().sync_stamp(this.Left().store().stamper.version_max);
-                this.Right().sync_stamp(this.Right().store().stamper.version_max);
+                this.Left().sync_stamp(this.Left().store().clock.version_max);
+                this.Right().sync_stamp(this.Right().store().clock.version_max);
                 return Math.random();
             }
         }
@@ -7634,8 +7634,8 @@ var $;
             }
             changes() {
                 this.text();
-                const stamper = this.store().stamper;
-                return stamper.index_from(stamper.version_max) - stamper.index_from(this.sync_stamp());
+                const clock = this.store().clock;
+                return clock.index_from(clock.version_max) - clock.index_from(this.sync_stamp());
             }
             size_state() {
                 this.text();
@@ -7658,12 +7658,12 @@ var $;
             stats() {
                 this.text();
                 return super.stats()
-                    .replace('{peer}', this.store().stamper.peer.toLocaleString())
+                    .replace('{peer}', this.store().clock.peer.toLocaleString())
                     .replace('{changes}', this.changes().toLocaleString())
                     .replace('{tokens:alive}', this.tokens_alive().toLocaleString())
                     .replace('{tokens:dead}', this.tokens_dead().toLocaleString())
                     .replace('{tokens:total}', this.tokens_total().toLocaleString())
-                    .replace('{stamp:now}', this.store().stamper.version_max.toLocaleString())
+                    .replace('{stamp:now}', this.store().clock.version_max.toLocaleString())
                     .replace('{stamp:sync}', this.sync_stamp().toLocaleString())
                     .replace('{size:text}', this.text().length.toLocaleString())
                     .replace('{size:state}', this.size_state().toLocaleString())

@@ -1658,7 +1658,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    class $hyoo_crowd_stamper {
+    class $hyoo_crowd_clock {
         version_max: number;
         readonly peer: number;
         constructor(peer?: number, version_max?: number);
@@ -1668,7 +1668,7 @@ declare namespace $ {
         make(index: number, peer?: number): number;
         feed(version: number): void;
         genegate(): number;
-        fork(peer: number): $hyoo_crowd_stamper;
+        fork(peer: number): $hyoo_crowd_clock;
     }
 }
 
@@ -1682,9 +1682,9 @@ declare namespace $ {
 
 declare namespace $ {
     class $hyoo_crowd_store {
-        stamper: $hyoo_crowd_stamper;
+        clock: $hyoo_crowd_clock;
         static make<Instance>(this: new () => Instance): Instance;
-        constructor(stamper?: $hyoo_crowd_stamper);
+        constructor(clock?: $hyoo_crowd_clock);
         toJSON(version_min?: number): ReturnType<typeof $hyoo_crowd_delta>;
         delta(base: this): {
             values: $hyoo_crowd_delta_value[];
@@ -1698,7 +1698,7 @@ declare namespace $ {
 declare namespace $ {
     class $hyoo_crowd_dict<Fields extends Record<string, typeof $hyoo_crowd_store>> extends $hyoo_crowd_store {
         static of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
-            new (stamper?: $hyoo_crowd_stamper): {
+            new (clock?: $hyoo_crowd_clock): {
                 Fields: Types;
                 stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
                 has(key: $hyoo_crowd_delta_value): boolean;
@@ -1711,7 +1711,7 @@ declare namespace $ {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
                 }): any;
-                stamper: $hyoo_crowd_stamper;
+                clock: $hyoo_crowd_clock;
                 delta(base: any): {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
@@ -1778,10 +1778,10 @@ declare namespace $ {
 
 declare namespace $ {
     const $hyoo_crowd_text_base: {
-        new (stamper?: $hyoo_crowd_stamper): {
+        new (clock?: $hyoo_crowd_clock): {
             Fields: {
                 flow: {
-                    new (stamper?: $hyoo_crowd_stamper): {
+                    new (clock?: $hyoo_crowd_clock): {
                         Fields: {
                             val: typeof $hyoo_crowd_list;
                         };
@@ -1798,7 +1798,7 @@ declare namespace $ {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         }): any;
-                        stamper: $hyoo_crowd_stamper;
+                        clock: $hyoo_crowd_clock;
                         delta(base: any): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
@@ -1806,7 +1806,7 @@ declare namespace $ {
                         fork(peer: number): any;
                     };
                     of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
-                        new (stamper?: $hyoo_crowd_stamper): {
+                        new (clock?: $hyoo_crowd_clock): {
                             Fields: Types;
                             stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
                             has(key: $hyoo_crowd_delta_value): boolean;
@@ -1819,7 +1819,7 @@ declare namespace $ {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             }): any;
-                            stamper: $hyoo_crowd_stamper;
+                            clock: $hyoo_crowd_clock;
                             delta(base: any): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
@@ -1832,7 +1832,7 @@ declare namespace $ {
                     make<Instance>(this: new () => Instance): Instance;
                 };
                 token: {
-                    new (stamper?: $hyoo_crowd_stamper): {
+                    new (clock?: $hyoo_crowd_clock): {
                         Fields: {
                             val: typeof $hyoo_crowd_reg;
                         };
@@ -1849,7 +1849,7 @@ declare namespace $ {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         }): any;
-                        stamper: $hyoo_crowd_stamper;
+                        clock: $hyoo_crowd_clock;
                         delta(base: any): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
@@ -1857,7 +1857,7 @@ declare namespace $ {
                         fork(peer: number): any;
                     };
                     of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
-                        new (stamper?: $hyoo_crowd_stamper): {
+                        new (clock?: $hyoo_crowd_clock): {
                             Fields: Types;
                             stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
                             has(key: $hyoo_crowd_delta_value): boolean;
@@ -1870,7 +1870,7 @@ declare namespace $ {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             }): any;
-                            stamper: $hyoo_crowd_stamper;
+                            clock: $hyoo_crowd_clock;
                             delta(base: any): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
@@ -1887,7 +1887,7 @@ declare namespace $ {
             has(key: $hyoo_crowd_delta_value): boolean;
             for<Field_3 extends $hyoo_crowd_delta_value>(key: Field_3): InstanceType<{
                 flow: {
-                    new (stamper?: $hyoo_crowd_stamper): {
+                    new (clock?: $hyoo_crowd_clock): {
                         Fields: {
                             val: typeof $hyoo_crowd_list;
                         };
@@ -1904,7 +1904,7 @@ declare namespace $ {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         }): any;
-                        stamper: $hyoo_crowd_stamper;
+                        clock: $hyoo_crowd_clock;
                         delta(base: any): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
@@ -1912,7 +1912,7 @@ declare namespace $ {
                         fork(peer: number): any;
                     };
                     of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
-                        new (stamper?: $hyoo_crowd_stamper): {
+                        new (clock?: $hyoo_crowd_clock): {
                             Fields: Types;
                             stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
                             has(key: $hyoo_crowd_delta_value): boolean;
@@ -1925,7 +1925,7 @@ declare namespace $ {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             }): any;
-                            stamper: $hyoo_crowd_stamper;
+                            clock: $hyoo_crowd_clock;
                             delta(base: any): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
@@ -1938,7 +1938,7 @@ declare namespace $ {
                     make<Instance>(this: new () => Instance): Instance;
                 };
                 token: {
-                    new (stamper?: $hyoo_crowd_stamper): {
+                    new (clock?: $hyoo_crowd_clock): {
                         Fields: {
                             val: typeof $hyoo_crowd_reg;
                         };
@@ -1955,7 +1955,7 @@ declare namespace $ {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
                         }): any;
-                        stamper: $hyoo_crowd_stamper;
+                        clock: $hyoo_crowd_clock;
                         delta(base: any): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
@@ -1963,7 +1963,7 @@ declare namespace $ {
                         fork(peer: number): any;
                     };
                     of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
-                        new (stamper?: $hyoo_crowd_stamper): {
+                        new (clock?: $hyoo_crowd_clock): {
                             Fields: Types;
                             stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
                             has(key: $hyoo_crowd_delta_value): boolean;
@@ -1976,7 +1976,7 @@ declare namespace $ {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
                             }): any;
-                            stamper: $hyoo_crowd_stamper;
+                            clock: $hyoo_crowd_clock;
                             delta(base: any): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
@@ -1997,7 +1997,7 @@ declare namespace $ {
                 values: $hyoo_crowd_delta_value[];
                 stamps: number[];
             }): any;
-            stamper: $hyoo_crowd_stamper;
+            clock: $hyoo_crowd_clock;
             delta(base: any): {
                 values: $hyoo_crowd_delta_value[];
                 stamps: number[];
@@ -2005,7 +2005,7 @@ declare namespace $ {
             fork(peer: number): any;
         };
         of<Types extends Record<string, typeof $hyoo_crowd_store>>(Types: Types): {
-            new (stamper?: $hyoo_crowd_stamper): {
+            new (clock?: $hyoo_crowd_clock): {
                 Fields: Types;
                 stores: Map<$hyoo_crowd_delta_value, InstanceType<Types[string]>>;
                 has(key: $hyoo_crowd_delta_value): boolean;
@@ -2018,7 +2018,7 @@ declare namespace $ {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
                 }): any;
-                stamper: $hyoo_crowd_stamper;
+                clock: $hyoo_crowd_clock;
                 delta(base: any): {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
