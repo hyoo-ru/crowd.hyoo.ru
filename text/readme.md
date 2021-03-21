@@ -13,6 +13,7 @@ Rich text.
 
 - Currently support only plain text.
 - Currently support only full text replacement API (with reconciliation of course). More precise mutations are coming soon.
+- Currently used full text tokenization. Split by lines should improve performance, reduce delta size and reduce changes overlapping.
 
 ## State Format
 
@@ -52,4 +53,4 @@ Delta is partial state dump which depends on the inner stores.
 
 [![](https://i.imgur.com/4RJEWsB.png)](https://crowd.hyoo.ru/)
 
-- Currently binded to native textarea. It's simple, but slow on large texts. 
+- Currently bound to native textarea. It's simple, but slow on large texts. 
