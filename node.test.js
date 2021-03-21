@@ -9475,6 +9475,17 @@ var $;
             right.apply(left.toJSON());
             $.$mol_assert_like(right.numb, 777);
         },
+        'Tagged Union => Counter'() {
+            let left = $.$hyoo_crowd_union.of({
+                index: $.$hyoo_crowd_reg,
+                count: $.$hyoo_crowd_reg,
+            }).make().fork(1);
+            left.to('index').value = 777;
+            left.to('count');
+            let right = $.$hyoo_crowd_numb.make().fork(2);
+            right.apply(left.toJSON());
+            $.$mol_assert_like(right.numb, 777);
+        },
     });
 })($ || ($ = {}));
 //recast.test.js.map
