@@ -46,7 +46,7 @@ Delta is partial state dump which depends on the inner stores.
 ## Mutations
 
 - `text` Replace full text with reconciliation.
-- `write( flow, from, to, text )` Coming soon.
+- `write( text, offset_from = length, delete_count = 0 )` Replace range by new text.
 
 ## [Online sandbox](https://crowd.hyoo.ru/)
 
