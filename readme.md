@@ -86,15 +86,15 @@
 
 ## Reinterpretations
 
-| From \ To     | Counter                   | Register               | Unordered Set            | Ordered Set               | Tagged Union     | Dictionary                 | Text
-|---------------|---------------------------|------------------------|--------------------------|---------------------------|------------------|----------------------------|---------
-| Counter       | ✅ Same                   | ❌                    | ⭕ Set of summands       | ⭕ Set of summands       | ❌               | ❌                        | ❌
-| Register      | ✅ As first summand       | ✅ Same               | ✅ As key                | ✅ As key                | ⭕ As first type | ❌                        | ❌
-| Unordered Set | ❌                        | ⭕ Last added key     | ✅ Same                  | ✅ Accidental order      | ❌               | ❌                        | ❌
-| Ordered Set   | ❌                        | ⭕ Last inserted key  | ✅ Remain order          | ✅ Same                  | ❌               | ❌                        | ❌
-| Tagged Union  | ✅ Value as first summand | ✅ Value              | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same          | ❌                        | ❌
-| Dictionary    | ❌                        | ⭕ Last changed value | ⭕ Set of values         | ⭕ Set of values         | ❌               | ✅ Same                   | ❌
-| Text          | ❌                        | ❌                    | ❌                       | ❌                       | ❌               | ⭕ With keys: flow, tuple | ✅ Same
+| From \ To     | Counter                   | Register               | Tagged Union     | Unordered Set            | Ordered Set               | Dictionary                 | Text
+|---------------|---------------------------|------------------------|------------------|--------------------------|---------------------------|----------------------------|---------
+| Counter       | ✅ Same                   | ❌                    | ❌               | ⭕ Set of summands       | ⭕ Set of summands       | ❌                        | ❌
+| Register      | ✅ As first summand       | ✅ Same               | ⭕ As first type | ✅ As key                | ✅ As key                | ❌                        | ❌
+| Tagged Union  | ✅ Value as first summand | ✅ Value              | ✅ Same          | ⭕ Set of type and value | ⭕ Set of type and value | ❌                        | ❌
+| Unordered Set | ❌                        | ⭕ Last added key     | ❌               | ✅ Same                  | ✅ Accidental order      | ❌                        | ❌
+| Ordered Set   | ❌                        | ⭕ Last inserted key  | ❌               | ✅ Remain order          | ✅ Same                  | ❌                        | ❌
+| Dictionary    | ❌                        | ⭕ Last changed value | ❌               | ⭕ Set of values         | ⭕ Set of values         | ✅ Same                   | ❌
+| Text          | ❌                        | ❌                    | ❌               | ❌                       | ❌                       | ⭕ With keys: flow, tuple | ✅ Same
 
 - ✅ Expected behaviour.
 - ⭕ Unexpected but acceptable behaviour.
