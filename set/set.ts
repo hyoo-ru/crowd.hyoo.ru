@@ -30,7 +30,7 @@ namespace $ {
 			
 			for( const [ key, stamp ] of this.stamps ) {
 				
-				if( this.stamper.version_from( stamp ) <= version_min ) continue
+				if( this.clock.version_from( stamp ) <= version_min ) continue
 				
 				delta.values.push( key )
 				delta.stamps.push( stamp )
@@ -48,7 +48,7 @@ namespace $ {
 			
 			this.apply( $hyoo_crowd_delta(
 				[ key ],
-				[ this.stamper.genegate() ],
+				[ this.clock.genegate() ],
 			) )
 			
 			return this
@@ -62,7 +62,7 @@ namespace $ {
 			
 			this.apply( $hyoo_crowd_delta(
 				[ key ],
-				[ - this.stamper.genegate() ],
+				[ - this.clock.genegate() ],
 			) )
 			
 			return this
@@ -77,11 +77,11 @@ namespace $ {
 				const key = delta.values[i]
 				const stamp = delta.stamps[i]
 				
-				const version = this.stamper.version_from( stamp )
+				const version = this.clock.version_from( stamp )
 				if( this.version_item( key ) >= version ) continue
 				
 				this.stamps.set( key, stamp )
-				this.stamper.feed( version )
+				this.clock.feed( version )
 				
 			}
 			

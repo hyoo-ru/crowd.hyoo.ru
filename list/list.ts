@@ -28,7 +28,7 @@ namespace $ {
 		
 		version_feed( version: number ) {
 			
-			this.stamper.feed( version )
+			this.clock.feed( version )
 			
 			if( version <= this.version ) return
 			this.version = version
@@ -71,7 +71,7 @@ namespace $ {
 			}
 			
 			delta.values.push( key )
-			delta.stamps.push( this.stamper.genegate() )
+			delta.stamps.push( this.clock.genegate() )
 				
 			this.apply( delta )
 			
@@ -87,7 +87,7 @@ namespace $ {
 			
 			this.apply( $hyoo_crowd_delta(
 				[ key ],
-				[ - this.stamper.genegate() ]
+				[ - this.clock.genegate() ]
 			) )
 			
 			return this
@@ -113,7 +113,7 @@ namespace $ {
 				const current_patch_stamp = delta.stamps[i]
 				
 				const current_self_stamp = this.stamps.get( current_key ) ?? 0
-				const current_patch_version = this.stamper.version_from( current_patch_stamp )
+				const current_patch_version = this.clock.version_from( current_patch_stamp )
 				
 				if( this.version_item( current_key ) >= current_patch_version ) continue
 				
@@ -136,7 +136,7 @@ namespace $ {
 					if( anchor >= 0 ) {
 						const anchor_self_version = this.version_item( anchor_key )
 						if( anchor_self_version === 0 ) continue
-						if( anchor_self_version > this.stamper.version_from( patch_stamps.get( anchor_key )! ) ) continue
+						if( anchor_self_version > this.clock.version_from( patch_stamps.get( anchor_key )! ) ) continue
 					}
 					
 					let next_pos = anchor_key !== undefined ? this.array.indexOf( anchor_key ) + 1 : 0

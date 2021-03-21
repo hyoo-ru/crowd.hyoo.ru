@@ -35,7 +35,7 @@ namespace $ {
 			if( store ) return store as any
 			
 			const Type = this.Fields[ String( key ?? '' ) ] || Object.values( this.Fields )[0]
-			store = new Type( this.stamper ) as InstanceType< Fields[string] >
+			store = new Type( this.clock ) as InstanceType< Fields[string] >
 			
 			this.stores.set( key, store )
 			return store as any

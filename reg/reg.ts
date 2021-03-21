@@ -8,7 +8,7 @@ namespace $ {
 		protected _mult = 1
 		
 		get version() {
-			return this.stamper.version_from( this._stamp )
+			return this.clock.version_from( this._stamp )
 		}
 		
 		get str() {
@@ -45,7 +45,7 @@ namespace $ {
 			if( this._value === val ) return
 			
 			this._value = val
-			this._stamp = this._mult * this.stamper.genegate()
+			this._stamp = this._mult * this.clock.genegate()
 
 		}
 		
@@ -63,7 +63,7 @@ namespace $ {
 				this._value = val
 				this._stamp = stamp
 				
-				this.stamper.feed( this.stamper.version_from( stamp ) )
+				this.clock.feed( this.clock.version_from( stamp ) )
 			}
 			
 			return this

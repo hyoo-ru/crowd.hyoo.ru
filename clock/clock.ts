@@ -2,8 +2,8 @@ namespace $ {
 	
 	const concurrency = 1_000_000
 	
-	/** Manages versions through composed CROWD stores */
-	export class $hyoo_crowd_stamper {
+	/** Manages stamps for composed CROWD stores */
+	export class $hyoo_crowd_clock {
 		
 		readonly peer: number
 		
@@ -44,7 +44,7 @@ namespace $ {
 		}
 		
 		fork( peer: number ) {
-			return new $hyoo_crowd_stamper( peer, this.version_max )
+			return new $hyoo_crowd_clock( peer, this.version_max )
 		}
 		
 	}

@@ -41,7 +41,7 @@ namespace $ {
 			let store = this.stores.get( path )
 			if( store ) return store
 			
-			store = new $hyoo_crowd_reg( this.stamper )
+			store = new $hyoo_crowd_reg( this.clock )
 			this.stores.set( path, store )
 			
 			return store
@@ -49,7 +49,7 @@ namespace $ {
 		
 		shift( diff = 1 ) {
 			
-			const store = this.reg( this.stamper.peer )
+			const store = this.reg( this.clock.peer )
 			const prev = Number( store.numb )
 			
 			store.numb = prev + diff
@@ -63,7 +63,7 @@ namespace $ {
 			
 			for( let i = 0 ; i < delta.values.length; ++ i ) {
 				
-				const peer = this.stamper.peer_from( delta.stamps[i] )
+				const peer = this.clock.peer_from( delta.stamps[i] )
 				
 				this.reg( peer ).apply(
 					$hyoo_crowd_delta(

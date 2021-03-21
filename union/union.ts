@@ -17,7 +17,7 @@ namespace $ {
 		
 		Types!: Types
 		
-		type_store = new $hyoo_crowd_reg_back( this.stamper )
+		type_store = new $hyoo_crowd_reg_back( this.clock )
 		value_store?: InstanceType< Types[string] >
 		
 		get type() {
@@ -40,13 +40,13 @@ namespace $ {
 			this.type_store.apply(
 				$hyoo_crowd_delta(
 					[ type as string ],
-					[ stamp || - this.stamper.genegate() ],
+					[ stamp || - this.clock.genegate() ],
 				)
 			)
 			
 			if( this.type !== type ) return this.as( this.type! )! as any
 			
-			const store = new this.Types[ type ]( this.stamper )
+			const store = new this.Types[ type ]( this.clock )
 			if( this.value_store ) store.apply( this.value_store.toJSON() )
 			
 			return this.value_store = store as any

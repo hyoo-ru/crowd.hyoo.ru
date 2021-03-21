@@ -17,8 +17,8 @@ namespace $.$$ {
 			this.Left().store().apply( right_delta )
 			this.Right().store().apply( left_delta )
 			
-			this.Left().sync_stamp( this.Left().store().stamper.version_max )
-			this.Right().sync_stamp( this.Right().store().stamper.version_max )
+			this.Left().sync_stamp( this.Left().store().clock.version_max )
+			this.Right().sync_stamp( this.Right().store().clock.version_max )
 			
 			return Math.random()
 		}
@@ -49,8 +49,8 @@ namespace $.$$ {
 		
 		changes() {
 			this.text()
-			const stamper = this.store().stamper
-			return stamper.index_from( stamper.version_max ) - stamper.index_from( this.sync_stamp() )
+			const clock = this.store().clock
+			return clock.index_from( clock.version_max ) - clock.index_from( this.sync_stamp() )
 		}
 		
 		size_state() {
@@ -79,12 +79,12 @@ namespace $.$$ {
 		stats() {
 			this.text()
 			return super.stats()
-			.replace( '{peer}', this.store().stamper.peer.toLocaleString() )
+			.replace( '{peer}', this.store().clock.peer.toLocaleString() )
 			.replace( '{changes}', this.changes().toLocaleString() )
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
 			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
-			.replace( '{stamp:now}', this.store().stamper.version_max.toLocaleString() )
+			.replace( '{stamp:now}', this.store().clock.version_max.toLocaleString() )
 			.replace( '{stamp:sync}', this.sync_stamp().toLocaleString() )
 			.replace( '{size:text}', this.text().length.toLocaleString() )
 			.replace( '{size:state}', this.size_state().toLocaleString() )

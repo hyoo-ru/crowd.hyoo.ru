@@ -1,6 +1,6 @@
-# CROWD Stamper
+# CROWD Clock
 
-Manages versions through composed CROWD stores.
+Manages stamps for composed CROWD stores.
 
 ## Stamp Format
 

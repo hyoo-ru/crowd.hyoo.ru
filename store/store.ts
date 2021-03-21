@@ -9,7 +9,7 @@ namespace $ {
 		}
 		
 		constructor(
-			public stamper = new $hyoo_crowd_stamper,
+			public clock = new $hyoo_crowd_clock,
 		) { }
 		
 		toJSON( version_min?: number ): ReturnType< typeof $hyoo_crowd_delta > {
@@ -17,7 +17,7 @@ namespace $ {
 		}
 		
 		delta( base: this ) {
-			return this.toJSON( base.stamper.version_max )
+			return this.toJSON( base.clock.version_max )
 		}
 		
 		apply( delta: ReturnType< typeof $hyoo_crowd_delta > ): this {
@@ -25,8 +25,8 @@ namespace $ {
 		}
 		
 		fork( peer: number ): this {
-			const Fork = this.constructor as new( stamper: $hyoo_crowd_stamper )=> this
-			const fork = new Fork( this.stamper.fork( peer ) ) as this
+			const Fork = this.constructor as new( clock: $hyoo_crowd_clock )=> this
+			const fork = new Fork( this.clock.fork( peer ) ) as this
 			fork.apply( this.toJSON() )
 			return fork
 		}

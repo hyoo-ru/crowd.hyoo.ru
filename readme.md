@@ -66,7 +66,7 @@
 ## Utilites
 
 - [CROWD Store](./store) - Base store class with common CROWD API.
-- [CROWD Stamper](./stamper) - Manages versions through composed CROWD Stores.
+- [CROWD Clock](./clock) - Manages stamps for composed CROWD stores.
 
 ## Common API
 
