@@ -6,6 +6,7 @@ Rich text.
 
 - Can be binded to native `<textarea>`.
 - Uses tokenizer to split text by tokens.
+- Retokenization of changed tokens is executed on write.
 - Token's value and tokens order are stored separately and can be changed independently.
 - Merge never produces unreadable token value. Only one of valid (LWW).
 
