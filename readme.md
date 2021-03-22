@@ -172,7 +172,7 @@ console.log(
 | Garbage Collection     | Doesn't required      | Stores full history      | Enabled by default  | ❓
 | Gzipped Bundle Size    | [4 KB](https://bundlephobia.com/result?p=hyoo_crowd_lib@1.0.2)       | [60 KB](https://bundlephobia.com/result?p=automerge@0.14.2)     | [23 KB](https://bundlephobia.com/result?p=yjs@13.5.2) | [43 KB](https://bundlephobia.com/result?p=delta-crdts@0.10.3)
 | Sequence: Push + Shift | 2 µs | 400 µs | 50 µs
-| Text: Append + Crop    | 7 µs | 550 µs | 8 µs
+| Text: Append + Crop    | 15 µs | 1000 µs | 72 µs
 
 ## Benchmarks
 
@@ -181,12 +181,18 @@ console.log(
 ### Chrome 89
 ![](https://i.imgur.com/6ENhevv.png)
 
-### FF 86
+### FireFox 86
 ![](https://i.imgur.com/QozvpBe.png)
 
 ### [Text: Append + Crop](https://perf.js.hyoo.ru/#prefixes=%5B%22%24mol_import.script%28'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%401.0.5%2Fweb.js'%29%5Cnlet%20doc%20%3D%20%24hyoo_crowd_text.make%28%29%22%2C%22%24mol_import.script%28'https%3A%2F%2Funpkg.com%2Fautomerge%400.14.2%2Fdist%2Fautomerge.js'%29%5Cnlet%20doc%20%3D%20Automerge.from%28%7B%7D%29%5Cndoc%20%3D%20Automerge.change%28doc%2C%20doc%20%3D%3E%20%7B%5Cn%5Ctdoc.text%20%3D%20new%20Automerge.Text%28%29%5Cn%7D%29%22%2C%22const%20%7B%20Doc%2C%20Text%20%7D%20%3D%20%24mol_import.module%28'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%29%5Cnconst%20doc%20%3D%20new%20Doc%5Cnconst%20text%20%3D%20doc.get%28%20'text'%2C%20Text%20%29%22%5D/sources=%5B%22%7B%5Cn%5Ctconst%20word%20%3D%20String%28%7B%23%7D%29%20%2B%20'%20'%5Cn%5Ctdoc.write%28%20word%20%29%5Cn%5Ctif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ct%5Ctdoc.write%28%20''%2C%200%2C%20word.length%20%29%5Cn%7D%22%2C%22doc%20%3D%20Automerge.change%28%20doc%2C%20'op'%2C%20doc%20%3D%3E%20%7B%5Cn%5Ctconst%20word%20%3D%20String%28%7B%23%7D%29%20%2B%20'%20'%5Cn%5Ctdoc.text.insertAt%28%20doc.text.length%2C%20...%20word%20%29%5Cn%5Ctif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ct%5Ctfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20word.length%3B%20%2B%2Bi%20%29%5Cn%5Ct%5Ct%5Ctdoc.text.deleteAt%280%29%5Cn%7D%20%29%22%2C%22%7B%5Cn%5Ctconst%20word%20%3D%20String%28%7B%23%7D%29%20%2B%20'%20'%5Cn%5Cttext.insert%28%20text.length%2C%20word%20%29%5Cn%5Ctif%28%20%7B%23%7D%20%3E%20max_count%20%29%5Cn%5Ct%5Cttext.delete%28%200%2C%20word.length%20%29%5Cn%7D%22%5D/prefix=const%20max_count%20%3D%20100/postfix)
 
+### Chrome 89
+
 ![](https://i.imgur.com/Hp877Ai.png)
+
+### FireFox 86
+
+![](https://i.imgur.com/Jtw0A8c.png)
 
 ### [crdt-benchmarks](https://github.com/dmonad/crdt-benchmarks)
 
