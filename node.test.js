@@ -5465,8 +5465,7 @@ var $;
     const tokenizer = $.$mol_regexp.from({
         token: {
             'line-break': /(?:\r?\n|\r)/,
-            'word+': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]+[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]*[^\S\n\r]*/,
-            'separator': /[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]+[^\S\n\r]*/,
+            'Word-punctuation-spaces': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]*[^\S\n\r]*/,
         },
     });
     class $hyoo_crowd_text extends $.$hyoo_crowd_dict.of({
@@ -5499,6 +5498,11 @@ var $;
                 const prev = from < token_ids.length ? tokens.for(token_ids[from]).str : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
                 if (prev === next) {
+                    ++from;
+                    words.shift();
+                }
+                else if (prev && next && (prev.slice(0, next.length) === next || next.slice(0, prev.length) === prev)) {
+                    tokens.for(token_ids[from]).str = next;
                     ++from;
                     words.shift();
                 }
@@ -11610,6 +11614,14 @@ var $;
             $.$mol_assert_like(store.text, 'foo de bar');
             $.$mol_assert_like(store.root.delta().stamps, [2000001, 6000001, 4000001]);
         },
+        'Replace with more tokens count with side changes'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foo  bar';
+            store.text = 'foo de bar';
+            $.$mol_assert_like(store.tokens.length, 3);
+            $.$mol_assert_like(store.text, 'foo de bar');
+            $.$mol_assert_like(store.root.delta().stamps, [2000001, 7000001, 4000001]);
+        },
         'Replace with less tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
             store.text = 'foo de bar';
@@ -11622,9 +11634,9 @@ var $;
             const store = new $.$hyoo_crowd_text().fork(1);
             store.text = 'foo bar';
             store.text = 'foo';
-            $.$mol_assert_like(store.tokens.length, 1);
             $.$mol_assert_like(store.text, 'foo');
-            $.$mol_assert_like(store.root.delta().stamps, [4000001, -5000001]);
+            $.$mol_assert_like(store.tokens.length, 1);
+            $.$mol_assert_like(store.root.delta().stamps, [2000001, -6000001]);
         },
         'Concurrent changes'() {
             const base = new $.$hyoo_crowd_text();
@@ -11651,7 +11663,7 @@ var $;
             store.text = 'xxx foo bar yyy';
             store.write('X Y Z', 6, 3);
             $.$mol_assert_like(store.text, 'xxx foX Y Zar yyy');
-            $.$mol_assert_like(store.tokens.length, 5);
+            $.$mol_assert_like(store.tokens.length, 6);
         },
         'Splice whole token'() {
             const store = new $.$hyoo_crowd_text().fork(1);

@@ -5472,8 +5472,7 @@ var $;
     const tokenizer = $.$mol_regexp.from({
         token: {
             'line-break': /(?:\r?\n|\r)/,
-            'word+': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]+[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]*[^\S\n\r]*/,
-            'separator': /[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]+[^\S\n\r]*/,
+            'Word-punctuation-spaces': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]*[^\S\n\r]*/,
         },
     });
     class $hyoo_crowd_text extends $.$hyoo_crowd_dict.of({
@@ -5506,6 +5505,11 @@ var $;
                 const prev = from < token_ids.length ? tokens.for(token_ids[from]).str : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
                 if (prev === next) {
+                    ++from;
+                    words.shift();
+                }
+                else if (prev && next && (prev.slice(0, next.length) === next || next.slice(0, prev.length) === prev)) {
+                    tokens.for(token_ids[from]).str = next;
                     ++from;
                     words.shift();
                 }
