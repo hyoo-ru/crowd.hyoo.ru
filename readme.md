@@ -172,7 +172,7 @@ console.log(
 | Garbage Collection     | Doesn't required      | Stores full history      | Enabled by default  | ❓
 | Gzipped Bundle Size    | [4 KB](https://bundlephobia.com/result?p=hyoo_crowd_lib@1.0.2)       | [60 KB](https://bundlephobia.com/result?p=automerge@0.14.2)     | [23 KB](https://bundlephobia.com/result?p=yjs@13.5.2) | [43 KB](https://bundlephobia.com/result?p=delta-crdts@0.10.3)
 | Sequence: Push + Shift | 2 µs | 400 µs | 50 µs
-| Text: Append + Crop    | 15 µs | 1000 µs | 72 µs
+| Text: Append + Crop    | 16 µs | 1050 µs | 72 µs
 
 ## Benchmarks
 
@@ -192,7 +192,7 @@ console.log(
 
 ### FireFox 86
 
-![](https://i.imgur.com/Jtw0A8c.png)
+![](https://i.imgur.com/VI53tQ3.png)
 
 ### [crdt-benchmarks](https://github.com/dmonad/crdt-benchmarks)
 
