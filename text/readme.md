@@ -14,6 +14,7 @@ Rich text.
 - Currently support only plain text.
 - Currently support only full text replacement API (with reconciliation of course). More precise mutations are coming soon.
 - Currently used full text tokenization. Split by lines should improve performance, reduce delta size and reduce changes overlapping.
+- Tokenization by language specific tokenizer (english, markdown, typescript etc) can produce better results. Need investigation. We can achieve conflict-free source code merge here by integration with IDE.
 
 ## State Format
 
