@@ -41,6 +41,18 @@ namespace $ {
 			
 		},
 		
+		'Replace with more tokens count with side changes'() {
+			
+			const store = new $hyoo_crowd_text().fork(1)
+			store.text = 'foo  bar'
+			store.text = 'foo de bar'
+			
+			$mol_assert_like( store.tokens.length, 3 )
+			$mol_assert_like( store.text, 'foo de bar' )
+			$mol_assert_like( store.root.delta().stamps, [ 2000001, 7000001, 4000001 ] )
+			
+		},
+		
 		'Replace with less tokens count'() {
 			
 			const store = new $hyoo_crowd_text().fork(1)
@@ -59,9 +71,9 @@ namespace $ {
 			store.text = 'foo bar'
 			store.text = 'foo'
 			
-			$mol_assert_like( store.tokens.length, 1 )
 			$mol_assert_like( store.text, 'foo' )
-			$mol_assert_like( store.root.delta().stamps, [ 4000001, -5000001 ] )
+			$mol_assert_like( store.tokens.length, 1 )
+			$mol_assert_like( store.root.delta().stamps, [ 2000001, -6000001 ] )
 			
 		},
 		
@@ -108,7 +120,7 @@ namespace $ {
 			store.write( 'X Y Z', 6, 3 )
 			
 			$mol_assert_like( store.text, 'xxx foX Y Zar yyy' )
-			$mol_assert_like( store.tokens.length, 5 )
+			$mol_assert_like( store.tokens.length, 6 )
 			
 		},
 		
