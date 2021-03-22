@@ -4,7 +4,7 @@ Rich text.
 
 ## Properties
 
-- Can be bound to native `<textarea>`.
+- Can be simply bound to native `<textarea>`.
 - Uses tokenizer to split text by tokens.
 - Retokenization of changed tokens is executed on write.
 - Token's value and tokens order are stored separately and can be changed independently.
