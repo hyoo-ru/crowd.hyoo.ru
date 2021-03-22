@@ -6,14 +6,15 @@ Rich text.
 
 - Can be binded to native `<textarea>`.
 - Uses tokenizer to split text by tokens.
-- Token's value and tokens order are stored separately.
+- Retokenization of changed tokens is executed on write.
+- Token's value and tokens order are stored separately and can be changed independently.
 - Merge never produces unreadable token value. Only one of valid (LWW).
 
 ## Work in progress
 
 - Currently support only plain text.
-- Currently support only full text replacement API (with reconciliation of course). More precise mutations are coming soon.
 - Currently used full text tokenization. Split by lines should improve performance, reduce delta size and reduce changes overlapping.
+- Tokenization by language specific tokenizer (english, markdown, typescript etc) can produce better results. Need investigation. We can achieve conflict-free source code merge here by integration with IDE.
 
 ## State Format
 
