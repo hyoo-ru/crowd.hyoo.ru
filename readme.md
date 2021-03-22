@@ -107,23 +107,23 @@
 // import {
 //   $hyoo_crowd_numb,
 //   $hyoo_crowd_reg,
+//   $hyoo_crowd_union,
 //   $hyoo_crowd_set
 //   $hyoo_crowd_list,
-//   $hyoo_crowd_union,
 //   $hyoo_crowd_dict,
 //   $hyoo_crowd_text,
 // } from 'hyoo_crowd_lib'
 
 // Dynamic typing in custom store
-const MyStore = $hyoo_crowd_dict.of(
-  $hyoo_crowd_union.of({
-    counter: $hyoo_crowd_numb,
-    boolean: $hyoo_crowd_reg,
-    number: $hyoo_crowd_reg,
-    string: $hyoo_crowd_reg,
-    sequence: $hyoo_crowd_list
+const MyStore = $hyoo_crowd_dict.of({
+  val: $hyoo_crowd_union.of({
+    count: $hyoo_crowd_numb,
+    bool: $hyoo_crowd_reg,
+    numb: $hyoo_crowd_reg,
+    str: $hyoo_crowd_reg,
+    seq: $hyoo_crowd_list
   })
-);
+});
 
 // Normal store creation
 const base = MyStore.make();
@@ -134,20 +134,20 @@ const bob = base.fork(2);
 const carol = base.fork(3);
 
 // Twice change register named "foo"
-alice.for("foo").to("string").str = "A1";
-alice.for("foo").to("string").str = "A2";
+alice.for("foo").to("str").str = "A1";
+alice.for("foo").to("str").str = "A2";
 
 // Change register named "foo" then converts it to sequence and insert value
-bob.for("foo").to("string").str = "B1";
-bob.for("foo").to("sequence").insert("B2").insert("B3");
+bob.for("foo").to("str").str = "B1";
+bob.for("foo").to("seq").insert("B2").insert("B3");
 
 // Serial insert to sequence named "foo"
-carol.for("foo").to("sequence").insert("C1").insert("C2");
+carol.for("foo").to("seq").insert("C1").insert("C2");
 
 // Make deltas
-const alice_delta = alice.delta(base);
-const bob_delta = bob.delta(base);
-const carol_delta = carol.delta(base);
+const alice_delta = alice.delta(base.clock);
+const bob_delta = bob.delta(base.clock);
+const carol_delta = carol.delta(base.clock);
 
 // Cross merge all of them
 alice.apply(bob_delta).apply(carol_delta);
@@ -156,9 +156,9 @@ carol.apply(bob_delta).apply(alice_delta);
 
 // ["A2","C1","C2","B1","B2","B3"]
 console.log(
-  alice.for("foo").as("sequence").items,
-  bob.for("foo").as("sequence").items,
-  carol.for("foo").as("sequence").items
+  alice.for("foo").as("seq").items,
+  bob.for("foo").as("seq").items,
+  carol.for("foo").as("seq").items
 );
 ```
 
