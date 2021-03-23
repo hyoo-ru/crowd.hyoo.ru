@@ -102,7 +102,7 @@ namespace $ {
 			while( true ) {
 				if( from >= token_ids.length ) break
 				word = tokens.for( token_ids[ from ] ).value! as string
-				if( offset < word.length ) {
+				if( offset <= word.length ) {
 					text = word.slice( 0, offset ) + text
 					count += offset
 					break
