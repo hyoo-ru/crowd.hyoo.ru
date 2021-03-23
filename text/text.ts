@@ -3,7 +3,7 @@ namespace $ {
 	const tokenizer = $mol_regexp.from({
 		token: {
 			'line-break' : /(?:\r?\n|\r)/ ,
-			'Word-punctuation-spaces' : /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[-~`!@#$%&*()_+=\[\]{};':"\\\/|?<>,.^]*[^\S\n\r]*/ ,
+			'Word-punctuation-spaces' : /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[^A-ZА-ЯЁa-zа-яё0-9\u0301\u0331\s]*[^\S\n\r]*/ ,
 		},
 	} )
 	
