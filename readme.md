@@ -170,7 +170,7 @@ console.log(
 |------------------------|------------|-----------|-------|-----------
 | Approach               | CROWD      | CRDT      | CRDT  | CRDT
 | Garbage Collection     | Doesn't required      | Stores full history      | Enabled by default  | ❓
-| Gzipped Bundle Size    | [4 KB](https://bundlephobia.com/result?p=hyoo_crowd_lib@1.0.2)       | [60 KB](https://bundlephobia.com/result?p=automerge@0.14.2)     | [23 KB](https://bundlephobia.com/result?p=yjs@13.5.2) | [43 KB](https://bundlephobia.com/result?p=delta-crdts@0.10.3)
+| Gzipped Bundle Size    | [4 KB](https://bundlephobia.com/result?p=hyoo_crowd_lib)       | [60 KB](https://bundlephobia.com/result?p=automerge)     | [23 KB](https://bundlephobia.com/result?p=yjs) | [43 KB](https://bundlephobia.com/result?p=delta-crdts)
 | Sequence: Push + Shift | 2 µs | 400 µs | 50 µs
 | Text: Append + Crop    | 16 µs | 1050 µs | 72 µs
 
