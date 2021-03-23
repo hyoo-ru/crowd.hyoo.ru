@@ -34,7 +34,7 @@ Rich text.
 	"stamps": [ ... ],
 }
 
-Size ~= 8 * Size( Text ) + 4 * Count( Flows ) + 2 * Sum( Length( Flows ) ) + 2
+Size ~= 8 * Size( Text ) + 4 * Count( Flows ) + 2 * Sum( Length( Flows ) ) + 2 * Count( Tombstones ) + 2
 ```
 
 ## Delta Format
