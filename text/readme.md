@@ -52,7 +52,7 @@ Delta is partial state dump which depends on the inner stores.
 
 ## Memory usage
 
-For `3.2MB` text of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" CROWD Text uses `40MB` (`~13x`) of memory and `16MB` (`5x`) in JSON serialization.
+For `3.2MB` text (320k words) of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" CROWD Text uses `40MB` (`~13x`) of memory and `16MB` (`5x`) in JSON serialization.
 
 For contrast, [Yjs](https://github.com/yjs/yjs)'s (very optimized CRDT) uses from `1x` (full-text copy-paste) to `112x` (right-to-left letter-by-letter) of memory and `1x` in binary serialization. [Source](https://blog.kevinjahns.de/are-crdts-suitable-for-shared-editing/).
 
