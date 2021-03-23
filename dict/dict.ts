@@ -51,8 +51,11 @@ namespace $ {
 				const patch = value.delta( clock )
 				if( patch.values.length === 0 ) continue
 				
-				delta.values.push( key, ... patch.values )
-				delta.stamps.push( - patch.values.length, ... patch.stamps )
+				delta.values.push( key )
+				for( const val of patch.values ) delta.values.push( val )
+				
+				delta.stamps.push( - patch.values.length )
+				for( const stamp of patch.stamps ) delta.stamps.push( stamp )
 				
 			}
 			
