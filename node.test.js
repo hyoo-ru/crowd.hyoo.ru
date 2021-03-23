@@ -5542,7 +5542,7 @@ var $;
                 if (from >= token_ids.length)
                     break;
                 word = tokens.for(token_ids[from]).value;
-                if (offset < word.length) {
+                if (offset <= word.length) {
                     text = word.slice(0, offset) + text;
                     count += offset;
                     break;
@@ -11679,6 +11679,20 @@ var $;
             store.write('xxx', 0, 7);
             $.$mol_assert_like(store.text, 'xxx');
             $.$mol_assert_like(store.tokens.length, 1);
+        },
+        'Splice at the end'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foo';
+            store.write('xxx', 3);
+            $.$mol_assert_like(store.text, 'fooxxx');
+            $.$mol_assert_like(store.tokens.length, 1);
+        },
+        'Splice between tokens'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foo bar';
+            store.write('xxx', 4);
+            $.$mol_assert_like(store.text, 'foo xxxbar');
+            $.$mol_assert_like(store.tokens.length, 2);
         },
     });
 })($ || ($ = {}));

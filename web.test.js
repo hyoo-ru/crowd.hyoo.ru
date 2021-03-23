@@ -3305,6 +3305,20 @@ var $;
             $.$mol_assert_like(store.text, 'xxx');
             $.$mol_assert_like(store.tokens.length, 1);
         },
+        'Splice at the end'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foo';
+            store.write('xxx', 3);
+            $.$mol_assert_like(store.text, 'fooxxx');
+            $.$mol_assert_like(store.tokens.length, 1);
+        },
+        'Splice between tokens'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text = 'foo bar';
+            store.write('xxx', 4);
+            $.$mol_assert_like(store.text, 'foo xxxbar');
+            $.$mol_assert_like(store.tokens.length, 2);
+        },
     });
 })($ || ($ = {}));
 //text.test.js.map

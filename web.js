@@ -5338,7 +5338,7 @@ var $;
                 if (from >= token_ids.length)
                     break;
                 word = tokens.for(token_ids[from]).value;
-                if (offset < word.length) {
+                if (offset <= word.length) {
                     text = word.slice(0, offset) + text;
                     count += offset;
                     break;
