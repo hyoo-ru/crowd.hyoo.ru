@@ -1,4 +1,4 @@
-name: mol_regexp
+name: hyoo_crowd_lib
 
 on:
   workflow_dispatch:
