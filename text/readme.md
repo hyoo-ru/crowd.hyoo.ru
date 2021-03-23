@@ -52,7 +52,7 @@ Delta is partial state dump which depends on the inner stores.
 
 ## Memory usage
 
-For `3.2MB` text of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" CROWD Text uses `40MB` (`~13x`). For contrast [YJS uses from `1x` (full-text copy-paste) to `200x` (right-to-left letter-by-letter)](https://blog.kevinjahns.de/are-crdts-suitable-for-shared-editing/).
+For `3.2MB` text of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" CROWD Text uses `40MB` (`~13x`). For contrast [Yjs (very optimized CRDT) uses from `1x` (full-text copy-paste) to `200x` (right-to-left letter-by-letter)](https://blog.kevinjahns.de/are-crdts-suitable-for-shared-editing/).
 
 ## [Online sandbox](https://crowd.hyoo.ru/)
 
