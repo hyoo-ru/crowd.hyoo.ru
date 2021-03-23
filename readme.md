@@ -53,20 +53,20 @@
 
 | CROWD | CRDT |
 |-------|------|
-| [CROWD Counter](./numb) | Is equal to dCRDT PN-Counter
-| [CROWD Register](./reg) | Is same as CvRDT LWW-Register
-| [CROWD Unordered Set](./set) | Is equal to dCRDT LWW-Element-Set
-| [CROWD Ordered Set](./list) | No equal type
-| [CROWD Tagged Union](./union) | No equal type
-| [CROWD Dictionary](./dict) | No equal type
-| [CROWD Text](./text) | No equal type
+| [CROWD Counter](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/numb) | Is equal to dCRDT PN-Counter
+| [CROWD Register](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/reg) | Is same as CvRDT LWW-Register
+| [CROWD Unordered Set](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/set) | Is equal to dCRDT LWW-Element-Set
+| [CROWD Ordered Set](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/list) | No equal type
+| [CROWD Tagged Union](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/union) | No equal type
+| [CROWD Dictionary](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/dict) | No equal type
+| [CROWD Text](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/text) | No equal type
 | CROWD JSON | No equal type
 | CROWD Graph | No equal type
 
 ## Utilites
 
-- [CROWD Store](./store) - Base store class with common CROWD API.
-- [CROWD Clock](./clock) - Manages stamps for composed CROWD stores.
+- [CROWD Store](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/store) - Base store class with common CROWD API.
+- [CROWD Clock](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/clock) - Manages stamps for composed CROWD stores.
 
 ## Common API
 
