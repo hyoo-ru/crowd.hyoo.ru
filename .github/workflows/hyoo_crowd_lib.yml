@@ -25,8 +25,8 @@ jobs:
         package: hyoo/crowd
         modules: lib
     
-   - uses: JS-DevTools/npm-publish@v1
-     if: ${{ github.ref == 'refs/heads/master' && ( github.event_name == 'push' || github.event_name == 'workflow_dispatch' ) }}
-     with:
-       token: ${{ secrets.NPM_AUTH_TOKEN }}
-       package: ./hyoo/crowd/lib/-/package.json
+    - uses: JS-DevTools/npm-publish@v1
+      if: ${{ github.ref == 'refs/heads/master' && ( github.event_name == 'push' || github.event_name == 'workflow_dispatch' ) }}
+      with:
+        token: ${{ secrets.NPM_AUTH_TOKEN }}
+        package: ./hyoo/crowd/lib/-/package.json
