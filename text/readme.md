@@ -4,7 +4,7 @@ Rich text.
 
 ## Properties
 
-- Can be binded to native `<textarea>`.
+- Can be simply bound to native `<textarea>`.
 - Uses tokenizer to split text by tokens.
 - Retokenization of changed tokens is executed on write.
 - Token's value and tokens order are stored separately and can be changed independently.
@@ -34,7 +34,7 @@ Rich text.
 	"stamps": [ ... ],
 }
 
-Size ~= 10 * Size( Text ) + 4 * Count( Flows ) + 2
+Size ~= 8 * Size( Text ) + 4 * Count( Flows ) + 2 * Sum( Length( Flows ) ) + 2
 ```
 
 ## Delta Format
