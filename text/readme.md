@@ -34,7 +34,7 @@ Rich text.
 	"stamps": [ ... ],
 }
 
-Size ~= 8 * Size( Text ) + 4 * Count( Flows ) + 2 * Sum( Length( Flows ) ) + 2
+Size ~= 8 * Size( Text ) + 8 * Count( Flows ) + 2 * Sum( Length( Flows ) ) + 8 * Count( Tombstones ) + 2
 ```
 
 ## Delta Format
@@ -49,6 +49,12 @@ Delta is partial state dump which depends on the inner stores.
 
 - `text` Replace full text with reconciliation.
 - `write( text, offset_from = length, delete_count = 0 )` Replace range by new text.
+
+## Memory usage
+
+For `3.2MB` text (320k words) of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" CROWD Text uses `40MB` (`~13x`) of memory and `16MB` (`5x`) in JSON serialization or `4MB` (`1.3x`) after zip.
+
+For contrast, [Yjs](https://github.com/yjs/yjs)'s (very optimized CRDT) uses from `1x` (full-text copy-paste) to `112x` (right-to-left letter-by-letter) of memory and `1x` in binary serialization. [Source](https://blog.kevinjahns.de/are-crdts-suitable-for-shared-editing/).
 
 ## [Online sandbox](https://crowd.hyoo.ru/)
 
