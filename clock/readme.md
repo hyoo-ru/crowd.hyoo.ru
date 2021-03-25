@@ -4,6 +4,8 @@ Manages stamps for composed CROWD stores. Remembers last seen stamp for every se
 
 ## Stamp Format
 
+Stamp is signed integer.
+
 10 base digits: `V_VVV_VVV_VVV_PPP_PPP`
 
 - `V` - version counter. ~ `10**10` ~ `2**32`
