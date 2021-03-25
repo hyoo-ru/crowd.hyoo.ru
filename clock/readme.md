@@ -1,6 +1,6 @@
 # CROWD Clock
 
-Manages stamps for composed CROWD stores.
+Manages stamps for composed CROWD stores. Remembers last seen stamp for every seen peer. And generates new stamp for current peer that greater then all seen.
 
 ## Stamp Format
 
