@@ -11,7 +11,7 @@ Ordered list of unique keys.
 
 ## Optimization Ways
 
-- Tombstones can be eliminated by changing state/delta format.
+- Tombstones may be eliminated by changing state/delta format. Need investigation.
 
 ## State format
 
