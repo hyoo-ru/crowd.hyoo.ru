@@ -13,5 +13,5 @@ Negative stamps is used for tombstones.
 
 ## Stamp Properties
 
-- Stamps from one peer is monotonic. Its useful to take delta from last saw state of peer to current state. Every peer should remember last version of all other peers.
-- Next stamp is greater than all known stamps.
+- Stamps from one peer is monotonic. Its useful to take delta from last seen state of peer to current state. Every peer should remember last version of all other peers.
+- Next stamp is greater than all seen stamps.
