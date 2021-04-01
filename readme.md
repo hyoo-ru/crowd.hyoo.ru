@@ -103,7 +103,6 @@
 ```typescript
 // // Usage from NPM. Isn't required in MAM.
 // import {
-//   $hyoo_crowd_numb,
 //   $hyoo_crowd_reg,
 //   $hyoo_crowd_union,
 //   $hyoo_crowd_set
@@ -115,7 +114,6 @@
 // Dynamic typing in custom store
 const MyStore = $hyoo_crowd_dict.of({
   val: $hyoo_crowd_union.of({
-    count: $hyoo_crowd_numb,
     bool: $hyoo_crowd_reg,
     numb: $hyoo_crowd_reg,
     str: $hyoo_crowd_reg,
