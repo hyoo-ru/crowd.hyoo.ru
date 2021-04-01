@@ -53,7 +53,6 @@
 
 | CROWD | CRDT |
 |-------|------|
-| [CROWD Counter](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/numb) | Is equal to dCRDT PN-Counter
 | [CROWD Register](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/reg) | Is same as CvRDT LWW-Register
 | [CROWD Unordered Set](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/set) | Is equal to dCRDT LWW-Element-Set
 | [CROWD Ordered Set](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/list) | No equal type
