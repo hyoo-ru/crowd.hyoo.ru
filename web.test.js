@@ -3228,7 +3228,7 @@ var $;
             store.text = 'foo bar';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'foo bar');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 4000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001]);
         },
         'Replace with same tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3236,7 +3236,7 @@ var $;
             store.text = 'xxx yyy';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'xxx yyy');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 4000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001]);
         },
         'Replace with more tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3244,7 +3244,7 @@ var $;
             store.text = 'foo de bar';
             $.$mol_assert_like(store.tokens.length, 3);
             $.$mol_assert_like(store.text, 'foo de bar');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 6000001, 4000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +6000001, +4000001]);
         },
         'Replace with more tokens count with side changes'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3252,7 +3252,7 @@ var $;
             store.text = 'foo de bar';
             $.$mol_assert_like(store.tokens.length, 3);
             $.$mol_assert_like(store.text, 'foo de bar');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 7000001, 4000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001, +6000001]);
         },
         'Replace with less tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3260,7 +3260,7 @@ var $;
             store.text = 'foo bar';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'foo bar');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 6000001, -7000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +6000001, -7000001]);
         },
         'Cut from end'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -3268,7 +3268,7 @@ var $;
             store.text = 'foo';
             $.$mol_assert_like(store.text, 'foo');
             $.$mol_assert_like(store.tokens.length, 1);
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, -6000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, -6000001]);
         },
         'Concurrent changes'() {
             const base = new $.$hyoo_crowd_text();

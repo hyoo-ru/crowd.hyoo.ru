@@ -5473,7 +5473,7 @@ var $;
     const tokenizer = $.$mol_regexp.from({
         token: {
             'line-break': /(?:\r?\n|\r)/,
-            'Word-punctuation-spaces': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[^A-ZА-ЯЁa-zа-яё0-9\u0301\u0331\s]*[^\S\n\r]*/,
+            'Word-punctuation-spaces': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[^A-ZА-ЯЁa-zа-яё0-9\u0301\u0331\s]*[^\S\n\r]?/,
         },
     });
     class $hyoo_crowd_text extends $.$hyoo_crowd_dict.of({
@@ -11610,7 +11610,7 @@ var $;
             store.text = 'foo bar';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'foo bar');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 4000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001]);
         },
         'Replace with same tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -11618,7 +11618,7 @@ var $;
             store.text = 'xxx yyy';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'xxx yyy');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 4000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001]);
         },
         'Replace with more tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -11626,7 +11626,7 @@ var $;
             store.text = 'foo de bar';
             $.$mol_assert_like(store.tokens.length, 3);
             $.$mol_assert_like(store.text, 'foo de bar');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 6000001, 4000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +6000001, +4000001]);
         },
         'Replace with more tokens count with side changes'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -11634,7 +11634,7 @@ var $;
             store.text = 'foo de bar';
             $.$mol_assert_like(store.tokens.length, 3);
             $.$mol_assert_like(store.text, 'foo de bar');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 7000001, 4000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001, +6000001]);
         },
         'Replace with less tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -11642,7 +11642,7 @@ var $;
             store.text = 'foo bar';
             $.$mol_assert_like(store.tokens.length, 2);
             $.$mol_assert_like(store.text, 'foo bar');
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, 6000001, -7000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +6000001, -7000001]);
         },
         'Cut from end'() {
             const store = new $.$hyoo_crowd_text().fork(1);
@@ -11650,7 +11650,7 @@ var $;
             store.text = 'foo';
             $.$mol_assert_like(store.text, 'foo');
             $.$mol_assert_like(store.tokens.length, 1);
-            $.$mol_assert_like(store.root.delta().stamps, [2000001, -6000001]);
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, -6000001]);
         },
         'Concurrent changes'() {
             const base = new $.$hyoo_crowd_text();
