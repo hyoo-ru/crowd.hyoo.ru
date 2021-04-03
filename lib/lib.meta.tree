@@ -1,5 +1,4 @@
 include \/hyoo/crowd/text
-include \/hyoo/crowd/numb
 include \/hyoo/crowd/reg
 include \/hyoo/crowd/set
 include \/hyoo/crowd/list

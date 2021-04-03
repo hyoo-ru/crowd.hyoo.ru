@@ -2,58 +2,57 @@
 
 ![](https://habrastorage.org/webt/lz/d_/kh/lzd_khq4fnql2hgo3zlhfwkebg4.png)
 
-## Key Properties
+# Key Properties
 
-### Conflict-free
+## Conflict-free
 
 - Any states can be merged without conflicts.
 - Strong Eventual Consistency.
 - Merge result is independent of merge order on different peers.
 - Branch merge is semilattice.
 
-### Reinterpretable
+## Reinterpretable
 
 - Same state can be reinterpreted as any CROWD Storage.
 - CROWD Storage type can be changed dynamicaly without data migration.
 - Cross-merge is available between different CROWD Storages.
 
-### Ordered
+## Ordered
 
 - Changes from same peer are always ordered and can't be reordered.
 - Deltas from same peer aren't commutative.
 - All deltas are idempotent.
 
-### Washed
+## Washed
 
 - Historical data isn't stored (except tombstones).
 - Small footprint. Metadata size ~= user data size.
 - Past state can't be reproduced.
 - Garbage collection isn't required.
 
-### Data
+## Data
 
 - Closest to user data as more as possible. Just list of values and list of stamps.
 - Deltas are simple slices of full state.
 - Deltas can be merged together to reduce transmit size.
 
-## Comparison of Approaches
+# Comparison of Approaches
 
-### With [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)
+## With [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)
 
 - CRDT has stronger guarantees for events commutativity. It gives a strong restriction for deleting old data. CROWD slightly weakens the guarantees, which gives more compact data representation without garbage collection and compactification.
 - Some CROWD storages are accidentally dCRDT too.
 - Stored CROWD State can be reinterpredeted by different CROWD Storages. Different CROWD Storages may be cross merged. CRDT structures are incompatible in general.
 
-### With [OT](https://en.wikipedia.org/wiki/Operational_transformation)
+## With [OT](https://en.wikipedia.org/wiki/Operational_transformation)
 
 - OT stores full edit history which is redundant. CROWD competely erases history. For history navigation purposes periodically snapshots is better solution for both.
 - OT requires history rebase for convergence. This is too slow and complex. CROWD merge is very simple and fast.
 
-## Available Stores
+# Available Stores
 
 | CROWD | CRDT |
 |-------|------|
-| [CROWD Counter](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/numb) | Is equal to dCRDT PN-Counter
 | [CROWD Register](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/reg) | Is same as CvRDT LWW-Register
 | [CROWD Unordered Set](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/set) | Is equal to dCRDT LWW-Element-Set
 | [CROWD Ordered Set](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/list) | No equal type
@@ -63,19 +62,19 @@
 | CROWD JSON | No equal type
 | CROWD Graph | No equal type
 
-## Utilites
+# Utilites
 
 - [CROWD Store](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/store) - Base store class with common CROWD API.
 - [CROWD Clock](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/clock) - Manages stamps for composed CROWD stores.
 
-## Common API
+# Common API
 
 - `delta( clock )` Returns delta between past clock and now.
 - `apply( delta )` Merges delta to current state.
 - `toJSON()` Returns full state dump.
 - `fork( peer: number )` Makes independent clone with fixed peer id for testing purposes.
 
-## State/Delta Format
+# State/Delta Format
 
 ```javascript
 {
@@ -84,7 +83,7 @@
 }
 ```
 
-## Reinterpretations
+# Reinterpretations
 
 - ✅ Expected behaviour.
 - ⭕ Unexpected but acceptable behaviour.
@@ -99,12 +98,11 @@
 | Dictionary    | ⭕ Last changed value | ⭕ Set of values         | ⭕ Set of values         | ❌               | ✅ Same                   | ❌
 | Text          | ❌                    | ❌                       | ❌                       | ❌               | ⭕ With keys: flow, token | ✅ Same
 
-## Usage Example
+# Usage Example
 
 ```typescript
 // // Usage from NPM. Isn't required in MAM.
 // import {
-//   $hyoo_crowd_numb,
 //   $hyoo_crowd_reg,
 //   $hyoo_crowd_union,
 //   $hyoo_crowd_set
@@ -116,7 +114,6 @@
 // Dynamic typing in custom store
 const MyStore = $hyoo_crowd_dict.of({
   val: $hyoo_crowd_union.of({
-    count: $hyoo_crowd_numb,
     bool: $hyoo_crowd_reg,
     numb: $hyoo_crowd_reg,
     str: $hyoo_crowd_reg,
