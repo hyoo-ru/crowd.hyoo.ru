@@ -130,11 +130,11 @@ const bob = base.fork(2);
 const carol = base.fork(3);
 
 // Twice change register named "foo"
-alice.for("foo").to("str").str = "A1";
-alice.for("foo").to("str").str = "A2";
+alice.for("foo").to("str").str("A1");
+alice.for("foo").to("str").str("A2");
 
 // Change register named "foo" then converts it to sequence and insert value
-bob.for("foo").to("str").str = "B1";
+bob.for("foo").to("str").str("B1");
 bob.for("foo").to("seq").insert("B2").insert("B3");
 
 // Serial insert to sequence named "foo"
