@@ -107,7 +107,7 @@ namespace $ {
 			const left = base.fork(1)
 			const right = base.fork(2)
 			
-			left.for( 'foo' ).to( 'string' ).str = 'bar'
+			left.for( 'foo' ).to( 'string' ).str( 'bar' )
 			right.for( 'foo' ).to( 'array' ).insert( 'xxx' )
 			
 			const left_delta = left.delta( base.clock )
@@ -135,8 +135,8 @@ namespace $ {
 			const left = base.fork(1)
 			const right = base.fork(2)
 			
-			left.for( 'foo' ).for( 'xxx' ).str = '321'
-			right.for( 'foo' ).for( 'yyy' ).str = '123'
+			left.for( 'foo' ).for( 'xxx' ).str( '321' )
+			right.for( 'foo' ).for( 'yyy' ).str( '123' )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -145,14 +145,14 @@ namespace $ {
 			right.apply( left_delta )
 			
 			$mol_assert_like(
-				left.for( 'foo' ).for( 'xxx' ).str,
-				right.for( 'foo' ).for( 'xxx' ).str,
+				left.for( 'foo' ).for( 'xxx' ).str(),
+				right.for( 'foo' ).for( 'xxx' ).str(),
 				'321',
 			)
 			
 			$mol_assert_like(
-				left.for( 'foo' ).for( 'yyy' ).str,
-				right.for( 'foo' ).for( 'yyy' ).str,
+				left.for( 'foo' ).for( 'yyy' ).str(),
+				right.for( 'foo' ).for( 'yyy' ).str(),
 				'123',
 			)
 			
@@ -166,7 +166,7 @@ namespace $ {
 			}).make()
 			
 			$mol_assert_like( store.for('keys').items, [] )
-			$mol_assert_like( store.for('vals').for( 'foo' ).str, '' )
+			$mol_assert_like( store.for('vals').for( 'foo' ).str(), '' )
 			
 			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[]) )
 			
@@ -183,11 +183,11 @@ namespace $ {
 			const store = Map.make().fork(1)
 			
 			store.for( 'keys' ).add( 'foo' ).add( 'bar' )
-			store.for( 'vals' ).for( 'xxx' ).value = 'yyy'
+			store.for( 'vals' ).for( 'xxx' ).str( 'yyy' )
 			
-			$mol_assert_like( store.for('vers').numb, 0 )
+			$mol_assert_like( store.for('vers').numb(), 0 )
 			$mol_assert_like( store.for('keys').items, [ 'foo', 'bar' ] )
-			$mol_assert_like( store.for('vals').for( 'xxx' ).str, 'yyy' )
+			$mol_assert_like( store.for('vals').for( 'xxx' ).str(), 'yyy' )
 			
 			$mol_assert_like( store.delta(), $hyoo_crowd_delta(
 				[ 'keys', 'foo', 'bar', 'vals', 'xxx', 'yyy' ],
@@ -215,10 +215,10 @@ namespace $ {
 			store.for( 'BR' ).for( 'X' ).shift( +5 )
 			store.for( 'BR' ).for( 'Y' ).shift( +7 )
 			
-			$mol_assert_like( store.for( 'TL' ).for( 'X' ).value, -2 )
-			$mol_assert_like( store.for( 'TL' ).for( 'Y' ).value, -3 )
-			$mol_assert_like( store.for( 'BR' ).for( 'X' ).value, +5 )
-			$mol_assert_like( store.for( 'BR' ).for( 'Y' ).value, +7 )
+			$mol_assert_like( store.for( 'TL' ).for( 'X' ).numb(), -2 )
+			$mol_assert_like( store.for( 'TL' ).for( 'Y' ).numb(), -3 )
+			$mol_assert_like( store.for( 'BR' ).for( 'X' ).numb(), +5 )
+			$mol_assert_like( store.for( 'BR' ).for( 'Y' ).numb(), +7 )
 			
 			$mol_assert_like( store.delta(), $hyoo_crowd_delta(
 				[ "TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7 ],

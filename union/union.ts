@@ -21,7 +21,7 @@ namespace $ {
 		value_store?: InstanceType< Types[string] >
 		
 		get type() {
-			const type = this.type_store.value
+			const type = this.type_store.value()
 			return type as keyof Types | null
 		}
 		

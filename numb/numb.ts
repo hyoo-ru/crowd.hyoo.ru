@@ -5,19 +5,19 @@ namespace $ {
 		
 		stores = new Map< number, $hyoo_crowd_reg >()
 		
-		get value() {
+		value() {
 			
 			let res = 0
 			
 			for( const store of this.stores.values() ) {
-				res += store.numb
+				res += store.numb()
 			}
 			
 			return res
 		}
 		
-		get numb() {
-			return this.value
+		numb() {
+			return this.value()
 		}
 		
 		delta( clock = new $hyoo_crowd_clock ) {
@@ -50,9 +50,9 @@ namespace $ {
 		shift( diff = 1 ) {
 			
 			const store = this.reg( this.clock.peer )
-			const prev = Number( store.numb )
+			const prev = Number( store.numb() )
 			
-			store.numb = prev + diff
+			store.numb( prev + diff )
 			
 			return this
 		}

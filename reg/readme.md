@@ -24,15 +24,15 @@ Delta is full state dump.
 
 ## Views
 
-- `value` Current raw value or `null` by default.
-- `bool` Current as `boolean` or `false` by default.
-- `numb` Current as `number` or `0` by default.
-- `str` Current as `string` or `""` by default.
+- `value()` Current raw value or `null` by default.
+- `bool()` Current as `boolean` or `false` by default.
+- `numb()` Current as `number` or `0` by default.
+- `str()` Current as `string` or `""` by default.
 
 ## Mutations
 
-- `value`
-- `bool`
-- `numb`
-- `str`
+- `value(next)`
+- `bool(next)`
+- `numb(next)`
+- `str(next)`
 

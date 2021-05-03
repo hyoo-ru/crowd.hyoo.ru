@@ -6,7 +6,7 @@ namespace $ {
 			const store = new $hyoo_crowd_reg()
 			
 			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[]) )
-			$mol_assert_like( store.value, null )
+			$mol_assert_like( store.value(), null )
 			$mol_assert_like( store.version, 0 )
 			
 		},
@@ -14,8 +14,8 @@ namespace $ {
 		'Serial changes'() {
 			
 			const store = new $hyoo_crowd_reg().fork(1)
-			store.str = 'foo'
-			store.str = 'bar'
+			store.str( 'foo' )
+			store.str( 'bar' )
 			
 			$mol_assert_like(
 				store.delta(),
@@ -30,8 +30,8 @@ namespace $ {
 		'Ignore same changes'() {
 			
 			const store = new $hyoo_crowd_reg().fork(1)
-			store.str = 'foo'
-			store.str = 'foo'
+			store.str( 'foo' )
+			store.str( 'foo' )
 			
 			$mol_assert_like(
 				store.delta(),
@@ -47,10 +47,10 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_reg().fork(1)
 			
-			store.str = 'foo'
+			store.str( 'foo' )
 			const clock1 = store.clock.fork(0)
 			
-			store.str = 'bar'
+			store.str( 'bar' )
 			const clock2 = store.clock.fork(0)
 
 			$mol_assert_like(
@@ -68,13 +68,13 @@ namespace $ {
 		'Cuncurrent changes'() {
 			
 			const base = new $hyoo_crowd_reg().fork(1)
-			base.str = 'foo'
+			base.str( 'foo' )
 			
 			const left = base.fork(2)
-			left.str = 'bar'
+			left.str( 'bar' )
 			
 			const right = base.fork(3)
-			right.str = 'xxx'
+			right.str( 'xxx' )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )

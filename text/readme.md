@@ -43,11 +43,11 @@ Delta is partial state dump which depends on the inner stores.
 
 ## Views
 
-- `text` Plain text as string
+- `text()` Plain text as string
 
 ## Mutations
 
-- `text` Replace full text with reconciliation.
+- `text( next )` Replace full text with reconciliation.
 - `write( text, offset_from = length, delete_count = 0 )` Replace range by new text.
 
 ## Memory usage

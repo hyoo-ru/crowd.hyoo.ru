@@ -11,25 +11,16 @@ namespace $ {
 			return this.clock.version_from( this._stamp )
 		}
 		
-		get str() {
-			return String( this._value ?? '' )
-		}
-		set str( next: string ) {
-			this.value = next
+		str( next?: string ) {
+			return String( this.value( next ) ?? '' )
 		}
 		
-		get numb() {
-			return Number( this._value ?? 0 )
-		}
-		set numb( next: number ) {
-			this.value = next
+		numb( next?: number ) {
+			return Number( this.value( next ) ?? 0 )
 		}
 		
-		get bool() {
-			return Boolean( this._value ?? false )
-		}
-		set bool( next: boolean ) {
-			this.value = next
+		bool( next?: boolean ) {
+			return Boolean( this.value( next ) ?? false )
 		}
 		
 		delta( clock = new $hyoo_crowd_clock ) {
@@ -37,16 +28,15 @@ namespace $ {
 			return $hyoo_crowd_delta( [ this._value ], [ this._stamp ] )
 		}
 		
-		get value() {
-			return this._value
-		}
-		set value( val: $hyoo_crowd_delta_value ) {
+		value( next?: $hyoo_crowd_delta_value ) {
 			
-			if( this._value === val ) return
+			if( next === undefined ) return this._value
+			if( this._value === next ) return this._value
 			
-			this._value = val
+			this._value = next
 			this.clock.feed( this._stamp = this._mult * this.clock.generate() )
 
+			return next
 		}
 		
 		apply(

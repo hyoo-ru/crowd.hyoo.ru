@@ -34,12 +34,8 @@ namespace $.$$ {
 		
 		@ $mol_mem
 		text( next?: string ) {
-			
 			this.sync()
-			
-			if( next !== undefined ) this.store().text = next
-			return this.store().text
-			
+			return this.store().text( next )
 		}
 		
 		delta() {

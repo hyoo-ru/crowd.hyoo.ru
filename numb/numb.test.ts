@@ -6,7 +6,7 @@ namespace $ {
 			const val = new $hyoo_crowd_numb()
 			
 			$mol_assert_like( val.delta(), $hyoo_crowd_delta([],[]) )
-			$mol_assert_like( val.value, 0 )
+			$mol_assert_like( val.numb(), 0 )
 			
 		},
 		
@@ -19,7 +19,7 @@ namespace $ {
 				[ +2000001 ],
 			) )
 			
-			$mol_assert_like( store.value, 2 )
+			$mol_assert_like( store.numb(), 2 )
 			
 		},
 		
@@ -64,8 +64,8 @@ namespace $ {
 			right.apply( left_delta )
 			
 			$mol_assert_like(
-				left.value,
-				right.value,
+				left.numb(),
+				right.numb(),
 				8,
 			)
 			

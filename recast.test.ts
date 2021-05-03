@@ -6,8 +6,8 @@ namespace $ {
 			
 			let left = $hyoo_crowd_reg.make().fork(2)
 			
-			left.numb = 777
-			left.numb = 123
+			left.numb( 777 )
+			left.numb( 123 )
 			
 			let right = $hyoo_crowd_union.of({
 				index: $hyoo_crowd_reg,
@@ -17,7 +17,7 @@ namespace $ {
 			right.apply( left.delta() )
 			
 			$mol_assert_like( right.type, "index" )
-			$mol_assert_like( right.as( 'index' )!.numb, 123 )
+			$mol_assert_like( right.as( 'index' )!.numb(), 123 )
 			
 		},
 		
@@ -28,14 +28,14 @@ namespace $ {
 				count: $hyoo_crowd_reg,
 			}).make().fork(1)
 			
-			left.to('index').value = 777
+			left.to('index').numb( 777 )
 			left.to('count')
 			
 			let right = $hyoo_crowd_reg.make().fork(2)
 			
 			right.apply( left.delta() )
 			
-			$mol_assert_like( right.numb, 777 )
+			$mol_assert_like( right.numb(), 777 )
 			
 		},
 		
@@ -46,14 +46,14 @@ namespace $ {
 				count: $hyoo_crowd_reg,
 			}).make().fork(1)
 			
-			left.to('index').value = 777
+			left.to('index').numb( 777 )
 			left.to('count')
 			
 			let right = $hyoo_crowd_numb.make().fork(2)
 			
 			right.apply( left.delta() )
 			
-			$mol_assert_like( right.numb, 777 )
+			$mol_assert_like( right.numb(), 777 )
 			
 		},
 		

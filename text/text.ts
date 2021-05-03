@@ -21,15 +21,17 @@ namespace $ {
 		}
 		
 		value_of( token: string ) {
-			return this.for( 'token' ).for( token )!.str
+			return this.for( 'token' ).for( token )!.str()
 		}
 		
-		get text() {
-			const tokens = this.for( 'token' )
-			return this.tokens.map( id => tokens.for( id )!.str ).join( '' )
-		}
-		set text( next: string ) {
-			this.splice_line( null, 0, this.root.count, next )
+		text( next?: string ) {
+			if( next === undefined ) {
+				const tokens = this.for( 'token' )
+				return this.tokens.map( id => tokens.for( id )!.str() ).join( '' )
+			} else {
+				this.splice_line( null, 0, this.root.count, next )
+				return next
+			}
 		}
 		
 		splice_line( id: string | null, from: number, to: number, text: string ) {
@@ -41,7 +43,7 @@ namespace $ {
 			
 			while( from < to || words.length > 0 ) {
 				
-				const prev = from < token_ids.length ? tokens.for( token_ids[ from ] ).str : null
+				const prev = from < token_ids.length ? tokens.for( token_ids[ from ] ).str() : null
 				const next = words.length ? words[0].token ?? words[0][0] : ''
 				
 				if( prev === next ) {
@@ -51,7 +53,7 @@ namespace $ {
 					
 				} else if( prev && next && ( prev.slice( 0, next.length ) === next || next.slice( 0, prev.length ) === prev ) ) {
 					
-					tokens.for( token_ids[ from ] ).str = next
+					tokens.for( token_ids[ from ] ).str( next )
 					++ from
 					words.shift()
 					
@@ -62,7 +64,7 @@ namespace $ {
 						key = Math.floor( Math.random() * 1_000_000 )
 					} while( tokens.has( key ) )
 					
-					tokens.for( key ).str = next
+					tokens.for( key ).str( next )
 					
 					flow.insert( key, from )
 					
@@ -77,7 +79,7 @@ namespace $ {
 					
 				} else {
 					
-					tokens.for( token_ids[ from ] ).str = next
+					tokens.for( token_ids[ from ] ).str( next )
 					++ from
 					words.shift()
 					
@@ -101,7 +103,7 @@ namespace $ {
 			
 			while( true ) {
 				if( from >= token_ids.length ) break
-				word = tokens.for( token_ids[ from ] ).value! as string
+				word = tokens.for( token_ids[ from ] ).str()!
 				if( offset <= word.length ) {
 					text = word.slice( 0, offset ) + text
 					count += offset
@@ -115,7 +117,7 @@ namespace $ {
 			
 			while( true ) {
 				if( to >= token_ids.length ) break
-				word = tokens.for( token_ids[ to ] ).value! as string
+				word = tokens.for( token_ids[ to ] ).str()!
 				to ++
 				if( count < word.length ) {
 					text = text + word.slice( count )

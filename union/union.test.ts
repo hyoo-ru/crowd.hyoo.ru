@@ -27,7 +27,7 @@ namespace $ {
 			store.to( 'counter' )
 			
 			$mol_assert_like( store.type, 'counter' )
-			$mol_assert_like( store.as( 'counter' )!.value, 0 )
+			$mol_assert_like( store.as( 'counter' )!.numb(), 0 )
 			
 		},
 		
@@ -82,12 +82,12 @@ namespace $ {
 				array: $hyoo_crowd_list,
 			}).make().fork(1)
 			
-			store.to( 'string' ).str = 'foo'
-			store.to( 'string' ).str = 'bar'
+			store.to( 'string' ).str( 'foo' )
+			store.to( 'string' ).str( 'bar' )
 			$mol_assert_like( store.to( 'array' ).items, [ 'bar' ] )
 			
 			store.as( 'array' )!.insert( 'xxx' )
-			$mol_assert_like( store.to( 'string' ).str, 'xxx' )
+			$mol_assert_like( store.to( 'string' ).str(), 'xxx' )
 			
 		},
 		
@@ -100,10 +100,10 @@ namespace $ {
 				array: $hyoo_crowd_list,
 			}).make().fork(1)
 			
-			base.to( 'string' ).str = 'foo'
+			base.to( 'string' ).str( 'foo' )
 			
 			const left = base.fork(2)
-			left.as( 'string' )!.str = 'bar'
+			left.as( 'string' )!.str( 'bar' )
 			
 			const right = base.fork(3)
 			right.to( 'array' ).insert( 'xxx' )

@@ -44,7 +44,7 @@ Size = 16 * PeersInDelta
 
 ## Views
 
-- `value` Current value or `0` by default.
+- `value()` Current value or `0` by default.
 
 ## Mutations
 
