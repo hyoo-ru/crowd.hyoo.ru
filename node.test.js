@@ -5424,40 +5424,31 @@ var $;
         get version() {
             return this.clock.version_from(this._stamp);
         }
-        get str() {
+        str(next) {
             var _a;
-            return String((_a = this._value) !== null && _a !== void 0 ? _a : '');
+            return String((_a = this.value(next)) !== null && _a !== void 0 ? _a : '');
         }
-        set str(next) {
-            this.value = next;
-        }
-        get numb() {
+        numb(next) {
             var _a;
-            return Number((_a = this._value) !== null && _a !== void 0 ? _a : 0);
+            return Number((_a = this.value(next)) !== null && _a !== void 0 ? _a : 0);
         }
-        set numb(next) {
-            this.value = next;
-        }
-        get bool() {
+        bool(next) {
             var _a;
-            return Boolean((_a = this._value) !== null && _a !== void 0 ? _a : false);
-        }
-        set bool(next) {
-            this.value = next;
+            return Boolean((_a = this.value(next)) !== null && _a !== void 0 ? _a : false);
         }
         delta(clock = new $.$hyoo_crowd_clock) {
             if (!clock.is_new(this._stamp))
                 return $.$hyoo_crowd_delta([], []);
             return $.$hyoo_crowd_delta([this._value], [this._stamp]);
         }
-        get value() {
-            return this._value;
-        }
-        set value(val) {
-            if (this._value === val)
-                return;
-            this._value = val;
+        value(next) {
+            if (next === undefined)
+                return this._value;
+            if (this._value === next)
+                return this._value;
+            this._value = next;
             this.clock.feed(this._stamp = this._mult * this.clock.generate());
+            return next;
         }
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
@@ -5503,14 +5494,17 @@ var $;
             return this.root.items;
         }
         value_of(token) {
-            return this.for('token').for(token).str;
+            return this.for('token').for(token).str();
         }
-        get text() {
-            const tokens = this.for('token');
-            return this.tokens.map(id => tokens.for(id).str).join('');
-        }
-        set text(next) {
-            this.splice_line(null, 0, this.root.count, next);
+        text(next) {
+            if (next === undefined) {
+                const tokens = this.for('token');
+                return this.tokens.map(id => tokens.for(id).str()).join('');
+            }
+            else {
+                this.splice_line(null, 0, this.root.count, next);
+                return next;
+            }
         }
         splice_line(id, from, to, text) {
             var _a;
@@ -5519,14 +5513,14 @@ var $;
             const tokens = this.for('token');
             const words = [...tokenizer.parse(text)];
             while (from < to || words.length > 0) {
-                const prev = from < token_ids.length ? tokens.for(token_ids[from]).str : null;
+                const prev = from < token_ids.length ? tokens.for(token_ids[from]).str() : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
                 if (prev === next) {
                     ++from;
                     words.shift();
                 }
                 else if (prev && next && (prev.slice(0, next.length) === next || next.slice(0, prev.length) === prev)) {
-                    tokens.for(token_ids[from]).str = next;
+                    tokens.for(token_ids[from]).str(next);
                     ++from;
                     words.shift();
                 }
@@ -5535,7 +5529,7 @@ var $;
                     do {
                         key = Math.floor(Math.random() * 1000000);
                     } while (tokens.has(key));
-                    tokens.for(key).str = next;
+                    tokens.for(key).str(next);
                     flow.insert(key, from);
                     words.shift();
                     ++from;
@@ -5546,7 +5540,7 @@ var $;
                     --to;
                 }
                 else {
-                    tokens.for(token_ids[from]).str = next;
+                    tokens.for(token_ids[from]).str(next);
                     ++from;
                     words.shift();
                 }
@@ -5564,7 +5558,7 @@ var $;
             while (true) {
                 if (from >= token_ids.length)
                     break;
-                word = tokens.for(token_ids[from]).value;
+                word = tokens.for(token_ids[from]).str();
                 if (offset <= word.length) {
                     text = word.slice(0, offset) + text;
                     count += offset;
@@ -5577,7 +5571,7 @@ var $;
             while (true) {
                 if (to >= token_ids.length)
                     break;
-                word = tokens.for(token_ids[to]).value;
+                word = tokens.for(token_ids[to]).str();
                 to++;
                 if (count < word.length) {
                     text = text + word.slice(count);
@@ -7917,9 +7911,7 @@ var $;
             }
             text(next) {
                 this.sync();
-                if (next !== undefined)
-                    this.store().text = next;
-                return this.store().text;
+                return this.store().text(next);
             }
             delta() {
                 this.text();
@@ -9066,37 +9058,37 @@ var $;
         'Default state'() {
             const store = new $.$hyoo_crowd_reg();
             $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], []));
-            $.$mol_assert_like(store.value, null);
+            $.$mol_assert_like(store.value(), null);
             $.$mol_assert_like(store.version, 0);
         },
         'Serial changes'() {
             const store = new $.$hyoo_crowd_reg().fork(1);
-            store.str = 'foo';
-            store.str = 'bar';
+            store.str('foo');
+            store.str('bar');
             $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['bar'], [+2000001]));
         },
         'Ignore same changes'() {
             const store = new $.$hyoo_crowd_reg().fork(1);
-            store.str = 'foo';
-            store.str = 'foo';
+            store.str('foo');
+            store.str('foo');
             $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo'], [+1000001]));
         },
         'Slice after version'() {
             const store = new $.$hyoo_crowd_reg().fork(1);
-            store.str = 'foo';
+            store.str('foo');
             const clock1 = store.clock.fork(0);
-            store.str = 'bar';
+            store.str('bar');
             const clock2 = store.clock.fork(0);
             $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['bar'], [+2000001]));
             $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], []));
         },
         'Cuncurrent changes'() {
             const base = new $.$hyoo_crowd_reg().fork(1);
-            base.str = 'foo';
+            base.str('foo');
             const left = base.fork(2);
-            left.str = 'bar';
+            left.str('bar');
             const right = base.fork(3);
-            right.str = 'xxx';
+            right.str('xxx');
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
             $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), {
@@ -9115,12 +9107,12 @@ var $;
         'Default state'() {
             const val = new $.$hyoo_crowd_numb();
             $.$mol_assert_like(val.delta(), $.$hyoo_crowd_delta([], []));
-            $.$mol_assert_like(val.value, 0);
+            $.$mol_assert_like(val.numb(), 0);
         },
         'Serial changes'() {
             const store = new $.$hyoo_crowd_numb().fork(1).shift(+5).shift(-3);
             $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([+2], [+2000001]));
-            $.$mol_assert_like(store.value, 2);
+            $.$mol_assert_like(store.numb(), 2);
         },
         'Slice after version'() {
             const store = new $.$hyoo_crowd_numb();
@@ -9142,7 +9134,7 @@ var $;
             const right_delta = right.delta(base.clock);
             left.apply(right_delta);
             right.apply(left_delta);
-            $.$mol_assert_like(left.value, right.value, 8);
+            $.$mol_assert_like(left.numb(), right.numb(), 8);
         },
     });
 })($ || ($ = {}));
@@ -9156,15 +9148,15 @@ var $;
             super(...arguments);
             this.stores = new Map();
         }
-        get value() {
+        value() {
             let res = 0;
             for (const store of this.stores.values()) {
-                res += store.numb;
+                res += store.numb();
             }
             return res;
         }
-        get numb() {
-            return this.value;
+        numb() {
+            return this.value();
         }
         delta(clock = new $.$hyoo_crowd_clock) {
             const delta = $.$hyoo_crowd_delta([], []);
@@ -9187,8 +9179,8 @@ var $;
         }
         shift(diff = 1) {
             const store = this.reg(this.clock.peer);
-            const prev = Number(store.numb);
-            store.numb = prev + diff;
+            const prev = Number(store.numb());
+            store.numb(prev + diff);
             return this;
         }
         apply(delta) {
@@ -9423,7 +9415,7 @@ var $;
             }).make();
             store.to('counter');
             $.$mol_assert_like(store.type, 'counter');
-            $.$mol_assert_like(store.as('counter').value, 0);
+            $.$mol_assert_like(store.as('counter').numb(), 0);
         },
         'Change value'() {
             const store = $.$hyoo_crowd_union.of({
@@ -9456,11 +9448,11 @@ var $;
                 object: $.$hyoo_crowd_set,
                 array: $.$hyoo_crowd_list,
             }).make().fork(1);
-            store.to('string').str = 'foo';
-            store.to('string').str = 'bar';
+            store.to('string').str('foo');
+            store.to('string').str('bar');
             $.$mol_assert_like(store.to('array').items, ['bar']);
             store.as('array').insert('xxx');
-            $.$mol_assert_like(store.to('string').str, 'xxx');
+            $.$mol_assert_like(store.to('string').str(), 'xxx');
         },
         'Cross merge list and register'() {
             const base = $.$hyoo_crowd_union.of({
@@ -9469,9 +9461,9 @@ var $;
                 object: $.$hyoo_crowd_set,
                 array: $.$hyoo_crowd_list,
             }).make().fork(1);
-            base.to('string').str = 'foo';
+            base.to('string').str('foo');
             const left = base.fork(2);
-            left.as('string').str = 'bar';
+            left.as('string').str('bar');
             const right = base.fork(3);
             right.to('array').insert('xxx');
             const left_delta = left.delta(base.clock);
@@ -9499,7 +9491,7 @@ var $;
             };
         }
         get type() {
-            const type = this.type_store.value;
+            const type = this.type_store.value();
             return type;
         }
         as(type) {
@@ -9558,37 +9550,37 @@ var $;
     $.$mol_test({
         'Register => Tagged Union'() {
             let left = $.$hyoo_crowd_reg.make().fork(2);
-            left.numb = 777;
-            left.numb = 123;
+            left.numb(777);
+            left.numb(123);
             let right = $.$hyoo_crowd_union.of({
                 index: $.$hyoo_crowd_reg,
                 count: $.$hyoo_crowd_reg,
             }).make().fork(1);
             right.apply(left.delta());
             $.$mol_assert_like(right.type, "index");
-            $.$mol_assert_like(right.as('index').numb, 123);
+            $.$mol_assert_like(right.as('index').numb(), 123);
         },
         'Tagged Union => Register'() {
             let left = $.$hyoo_crowd_union.of({
                 index: $.$hyoo_crowd_reg,
                 count: $.$hyoo_crowd_reg,
             }).make().fork(1);
-            left.to('index').value = 777;
+            left.to('index').numb(777);
             left.to('count');
             let right = $.$hyoo_crowd_reg.make().fork(2);
             right.apply(left.delta());
-            $.$mol_assert_like(right.numb, 777);
+            $.$mol_assert_like(right.numb(), 777);
         },
         'Tagged Union => Counter'() {
             let left = $.$hyoo_crowd_union.of({
                 index: $.$hyoo_crowd_reg,
                 count: $.$hyoo_crowd_reg,
             }).make().fork(1);
-            left.to('index').value = 777;
+            left.to('index').numb(777);
             left.to('count');
             let right = $.$hyoo_crowd_numb.make().fork(2);
             right.apply(left.delta());
-            $.$mol_assert_like(right.numb, 777);
+            $.$mol_assert_like(right.numb(), 777);
         },
     });
 })($ || ($ = {}));
@@ -11543,7 +11535,7 @@ var $;
             }).make();
             const left = base.fork(1);
             const right = base.fork(2);
-            left.for('foo').to('string').str = 'bar';
+            left.for('foo').to('string').str('bar');
             right.for('foo').to('array').insert('xxx');
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
@@ -11557,14 +11549,14 @@ var $;
             }).make();
             const left = base.fork(1);
             const right = base.fork(2);
-            left.for('foo').for('xxx').str = '321';
-            right.for('foo').for('yyy').str = '123';
+            left.for('foo').for('xxx').str('321');
+            right.for('foo').for('yyy').str('123');
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
             left.apply(right_delta);
             right.apply(left_delta);
-            $.$mol_assert_like(left.for('foo').for('xxx').str, right.for('foo').for('xxx').str, '321');
-            $.$mol_assert_like(left.for('foo').for('yyy').str, right.for('foo').for('yyy').str, '123');
+            $.$mol_assert_like(left.for('foo').for('xxx').str(), right.for('foo').for('xxx').str(), '321');
+            $.$mol_assert_like(left.for('foo').for('yyy').str(), right.for('foo').for('yyy').str(), '123');
         },
         'Default tuple state'() {
             const store = $.$hyoo_crowd_dict.of({
@@ -11572,7 +11564,7 @@ var $;
                 vals: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
             }).make();
             $.$mol_assert_like(store.for('keys').items, []);
-            $.$mol_assert_like(store.for('vals').for('foo').str, '');
+            $.$mol_assert_like(store.for('vals').for('foo').str(), '');
             $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], []));
         },
         'Changed tuple state'() {
@@ -11583,10 +11575,10 @@ var $;
             });
             const store = Map.make().fork(1);
             store.for('keys').add('foo').add('bar');
-            store.for('vals').for('xxx').value = 'yyy';
-            $.$mol_assert_like(store.for('vers').numb, 0);
+            store.for('vals').for('xxx').str('yyy');
+            $.$mol_assert_like(store.for('vers').numb(), 0);
             $.$mol_assert_like(store.for('keys').items, ['foo', 'bar']);
-            $.$mol_assert_like(store.for('vals').for('xxx').str, 'yyy');
+            $.$mol_assert_like(store.for('vals').for('xxx').str(), 'yyy');
             $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['keys', 'foo', 'bar', 'vals', 'xxx', 'yyy'], [-2, +1000001, +2000001, -2, -1, +3000001]));
         },
         'Tuple of tuples'() {
@@ -11603,10 +11595,10 @@ var $;
             store.for('TL').for('Y').shift(-3);
             store.for('BR').for('X').shift(+5);
             store.for('BR').for('Y').shift(+7);
-            $.$mol_assert_like(store.for('TL').for('X').value, -2);
-            $.$mol_assert_like(store.for('TL').for('Y').value, -3);
-            $.$mol_assert_like(store.for('BR').for('X').value, +5);
-            $.$mol_assert_like(store.for('BR').for('Y').value, +7);
+            $.$mol_assert_like(store.for('TL').for('X').numb(), -2);
+            $.$mol_assert_like(store.for('TL').for('Y').numb(), -3);
+            $.$mol_assert_like(store.for('BR').for('X').numb(), +5);
+            $.$mol_assert_like(store.for('BR').for('Y').numb(), +7);
             $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(["TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7], [-4, -1, +1000001, -1, +2000001, -4, -1, +3000001, -1, +4000001]));
         },
     });
@@ -11619,108 +11611,108 @@ var $;
     $.$mol_test({
         'Default state'() {
             const store = new $.$hyoo_crowd_text();
-            $.$mol_assert_like(store.text, '');
+            $.$mol_assert_like(store.text(), '');
         },
         'Auto tokenize'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo bar';
+            store.text('foo bar');
             $.$mol_assert_like(store.tokens.length, 2);
-            $.$mol_assert_like(store.text, 'foo bar');
+            $.$mol_assert_like(store.text(), 'foo bar');
             $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001]);
         },
         'Replace with same tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo bar';
-            store.text = 'xxx yyy';
+            store.text('foo bar');
+            store.text('xxx yyy');
             $.$mol_assert_like(store.tokens.length, 2);
-            $.$mol_assert_like(store.text, 'xxx yyy');
+            $.$mol_assert_like(store.text(), 'xxx yyy');
             $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001]);
         },
         'Replace with more tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo bar';
-            store.text = 'foo de bar';
+            store.text('foo bar');
+            store.text('foo de bar');
             $.$mol_assert_like(store.tokens.length, 3);
-            $.$mol_assert_like(store.text, 'foo de bar');
+            $.$mol_assert_like(store.text(), 'foo de bar');
             $.$mol_assert_like(store.root.delta().stamps, [+2000001, +6000001, +4000001]);
         },
         'Replace with more tokens count with side changes'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo  bar';
-            store.text = 'foo de bar';
+            store.text('foo  bar');
+            store.text('foo de bar');
             $.$mol_assert_like(store.tokens.length, 3);
-            $.$mol_assert_like(store.text, 'foo de bar');
+            $.$mol_assert_like(store.text(), 'foo de bar');
             $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001, +6000001]);
         },
         'Replace with less tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo de bar';
-            store.text = 'foo bar';
+            store.text('foo de bar');
+            store.text('foo bar');
             $.$mol_assert_like(store.tokens.length, 2);
-            $.$mol_assert_like(store.text, 'foo bar');
+            $.$mol_assert_like(store.text(), 'foo bar');
             $.$mol_assert_like(store.root.delta().stamps, [+2000001, +6000001, -7000001]);
         },
         'Cut from end'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo bar';
-            store.text = 'foo';
-            $.$mol_assert_like(store.text, 'foo');
+            store.text('foo bar');
+            store.text('foo');
+            $.$mol_assert_like(store.text(), 'foo');
             $.$mol_assert_like(store.tokens.length, 1);
             $.$mol_assert_like(store.root.delta().stamps, [+2000001, -6000001]);
         },
         'Concurrent changes'() {
             const base = new $.$hyoo_crowd_text();
-            base.text = 'Hello World and fun!';
+            base.text('Hello World and fun!');
             const left = base.fork(1);
             const right = base.fork(2);
-            left.text = 'Hello Alice and fun!';
-            right.text = 'Say: Hello World and fun!';
+            left.text('Hello Alice and fun!');
+            right.text('Say: Hello World and fun!');
             const left_delta = left.delta();
             const right_delta = right.delta();
             left.apply(right_delta);
             right.apply(left_delta);
-            $.$mol_assert_equal(left.text, right.text, 'Say: Hello Alice and fun!');
+            $.$mol_assert_equal(left.text(), right.text(), 'Say: Hello Alice and fun!');
         },
         'Splice inside token'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foobar';
+            store.text('foobar');
             store.write('XYZ', 2, 2);
-            $.$mol_assert_like(store.text, 'foXYZar');
+            $.$mol_assert_like(store.text(), 'foXYZar');
             $.$mol_assert_like(store.tokens.length, 2);
         },
         'Splice over some tokens'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'xxx foo bar yyy';
+            store.text('xxx foo bar yyy');
             store.write('X Y Z', 6, 3);
-            $.$mol_assert_like(store.text, 'xxx foX Y Zar yyy');
+            $.$mol_assert_like(store.text(), 'xxx foX Y Zar yyy');
             $.$mol_assert_like(store.tokens.length, 6);
         },
         'Splice whole token'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'xxx foo yyy';
+            store.text('xxx foo yyy');
             store.write('bar', 4, 4);
-            $.$mol_assert_like(store.text, 'xxx baryyy');
+            $.$mol_assert_like(store.text(), 'xxx baryyy');
             $.$mol_assert_like(store.tokens.length, 2);
         },
         'Splice whole text'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo bar';
+            store.text('foo bar');
             store.write('xxx', 0, 7);
-            $.$mol_assert_like(store.text, 'xxx');
+            $.$mol_assert_like(store.text(), 'xxx');
             $.$mol_assert_like(store.tokens.length, 1);
         },
         'Splice at the end'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo';
+            store.text('foo');
             store.write('xxx', 3);
-            $.$mol_assert_like(store.text, 'fooxxx');
+            $.$mol_assert_like(store.text(), 'fooxxx');
             $.$mol_assert_like(store.tokens.length, 1);
         },
         'Splice between tokens'() {
             const store = new $.$hyoo_crowd_text().fork(1);
-            store.text = 'foo bar';
+            store.text('foo bar');
             store.write('xxx', 4);
-            $.$mol_assert_like(store.text, 'foo xxxbar');
+            $.$mol_assert_like(store.text(), 'foo xxxbar');
             $.$mol_assert_like(store.tokens.length, 2);
         },
     });

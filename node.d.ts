@@ -1748,18 +1748,14 @@ declare namespace $ {
         protected _stamp: number;
         protected _mult: number;
         get version(): number;
-        get str(): string;
-        set str(next: string);
-        get numb(): number;
-        set numb(next: number);
-        get bool(): boolean;
-        set bool(next: boolean);
+        str(next?: string): string;
+        numb(next?: number): number;
+        bool(next?: boolean): boolean;
         delta(clock?: $hyoo_crowd_clock): {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
         };
-        get value(): $hyoo_crowd_delta_value;
-        set value(val: $hyoo_crowd_delta_value);
+        value(next?: $hyoo_crowd_delta_value): $hyoo_crowd_delta_value;
         apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
     }
     class $hyoo_crowd_reg_back extends $hyoo_crowd_reg {
@@ -2025,8 +2021,7 @@ declare namespace $ {
         get root(): $hyoo_crowd_list;
         get tokens(): string[];
         value_of(token: string): string;
-        get text(): string;
-        set text(next: string);
+        text(next?: string): string;
         splice_line(id: string | null, from: number, to: number, text: string): this;
         write(text: string, offset?: number, count?: number): this;
     }

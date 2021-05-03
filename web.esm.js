@@ -5220,40 +5220,31 @@ var $;
         get version() {
             return this.clock.version_from(this._stamp);
         }
-        get str() {
+        str(next) {
             var _a;
-            return String((_a = this._value) !== null && _a !== void 0 ? _a : '');
+            return String((_a = this.value(next)) !== null && _a !== void 0 ? _a : '');
         }
-        set str(next) {
-            this.value = next;
-        }
-        get numb() {
+        numb(next) {
             var _a;
-            return Number((_a = this._value) !== null && _a !== void 0 ? _a : 0);
+            return Number((_a = this.value(next)) !== null && _a !== void 0 ? _a : 0);
         }
-        set numb(next) {
-            this.value = next;
-        }
-        get bool() {
+        bool(next) {
             var _a;
-            return Boolean((_a = this._value) !== null && _a !== void 0 ? _a : false);
-        }
-        set bool(next) {
-            this.value = next;
+            return Boolean((_a = this.value(next)) !== null && _a !== void 0 ? _a : false);
         }
         delta(clock = new $.$hyoo_crowd_clock) {
             if (!clock.is_new(this._stamp))
                 return $.$hyoo_crowd_delta([], []);
             return $.$hyoo_crowd_delta([this._value], [this._stamp]);
         }
-        get value() {
-            return this._value;
-        }
-        set value(val) {
-            if (this._value === val)
-                return;
-            this._value = val;
+        value(next) {
+            if (next === undefined)
+                return this._value;
+            if (this._value === next)
+                return this._value;
+            this._value = next;
             this.clock.feed(this._stamp = this._mult * this.clock.generate());
+            return next;
         }
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
@@ -5299,14 +5290,17 @@ var $;
             return this.root.items;
         }
         value_of(token) {
-            return this.for('token').for(token).str;
+            return this.for('token').for(token).str();
         }
-        get text() {
-            const tokens = this.for('token');
-            return this.tokens.map(id => tokens.for(id).str).join('');
-        }
-        set text(next) {
-            this.splice_line(null, 0, this.root.count, next);
+        text(next) {
+            if (next === undefined) {
+                const tokens = this.for('token');
+                return this.tokens.map(id => tokens.for(id).str()).join('');
+            }
+            else {
+                this.splice_line(null, 0, this.root.count, next);
+                return next;
+            }
         }
         splice_line(id, from, to, text) {
             var _a;
@@ -5315,14 +5309,14 @@ var $;
             const tokens = this.for('token');
             const words = [...tokenizer.parse(text)];
             while (from < to || words.length > 0) {
-                const prev = from < token_ids.length ? tokens.for(token_ids[from]).str : null;
+                const prev = from < token_ids.length ? tokens.for(token_ids[from]).str() : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
                 if (prev === next) {
                     ++from;
                     words.shift();
                 }
                 else if (prev && next && (prev.slice(0, next.length) === next || next.slice(0, prev.length) === prev)) {
-                    tokens.for(token_ids[from]).str = next;
+                    tokens.for(token_ids[from]).str(next);
                     ++from;
                     words.shift();
                 }
@@ -5331,7 +5325,7 @@ var $;
                     do {
                         key = Math.floor(Math.random() * 1000000);
                     } while (tokens.has(key));
-                    tokens.for(key).str = next;
+                    tokens.for(key).str(next);
                     flow.insert(key, from);
                     words.shift();
                     ++from;
@@ -5342,7 +5336,7 @@ var $;
                     --to;
                 }
                 else {
-                    tokens.for(token_ids[from]).str = next;
+                    tokens.for(token_ids[from]).str(next);
                     ++from;
                     words.shift();
                 }
@@ -5360,7 +5354,7 @@ var $;
             while (true) {
                 if (from >= token_ids.length)
                     break;
-                word = tokens.for(token_ids[from]).value;
+                word = tokens.for(token_ids[from]).str();
                 if (offset <= word.length) {
                     text = word.slice(0, offset) + text;
                     count += offset;
@@ -5373,7 +5367,7 @@ var $;
             while (true) {
                 if (to >= token_ids.length)
                     break;
-                word = tokens.for(token_ids[to]).value;
+                word = tokens.for(token_ids[to]).str();
                 to++;
                 if (count < word.length) {
                     text = text + word.slice(count);
@@ -7713,9 +7707,7 @@ var $;
             }
             text(next) {
                 this.sync();
-                if (next !== undefined)
-                    this.store().text = next;
-                return this.store().text;
+                return this.store().text(next);
             }
             delta() {
                 this.text();
