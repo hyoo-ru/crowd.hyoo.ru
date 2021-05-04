@@ -5299,8 +5299,24 @@ var $;
         get count() {
             return this.array.length;
         }
-        get items() {
-            return this.array.slice();
+        items(next) {
+            const prev = this.array;
+            if (!next)
+                return prev.slice();
+            for (let i = 0; i < next.length; ++i) {
+                let n = next[i];
+                let p = prev[i];
+                if (n === p)
+                    continue;
+                if (next.length > prev.length) {
+                    this.insert(n, i);
+                }
+                else {
+                    this.cut(p);
+                    i--;
+                }
+            }
+            return prev.slice();
         }
         get items_internal() {
             return this.array;
@@ -5499,7 +5515,7 @@ var $;
             return this.for('flow').for(null);
         }
         get tokens() {
-            return this.root.items;
+            return this.root.items();
         }
         value_of(token) {
             return this.for('token').for(token).str();

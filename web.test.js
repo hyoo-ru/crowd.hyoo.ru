@@ -931,7 +931,38 @@ var $;
                 .insert('bar', 0)
                 .insert('xxx')
                 .cut('foo');
-            $.$mol_assert_like(store.items, ["bar", "xxx"]);
+            $.$mol_assert_like(store.items(), ["bar", "xxx"]);
+        },
+        'Insert by native array'() {
+            const store = new $.$hyoo_crowd_list().fork(1)
+                .insert('foo')
+                .insert('bar');
+            store.items(['foo', 'xxx', 'bar']);
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'bar'], [1000001, 3000001, 2000001]));
+        },
+        'Remove by native array'() {
+            const store = new $.$hyoo_crowd_list().fork(1)
+                .insert('foo')
+                .insert('xxx')
+                .insert('bar');
+            store.items(['foo', 'bar']);
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'bar', 'xxx'], [1000001, 3000001, -4000001]));
+        },
+        'Replace by native array'() {
+            const store = new $.$hyoo_crowd_list().fork(1)
+                .insert('foo')
+                .insert('xxx')
+                .insert('bar');
+            store.items(['foo', 'yyy', 'bar']);
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'yyy', 'bar', 'xxx'], [1000001, 5000001, 3000001, -4000001]));
+        },
+        'Reorder by native array'() {
+            const store = new $.$hyoo_crowd_list().fork(1)
+                .insert('foo')
+                .insert('xxx')
+                .insert('bar');
+            store.items(['foo', 'bar', 'xxx']);
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'bar', 'xxx'], [1000001, 3000001, 5000001]));
         },
         'Merge different sequences'() {
             const left = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
@@ -1029,7 +1060,7 @@ var $;
             }).make().fork(1);
             store.to('string').str('foo');
             store.to('string').str('bar');
-            $.$mol_assert_like(store.to('array').items, ['bar']);
+            $.$mol_assert_like(store.to('array').items(), ['bar']);
             store.as('array').insert('xxx');
             $.$mol_assert_like(store.to('string').str(), 'xxx');
         },
@@ -3173,7 +3204,7 @@ var $;
                 keys: $.$hyoo_crowd_list,
                 vals: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
             }).make();
-            $.$mol_assert_like(store.for('keys').items, []);
+            $.$mol_assert_like(store.for('keys').items(), []);
             $.$mol_assert_like(store.for('vals').for('foo').str(), '');
             $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], []));
         },
