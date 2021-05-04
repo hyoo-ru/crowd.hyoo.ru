@@ -11,10 +11,10 @@ namespace $ {
 			return this.array.length
 		}
 		
-		items( next?: $hyoo_crowd_delta_value[] ) {
+		items< Key extends $hyoo_crowd_delta_value >( next?: Key[] ) {
 			
 			const prev = this.array
-			if( !next ) return prev.slice()
+			if( !next ) return prev.slice() as Key[]
 			
 			for( let i = 0; i < next.length; ++i ) {
 				
@@ -31,7 +31,7 @@ namespace $ {
 				 
 			}
 			
-			return prev.slice()
+			return prev.slice() as Key[]
 		}
 		
 		get items_internal() {
