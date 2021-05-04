@@ -1745,7 +1745,7 @@ declare namespace $ {
         protected readonly array: $hyoo_crowd_delta_value[];
         protected readonly stamps: Map<$hyoo_crowd_delta_value, number>;
         get count(): number;
-        items(next?: $hyoo_crowd_delta_value[]): $hyoo_crowd_delta_value[];
+        items<Key extends $hyoo_crowd_delta_value>(next?: Key[]): Key[];
         get items_internal(): readonly $hyoo_crowd_delta_value[];
         has(val: $hyoo_crowd_delta_value): boolean;
         version_item(val: $hyoo_crowd_delta_value): number;
