@@ -11,9 +11,29 @@ namespace $ {
 			return this.array.length
 		}
 		
-		get items() {
-			return this.array.slice() as $hyoo_crowd_delta_value[]
+		items( next?: $hyoo_crowd_delta_value[] ) {
+			
+			const prev = this.array
+			if( !next ) return prev.slice()
+			
+			for( let i = 0; i < next.length; ++i ) {
+				
+				let n = next[i]
+				let p = prev[i]
+				if( n === p ) continue
+				
+				if( next.length > prev.length ) {
+					this.insert( n, i )
+				} else {
+					this.cut( p )
+					i --
+				}
+				 
+			}
+			
+			return prev.slice()
 		}
+		
 		get items_internal() {
 			return this.array as readonly $hyoo_crowd_delta_value[]
 		}

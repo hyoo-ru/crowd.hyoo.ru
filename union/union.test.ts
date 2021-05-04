@@ -84,7 +84,7 @@ namespace $ {
 			
 			store.to( 'string' ).str( 'foo' )
 			store.to( 'string' ).str( 'bar' )
-			$mol_assert_like( store.to( 'array' ).items, [ 'bar' ] )
+			$mol_assert_like( store.to( 'array' ).items(), [ 'bar' ] )
 			
 			store.as( 'array' )!.insert( 'xxx' )
 			$mol_assert_like( store.to( 'string' ).str(), 'xxx' )

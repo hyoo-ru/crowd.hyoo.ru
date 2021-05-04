@@ -165,7 +165,7 @@ namespace $ {
 				vals: $hyoo_crowd_dict.of({ val: $hyoo_crowd_reg }),
 			}).make()
 			
-			$mol_assert_like( store.for('keys').items, [] )
+			$mol_assert_like( store.for('keys').items(), [] )
 			$mol_assert_like( store.for('vals').for( 'foo' ).str(), '' )
 			
 			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[]) )

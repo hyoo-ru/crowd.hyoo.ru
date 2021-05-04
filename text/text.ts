@@ -17,7 +17,7 @@ namespace $ {
 		}
 		
 		get tokens() {
-			return this.root.items as string[]
+			return this.root.items() as string[]
 		}
 		
 		value_of( token: string ) {
