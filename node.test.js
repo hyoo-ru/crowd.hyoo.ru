@@ -5522,7 +5522,7 @@ var $;
             }
         }
         splice_line(id, from, to, text) {
-            var _a;
+            var _a, _b;
             const flow = this.for('flow').for(id);
             const token_ids = flow.items_internal;
             const tokens = this.for('token');
@@ -5530,11 +5530,12 @@ var $;
             while (from < to || words.length > 0) {
                 const prev = from < token_ids.length ? tokens.for(token_ids[from]).str() : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
+                const min_len = Math.max(0, Math.min((_b = prev === null || prev === void 0 ? void 0 : prev.length) !== null && _b !== void 0 ? _b : 0, next.length) - 1);
                 if (prev === next) {
                     ++from;
                     words.shift();
                 }
-                else if (prev && next && (prev.slice(0, next.length) === next || next.slice(0, prev.length) === prev)) {
+                else if (prev && next && (prev.slice(0, min_len) === next.slice(0, min_len))) {
                     tokens.for(token_ids[from]).str(next);
                     ++from;
                     words.shift();
