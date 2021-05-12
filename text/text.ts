@@ -45,13 +45,14 @@ namespace $ {
 				
 				const prev = from < token_ids.length ? tokens.for( token_ids[ from ] ).str() : null
 				const next = words.length ? words[0].token ?? words[0][0] : ''
+				const min_len = Math.max( 0, Math.min( prev?.length ?? 0, next.length ) -1 )
 				
 				if( prev === next ) {
 					
 					++ from
 					words.shift()
 					
-				} else if( prev && next && ( prev.slice( 0, next.length ) === next || next.slice( 0, prev.length ) === prev ) ) {
+				} else if( prev && next && ( prev.slice( 0, min_len ) === next.slice( 0, min_len ) ) ) {
 					
 					tokens.for( token_ids[ from ] ).str( next )
 					++ from
