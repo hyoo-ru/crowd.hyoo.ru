@@ -45,7 +45,7 @@ namespace $ {
 				
 				const prev = from < token_ids.length ? tokens.for( token_ids[ from ] ).str() : null
 				const next = words.length ? words[0].token ?? words[0][0] : ''
-				const min_len = Math.max( 0, Math.min( prev?.length ?? 0, next.length ) -1 )
+				const min_len = Math.max( 1, Math.min( prev?.length ?? 0, next.length ) -1 )
 				
 				if( prev === next ) {
 					
