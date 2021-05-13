@@ -5530,7 +5530,7 @@ var $;
             while (from < to || words.length > 0) {
                 const prev = from < token_ids.length ? tokens.for(token_ids[from]).str() : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
-                const min_len = Math.max(0, Math.min((_b = prev === null || prev === void 0 ? void 0 : prev.length) !== null && _b !== void 0 ? _b : 0, next.length) - 1);
+                const min_len = Math.max(1, Math.min((_b = prev === null || prev === void 0 ? void 0 : prev.length) !== null && _b !== void 0 ? _b : 0, next.length) - 1);
                 if (prev === next) {
                     ++from;
                     words.shift();
@@ -11690,6 +11690,14 @@ var $;
             $.$mol_assert_like(store.tokens.length, 3);
             $.$mol_assert_like(store.text(), 'foo de bar');
             $.$mol_assert_like(store.root.delta().stamps, [+2000001, +4000001, +6000001]);
+        },
+        'Space doubling'() {
+            const store = new $.$hyoo_crowd_text().fork(1);
+            store.text('foo bar');
+            store.text('foo  bar');
+            $.$mol_assert_like(store.tokens.length, 3);
+            $.$mol_assert_like(store.text(), 'foo  bar');
+            $.$mol_assert_like(store.root.delta().stamps, [+2000001, +6000001, +4000001]);
         },
         'Replace with less tokens count'() {
             const store = new $.$hyoo_crowd_text().fork(1);

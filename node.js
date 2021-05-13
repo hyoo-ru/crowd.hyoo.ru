@@ -5538,7 +5538,7 @@ var $;
             while (from < to || words.length > 0) {
                 const prev = from < token_ids.length ? tokens.for(token_ids[from]).str() : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
-                const min_len = Math.max(0, Math.min((_b = prev === null || prev === void 0 ? void 0 : prev.length) !== null && _b !== void 0 ? _b : 0, next.length) - 1);
+                const min_len = Math.max(1, Math.min((_b = prev === null || prev === void 0 ? void 0 : prev.length) !== null && _b !== void 0 ? _b : 0, next.length) - 1);
                 if (prev === next) {
                     ++from;
                     words.shift();
