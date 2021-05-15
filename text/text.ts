@@ -1,9 +1,19 @@
 namespace $ {
 	
+	const { unicode_only, line_end, repeat_greedy, optional, char_except } = $mol_regexp 
+	
 	const tokenizer = $mol_regexp.from({
 		token: {
-			'line-break' : /(?:\r?\n|\r)/ ,
-			'Word-punctuation-spaces' : /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[^A-ZА-ЯЁa-zа-яё0-9\u0301\u0331\s]*[^\S\n\r]?/ ,
+			'line-break': line_end ,
+			'Word-punctuation-space': [
+				repeat_greedy( unicode_only( 'Uppercase' ) ),
+				repeat_greedy( unicode_only( 'Lowercase' ) ),
+				repeat_greedy( char_except([
+					unicode_only( 'Alphabetic' ),
+					unicode_only( 'White_Space' ),
+				]) ),
+				optional( unicode_only( 'White_Space' ) ),
+			],
 		},
 	} )
 	
