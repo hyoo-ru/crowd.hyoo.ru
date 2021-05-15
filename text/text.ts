@@ -1,22 +1,5 @@
 namespace $ {
 	
-	const { unicode_only, line_end, repeat_greedy, optional, char_except } = $mol_regexp 
-	
-	const tokenizer = $mol_regexp.from({
-		token: {
-			'line-break': line_end ,
-			'Word-punctuation-space': [
-				repeat_greedy( unicode_only( 'Uppercase' ) ),
-				repeat_greedy( unicode_only( 'Lowercase' ) ),
-				repeat_greedy( char_except([
-					unicode_only( 'Alphabetic' ),
-					unicode_only( 'White_Space' ),
-				]) ),
-				optional( unicode_only( 'White_Space' ) ),
-			],
-		},
-	} )
-	
 	export class $hyoo_crowd_text extends $hyoo_crowd_dict.of({
 		flow: $hyoo_crowd_dict.of({ val: $hyoo_crowd_list }),
 		token: $hyoo_crowd_dict.of({ val: $hyoo_crowd_reg }),
@@ -49,7 +32,7 @@ namespace $ {
 			const flow = this.for( 'flow' ).for( id )
 			const token_ids = flow.items_internal
 			const tokens = this.for( 'token' )
-			const words = [ ... tokenizer.parse( text ) ]
+			const words = [ ... $hyoo_crowd_text_tokenizer.parse( text ) ]
 			
 			while( from < to || words.length > 0 ) {
 				
