@@ -4970,142 +4970,6 @@ var $;
 //page.view.js.map
 ;
 "use strict";
-//intersect.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_regexp extends RegExp {
-        constructor(source, flags = '', groups = []) {
-            super(source, flags);
-            this.groups = groups;
-        }
-        get parse() {
-            const self = this;
-            return function* parsing(str, from = 0) {
-                while (from < str.length) {
-                    self.lastIndex = from;
-                    const res = self.exec(str);
-                    if (res === null) {
-                        yield { 0: str.substring(from) };
-                        return null;
-                    }
-                    if (from === self.lastIndex) {
-                        $.$mol_fail(new Error('Captured empty substring'));
-                    }
-                    const found = {};
-                    const skipped = str.slice(from, self.lastIndex - res[0].length);
-                    if (skipped)
-                        yield { 0: skipped };
-                    from = self.lastIndex;
-                    for (let i = 0; i < self.groups.length; ++i) {
-                        const group = self.groups[i];
-                        found[group] = found[group] || res[i + 1] || '';
-                    }
-                    yield found;
-                }
-            };
-        }
-        static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
-            const regexp = $mol_regexp.from(source);
-            const upper = Number.isFinite(max) ? max : '';
-            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}?`, regexp.flags, regexp.groups);
-        }
-        static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
-            const regexp = $mol_regexp.from(source);
-            const upper = Number.isFinite(max) ? max : '';
-            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}`, regexp.flags, regexp.groups);
-        }
-        static optional(source) {
-            return $mol_regexp.repeat_greedy(source, 0, 1);
-        }
-        static force_after(source) {
-            const regexp = $mol_regexp.from(source);
-            return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
-        }
-        static forbid_after(source) {
-            const regexp = $mol_regexp.from(source);
-            return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
-        }
-        static from(source, { ignoreCase, multiline } = {
-            ignoreCase: false,
-            multiline: false,
-        }) {
-            let flags = 'gu';
-            if (multiline)
-                flags += 'm';
-            if (ignoreCase)
-                flags += 'i';
-            if (typeof source === 'string') {
-                return new $mol_regexp(source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
-            }
-            else if (source instanceof RegExp) {
-                if (source instanceof $mol_regexp)
-                    return source;
-                const test = new $mol_regexp('|' + source.source);
-                const groups = Array.from({ length: test.exec('').length - 1 }, (_, i) => String(i + 1));
-                return new $mol_regexp(source.source, source.flags, groups);
-            }
-            if (Array.isArray(source)) {
-                const sources = [];
-                const groups = [];
-                let index = 0;
-                for (const item of source) {
-                    const regexp = $mol_regexp.from(item);
-                    sources.push(regexp.source);
-                    for (let group of regexp.groups) {
-                        if (Number(group) >= 0) {
-                            groups.push(String(index++));
-                        }
-                        else {
-                            groups.push(group);
-                        }
-                    }
-                }
-                return new $mol_regexp(sources.join(''), flags, groups);
-            }
-            else {
-                const groups = [];
-                const chunks = Object.keys(source).map(name => {
-                    groups.push(name);
-                    const regexp = $mol_regexp.from(source[name]);
-                    groups.push(...regexp.groups);
-                    return `(${regexp.source})`;
-                });
-                return new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
-            }
-        }
-        static char_code(code) {
-            return new $mol_regexp(`\\u${code.toString(16).padStart(4, '0')}`);
-        }
-        static char_range(from, to) {
-            return new $mol_regexp(`${$mol_regexp.char_code(from)}..${$mol_regexp.char_code(to)}`);
-        }
-        static char_only(...allowed) {
-            const regexp = allowed.map(f => $mol_regexp.from(f).source).join('');
-            return new $mol_regexp(`[${regexp}]`);
-        }
-        static char_except(...forbidden) {
-            const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
-            return new $mol_regexp(`[^${regexp}]`);
-        }
-    }
-    $mol_regexp.char_any = $mol_regexp.from(/[\s\S]/);
-    $mol_regexp.digit = $mol_regexp.from(/\d/);
-    $mol_regexp.letter = $mol_regexp.from(/\w/);
-    $mol_regexp.space = $mol_regexp.from(/\s/);
-    $mol_regexp.tab = $mol_regexp.from(/\t/);
-    $mol_regexp.slash_back = $mol_regexp.from(/\\/);
-    $mol_regexp.word_break = $mol_regexp.from(/\b/);
-    $mol_regexp.line_end = $mol_regexp.from(/\r?\n/);
-    $mol_regexp.begin = $mol_regexp.from(/^/);
-    $mol_regexp.end = $mol_regexp.from(/$/);
-    $mol_regexp.or = $mol_regexp.from(/|/);
-    $.$mol_regexp = $mol_regexp;
-})($ || ($ = {}));
-//regexp.js.map
-;
-"use strict";
 var $;
 (function ($) {
     const concurrency = 1000000;
@@ -5497,14 +5361,194 @@ var $;
 //reg.js.map
 ;
 "use strict";
+//intersect.js.map
+;
+"use strict";
+//unicode.js.map
+;
+"use strict";
 var $;
 (function ($) {
-    const tokenizer = $.$mol_regexp.from({
+    class $mol_regexp extends RegExp {
+        constructor(source, flags = '', groups = []) {
+            super(source, flags);
+            this.groups = groups;
+        }
+        get parse() {
+            const self = this;
+            return function* parsing(str, from = 0) {
+                while (from < str.length) {
+                    self.lastIndex = from;
+                    const res = self.exec(str);
+                    if (res === null) {
+                        yield { 0: str.substring(from) };
+                        return null;
+                    }
+                    if (from === self.lastIndex) {
+                        $.$mol_fail(new Error('Captured empty substring'));
+                    }
+                    const found = {};
+                    const skipped = str.slice(from, self.lastIndex - res[0].length);
+                    if (skipped)
+                        yield { 0: skipped };
+                    from = self.lastIndex;
+                    for (let i = 0; i < self.groups.length; ++i) {
+                        const group = self.groups[i];
+                        found[group] = found[group] || res[i + 1] || '';
+                    }
+                    yield found;
+                }
+            };
+        }
+        static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
+            const regexp = $mol_regexp.from(source);
+            const upper = Number.isFinite(max) ? max : '';
+            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}?`, regexp.flags, regexp.groups);
+        }
+        static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
+            const regexp = $mol_regexp.from(source);
+            const upper = Number.isFinite(max) ? max : '';
+            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}`, regexp.flags, regexp.groups);
+        }
+        static optional(source) {
+            return $mol_regexp.repeat_greedy(source, 0, 1);
+        }
+        static force_after(source) {
+            const regexp = $mol_regexp.from(source);
+            return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
+        }
+        static forbid_after(source) {
+            const regexp = $mol_regexp.from(source);
+            return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
+        }
+        static from(source, { ignoreCase, multiline } = {
+            ignoreCase: false,
+            multiline: false,
+        }) {
+            let flags = 'gu';
+            if (multiline)
+                flags += 'm';
+            if (ignoreCase)
+                flags += 'i';
+            if (typeof source === 'string') {
+                return new $mol_regexp(source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+            }
+            else if (source instanceof RegExp) {
+                if (source instanceof $mol_regexp)
+                    return source;
+                const test = new $mol_regexp('|' + source.source);
+                const groups = Array.from({ length: test.exec('').length - 1 }, (_, i) => String(i + 1));
+                return new $mol_regexp(source.source, source.flags, groups);
+            }
+            if (Array.isArray(source)) {
+                const sources = [];
+                const groups = [];
+                let index = 0;
+                for (const item of source) {
+                    const regexp = $mol_regexp.from(item);
+                    sources.push(regexp.source);
+                    for (let group of regexp.groups) {
+                        if (Number(group) >= 0) {
+                            groups.push(String(index++));
+                        }
+                        else {
+                            groups.push(group);
+                        }
+                    }
+                }
+                return new $mol_regexp(sources.join(''), flags, groups);
+            }
+            else {
+                const groups = [];
+                const chunks = Object.keys(source).map(name => {
+                    groups.push(name);
+                    const regexp = $mol_regexp.from(source[name]);
+                    groups.push(...regexp.groups);
+                    return `(${regexp.source})`;
+                });
+                return new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
+            }
+        }
+        static char_code(code) {
+            return new $mol_regexp(`\\u${code.toString(16).padStart(4, '0')}`);
+        }
+        static unicode_only(...category) {
+            return new $mol_regexp(`\\p{${category.join('=')}}`);
+        }
+        static unicode_except(...category) {
+            return new $mol_regexp(`\\P{${category.join('=')}}`);
+        }
+        static char_range(from, to) {
+            return new $mol_regexp(`${$mol_regexp.char_code(from)}..${$mol_regexp.char_code(to)}`);
+        }
+        static char_only(...allowed) {
+            const regexp = allowed.map(f => $mol_regexp.from(f).source).join('');
+            return new $mol_regexp(`[${regexp}]`);
+        }
+        static char_except(...forbidden) {
+            const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
+            return new $mol_regexp(`[^${regexp}]`);
+        }
+    }
+    $mol_regexp.char_any = $mol_regexp.from(/[\s\S]/);
+    $mol_regexp.digit = $mol_regexp.from(/\d/);
+    $mol_regexp.letter = $mol_regexp.from(/\w/);
+    $mol_regexp.space = $mol_regexp.from(/\s/);
+    $mol_regexp.tab = $mol_regexp.from(/\t/);
+    $mol_regexp.slash_back = $mol_regexp.from(/\\/);
+    $mol_regexp.word_break = $mol_regexp.from(/\b/);
+    $mol_regexp.line_end = $mol_regexp.from(/(?:\r?\n|\r)/);
+    $mol_regexp.begin = $mol_regexp.from(/^/);
+    $mol_regexp.end = $mol_regexp.from(/$/);
+    $mol_regexp.or = $mol_regexp.from(/|/);
+    $.$mol_regexp = $mol_regexp;
+})($ || ($ = {}));
+//regexp.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    const { unicode_only, line_end, repeat_greedy, optional, char_only, char_except } = $.$mol_regexp;
+    $.$hyoo_crowd_text_tokenizer = $.$mol_regexp.from({
         token: {
-            'line-break': /(?:\r?\n|\r)/,
-            'Word-punctuation-spaces': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[^A-ZА-ЯЁa-zа-яё0-9\u0301\u0331\s]*[^\S\n\r]?/,
+            'line-break': line_end,
+            'emoji': [
+                unicode_only('Emoji'),
+                optional(unicode_only('Emoji_Modifier')),
+                repeat_greedy([
+                    unicode_only('Emoji_Component'),
+                    unicode_only('Emoji'),
+                    optional(unicode_only('Emoji_Modifier')),
+                ]),
+            ],
+            'Word-punctuation-space': [
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ])),
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ])),
+                repeat_greedy(char_except([
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                    unicode_only('White_Space'),
+                ])),
+                optional(unicode_only('White_Space')),
+            ],
         },
     });
+})($ || ($ = {}));
+//tokenizer.js.map
+;
+"use strict";
+var $;
+(function ($) {
     class $hyoo_crowd_text extends $.$hyoo_crowd_dict.of({
         flow: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }),
         token: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
@@ -5533,7 +5577,7 @@ var $;
             const flow = this.for('flow').for(id);
             const token_ids = flow.items_internal;
             const tokens = this.for('token');
-            const words = [...tokenizer.parse(text)];
+            const words = [...$.$hyoo_crowd_text_tokenizer.parse(text)];
             while (from < to || words.length > 0) {
                 const prev = from < token_ids.length ? tokens.for(token_ids[from]).str() : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
@@ -5689,8 +5733,13 @@ var $;
         autocomplete() {
             return false;
         }
+        auto() {
+            return [
+                this.selection_watcher()
+            ];
+        }
         field() {
-            return Object.assign(Object.assign({}, super.field()), { disabled: this.disabled(), value: this.value_changed(), placeholder: this.hint(), spellcheck: this.spellcheck(), autocomplete: this.autocomplete_native() });
+            return Object.assign(Object.assign({}, super.field()), { disabled: this.disabled(), value: this.value_changed(), placeholder: this.hint(), spellcheck: this.spellcheck(), autocomplete: this.autocomplete_native(), selectionEnd: this.selection_end(), selectionStart: this.selection_start() });
         }
         attr() {
             return Object.assign(Object.assign({}, super.attr()), { maxlength: this.length_max(), type: this.type() });
@@ -5702,6 +5751,9 @@ var $;
             return [
                 this.Submit()
             ];
+        }
+        selection_watcher() {
+            return null;
         }
         disabled() {
             return false;
@@ -5722,6 +5774,16 @@ var $;
         }
         autocomplete_native() {
             return "";
+        }
+        selection_end(val) {
+            if (val !== undefined)
+                return val;
+            return 0;
+        }
+        selection_start(val) {
+            if (val !== undefined)
+                return val;
+            return 0;
         }
         length_max() {
             return Infinity;
@@ -5759,6 +5821,12 @@ var $;
     ], $mol_string.prototype, "value", null);
     __decorate([
         $.$mol_mem
+    ], $mol_string.prototype, "selection_end", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_string.prototype, "selection_start", null);
+    __decorate([
+        $.$mol_mem
     ], $mol_string.prototype, "type", null);
     __decorate([
         $.$mol_mem
@@ -5793,6 +5861,7 @@ var $;
                 if (!next)
                     return;
                 this.value(next.target.value);
+                this.selection_change(next);
             }
             disabled() {
                 return !this.enabled();
@@ -5800,7 +5869,18 @@ var $;
             autocomplete_native() {
                 return this.autocomplete() ? 'on' : 'off';
             }
+            selection_watcher() {
+                return new $.$mol_dom_listener(this.$.$mol_dom_context.document, 'selectionchange', event => this.selection_change(event));
+            }
+            selection_change(event) {
+                const el = this.dom_node();
+                this.selection_start(el.selectionStart);
+                this.selection_end(el.selectionEnd);
+            }
         }
+        __decorate([
+            $.$mol_mem
+        ], $mol_string.prototype, "selection_watcher", null);
         $$.$mol_string = $mol_string;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
@@ -11337,6 +11417,135 @@ var $;
 //work.test.js.map
 ;
 "use strict";
+var $;
+(function ($) {
+    $.$mol_test({
+        'Change dict by different keys'() {
+            const val = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(1);
+            val.for('foo').insert(666);
+            val.for('bar').insert(777);
+            val.for('foo').insert(888, 0);
+            val.for('bar').cut(777);
+            $.$mol_assert_like(val.delta(), $.$hyoo_crowd_delta(['foo', 888, 666, 'bar', 777], [-2, 3000001, 1000001, -1, -4000001]));
+        },
+        'Slice dict after version'() {
+            const val = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_set }).make().fork(1);
+            val.for('foo').add(1);
+            val.for('bar').add(2);
+            val.for('xxx').add(3);
+            const clock1 = val.clock.fork(0);
+            val.for('foo').add(4);
+            val.for('bar').add(5);
+            val.for('xxx').add(6);
+            const clock2 = val.clock.fork(0);
+            $.$mol_assert_like(val.delta(clock1), $.$hyoo_crowd_delta(['foo', 4, 'bar', 5, 'xxx', 6], [-1, +4000001, -1, +5000001, -1, +6000001]));
+            $.$mol_assert_like(val.delta(clock2), $.$hyoo_crowd_delta([], []));
+        },
+        'Merge different dicts'() {
+            const left = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(1);
+            left.for('foo').insert(666);
+            left.for('').insert('xxx');
+            const right = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(2);
+            right.for('foo').insert(777);
+            right.for('bar').insert('yyy');
+            right.for('bar').insert('zzz');
+            const left_delta = left.delta();
+            const right_delta = right.delta();
+            $.$mol_assert_like(left.apply(right_delta).delta(), $.$hyoo_crowd_delta(['foo', 777, 666, '', 'xxx', 'bar', 'yyy', 'zzz'], [-2, 1000002, 1000001, -1, 2000001, -2, 2000002, 3000002]));
+            $.$mol_assert_like(right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 777, 666, 'bar', 'yyy', 'zzz', '', 'xxx'], [-2, 1000002, 1000001, -2, 2000002, 3000002, -1, 2000001]));
+        },
+        'Merge increases versions in dicts'() {
+            const base = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make();
+            const left = base.fork(1);
+            left.for('foo').insert('xxx');
+            const right = base.fork(2);
+            right.for('bar').insert(17);
+            right.for('bar').insert(18);
+            left.apply(right.delta());
+            left.for('foo').insert('yyy');
+            $.$mol_assert_like(left.delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'yyy', 'bar', 17, 18], [-2, 1000001, 3000001, -2, 1000002, 2000002]));
+        },
+        'Dictionary of Union'() {
+            const base = $.$hyoo_crowd_dict.of({
+                val: $.$hyoo_crowd_union.of({
+                    string: $.$hyoo_crowd_reg,
+                    array: $.$hyoo_crowd_list,
+                    object: $.$hyoo_crowd_set,
+                })
+            }).make();
+            const left = base.fork(1);
+            const right = base.fork(2);
+            left.for('foo').to('string').str('bar');
+            right.for('foo').to('array').insert('xxx');
+            const left_delta = left.delta(base.clock);
+            const right_delta = right.delta(base.clock);
+            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 'array', 'xxx', 'bar'], [-3, -1000002, 2000002, 2000001]));
+        },
+        'Dictionary of Dictionary'() {
+            const base = $.$hyoo_crowd_dict.of({
+                val: $.$hyoo_crowd_dict.of({
+                    val: $.$hyoo_crowd_reg,
+                }),
+            }).make();
+            const left = base.fork(1);
+            const right = base.fork(2);
+            left.for('foo').for('xxx').str('321');
+            right.for('foo').for('yyy').str('123');
+            const left_delta = left.delta(base.clock);
+            const right_delta = right.delta(base.clock);
+            left.apply(right_delta);
+            right.apply(left_delta);
+            $.$mol_assert_like(left.for('foo').for('xxx').str(), right.for('foo').for('xxx').str(), '321');
+            $.$mol_assert_like(left.for('foo').for('yyy').str(), right.for('foo').for('yyy').str(), '123');
+        },
+        'Default tuple state'() {
+            const store = $.$hyoo_crowd_dict.of({
+                keys: $.$hyoo_crowd_list,
+                vals: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
+            }).make();
+            $.$mol_assert_like(store.for('keys').items(), []);
+            $.$mol_assert_like(store.for('vals').for('foo').str(), '');
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], []));
+        },
+        'Changed tuple state'() {
+            const Map = $.$hyoo_crowd_dict.of({
+                vers: $.$hyoo_crowd_numb,
+                keys: $.$hyoo_crowd_set,
+                vals: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
+            });
+            const store = Map.make().fork(1);
+            store.for('keys').add('foo').add('bar');
+            store.for('vals').for('xxx').str('yyy');
+            $.$mol_assert_like(store.for('vers').numb(), 0);
+            $.$mol_assert_like(store.for('keys').items, ['foo', 'bar']);
+            $.$mol_assert_like(store.for('vals').for('xxx').str(), 'yyy');
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['keys', 'foo', 'bar', 'vals', 'xxx', 'yyy'], [-2, +1000001, +2000001, -2, -1, +3000001]));
+        },
+        'Tuple of tuples'() {
+            const Point = $.$hyoo_crowd_dict.of({
+                X: $.$hyoo_crowd_numb,
+                Y: $.$hyoo_crowd_numb,
+            });
+            const Rect = $.$hyoo_crowd_dict.of({
+                TL: Point,
+                BR: Point,
+            });
+            const store = Rect.make().fork(1);
+            store.for('TL').for('X').shift(-2);
+            store.for('TL').for('Y').shift(-3);
+            store.for('BR').for('X').shift(+5);
+            store.for('BR').for('Y').shift(+7);
+            $.$mol_assert_like(store.for('TL').for('X').numb(), -2);
+            $.$mol_assert_like(store.for('TL').for('Y').numb(), -3);
+            $.$mol_assert_like(store.for('BR').for('X').numb(), +5);
+            $.$mol_assert_like(store.for('BR').for('Y').numb(), +7);
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(["TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7], [-4, -1, +1000001, -1, +2000001, -4, -1, +3000001, -1, +4000001]));
+        },
+    });
+})($ || ($ = {}));
+//dict.test.js.map
+;
+"use strict";
 //intersect.test.js.map
 ;
 "use strict";
@@ -11521,11 +11730,21 @@ var $;
             $.$mol_assert_equal(regexp.exec('x5')[0], 'x');
         },
         'byte except'() {
-            const { char_except: byte_except, letter, tab } = $.$mol_regexp;
-            const name = byte_except(letter, tab);
+            const { char_except, letter, tab } = $.$mol_regexp;
+            const name = char_except(letter, tab);
             $.$mol_assert_equal(name.exec('a'), null);
             $.$mol_assert_equal(name.exec('\t'), null);
             $.$mol_assert_equal(name.exec('(')[0], '(');
+        },
+        'unicode only'() {
+            const { unicode_only } = $.$mol_regexp;
+            const name = $.$mol_regexp.from([
+                unicode_only('Script', 'Cyrillic'),
+                unicode_only('Hex_Digit'),
+            ]);
+            $.$mol_assert_equal(name.exec('FF'), null);
+            $.$mol_assert_equal(name.exec('ФG'), null);
+            $.$mol_assert_equal(name.exec('ФF')[0], 'ФF');
         },
     });
 })($ || ($ = {}));
@@ -11535,130 +11754,36 @@ var $;
 var $;
 (function ($) {
     $.$mol_test({
-        'Change dict by different keys'() {
-            const val = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(1);
-            val.for('foo').insert(666);
-            val.for('bar').insert(777);
-            val.for('foo').insert(888, 0);
-            val.for('bar').cut(777);
-            $.$mol_assert_like(val.delta(), $.$hyoo_crowd_delta(['foo', 888, 666, 'bar', 777], [-2, 3000001, 1000001, -1, -4000001]));
+        'empty string'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('')], []);
         },
-        'Slice dict after version'() {
-            const val = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_set }).make().fork(1);
-            val.for('foo').add(1);
-            val.for('bar').add(2);
-            val.for('xxx').add(3);
-            const clock1 = val.clock.fork(0);
-            val.for('foo').add(4);
-            val.for('bar').add(5);
-            val.for('xxx').add(6);
-            const clock2 = val.clock.fork(0);
-            $.$mol_assert_like(val.delta(clock1), $.$hyoo_crowd_delta(['foo', 4, 'bar', 5, 'xxx', 6], [-1, +4000001, -1, +5000001, -1, +6000001]));
-            $.$mol_assert_like(val.delta(clock2), $.$hyoo_crowd_delta([], []));
+        'new lines'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('\n\r\n')].map(t => t.token), ['\n', '\r\n']);
         },
-        'Merge different dicts'() {
-            const left = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(1);
-            left.for('foo').insert(666);
-            left.for('').insert('xxx');
-            const right = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(2);
-            right.for('foo').insert(777);
-            right.for('bar').insert('yyy');
-            right.for('bar').insert('zzz');
-            const left_delta = left.delta();
-            const right_delta = right.delta();
-            $.$mol_assert_like(left.apply(right_delta).delta(), $.$hyoo_crowd_delta(['foo', 777, 666, '', 'xxx', 'bar', 'yyy', 'zzz'], [-2, 1000002, 1000001, -1, 2000001, -2, 2000002, 3000002]));
-            $.$mol_assert_like(right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 777, 666, 'bar', 'yyy', 'zzz', '', 'xxx'], [-2, 1000002, 1000001, -2, 2000002, 3000002, -1, 2000001]));
+        'emoji'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('😀😁')].map(t => t.token), ['😀', '😁']);
         },
-        'Merge increases versions in dicts'() {
-            const base = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make();
-            const left = base.fork(1);
-            left.for('foo').insert('xxx');
-            const right = base.fork(2);
-            right.for('bar').insert(17);
-            right.for('bar').insert(18);
-            left.apply(right.delta());
-            left.for('foo').insert('yyy');
-            $.$mol_assert_like(left.delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'yyy', 'bar', 17, 18], [-2, 1000001, 3000001, -2, 1000002, 2000002]));
+        'emoji with modifier'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('👩🏿👩🏿')].map(t => t.token), ['👩🏿', '👩🏿']);
         },
-        'Dictionary of Union'() {
-            const base = $.$hyoo_crowd_dict.of({
-                val: $.$hyoo_crowd_union.of({
-                    string: $.$hyoo_crowd_reg,
-                    array: $.$hyoo_crowd_list,
-                    object: $.$hyoo_crowd_set,
-                })
-            }).make();
-            const left = base.fork(1);
-            const right = base.fork(2);
-            left.for('foo').to('string').str('bar');
-            right.for('foo').to('array').insert('xxx');
-            const left_delta = left.delta(base.clock);
-            const right_delta = right.delta(base.clock);
-            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 'array', 'xxx', 'bar'], [-3, -1000002, 2000002, 2000001]));
+        'combo emoji with modifier'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿')].map(t => t.token), ['👩🏿‍🤝‍🧑🏿', '👩🏿‍🤝‍🧑🏿']);
         },
-        'Dictionary of Dictionary'() {
-            const base = $.$hyoo_crowd_dict.of({
-                val: $.$hyoo_crowd_dict.of({
-                    val: $.$hyoo_crowd_reg,
-                }),
-            }).make();
-            const left = base.fork(1);
-            const right = base.fork(2);
-            left.for('foo').for('xxx').str('321');
-            right.for('foo').for('yyy').str('123');
-            const left_delta = left.delta(base.clock);
-            const right_delta = right.delta(base.clock);
-            left.apply(right_delta);
-            right.apply(left_delta);
-            $.$mol_assert_like(left.for('foo').for('xxx').str(), right.for('foo').for('xxx').str(), '321');
-            $.$mol_assert_like(left.for('foo').for('yyy').str(), right.for('foo').for('yyy').str(), '123');
+        'word with spaces'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('foo1  bar2')].map(t => t.token), ['foo1 ', ' ', 'bar2']);
         },
-        'Default tuple state'() {
-            const store = $.$hyoo_crowd_dict.of({
-                keys: $.$hyoo_crowd_list,
-                vals: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
-            }).make();
-            $.$mol_assert_like(store.for('keys').items(), []);
-            $.$mol_assert_like(store.for('vals').for('foo').str(), '');
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], []));
+        'word with diactric'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('Е́е́')].map(t => t.token), ['Е́е́']);
         },
-        'Changed tuple state'() {
-            const Map = $.$hyoo_crowd_dict.of({
-                vers: $.$hyoo_crowd_numb,
-                keys: $.$hyoo_crowd_set,
-                vals: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
-            });
-            const store = Map.make().fork(1);
-            store.for('keys').add('foo').add('bar');
-            store.for('vals').for('xxx').str('yyy');
-            $.$mol_assert_like(store.for('vers').numb(), 0);
-            $.$mol_assert_like(store.for('keys').items, ['foo', 'bar']);
-            $.$mol_assert_like(store.for('vals').for('xxx').str(), 'yyy');
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['keys', 'foo', 'bar', 'vals', 'xxx', 'yyy'], [-2, +1000001, +2000001, -2, -1, +3000001]));
+        'word with punctuation'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('foo--bar')].map(t => t.token), ['foo--', 'bar']);
         },
-        'Tuple of tuples'() {
-            const Point = $.$hyoo_crowd_dict.of({
-                X: $.$hyoo_crowd_numb,
-                Y: $.$hyoo_crowd_numb,
-            });
-            const Rect = $.$hyoo_crowd_dict.of({
-                TL: Point,
-                BR: Point,
-            });
-            const store = Rect.make().fork(1);
-            store.for('TL').for('X').shift(-2);
-            store.for('TL').for('Y').shift(-3);
-            store.for('BR').for('X').shift(+5);
-            store.for('BR').for('Y').shift(+7);
-            $.$mol_assert_like(store.for('TL').for('X').numb(), -2);
-            $.$mol_assert_like(store.for('TL').for('Y').numb(), -3);
-            $.$mol_assert_like(store.for('BR').for('X').numb(), +5);
-            $.$mol_assert_like(store.for('BR').for('Y').numb(), +7);
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(["TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7], [-4, -1, +1000001, -1, +2000001, -4, -1, +3000001, -1, +4000001]));
+        'CamelCase'() {
+            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('Foo1BAR2')].map(t => t.token), ['Foo1', 'BAR2']);
         },
     });
 })($ || ($ = {}));
-//dict.test.js.map
+//tokenizer.test.js.map
 ;
 "use strict";
 var $;

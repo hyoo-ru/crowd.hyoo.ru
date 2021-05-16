@@ -4766,142 +4766,6 @@ var $;
 //page.view.js.map
 ;
 "use strict";
-//intersect.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_regexp extends RegExp {
-        constructor(source, flags = '', groups = []) {
-            super(source, flags);
-            this.groups = groups;
-        }
-        get parse() {
-            const self = this;
-            return function* parsing(str, from = 0) {
-                while (from < str.length) {
-                    self.lastIndex = from;
-                    const res = self.exec(str);
-                    if (res === null) {
-                        yield { 0: str.substring(from) };
-                        return null;
-                    }
-                    if (from === self.lastIndex) {
-                        $.$mol_fail(new Error('Captured empty substring'));
-                    }
-                    const found = {};
-                    const skipped = str.slice(from, self.lastIndex - res[0].length);
-                    if (skipped)
-                        yield { 0: skipped };
-                    from = self.lastIndex;
-                    for (let i = 0; i < self.groups.length; ++i) {
-                        const group = self.groups[i];
-                        found[group] = found[group] || res[i + 1] || '';
-                    }
-                    yield found;
-                }
-            };
-        }
-        static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
-            const regexp = $mol_regexp.from(source);
-            const upper = Number.isFinite(max) ? max : '';
-            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}?`, regexp.flags, regexp.groups);
-        }
-        static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
-            const regexp = $mol_regexp.from(source);
-            const upper = Number.isFinite(max) ? max : '';
-            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}`, regexp.flags, regexp.groups);
-        }
-        static optional(source) {
-            return $mol_regexp.repeat_greedy(source, 0, 1);
-        }
-        static force_after(source) {
-            const regexp = $mol_regexp.from(source);
-            return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
-        }
-        static forbid_after(source) {
-            const regexp = $mol_regexp.from(source);
-            return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
-        }
-        static from(source, { ignoreCase, multiline } = {
-            ignoreCase: false,
-            multiline: false,
-        }) {
-            let flags = 'gu';
-            if (multiline)
-                flags += 'm';
-            if (ignoreCase)
-                flags += 'i';
-            if (typeof source === 'string') {
-                return new $mol_regexp(source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
-            }
-            else if (source instanceof RegExp) {
-                if (source instanceof $mol_regexp)
-                    return source;
-                const test = new $mol_regexp('|' + source.source);
-                const groups = Array.from({ length: test.exec('').length - 1 }, (_, i) => String(i + 1));
-                return new $mol_regexp(source.source, source.flags, groups);
-            }
-            if (Array.isArray(source)) {
-                const sources = [];
-                const groups = [];
-                let index = 0;
-                for (const item of source) {
-                    const regexp = $mol_regexp.from(item);
-                    sources.push(regexp.source);
-                    for (let group of regexp.groups) {
-                        if (Number(group) >= 0) {
-                            groups.push(String(index++));
-                        }
-                        else {
-                            groups.push(group);
-                        }
-                    }
-                }
-                return new $mol_regexp(sources.join(''), flags, groups);
-            }
-            else {
-                const groups = [];
-                const chunks = Object.keys(source).map(name => {
-                    groups.push(name);
-                    const regexp = $mol_regexp.from(source[name]);
-                    groups.push(...regexp.groups);
-                    return `(${regexp.source})`;
-                });
-                return new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
-            }
-        }
-        static char_code(code) {
-            return new $mol_regexp(`\\u${code.toString(16).padStart(4, '0')}`);
-        }
-        static char_range(from, to) {
-            return new $mol_regexp(`${$mol_regexp.char_code(from)}..${$mol_regexp.char_code(to)}`);
-        }
-        static char_only(...allowed) {
-            const regexp = allowed.map(f => $mol_regexp.from(f).source).join('');
-            return new $mol_regexp(`[${regexp}]`);
-        }
-        static char_except(...forbidden) {
-            const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
-            return new $mol_regexp(`[^${regexp}]`);
-        }
-    }
-    $mol_regexp.char_any = $mol_regexp.from(/[\s\S]/);
-    $mol_regexp.digit = $mol_regexp.from(/\d/);
-    $mol_regexp.letter = $mol_regexp.from(/\w/);
-    $mol_regexp.space = $mol_regexp.from(/\s/);
-    $mol_regexp.tab = $mol_regexp.from(/\t/);
-    $mol_regexp.slash_back = $mol_regexp.from(/\\/);
-    $mol_regexp.word_break = $mol_regexp.from(/\b/);
-    $mol_regexp.line_end = $mol_regexp.from(/\r?\n/);
-    $mol_regexp.begin = $mol_regexp.from(/^/);
-    $mol_regexp.end = $mol_regexp.from(/$/);
-    $mol_regexp.or = $mol_regexp.from(/|/);
-    $.$mol_regexp = $mol_regexp;
-})($ || ($ = {}));
-//regexp.js.map
-;
-"use strict";
 var $;
 (function ($) {
     const concurrency = 1000000;
@@ -5293,14 +5157,194 @@ var $;
 //reg.js.map
 ;
 "use strict";
+//intersect.js.map
+;
+"use strict";
+//unicode.js.map
+;
+"use strict";
 var $;
 (function ($) {
-    const tokenizer = $.$mol_regexp.from({
+    class $mol_regexp extends RegExp {
+        constructor(source, flags = '', groups = []) {
+            super(source, flags);
+            this.groups = groups;
+        }
+        get parse() {
+            const self = this;
+            return function* parsing(str, from = 0) {
+                while (from < str.length) {
+                    self.lastIndex = from;
+                    const res = self.exec(str);
+                    if (res === null) {
+                        yield { 0: str.substring(from) };
+                        return null;
+                    }
+                    if (from === self.lastIndex) {
+                        $.$mol_fail(new Error('Captured empty substring'));
+                    }
+                    const found = {};
+                    const skipped = str.slice(from, self.lastIndex - res[0].length);
+                    if (skipped)
+                        yield { 0: skipped };
+                    from = self.lastIndex;
+                    for (let i = 0; i < self.groups.length; ++i) {
+                        const group = self.groups[i];
+                        found[group] = found[group] || res[i + 1] || '';
+                    }
+                    yield found;
+                }
+            };
+        }
+        static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
+            const regexp = $mol_regexp.from(source);
+            const upper = Number.isFinite(max) ? max : '';
+            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}?`, regexp.flags, regexp.groups);
+        }
+        static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
+            const regexp = $mol_regexp.from(source);
+            const upper = Number.isFinite(max) ? max : '';
+            return new $mol_regexp(`(?:${regexp.source}){${min},${upper}}`, regexp.flags, regexp.groups);
+        }
+        static optional(source) {
+            return $mol_regexp.repeat_greedy(source, 0, 1);
+        }
+        static force_after(source) {
+            const regexp = $mol_regexp.from(source);
+            return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
+        }
+        static forbid_after(source) {
+            const regexp = $mol_regexp.from(source);
+            return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
+        }
+        static from(source, { ignoreCase, multiline } = {
+            ignoreCase: false,
+            multiline: false,
+        }) {
+            let flags = 'gu';
+            if (multiline)
+                flags += 'm';
+            if (ignoreCase)
+                flags += 'i';
+            if (typeof source === 'string') {
+                return new $mol_regexp(source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+            }
+            else if (source instanceof RegExp) {
+                if (source instanceof $mol_regexp)
+                    return source;
+                const test = new $mol_regexp('|' + source.source);
+                const groups = Array.from({ length: test.exec('').length - 1 }, (_, i) => String(i + 1));
+                return new $mol_regexp(source.source, source.flags, groups);
+            }
+            if (Array.isArray(source)) {
+                const sources = [];
+                const groups = [];
+                let index = 0;
+                for (const item of source) {
+                    const regexp = $mol_regexp.from(item);
+                    sources.push(regexp.source);
+                    for (let group of regexp.groups) {
+                        if (Number(group) >= 0) {
+                            groups.push(String(index++));
+                        }
+                        else {
+                            groups.push(group);
+                        }
+                    }
+                }
+                return new $mol_regexp(sources.join(''), flags, groups);
+            }
+            else {
+                const groups = [];
+                const chunks = Object.keys(source).map(name => {
+                    groups.push(name);
+                    const regexp = $mol_regexp.from(source[name]);
+                    groups.push(...regexp.groups);
+                    return `(${regexp.source})`;
+                });
+                return new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
+            }
+        }
+        static char_code(code) {
+            return new $mol_regexp(`\\u${code.toString(16).padStart(4, '0')}`);
+        }
+        static unicode_only(...category) {
+            return new $mol_regexp(`\\p{${category.join('=')}}`);
+        }
+        static unicode_except(...category) {
+            return new $mol_regexp(`\\P{${category.join('=')}}`);
+        }
+        static char_range(from, to) {
+            return new $mol_regexp(`${$mol_regexp.char_code(from)}..${$mol_regexp.char_code(to)}`);
+        }
+        static char_only(...allowed) {
+            const regexp = allowed.map(f => $mol_regexp.from(f).source).join('');
+            return new $mol_regexp(`[${regexp}]`);
+        }
+        static char_except(...forbidden) {
+            const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
+            return new $mol_regexp(`[^${regexp}]`);
+        }
+    }
+    $mol_regexp.char_any = $mol_regexp.from(/[\s\S]/);
+    $mol_regexp.digit = $mol_regexp.from(/\d/);
+    $mol_regexp.letter = $mol_regexp.from(/\w/);
+    $mol_regexp.space = $mol_regexp.from(/\s/);
+    $mol_regexp.tab = $mol_regexp.from(/\t/);
+    $mol_regexp.slash_back = $mol_regexp.from(/\\/);
+    $mol_regexp.word_break = $mol_regexp.from(/\b/);
+    $mol_regexp.line_end = $mol_regexp.from(/(?:\r?\n|\r)/);
+    $mol_regexp.begin = $mol_regexp.from(/^/);
+    $mol_regexp.end = $mol_regexp.from(/$/);
+    $mol_regexp.or = $mol_regexp.from(/|/);
+    $.$mol_regexp = $mol_regexp;
+})($ || ($ = {}));
+//regexp.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    const { unicode_only, line_end, repeat_greedy, optional, char_only, char_except } = $.$mol_regexp;
+    $.$hyoo_crowd_text_tokenizer = $.$mol_regexp.from({
         token: {
-            'line-break': /(?:\r?\n|\r)/,
-            'Word-punctuation-spaces': /[A-ZА-ЯЁ0-9\u0301\u0331]*[a-zа-яё0-9\u0301\u0331]*[^A-ZА-ЯЁa-zа-яё0-9\u0301\u0331\s]*[^\S\n\r]?/,
+            'line-break': line_end,
+            'emoji': [
+                unicode_only('Emoji'),
+                optional(unicode_only('Emoji_Modifier')),
+                repeat_greedy([
+                    unicode_only('Emoji_Component'),
+                    unicode_only('Emoji'),
+                    optional(unicode_only('Emoji_Modifier')),
+                ]),
+            ],
+            'Word-punctuation-space': [
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ])),
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ])),
+                repeat_greedy(char_except([
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                    unicode_only('White_Space'),
+                ])),
+                optional(unicode_only('White_Space')),
+            ],
         },
     });
+})($ || ($ = {}));
+//tokenizer.js.map
+;
+"use strict";
+var $;
+(function ($) {
     class $hyoo_crowd_text extends $.$hyoo_crowd_dict.of({
         flow: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }),
         token: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
@@ -5329,7 +5373,7 @@ var $;
             const flow = this.for('flow').for(id);
             const token_ids = flow.items_internal;
             const tokens = this.for('token');
-            const words = [...tokenizer.parse(text)];
+            const words = [...$.$hyoo_crowd_text_tokenizer.parse(text)];
             while (from < to || words.length > 0) {
                 const prev = from < token_ids.length ? tokens.for(token_ids[from]).str() : null;
                 const next = words.length ? (_a = words[0].token) !== null && _a !== void 0 ? _a : words[0][0] : '';
@@ -5485,8 +5529,13 @@ var $;
         autocomplete() {
             return false;
         }
+        auto() {
+            return [
+                this.selection_watcher()
+            ];
+        }
         field() {
-            return Object.assign(Object.assign({}, super.field()), { disabled: this.disabled(), value: this.value_changed(), placeholder: this.hint(), spellcheck: this.spellcheck(), autocomplete: this.autocomplete_native() });
+            return Object.assign(Object.assign({}, super.field()), { disabled: this.disabled(), value: this.value_changed(), placeholder: this.hint(), spellcheck: this.spellcheck(), autocomplete: this.autocomplete_native(), selectionEnd: this.selection_end(), selectionStart: this.selection_start() });
         }
         attr() {
             return Object.assign(Object.assign({}, super.attr()), { maxlength: this.length_max(), type: this.type() });
@@ -5498,6 +5547,9 @@ var $;
             return [
                 this.Submit()
             ];
+        }
+        selection_watcher() {
+            return null;
         }
         disabled() {
             return false;
@@ -5518,6 +5570,16 @@ var $;
         }
         autocomplete_native() {
             return "";
+        }
+        selection_end(val) {
+            if (val !== undefined)
+                return val;
+            return 0;
+        }
+        selection_start(val) {
+            if (val !== undefined)
+                return val;
+            return 0;
         }
         length_max() {
             return Infinity;
@@ -5555,6 +5617,12 @@ var $;
     ], $mol_string.prototype, "value", null);
     __decorate([
         $.$mol_mem
+    ], $mol_string.prototype, "selection_end", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_string.prototype, "selection_start", null);
+    __decorate([
+        $.$mol_mem
     ], $mol_string.prototype, "type", null);
     __decorate([
         $.$mol_mem
@@ -5589,6 +5657,7 @@ var $;
                 if (!next)
                     return;
                 this.value(next.target.value);
+                this.selection_change(next);
             }
             disabled() {
                 return !this.enabled();
@@ -5596,7 +5665,18 @@ var $;
             autocomplete_native() {
                 return this.autocomplete() ? 'on' : 'off';
             }
+            selection_watcher() {
+                return new $.$mol_dom_listener(this.$.$mol_dom_context.document, 'selectionchange', event => this.selection_change(event));
+            }
+            selection_change(event) {
+                const el = this.dom_node();
+                this.selection_start(el.selectionStart);
+                this.selection_end(el.selectionEnd);
+            }
         }
+        __decorate([
+            $.$mol_mem
+        ], $mol_string.prototype, "selection_watcher", null);
         $$.$mol_string = $mol_string;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
