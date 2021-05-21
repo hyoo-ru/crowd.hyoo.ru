@@ -2756,6 +2756,7 @@ declare namespace $ {
         hint(): string;
         enabled(): boolean;
         length_max(): number;
+        selection(val?: any): any;
         Edit(): $$.$mol_string;
         row_numb(index: any): number;
         View(): $$.$mol_text_code;

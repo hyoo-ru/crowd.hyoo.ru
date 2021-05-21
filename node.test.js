@@ -7263,7 +7263,7 @@ var $;
     $.$mol_syntax2_md_code = new $.$mol_syntax2({
         'code-docs': /\/\/\/.*?$/,
         'code-comment-block': /(?:\/\*[^]*?\*\/|\/\+[^]*?\+\/|<![^]*?>)/,
-        'code-link': /\w+:\S+?(?=\s|\\\\|""|$)/,
+        'code-link': /(?:\w+:|#|\?|\/)\S+?(?=\s|\\\\|""|$)/,
         'code-comment-inline': /\/\/.*?$/,
         'code-string': /(?:".*?"|'.*?'|`.*?`|\/.+?\/[gmi]*\b|(?:^|[ \t])\\[^\n]*\n)/,
         'code-number': /[+-]?(?:\d*\.)?\d+\w*/,
@@ -7879,6 +7879,11 @@ var $;
         length_max() {
             return Infinity;
         }
+        selection(val) {
+            if (val !== undefined)
+                return val;
+            return [];
+        }
         Edit() {
             const obj = new this.$.$mol_string();
             obj.dom_name = () => "textarea";
@@ -7886,6 +7891,7 @@ var $;
             obj.hint = () => this.hint();
             obj.enabled = () => this.enabled();
             obj.length_max = () => this.length_max();
+            obj.selection = (val) => this.selection(val);
             return obj;
         }
         row_numb(index) {
@@ -7912,6 +7918,9 @@ var $;
     __decorate([
         $.$mol_mem
     ], $mol_textarea.prototype, "value", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_textarea.prototype, "selection", null);
     __decorate([
         $.$mol_mem
     ], $mol_textarea.prototype, "Edit", null);
