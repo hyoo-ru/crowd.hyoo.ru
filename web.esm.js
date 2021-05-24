@@ -4906,8 +4906,8 @@ var $;
         static make() {
             return new this();
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            return $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
+            return delta;
         }
         toJSON() {
             return this.delta();
@@ -4954,18 +4954,20 @@ var $;
             this.stores.set(key, store);
             return store;
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            const delta = $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
             for (let [key, value] of this.stores) {
-                const patch = value.delta(clock);
-                if (patch.values.length === 0)
-                    continue;
                 delta.values.push(key);
-                for (const val of patch.values)
-                    delta.values.push(val);
-                delta.stamps.push(-patch.values.length);
-                for (const stamp of patch.stamps)
-                    delta.stamps.push(stamp);
+                delta.stamps.push(0);
+                let size = -delta.values.length;
+                value.delta(clock, delta);
+                size += delta.values.length;
+                if (size === 0) {
+                    delta.values.pop();
+                    delta.stamps.pop();
+                }
+                else {
+                    delta.stamps[delta.stamps.length - 1 - size] = -size;
+                }
             }
             return delta;
         }
@@ -5048,8 +5050,7 @@ var $;
             this.clock.feed(version);
             this.clock_self.feed(version);
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            const delta = $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
             if (!this.clock_self.is_ahead(clock))
                 return delta;
             for (const key of this.array) {
@@ -5176,10 +5177,12 @@ var $;
             var _a;
             return Boolean((_a = this.value(next)) !== null && _a !== void 0 ? _a : false);
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            if (!clock.is_new(this._stamp))
-                return $.$hyoo_crowd_delta([], []);
-            return $.$hyoo_crowd_delta([this._value], [this._stamp]);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
+            if (clock.is_new(this._stamp)) {
+                delta.values.push(this._value);
+                delta.stamps.push(this._stamp);
+            }
+            return delta;
         }
         value(next) {
             if (next === undefined)

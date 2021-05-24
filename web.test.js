@@ -737,8 +737,7 @@ var $;
         numb() {
             return this.value();
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            const delta = $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
             for (const store of this.stores.values()) {
                 const patch = store.delta(clock);
                 if (patch.values.length === 0)
@@ -855,8 +854,7 @@ var $;
             var _a;
             return this.clock.version_from((_a = this.stamps.get(val)) !== null && _a !== void 0 ? _a : 0);
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            const delta = $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
             for (const [key, stamp] of this.stamps) {
                 if (!clock.is_new(stamp))
                     continue;
@@ -1122,19 +1120,17 @@ var $;
                 store.apply(this.value_store.delta());
             return this.value_store = store;
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            var _a, _b, _c;
-            const val = (_a = this.value_store) === null || _a === void 0 ? void 0 : _a.delta(clock);
-            if ((val === null || val === void 0 ? void 0 : val.values.length) === 0)
-                return $.$hyoo_crowd_delta([], []);
-            const type = this.type_store.delta();
-            return $.$hyoo_crowd_delta([
-                ...type.values,
-                ...(_b = val === null || val === void 0 ? void 0 : val.values) !== null && _b !== void 0 ? _b : [],
-            ], [
-                ...type.stamps,
-                ...(_c = val === null || val === void 0 ? void 0 : val.stamps) !== null && _c !== void 0 ? _c : [],
-            ]);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
+            var _a;
+            const begin = delta.values.length;
+            this.type_store.delta(undefined, delta);
+            const middle = delta.values.length;
+            (_a = this.value_store) === null || _a === void 0 ? void 0 : _a.delta(clock, delta);
+            if (delta.values.length === middle && !clock.is_new(this.type_store.version)) {
+                delta.values.length = begin;
+                delta.stamps.length = begin;
+            }
+            return delta;
         }
         apply(delta) {
             if (delta.values.length === 0)

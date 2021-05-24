@@ -5113,8 +5113,8 @@ var $;
         static make() {
             return new this();
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            return $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
+            return delta;
         }
         toJSON() {
             return this.delta();
@@ -5161,18 +5161,20 @@ var $;
             this.stores.set(key, store);
             return store;
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            const delta = $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
             for (let [key, value] of this.stores) {
-                const patch = value.delta(clock);
-                if (patch.values.length === 0)
-                    continue;
                 delta.values.push(key);
-                for (const val of patch.values)
-                    delta.values.push(val);
-                delta.stamps.push(-patch.values.length);
-                for (const stamp of patch.stamps)
-                    delta.stamps.push(stamp);
+                delta.stamps.push(0);
+                let size = -delta.values.length;
+                value.delta(clock, delta);
+                size += delta.values.length;
+                if (size === 0) {
+                    delta.values.pop();
+                    delta.stamps.pop();
+                }
+                else {
+                    delta.stamps[delta.stamps.length - 1 - size] = -size;
+                }
             }
             return delta;
         }
@@ -5255,8 +5257,7 @@ var $;
             this.clock.feed(version);
             this.clock_self.feed(version);
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            const delta = $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
             if (!this.clock_self.is_ahead(clock))
                 return delta;
             for (const key of this.array) {
@@ -5383,10 +5384,12 @@ var $;
             var _a;
             return Boolean((_a = this.value(next)) !== null && _a !== void 0 ? _a : false);
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            if (!clock.is_new(this._stamp))
-                return $.$hyoo_crowd_delta([], []);
-            return $.$hyoo_crowd_delta([this._value], [this._stamp]);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
+            if (clock.is_new(this._stamp)) {
+                delta.values.push(this._value);
+                delta.stamps.push(this._stamp);
+            }
+            return delta;
         }
         value(next) {
             if (next === undefined)
@@ -9421,8 +9424,7 @@ var $;
         numb() {
             return this.value();
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            const delta = $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
             for (const store of this.stores.values()) {
                 const patch = store.delta(clock);
                 if (patch.values.length === 0)
@@ -9539,8 +9541,7 @@ var $;
             var _a;
             return this.clock.version_from((_a = this.stamps.get(val)) !== null && _a !== void 0 ? _a : 0);
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            const delta = $.$hyoo_crowd_delta([], []);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
             for (const [key, stamp] of this.stamps) {
                 if (!clock.is_new(stamp))
                     continue;
@@ -9806,19 +9807,17 @@ var $;
                 store.apply(this.value_store.delta());
             return this.value_store = store;
         }
-        delta(clock = new $.$hyoo_crowd_clock) {
-            var _a, _b, _c;
-            const val = (_a = this.value_store) === null || _a === void 0 ? void 0 : _a.delta(clock);
-            if ((val === null || val === void 0 ? void 0 : val.values.length) === 0)
-                return $.$hyoo_crowd_delta([], []);
-            const type = this.type_store.delta();
-            return $.$hyoo_crowd_delta([
-                ...type.values,
-                ...(_b = val === null || val === void 0 ? void 0 : val.values) !== null && _b !== void 0 ? _b : [],
-            ], [
-                ...type.stamps,
-                ...(_c = val === null || val === void 0 ? void 0 : val.stamps) !== null && _c !== void 0 ? _c : [],
-            ]);
+        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
+            var _a;
+            const begin = delta.values.length;
+            this.type_store.delta(undefined, delta);
+            const middle = delta.values.length;
+            (_a = this.value_store) === null || _a === void 0 ? void 0 : _a.delta(clock, delta);
+            if (delta.values.length === middle && !clock.is_new(this.type_store.version)) {
+                delta.values.length = begin;
+                delta.stamps.length = begin;
+            }
+            return delta;
         }
         apply(delta) {
             if (delta.values.length === 0)
