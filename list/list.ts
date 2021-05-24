@@ -51,9 +51,11 @@ namespace $ {
 			this.clock_self.feed( version )
 		}
 		
-		delta( clock = new $hyoo_crowd_clock ): ReturnType< typeof $hyoo_crowd_delta > {
+		delta(
+			clock = new $hyoo_crowd_clock,
+			delta = $hyoo_crowd_delta([],[]),
+		): ReturnType< typeof $hyoo_crowd_delta > {
 			
-			const delta = $hyoo_crowd_delta([],[])
 			if( !this.clock_self.is_ahead( clock ) ) return delta
 			
 			for( const key of this.array ) {

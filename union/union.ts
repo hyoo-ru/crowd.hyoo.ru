@@ -52,24 +52,23 @@ namespace $ {
 			return this.value_store = store as any
 		}
 		
-		delta( clock = new $hyoo_crowd_clock ) {
+		delta(
+			clock = new $hyoo_crowd_clock,
+			delta = $hyoo_crowd_delta([],[]),
+		) {
 			
-			const val = this.value_store?.delta( clock )
-			if( val?.values.length === 0 ) return $hyoo_crowd_delta([],[])
+			const begin = delta.values.length
+			this.type_store.delta( undefined, delta )
 			
-			const type = this.type_store.delta()
+			const middle = delta.values.length
+			this.value_store?.delta( clock, delta )
 			
-			return $hyoo_crowd_delta(
-				[
-					... type.values,
-					... val?.values ?? [],
-				],
-				[
-					... type.stamps,
-					... val?.stamps ?? [],
-				],
-			)
+			if( delta.values.length === middle && !clock.is_new( this.type_store.version ) ) {
+				delta.values.length = begin
+				delta.stamps.length = begin
+			}
 			
+			return delta
 		}
 				
 		apply(

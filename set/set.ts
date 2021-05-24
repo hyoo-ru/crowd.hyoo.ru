@@ -24,9 +24,10 @@ namespace $ {
 			return this.clock.version_from( this.stamps.get( val ) ?? 0 )
 		}
 		
-		delta( clock = new $hyoo_crowd_clock ) {
-			
-			const delta = $hyoo_crowd_delta([],[])
+		delta(
+			clock = new $hyoo_crowd_clock,
+			delta = $hyoo_crowd_delta([],[]),
+		) {
 			
 			for( const [ key, stamp ] of this.stamps ) {
 				

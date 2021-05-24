@@ -23,9 +23,17 @@ namespace $ {
 			return Boolean( this.value( next ) ?? false )
 		}
 		
-		delta( clock = new $hyoo_crowd_clock ) {
-			if( !clock.is_new( this._stamp ) ) return $hyoo_crowd_delta([],[])
-			return $hyoo_crowd_delta( [ this._value ], [ this._stamp ] )
+		delta(
+			clock = new $hyoo_crowd_clock,
+			delta = $hyoo_crowd_delta([],[]),
+		) {
+			
+			if( clock.is_new( this._stamp ) ) {
+				delta.values.push( this._value )
+				delta.stamps.push( this._stamp )
+			}
+			
+			return delta
 		}
 		
 		value( next?: $hyoo_crowd_delta_value ) {

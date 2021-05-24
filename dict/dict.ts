@@ -42,20 +42,26 @@ namespace $ {
 			
 		}
 		
-		delta( clock = new $hyoo_crowd_clock ) {
-			
-			const delta = $hyoo_crowd_delta([],[])
+		delta(
+			clock = new $hyoo_crowd_clock,
+			delta = $hyoo_crowd_delta([],[]),
+		) {
 			
 			for( let [ key, value ] of this.stores ) {
 				
-				const patch = value.delta( clock )
-				if( patch.values.length === 0 ) continue
-				
 				delta.values.push( key )
-				for( const val of patch.values ) delta.values.push( val )
+				delta.stamps.push( 0 )
 				
-				delta.stamps.push( - patch.values.length )
-				for( const stamp of patch.stamps ) delta.stamps.push( stamp )
+				let size = - delta.values.length
+				value.delta( clock, delta )
+				size += delta.values.length
+				
+				if( size === 0 ) {
+					delta.values.pop()
+					delta.stamps.pop()
+				} else {
+					delta.stamps[ delta.stamps.length - 1 - size ] = - size
+				}
 				
 			}
 			

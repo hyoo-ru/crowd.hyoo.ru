@@ -20,9 +20,10 @@ namespace $ {
 			return this.value()
 		}
 		
-		delta( clock = new $hyoo_crowd_clock ) {
-			
-			const delta = $hyoo_crowd_delta([],[])
+		delta(
+			clock = new $hyoo_crowd_clock,
+			delta = $hyoo_crowd_delta([],[]),
+		) {
 			
 			for( const store of this.stores.values() ) {
 				

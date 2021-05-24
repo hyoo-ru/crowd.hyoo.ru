@@ -12,8 +12,11 @@ namespace $ {
 			public clock = new $hyoo_crowd_clock,
 		) { }
 		
-		delta( clock = new $hyoo_crowd_clock ): ReturnType< typeof $hyoo_crowd_delta > {
-			return $hyoo_crowd_delta([],[])
+		delta(
+			clock = new $hyoo_crowd_clock,
+			delta = $hyoo_crowd_delta([],[]),
+		): ReturnType< typeof $hyoo_crowd_delta > {
+			return delta
 		}
 		
 		toJSON() {
