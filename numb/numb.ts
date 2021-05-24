@@ -22,7 +22,7 @@ namespace $ {
 		
 		delta(
 			clock = new $hyoo_crowd_clock,
-			delta = $hyoo_crowd_delta([],[]),
+			delta = this.clock.delta( [], [] ),
 		) {
 			
 			for( const store of this.stores.values() ) {
@@ -70,6 +70,7 @@ namespace $ {
 					$hyoo_crowd_delta(
 						[ delta.values[i] ],
 						[ delta.stamps[i] ],
+						delta.clock,
 					)
 				)
 				

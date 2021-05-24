@@ -38,7 +38,7 @@ namespace $ {
 			if( this.type === type ) return this.as( type )!
 			
 			this.type_store.apply(
-				$hyoo_crowd_delta(
+				this.clock.delta(
 					[ type as string ],
 					[ stamp || - this.clock.generate() ],
 				)
@@ -54,7 +54,7 @@ namespace $ {
 		
 		delta(
 			clock = new $hyoo_crowd_clock,
-			delta = $hyoo_crowd_delta([],[]),
+			delta = this.clock.delta( [], [] ),
 		) {
 			
 			const begin = delta.values.length
@@ -91,6 +91,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					delta.values.slice(1),
 					delta.stamps.slice(1),
+					delta.clock,
 				)
 			)
 			

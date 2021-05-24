@@ -7,8 +7,9 @@ namespace $ {
 	export function $hyoo_crowd_delta(
 		values: $hyoo_crowd_delta_value[],
 		stamps: number[],
+		clock: number[],
 	) {
-		return { values, stamps }
+		return { values, stamps, clock }
 	}
 	
 }

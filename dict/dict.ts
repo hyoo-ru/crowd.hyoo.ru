@@ -44,7 +44,7 @@ namespace $ {
 		
 		delta(
 			clock = new $hyoo_crowd_clock,
-			delta = $hyoo_crowd_delta([],[]),
+			delta = this.clock.delta( [], [] ),
 		) {
 			
 			for( let [ key, value ] of this.stores ) {
@@ -74,12 +74,12 @@ namespace $ {
 			
 			let key: $hyoo_crowd_delta_value
 			let count = 0
-			let patch = $hyoo_crowd_delta([],[])
+			let patch = $hyoo_crowd_delta( [], [], delta.clock )
 			
 			const dump = ()=> {
 				if( patch.values.length === 0 ) return
 				this.for( key ).apply( patch )
-				patch = $hyoo_crowd_delta([],[])
+				patch = $hyoo_crowd_delta( [], [], delta.clock )
 			}
 			
 			for( let i = 0; i < delta.values.length; ++i ) {

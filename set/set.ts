@@ -26,7 +26,7 @@ namespace $ {
 		
 		delta(
 			clock = new $hyoo_crowd_clock,
-			delta = $hyoo_crowd_delta([],[]),
+			delta = this.clock.delta( [], [] ),
 		) {
 			
 			for( const [ key, stamp ] of this.stamps ) {
@@ -47,7 +47,7 @@ namespace $ {
 			
 			if( this.has( key ) ) return this
 			
-			this.apply( $hyoo_crowd_delta(
+			this.apply( this.clock.delta(
 				[ key ],
 				[ this.clock.generate() ],
 			) )
@@ -61,7 +61,7 @@ namespace $ {
 			
 			if( !this.has( key ) ) return this
 			
-			this.apply( $hyoo_crowd_delta(
+			this.apply( this.clock.delta(
 				[ key ],
 				[ - this.clock.generate() ],
 			) )

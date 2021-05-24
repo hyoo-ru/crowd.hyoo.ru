@@ -82,6 +82,13 @@ namespace $ {
 			return clock
 		}
 		
+		delta(
+			values: $hyoo_crowd_delta_value[],
+			stamps: number[],
+		) {
+			return $hyoo_crowd_delta( values, stamps, [ ... this.saw_versions.values() ].sort() )
+		}
+		
 	}
 	
 }

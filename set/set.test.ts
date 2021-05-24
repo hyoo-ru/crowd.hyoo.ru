@@ -8,6 +8,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					[ 'foo', 'bar' ],
 					[ +1000001, +2000001 ],
+					[ +2000001 ],
 				),
 			)
 			
@@ -26,9 +27,13 @@ namespace $ {
 			$mol_assert_like( store.delta( clock1 ), $hyoo_crowd_delta(
 				[ 'bar' ],
 				[ +2000001 ],
+				[ +2000001 ],
 			 ) )
 			
-			$mol_assert_like( store.delta( clock2 ), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like(
+				store.delta( clock2 ),
+				$hyoo_crowd_delta( [], [], [ +2000001 ] ),
+			)
 			
 		},
 		
@@ -38,6 +43,7 @@ namespace $ {
 				new $hyoo_crowd_set().fork(1).add( 'foo' ).add( 'foo' ).delta(),
 				$hyoo_crowd_delta(
 					[ 'foo' ],
+					[ +1000001 ],
 					[ +1000001 ],
 				),
 			)
@@ -51,6 +57,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					[ 'foo', 'bar' ],
 					[ -3000001, +2000001 ],
+					[ +3000001 ],
 				),
 			)
 			
@@ -63,6 +70,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					[ 'foo' ],
 					[ -2000001 ],
+					[ +2000001 ],
 				),
 			)
 			
@@ -135,6 +143,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					[ 1, 2 ],
 					[ +1000001, +2000001 ],
+					[ +2000001 ],
 				),
 			)
 			

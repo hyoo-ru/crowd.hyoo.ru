@@ -53,7 +53,7 @@ namespace $ {
 		
 		delta(
 			clock = new $hyoo_crowd_clock,
-			delta = $hyoo_crowd_delta([],[]),
+			delta = this.clock.delta( [], [] ),
 		): ReturnType< typeof $hyoo_crowd_delta > {
 			
 			if( !this.clock_self.is_ahead( clock ) ) return delta
@@ -80,7 +80,7 @@ namespace $ {
 			const exists = this.array[ pos ]
 			if( exists === key ) return this
 			
-			const delta = $hyoo_crowd_delta([],[])
+			const delta = this.clock.delta( [], [] )
 				
 			if( pos > 0 ) {
 				const anchor = this.array[ pos - 1 ]
@@ -103,7 +103,7 @@ namespace $ {
 			const stamp = this.stamps.get( key ) ?? 0
 			if( stamp <= 0 ) return this
 			
-			this.apply( $hyoo_crowd_delta(
+			this.apply( this.clock.delta(
 				[ key ],
 				[ - this.clock.generate() ]
 			) )

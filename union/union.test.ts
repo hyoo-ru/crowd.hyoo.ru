@@ -8,7 +8,7 @@ namespace $ {
 				string: $hyoo_crowd_reg,
 			}).make()
 			
-			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[],[]) )
 			$mol_assert_like( store.type, null )
 			$mol_assert_like( store.as( 'counter' ), null )
 			$mol_assert_like( store.as( 'string' ), null )
@@ -45,6 +45,7 @@ namespace $ {
 			$mol_assert_like( store.delta(), $hyoo_crowd_delta(
 				[ 'counter', +3 ],
 				[ -1000001, +3000001 ],
+				[ 3000001 ],
 			) )
 			
 		},
@@ -67,9 +68,13 @@ namespace $ {
 			$mol_assert_like( store.delta( clock1 ), $hyoo_crowd_delta(
 				[ 'object', 'bar' ],
 				[ -1000001, +3000001 ],
+				[ 3000001 ],
 			) )
 			
-			$mol_assert_like( store.delta( clock2 ), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like(
+				store.delta( clock2 ),
+				$hyoo_crowd_delta( [], [], [ 3000001 ] ),
+			)
 			
 		},
 		
@@ -119,6 +124,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					[ 'array', 'bar', 'foo', 'xxx' ],
 					[ -3000003, +3000002, +2000001, +4000003 ],
+					[ 2000001, 3000002, 4000003 ],
 				),
 				
 			)

@@ -25,7 +25,7 @@ namespace $ {
 		
 		delta(
 			clock = new $hyoo_crowd_clock,
-			delta = $hyoo_crowd_delta([],[]),
+			delta = this.clock.delta( [], [] ),
 		) {
 			
 			if( clock.is_new( this._stamp ) ) {

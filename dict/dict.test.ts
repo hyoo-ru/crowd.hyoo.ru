@@ -12,6 +12,7 @@ namespace $ {
 			$mol_assert_like( val.delta(), $hyoo_crowd_delta(
 				[ 'foo', 888, 666, 'bar', 777 ],
 				[ -2, 3000001, 1000001, -1, -4000001 ],
+				[ 4000001 ],
 			) )
 			
 		},
@@ -35,9 +36,13 @@ namespace $ {
 			$mol_assert_like( val.delta( clock1 ), $hyoo_crowd_delta(
 				[ 'foo', 4, 'bar', 5, 'xxx', 6 ],
 				[ -1, +4000001, -1, +5000001, -1, +6000001 ],
+				[ 6000001 ],
 			) )
 			
-			$mol_assert_like( val.delta( clock2 ), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like(
+				val.delta( clock2 ),
+				$hyoo_crowd_delta( [], [], [ 6000001 ] ),
+			)
 			
 		},
 		
@@ -60,6 +65,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					[ 'foo', 777, 666, '', 'xxx', 'bar', 'yyy', 'zzz' ],
 					[ -2, 1000002, 1000001, -1, 2000001, -2, 2000002, 3000002 ],
+					[ 2000001, 3000002 ],
 				),
 			)
 			
@@ -68,6 +74,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					[ 'foo', 777, 666, 'bar', 'yyy', 'zzz', '', 'xxx' ],
 					[ -2, 1000002, 1000001, -2, 2000002, 3000002, -1, 2000001 ],
+					[ 2000001, 3000002 ],
 				),
 			)
 			
@@ -90,6 +97,7 @@ namespace $ {
 			$mol_assert_like( left.delta(), $hyoo_crowd_delta(
 				[ 'foo', 'xxx', 'yyy', 'bar', 17, 18 ],
 				[ -2, 1000001, 3000001, -2, 1000002, 2000002 ],
+				[ 2000002, 3000001 ],
 			) )
 			
 		},
@@ -119,6 +127,7 @@ namespace $ {
 				$hyoo_crowd_delta(
 					[ 'foo', 'array', 'xxx', 'bar' ],
 					[ -3, -1000002, 2000002, 2000001 ],
+					[ 2000001, 2000002 ],
 				),
 			)
 			
@@ -168,7 +177,10 @@ namespace $ {
 			$mol_assert_like( store.for('keys').items(), [] )
 			$mol_assert_like( store.for('vals').for( 'foo' ).str(), '' )
 			
-			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like(
+				store.delta(),
+				$hyoo_crowd_delta( [], [], [] )
+			)
 			
 		},
 		
@@ -192,6 +204,7 @@ namespace $ {
 			$mol_assert_like( store.delta(), $hyoo_crowd_delta(
 				[ 'keys', 'foo', 'bar', 'vals', 'xxx', 'yyy' ],
 				[ -2, +1000001, +2000001, -2, -1, +3000001 ],
+				[ 3000001 ],
 			) )
 			
 		},
@@ -223,6 +236,7 @@ namespace $ {
 			$mol_assert_like( store.delta(), $hyoo_crowd_delta(
 				[ "TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7 ],
 				[ -4, -1, +1000001, -1, +2000001, -4, -1, +3000001, -1, +4000001 ],
+				[ 4000001 ],
 			) )
 			
 		},
