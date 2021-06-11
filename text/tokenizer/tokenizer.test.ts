@@ -3,63 +3,63 @@ namespace $ {
 		
 		'empty string'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( '' ) ],
-				[],
+				''.match( $hyoo_crowd_text_tokenizer ),
+				null,
 			)
 		},
 		
 		'new lines'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( '\n\r\n' ) ].map( t => t.token ),
+				'\n\r\n'.match( $hyoo_crowd_text_tokenizer ),
 				[ '\n', '\r\n' ],
 			)
 		},
 		
 		'emoji'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( '😀😁' ) ].map( t => t.token ),
+				'😀😁'.match( $hyoo_crowd_text_tokenizer ),
 				[ '😀', '😁' ],
 			)
 		},
 		
 		'emoji with modifier'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( '👩🏿👩🏿' ) ].map( t => t.token ),
+				'👩🏿👩🏿'.match( $hyoo_crowd_text_tokenizer ),
 				[ '👩🏿', '👩🏿' ],
 			)
 		},
 		
 		'combo emoji with modifier'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( '👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿' ) ].map( t => t.token ),
+				'👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿'.match( $hyoo_crowd_text_tokenizer ),
 				[ '👩🏿‍🤝‍🧑🏿', '👩🏿‍🤝‍🧑🏿' ],
 			)
 		},
 		
 		'word with spaces'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( 'foo1  bar2' ) ].map( t => t.token ),
+				'foo1  bar2'.match( $hyoo_crowd_text_tokenizer ),
 				[ 'foo1 ', ' ', 'bar2' ],
 			)
 		},
 		
 		'word with diactric'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( 'Е́е́' ) ].map( t => t.token ),
+				'Е́е́'.match( $hyoo_crowd_text_tokenizer ),
 				[ 'Е́е́' ],
 			)
 		},
 		
 		'word with punctuation'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( 'foo--bar' ) ].map( t => t.token ),
+				'foo--bar'.match( $hyoo_crowd_text_tokenizer ),
 				[ 'foo--', 'bar' ],
 			)
 		},
 		
 		'CamelCase'() {
 			$mol_assert_like(
-				[ ... $hyoo_crowd_text_tokenizer.parse( 'Foo1BAR2' ) ].map( t => t.token ),
+				'Foo1BAR2'.match( $hyoo_crowd_text_tokenizer ),
 				[ 'Foo1', 'BAR2' ],
 			)
 		},

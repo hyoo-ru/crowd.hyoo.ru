@@ -60,12 +60,12 @@ namespace $ {
 			const flow = this.for( 'flow' ).for( id )
 			const token_ids = flow.items_internal
 			const tokens = this.for( 'token' )
-			const words = [ ... $hyoo_crowd_text_tokenizer.parse( text ) ]
+			const words = [ ... text.matchAll( $hyoo_crowd_text_tokenizer ) ]
 			
 			while( from < to || words.length > 0 ) {
 				
 				const prev = from < token_ids.length ? tokens.for( token_ids[ from ] ).str() : null
-				const next = words.length ? words[0].token ?? words[0][0] : ''
+				const next = words.length ? words[0][0] : ''
 				const min_len = Math.max( 1, Math.min( prev?.length ?? 0, next.length ) -1 )
 				
 				if( prev === next ) {

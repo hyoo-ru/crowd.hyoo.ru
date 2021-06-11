@@ -6,7 +6,7 @@ namespace $ {
 			const store = $hyoo_crowd_graph.make()
 			
 			$mol_assert_equal( store.value( 'foo' ), null )
-			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[]) )
+			$mol_assert_like( store.delta(), $hyoo_crowd_delta([],[],[]) )
 			
 		},
 		
