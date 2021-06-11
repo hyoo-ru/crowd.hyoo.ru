@@ -559,13 +559,13 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_dom_render_fields(el: Element, fields: {
-        [key: string]: any;
-    }): void;
+    function $mol_dom_render_children(el: Element, childNodes: NodeList | Array<Node | string | null>): void;
 }
 
 declare namespace $ {
-    function $mol_dom_render_children(el: Element, childNodes: NodeList | Array<Node | string | null>): void;
+    function $mol_dom_render_fields(el: Element, fields: {
+        [key: string]: any;
+    }): void;
 }
 
 declare namespace $ {
@@ -828,12 +828,15 @@ declare namespace $ {
     type Snap_axis = 'x' | 'y' | 'block' | 'inline' | 'both';
     type Overflow = 'visible' | 'hidden' | 'clip' | 'scroll' | 'auto' | 'overlay' | Common;
     type ContainRule = 'size' | 'layout' | 'style' | 'paint';
+    type Repeat = 'repeat-x' | 'repeat-y' | 'repeat' | 'space' | 'round' | 'no-repeat';
     interface Overrides {
         alignContent?: 'baseline' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'center' | 'normal' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch' | readonly ['first' | 'last', 'baseline'] | readonly ['safe' | 'unsafe', 'start' | 'end' | 'flex-start' | 'flex-end'] | Common;
         justifyContent?: 'start' | 'end' | 'flex-start' | 'flex-end' | 'left' | 'right' | 'space-between' | 'space-around' | 'space-evenly' | 'normal' | 'stretch' | 'center' | Common;
         background?: 'none' | {
             color?: Color | Common;
             image?: readonly (readonly [$mol_style_func<'url'>])[];
+            repeat?: Repeat | [Repeat, Repeat] | Common;
+            position?: 'left' | 'right' | 'top' | 'bottom' | 'center';
         };
         box?: {
             shadow?: readonly {
@@ -1071,6 +1074,29 @@ declare namespace $ {
         static value<Value>(key: string, next?: Value, force?: $mol_mem_force): Value | null;
         prefix(): string;
         value(key: string, next?: Value): Value | null;
+    }
+}
+
+declare namespace $ {
+    class $mol_state_arg extends $mol_object {
+        prefix: string;
+        static href(next?: string): string;
+        static dict(next?: {
+            [key: string]: string | null;
+        }): {
+            [key: string]: string;
+        };
+        static value(key: string, next?: string | null): string | null;
+        static link(next: any): string;
+        static make_link(next: {
+            [key: string]: any;
+        }): string;
+        constructor(prefix?: string);
+        value(key: string, next?: string): string | null;
+        sub(postfix: string): $mol_state_arg;
+        link(next: {
+            [key: string]: string;
+        }): string;
     }
 }
 
@@ -1524,29 +1550,6 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    class $mol_state_arg extends $mol_object {
-        prefix: string;
-        static href(next?: string): string;
-        static dict(next?: {
-            [key: string]: string | null;
-        }): {
-            [key: string]: string;
-        };
-        static value(key: string, next?: string | null): string | null;
-        static link(next: any): string;
-        static make_link(next: {
-            [key: string]: any;
-        }): string;
-        constructor(prefix?: string);
-        value(key: string, next?: string): string | null;
-        sub(postfix: string): $mol_state_arg;
-        link(next: {
-            [key: string]: string;
-        }): string;
-    }
-}
-
-declare namespace $ {
 }
 
 declare namespace $.$$ {
@@ -1601,6 +1604,15 @@ declare namespace $.$$ {
 }
 
 declare namespace $ {
+    type $hyoo_crowd_delta_value = string | number | boolean | null;
+    function $hyoo_crowd_delta(values: $hyoo_crowd_delta_value[], stamps: number[], clock: number[]): {
+        values: $hyoo_crowd_delta_value[];
+        stamps: number[];
+        clock: number[];
+    };
+}
+
+declare namespace $ {
     class $hyoo_crowd_clock {
         readonly peer: number;
         version_max: number;
@@ -1615,15 +1627,12 @@ declare namespace $ {
         is_ahead(clock: $hyoo_crowd_clock): boolean;
         generate(): number;
         fork(peer: number): $hyoo_crowd_clock;
+        delta(values: $hyoo_crowd_delta_value[], stamps: number[]): {
+            values: $hyoo_crowd_delta_value[];
+            stamps: number[];
+            clock: number[];
+        };
     }
-}
-
-declare namespace $ {
-    type $hyoo_crowd_delta_value = string | number | boolean | null;
-    function $hyoo_crowd_delta(values: $hyoo_crowd_delta_value[], stamps: number[]): {
-        values: $hyoo_crowd_delta_value[];
-        stamps: number[];
-    };
 }
 
 declare namespace $ {
@@ -1634,10 +1643,12 @@ declare namespace $ {
         delta(clock?: $hyoo_crowd_clock, delta?: {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
+            clock: number[];
         }): ReturnType<typeof $hyoo_crowd_delta>;
         toJSON(): {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
+            clock: number[];
         };
         apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
         fork(peer: number): this;
@@ -1655,18 +1666,22 @@ declare namespace $ {
                 delta(clock?: $hyoo_crowd_clock, delta?: {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
+                    clock: number[];
                 }): {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
+                    clock: number[];
                 };
                 apply(delta: {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
+                    clock: number[];
                 }): any;
                 clock: $hyoo_crowd_clock;
                 toJSON(): {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
+                    clock: number[];
                 };
                 fork(peer: number): any;
             };
@@ -1680,9 +1695,11 @@ declare namespace $ {
         delta(clock?: $hyoo_crowd_clock, delta?: {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
+            clock: number[];
         }): {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
+            clock: number[];
         };
         apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
     }
@@ -1702,6 +1719,7 @@ declare namespace $ {
         delta(clock?: $hyoo_crowd_clock, delta?: {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
+            clock: number[];
         }): ReturnType<typeof $hyoo_crowd_delta>;
         insert(key: $hyoo_crowd_delta_value, pos?: number): this;
         cut(key: $hyoo_crowd_delta_value): this;
@@ -1721,9 +1739,11 @@ declare namespace $ {
         delta(clock?: $hyoo_crowd_clock, delta?: {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
+            clock: number[];
         }): {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
+            clock: number[];
         };
         value(next?: $hyoo_crowd_delta_value): $hyoo_crowd_delta_value;
         apply(delta: ReturnType<typeof $hyoo_crowd_delta>): this;
@@ -1731,6 +1751,19 @@ declare namespace $ {
     class $hyoo_crowd_reg_back extends $hyoo_crowd_reg {
         protected _mult: number;
     }
+}
+
+declare namespace $ {
+    type $mol_type_equals<A, B> = (<X>() => X extends A ? 1 : 2) extends (<X>() => X extends B ? 1 : 2) ? unknown : never;
+}
+
+declare namespace $ {
+    type $mol_type_merge<Intersection> = Intersection extends (...a: any[]) => any ? Intersection : Intersection extends new (...a: any[]) => any ? Intersection : Intersection extends object ? $mol_type_merge_object<Intersection> extends Intersection ? unknown extends $mol_type_equals<$mol_type_merge_object<Intersection>, Intersection> ? Intersection : {
+        [Key in keyof Intersection]: $mol_type_merge<Intersection[Key]>;
+    } : Intersection : Intersection;
+    type $mol_type_merge_object<Intersection> = {
+        [Key in keyof Intersection]: Intersection[Key];
+    };
 }
 
 declare namespace $ {
@@ -1744,58 +1777,86 @@ declare namespace $ {
     type $mol_unicode_category_script = 'Adlam' | 'Ahom' | 'Anatolian_Hieroglyphs' | 'Arabic' | 'Armenian' | 'Avestan' | 'Balinese' | 'Bamum' | 'Bassa_Vah' | 'Batak' | 'Bengali' | 'Bhaiksuki' | 'Bopomofo' | 'Brahmi' | 'Braille' | 'Buginese' | 'Buhid' | 'Canadian_Aboriginal' | 'Carian' | 'Caucasian_Albanian' | 'Chakma' | 'Cham' | 'Chorasmian' | 'Cherokee' | 'Common' | 'Coptic' | 'Cuneiform' | 'Cypriot' | 'Cyrillic' | 'Deseret' | 'Devanagari' | 'Dives_Akuru' | 'Dogra' | 'Duployan' | 'Egyptian_Hieroglyphs' | 'Elbasan' | 'Elymaic' | 'Ethiopic' | 'Georgian' | 'Glagolitic' | 'Gothic' | 'Grantha' | 'Greek' | 'Gujarati' | 'Gunjala_Gondi' | 'Gurmukhi' | 'Han' | 'Hangul' | 'Hanifi_Rohingya' | 'Hanunoo' | 'Hatran' | 'Hebrew' | 'Hiragana' | 'Imperial_Aramaic' | 'Inherited' | 'Inscriptional_Pahlavi' | 'Inscriptional_Parthian' | 'Javanese' | 'Kaithi' | 'Kannada' | 'Katakana' | 'Kayah_Li' | 'Kharoshthi' | 'Khitan_Small_Script' | 'Khmer' | 'Khojki' | 'Khudawadi' | 'Lao' | 'Latin' | 'Lepcha' | 'Limbu' | 'Linear_A' | 'Linear_B' | 'Lisu' | 'Lycian' | 'Lydian' | 'Mahajani' | 'Makasar' | 'Malayalam' | 'Mandaic' | 'Manichaean' | 'Marchen' | 'Medefaidrin' | 'Masaram_Gondi' | 'Meetei_Mayek' | 'Mende_Kikakui' | 'Meroitic_Cursive' | 'Meroitic_Hieroglyphs' | 'Miao' | 'Modi' | 'Mongolian' | 'Mro' | 'Multani' | 'Myanmar' | 'Nabataean' | 'Nandinagari' | 'New_Tai_Lue' | 'Newa' | 'Nko' | 'Nushu' | 'Nyiakeng_Puachue_Hmong' | 'Ogham' | 'Ol_Chiki' | 'Old_Hungarian' | 'Old_Italic' | 'Old_North_Arabian' | 'Old_Permic' | 'Old_Persian' | 'Old_Sogdian' | 'Old_South_Arabian' | 'Old_Turkic' | 'Oriya' | 'Osage' | 'Osmanya' | 'Pahawh_Hmong' | 'Palmyrene' | 'Pau_Cin_Hau' | 'Phags_Pa' | 'Phoenician' | 'Psalter_Pahlavi' | 'Rejang' | 'Runic' | 'Samaritan' | 'Saurashtra' | 'Sharada' | 'Shavian' | 'Siddham' | 'SignWriting' | 'Sinhala' | 'Sogdian' | 'Sora_Sompeng' | 'Soyombo' | 'Sundanese' | 'Syloti_Nagri' | 'Syriac' | 'Tagalog' | 'Tagbanwa' | 'Tai_Le' | 'Tai_Tham' | 'Tai_Viet' | 'Takri' | 'Tamil' | 'Tangut' | 'Telugu' | 'Thaana' | 'Thai' | 'Tibetan' | 'Tifinagh' | 'Tirhuta' | 'Ugaritic' | 'Vai' | 'Wancho' | 'Warang_Citi' | 'Yezidi' | 'Yi' | 'Zanabazar_Square';
 }
 
+interface String {
+    match<RE extends RegExp>(regexp: RE): ReturnType<RE[typeof Symbol.match]>;
+    matchAll<RE extends RegExp>(regexp: RE): ReturnType<RE[typeof Symbol.matchAll]>;
+}
 declare namespace $ {
-    type $mol_regexp_source = string | RegExp | {
+    type Groups_to_params<T> = {
+        [P in keyof T]?: T[P] | boolean | undefined;
+    };
+    export type $mol_regexp_source = number | string | RegExp | {
         [key in string]: $mol_regexp_source;
     } | readonly [$mol_regexp_source, ...$mol_regexp_source[]];
-    type $mol_regexp_groups<Source extends $mol_regexp_source> = Source extends string ? {} : Source extends $mol_regexp<infer Groups> ? Groups : Source extends $mol_regexp_source[] ? $mol_type_intersect<{
+    export type $mol_regexp_groups<Source extends $mol_regexp_source> = Source extends number ? {} : Source extends string ? {} : Source extends $mol_regexp_source[] ? $mol_type_merge<$mol_type_intersect<{
         [key in Extract<keyof Source, number>]: $mol_regexp_groups<Source[key]>;
-    }[Extract<keyof Source, number>]> : Source extends RegExp ? {} : Source extends {
+    }[Extract<keyof Source, number>]>> : Source extends RegExp ? Record<string, string> extends NonNullable<NonNullable<ReturnType<Source['exec']>>['groups']> ? {} : NonNullable<NonNullable<ReturnType<Source['exec']>>['groups']> : Source extends {
         readonly [key in string]: $mol_regexp_source;
-    } ? Extract<$mol_type_intersect<{
-        [key in Extract<keyof Source, string>]: string;
-    } | {
-        [key in keyof Source]: $mol_regexp_groups<Source[key]>;
-    }[keyof Source]>, Record<string, string>> : never;
-    class $mol_regexp<Groups extends Record<string, string>> extends RegExp {
+    } ? $mol_type_merge<$mol_type_intersect<{
+        [key in keyof Source]: $mol_type_merge<$mol_type_override<{
+            readonly [k in Extract<keyof Source, string>]: string;
+        }, {
+            readonly [k in key]: Source[key] extends string ? Source[key] : string;
+        }> & $mol_regexp_groups<Source[key]>>;
+    }[keyof Source]>> : never;
+    export class $mol_regexp<Groups extends Record<string, string>> extends RegExp {
         readonly groups: (Extract<keyof Groups, string>)[];
         constructor(source: string, flags?: string, groups?: (Extract<keyof Groups, string>)[]);
-        get parse(): (str: string, from?: number) => Generator<{ [key in keyof Groups]: string; } & {
-            [key: number]: string;
-        }, null | undefined, unknown>;
+        [Symbol.matchAll](str: string): IterableIterator<$mol_type_override<RegExpExecArray, {
+            groups?: {
+                [key in keyof Groups]: string;
+            };
+        }>>;
+        [Symbol.match](str: string): null | string[];
+        [Symbol.split](str: string): string[];
+        exec(str: string): $mol_type_override<RegExpExecArray, {
+            groups?: {
+                [key in keyof Groups]: string;
+            };
+        }> | null;
+        generate(params: Groups_to_params<Groups>): string | null;
         static repeat<Source extends $mol_regexp_source>(source: Source, min?: number, max?: number): $mol_regexp<$mol_regexp_groups<Source>>;
         static repeat_greedy<Source extends $mol_regexp_source>(source: Source, min?: number, max?: number): $mol_regexp<$mol_regexp_groups<Source>>;
         static optional<Source extends $mol_regexp_source>(source: Source): $mol_regexp<$mol_regexp_groups<Source>>;
         static force_after(source: $mol_regexp_source): $mol_regexp<Record<string, string>>;
         static forbid_after(source: $mol_regexp_source): $mol_regexp<Record<string, string>>;
         static from<Source extends $mol_regexp_source>(source: Source, { ignoreCase, multiline }?: Partial<Pick<RegExp, 'ignoreCase' | 'multiline'>>): $mol_regexp<$mol_regexp_groups<Source>>;
-        static char_code(code: number): $mol_regexp<Record<string, string>>;
         static unicode_only(...category: $mol_unicode_category): $mol_regexp<Record<string, string>>;
         static unicode_except(...category: $mol_unicode_category): $mol_regexp<Record<string, string>>;
-        static char_range(from: number, to: number): $mol_regexp<never>;
-        static char_only(...allowed: readonly [$mol_regexp_source, ...$mol_regexp_source[]]): $mol_regexp<never>;
-        static char_except(...forbidden: readonly [$mol_regexp_source, ...$mol_regexp_source[]]): $mol_regexp<never>;
-        static char_any: $mol_regexp<{}>;
-        static digit: $mol_regexp<{}>;
-        static letter: $mol_regexp<{}>;
-        static space: $mol_regexp<{}>;
+        static char_range(from: number, to: number): $mol_regexp<{}>;
+        static char_only(...allowed: readonly [$mol_regexp_source, ...$mol_regexp_source[]]): $mol_regexp<{}>;
+        static char_except(...forbidden: readonly [$mol_regexp_source, ...$mol_regexp_source[]]): $mol_regexp<{}>;
+        static decimal_only: $mol_regexp<{}>;
+        static decimal_except: $mol_regexp<{}>;
+        static latin_only: $mol_regexp<{}>;
+        static latin_except: $mol_regexp<{}>;
+        static space_only: $mol_regexp<{}>;
+        static space_except: $mol_regexp<{}>;
+        static word_break_only: $mol_regexp<{}>;
+        static word_break_except: $mol_regexp<{}>;
         static tab: $mol_regexp<{}>;
         static slash_back: $mol_regexp<{}>;
-        static word_break: $mol_regexp<{}>;
-        static line_end: $mol_regexp<{}>;
+        static nul: $mol_regexp<{}>;
+        static char_any: $mol_regexp<{}>;
         static begin: $mol_regexp<{}>;
         static end: $mol_regexp<{}>;
         static or: $mol_regexp<{}>;
+        static line_end: $mol_regexp<{
+            readonly mac_end: string;
+            readonly win_end: string;
+        }>;
     }
+    export {};
 }
 
 declare namespace $ {
     let $hyoo_crowd_text_tokenizer: $mol_regexp<{
-        token: string;
-    } & Record<string, string> & {
-        "line-break": string;
-        emoji: string;
-        "Word-punctuation-space": string;
+        readonly token: string;
+        readonly emoji: string;
+        readonly 'Word-punctuation-space': string;
+        readonly 'line-break': string;
+        readonly mac_end: string;
+        readonly win_end: string;
     }>;
 }
 
@@ -1816,18 +1877,22 @@ declare namespace $ {
                         delta(clock?: $hyoo_crowd_clock, delta?: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         }): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         };
                         apply(delta: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         }): any;
                         clock: $hyoo_crowd_clock;
                         toJSON(): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         };
                         fork(peer: number): any;
                     };
@@ -1840,18 +1905,22 @@ declare namespace $ {
                             delta(clock?: $hyoo_crowd_clock, delta?: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             }): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             };
                             apply(delta: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             }): any;
                             clock: $hyoo_crowd_clock;
                             toJSON(): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             };
                             fork(peer: number): any;
                         };
@@ -1873,18 +1942,22 @@ declare namespace $ {
                         delta(clock?: $hyoo_crowd_clock, delta?: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         }): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         };
                         apply(delta: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         }): any;
                         clock: $hyoo_crowd_clock;
                         toJSON(): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         };
                         fork(peer: number): any;
                     };
@@ -1897,18 +1970,22 @@ declare namespace $ {
                             delta(clock?: $hyoo_crowd_clock, delta?: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             }): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             };
                             apply(delta: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             }): any;
                             clock: $hyoo_crowd_clock;
                             toJSON(): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             };
                             fork(peer: number): any;
                         };
@@ -1934,18 +2011,22 @@ declare namespace $ {
                         delta(clock?: $hyoo_crowd_clock, delta?: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         }): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         };
                         apply(delta: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         }): any;
                         clock: $hyoo_crowd_clock;
                         toJSON(): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         };
                         fork(peer: number): any;
                     };
@@ -1958,18 +2039,22 @@ declare namespace $ {
                             delta(clock?: $hyoo_crowd_clock, delta?: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             }): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             };
                             apply(delta: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             }): any;
                             clock: $hyoo_crowd_clock;
                             toJSON(): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             };
                             fork(peer: number): any;
                         };
@@ -1991,18 +2076,22 @@ declare namespace $ {
                         delta(clock?: $hyoo_crowd_clock, delta?: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         }): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         };
                         apply(delta: {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         }): any;
                         clock: $hyoo_crowd_clock;
                         toJSON(): {
                             values: $hyoo_crowd_delta_value[];
                             stamps: number[];
+                            clock: number[];
                         };
                         fork(peer: number): any;
                     };
@@ -2015,18 +2104,22 @@ declare namespace $ {
                             delta(clock?: $hyoo_crowd_clock, delta?: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             }): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             };
                             apply(delta: {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             }): any;
                             clock: $hyoo_crowd_clock;
                             toJSON(): {
                                 values: $hyoo_crowd_delta_value[];
                                 stamps: number[];
+                                clock: number[];
                             };
                             fork(peer: number): any;
                         };
@@ -2039,18 +2132,22 @@ declare namespace $ {
             delta(clock?: $hyoo_crowd_clock, delta?: {
                 values: $hyoo_crowd_delta_value[];
                 stamps: number[];
+                clock: number[];
             }): {
                 values: $hyoo_crowd_delta_value[];
                 stamps: number[];
+                clock: number[];
             };
             apply(delta: {
                 values: $hyoo_crowd_delta_value[];
                 stamps: number[];
+                clock: number[];
             }): any;
             clock: $hyoo_crowd_clock;
             toJSON(): {
                 values: $hyoo_crowd_delta_value[];
                 stamps: number[];
+                clock: number[];
             };
             fork(peer: number): any;
         };
@@ -2063,18 +2160,22 @@ declare namespace $ {
                 delta(clock?: $hyoo_crowd_clock, delta?: {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
+                    clock: number[];
                 }): {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
+                    clock: number[];
                 };
                 apply(delta: {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
+                    clock: number[];
                 }): any;
                 clock: $hyoo_crowd_clock;
                 toJSON(): {
                     values: $hyoo_crowd_delta_value[];
                     stamps: number[];
+                    clock: number[];
                 };
                 fork(peer: number): any;
             };
@@ -2861,6 +2962,7 @@ declare namespace $.$$ {
         delta(): {
             values: $hyoo_crowd_delta_value[];
             stamps: number[];
+            clock: number[];
         };
         changes(): number;
         size_state(): number;

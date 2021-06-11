@@ -636,7 +636,7 @@ var $;
     $.$mol_test({
         'Default state'() {
             const store = new $.$hyoo_crowd_reg();
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], [], []));
             $.$mol_assert_like(store.value(), null);
             $.$mol_assert_like(store.version, 0);
         },
@@ -644,13 +644,13 @@ var $;
             const store = new $.$hyoo_crowd_reg().fork(1);
             store.str('foo');
             store.str('bar');
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['bar'], [+2000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['bar'], [+2000001], [+2000001]));
         },
         'Ignore same changes'() {
             const store = new $.$hyoo_crowd_reg().fork(1);
             store.str('foo');
             store.str('foo');
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo'], [+1000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo'], [+1000001], [+1000001]));
         },
         'Slice after version'() {
             const store = new $.$hyoo_crowd_reg().fork(1);
@@ -658,8 +658,8 @@ var $;
             const clock1 = store.clock.fork(0);
             store.str('bar');
             const clock2 = store.clock.fork(0);
-            $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['bar'], [+2000001]));
-            $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['bar'], [+2000001], [+2000001]));
+            $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], [], [+2000001]));
         },
         'Cuncurrent changes'() {
             const base = new $.$hyoo_crowd_reg().fork(1);
@@ -670,10 +670,7 @@ var $;
             right.str('xxx');
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
-            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), {
-                values: ['xxx'],
-                stamps: [+2000003],
-            });
+            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['xxx'], [+2000003], [+1000001, +2000002, +2000003]));
         },
     });
 })($ || ($ = {}));
@@ -685,12 +682,12 @@ var $;
     $.$mol_test({
         'Default state'() {
             const val = new $.$hyoo_crowd_numb();
-            $.$mol_assert_like(val.delta(), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(val.delta(), $.$hyoo_crowd_delta([], [], []));
             $.$mol_assert_like(val.numb(), 0);
         },
         'Serial changes'() {
             const store = new $.$hyoo_crowd_numb().fork(1).shift(+5).shift(-3);
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([+2], [+2000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([+2], [+2000001], [+2000001]));
             $.$mol_assert_like(store.numb(), 2);
         },
         'Slice after version'() {
@@ -701,9 +698,9 @@ var $;
             const clock2 = store1.clock.fork(0);
             const store2 = store1.fork(2).shift(-2);
             const clock3 = store2.clock.fork(0);
-            $.$mol_assert_like(store2.delta(clock1), $.$hyoo_crowd_delta([+2, -2], [+2000001, +3000002]));
-            $.$mol_assert_like(store2.delta(clock2), $.$hyoo_crowd_delta([-2], [+3000002]));
-            $.$mol_assert_like(store2.delta(clock3), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store2.delta(clock1), $.$hyoo_crowd_delta([+2, -2], [+2000001, +3000002], [+2000001, +3000002]));
+            $.$mol_assert_like(store2.delta(clock2), $.$hyoo_crowd_delta([-2], [+3000002], [2000001, +3000002]));
+            $.$mol_assert_like(store2.delta(clock3), $.$hyoo_crowd_delta([], [], [2000001, +3000002]));
         },
         'Concurrent changes'() {
             const base = new $.$hyoo_crowd_numb().fork(1).shift(+5);
@@ -737,7 +734,7 @@ var $;
         numb() {
             return this.value();
         }
-        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
+        delta(clock = new $.$hyoo_crowd_clock, delta = this.clock.delta([], [])) {
             for (const store of this.stores.values()) {
                 const patch = store.delta(clock);
                 if (patch.values.length === 0)
@@ -764,7 +761,7 @@ var $;
         apply(delta) {
             for (let i = 0; i < delta.values.length; ++i) {
                 const peer = this.clock.peer_from(delta.stamps[i]);
-                this.reg(peer).apply($.$hyoo_crowd_delta([delta.values[i]], [delta.stamps[i]]));
+                this.reg(peer).apply($.$hyoo_crowd_delta([delta.values[i]], [delta.stamps[i]], delta.clock));
             }
             return this;
         }
@@ -778,7 +775,7 @@ var $;
 (function ($) {
     $.$mol_test({
         'Add keys'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('bar').delta(), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('bar').delta(), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001], [+2000001]));
         },
         'Slice after version'() {
             const store = new $.$hyoo_crowd_set().fork(1);
@@ -786,17 +783,17 @@ var $;
             const clock1 = store.clock.fork(0);
             store.add('bar');
             const clock2 = store.clock.fork(0);
-            $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['bar'], [+2000001]));
-            $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['bar'], [+2000001], [+2000001]));
+            $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], [], [+2000001]));
         },
         'Ignore existen keys'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('foo').delta(), $.$hyoo_crowd_delta(['foo'], [+1000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('foo').delta(), $.$hyoo_crowd_delta(['foo'], [+1000001], [+1000001]));
         },
         'Partial remove keys'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('bar').remove('foo').delta(), $.$hyoo_crowd_delta(['foo', 'bar'], [-3000001, +2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').add('bar').remove('foo').delta(), $.$hyoo_crowd_delta(['foo', 'bar'], [-3000001, +2000001], [+3000001]));
         },
         'Ignore already removed keys'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').remove('foo').remove('foo').delta(), $.$hyoo_crowd_delta(['foo'], [-2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add('foo').remove('foo').remove('foo').delta(), $.$hyoo_crowd_delta(['foo'], [-2000001], [+2000001]));
         },
         'Convert to native Set'() {
             const store = new $.$hyoo_crowd_set().fork(1).add('foo').add('xxx').remove('foo');
@@ -826,7 +823,7 @@ var $;
             $.$mol_assert_like(left.apply(right_delta).items.sort(), right.apply(left_delta).items.sort(), ['bar']);
         },
         'Number ids support'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add(1).add(2).add(2).delta(), $.$hyoo_crowd_delta([1, 2], [+1000001, +2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_set().fork(1).add(1).add(2).add(2).delta(), $.$hyoo_crowd_delta([1, 2], [+1000001, +2000001], [+2000001]));
         },
     });
 })($ || ($ = {}));
@@ -851,10 +848,9 @@ var $;
             return this.stamps.get(val) > 0;
         }
         version_item(val) {
-            var _a;
-            return this.clock.version_from((_a = this.stamps.get(val)) !== null && _a !== void 0 ? _a : 0);
+            return this.clock.version_from(this.stamps.get(val) ?? 0);
         }
-        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
+        delta(clock = new $.$hyoo_crowd_clock, delta = this.clock.delta([], [])) {
             for (const [key, stamp] of this.stamps) {
                 if (!clock.is_new(stamp))
                     continue;
@@ -866,13 +862,13 @@ var $;
         add(key) {
             if (this.has(key))
                 return this;
-            this.apply($.$hyoo_crowd_delta([key], [this.clock.generate()]));
+            this.apply(this.clock.delta([key], [this.clock.generate()]));
             return this;
         }
         remove(key) {
             if (!this.has(key))
                 return this;
-            this.apply($.$hyoo_crowd_delta([key], [-this.clock.generate()]));
+            this.apply(this.clock.delta([key], [-this.clock.generate()]));
             return this;
         }
         apply(delta) {
@@ -897,10 +893,10 @@ var $;
 (function ($) {
     $.$mol_test({
         'Put values to end'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').delta(), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').delta(), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001], [2000001]));
         },
         'Ignore existen values'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('foo').delta(), $.$hyoo_crowd_delta(['foo'], [+2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('foo').delta(), $.$hyoo_crowd_delta(['foo'], [+2000001], [2000001]));
         },
         'Slice after version'() {
             const store = new $.$hyoo_crowd_list().fork(1);
@@ -908,20 +904,20 @@ var $;
             const clock1 = store.clock.fork(0);
             store.insert('bar');
             const clock2 = store.clock.fork(0);
-            $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001]));
-            $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['foo', 'bar'], [+1000001, +2000001], [2000001]));
+            $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], [], [2000001]));
         },
         'Put value to the middle'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').insert('xxx', 1).delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'bar'], [+1000001, +3000001, +2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').insert('xxx', 1).delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'bar'], [+1000001, +3000001, +2000001], [3000001]));
         },
         'Put value to the start'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar', 0).delta(), $.$hyoo_crowd_delta(['bar', 'foo'], [+2000001, +1000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar', 0).delta(), $.$hyoo_crowd_delta(['bar', 'foo'], [+2000001, +1000001], [2000001]));
         },
         'Partial cut values'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').cut('foo').delta(), $.$hyoo_crowd_delta(['bar', 'foo'], [+2000001, -3000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar').cut('foo').delta(), $.$hyoo_crowd_delta(['bar', 'foo'], [+2000001, -3000001], [3000001]));
         },
         'Ignore already cutted values'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').cut('foo').cut('foo').delta(), $.$hyoo_crowd_delta(['foo'], [-2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert('foo').cut('foo').cut('foo').delta(), $.$hyoo_crowd_delta(['foo'], [-2000001], [2000001]));
         },
         'Convert to native array'() {
             const store = new $.$hyoo_crowd_list().fork(1)
@@ -936,7 +932,7 @@ var $;
                 .insert('foo')
                 .insert('bar');
             store.items(['foo', 'xxx', 'bar']);
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'bar'], [1000001, 3000001, 2000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'bar'], [1000001, 3000001, 2000001], [3000001]));
         },
         'Remove by native array'() {
             const store = new $.$hyoo_crowd_list().fork(1)
@@ -944,7 +940,7 @@ var $;
                 .insert('xxx')
                 .insert('bar');
             store.items(['foo', 'bar']);
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'bar', 'xxx'], [1000001, 3000001, -4000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'bar', 'xxx'], [1000001, 3000001, -4000001], [4000001]));
         },
         'Replace by native array'() {
             const store = new $.$hyoo_crowd_list().fork(1)
@@ -952,7 +948,7 @@ var $;
                 .insert('xxx')
                 .insert('bar');
             store.items(['foo', 'yyy', 'bar']);
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'yyy', 'bar', 'xxx'], [1000001, 5000001, 3000001, -4000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'yyy', 'bar', 'xxx'], [1000001, 5000001, 3000001, -4000001], [5000001]));
         },
         'Reorder by native array'() {
             const store = new $.$hyoo_crowd_list().fork(1)
@@ -960,14 +956,14 @@ var $;
                 .insert('xxx')
                 .insert('bar');
             store.items(['foo', 'bar', 'xxx']);
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'bar', 'xxx'], [1000001, 3000001, 5000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['foo', 'bar', 'xxx'], [1000001, 3000001, 5000001], [5000001]));
         },
         'Merge different sequences'() {
             const left = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
             const right = new $.$hyoo_crowd_list().fork(2).insert('xxx').insert('yyy');
             const left_delta = left.delta();
             const right_delta = right.delta();
-            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['xxx', 'yyy', 'foo', 'bar'], [+1000002, +2000002, +1000001, +2000001]));
+            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['xxx', 'yyy', 'foo', 'bar'], [+1000002, +2000002, +1000001, +2000001], [2000001, 2000002]));
         },
         'Insert in the same place'() {
             const base = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
@@ -975,7 +971,7 @@ var $;
             const right = base.fork(3).insert('yyy', 1);
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
-            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 'yyy', 'xxx', 'bar'], [+1000001, +3000003, +3000002, +2000001]));
+            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 'yyy', 'xxx', 'bar'], [+1000001, +3000003, +3000002, +2000001], [2000001, 3000002, 3000003]));
         },
         'Insert after moved'() {
             const base = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
@@ -983,7 +979,7 @@ var $;
             const right = base.fork(3).insert('foo', 2);
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
-            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['xxx', 'bar', 'foo'], [+3000002, +2000001, +3000003]));
+            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['xxx', 'bar', 'foo'], [+3000002, +2000001, +3000003], [2000001, 3000002, 3000003]));
         },
         'Insert after cutted'() {
             const base = new $.$hyoo_crowd_list().fork(1).insert('foo').insert('bar');
@@ -991,10 +987,10 @@ var $;
             const right = base.fork(3).cut('foo');
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
-            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['xxx', 'bar', 'foo'], [+3000002, +2000001, -3000003]));
+            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['xxx', 'bar', 'foo'], [+3000002, +2000001, -3000003], [2000001, 3000002, 3000003]));
         },
         'Number ids support'() {
-            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert(1).insert(2).insert(3, 1).delta(), $.$hyoo_crowd_delta([1, 3, 2], [+1000001, +3000001, +2000001]));
+            $.$mol_assert_like(new $.$hyoo_crowd_list().fork(1).insert(1).insert(2).insert(3, 1).delta(), $.$hyoo_crowd_delta([1, 3, 2], [+1000001, +3000001, +2000001], [3000001]));
         },
     });
 })($ || ($ = {}));
@@ -1009,7 +1005,7 @@ var $;
                 counter: $.$hyoo_crowd_numb,
                 string: $.$hyoo_crowd_reg,
             }).make();
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], [], []));
             $.$mol_assert_like(store.type, null);
             $.$mol_assert_like(store.as('counter'), null);
             $.$mol_assert_like(store.as('string'), null);
@@ -1033,7 +1029,7 @@ var $;
                 array: $.$hyoo_crowd_list,
             }).make().fork(1);
             store.to('counter').shift(+5).shift(-2);
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['counter', +3], [-1000001, +3000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['counter', +3], [-1000001, +3000001], [3000001]));
         },
         'Slice after version'() {
             const store = $.$hyoo_crowd_union.of({
@@ -1046,8 +1042,8 @@ var $;
             const clock1 = store.clock.fork(0);
             store.to('object').add('bar');
             const clock2 = store.clock.fork(0);
-            $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['object', 'bar'], [-1000001, +3000001]));
-            $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.delta(clock1), $.$hyoo_crowd_delta(['object', 'bar'], [-1000001, +3000001], [3000001]));
+            $.$mol_assert_like(store.delta(clock2), $.$hyoo_crowd_delta([], [], [3000001]));
         },
         'Reinterpret list as reg'() {
             const store = $.$hyoo_crowd_union.of({
@@ -1076,7 +1072,7 @@ var $;
             right.to('array').insert('xxx');
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
-            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['array', 'bar', 'foo', 'xxx'], [-3000003, +3000002, +2000001, +4000003]));
+            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['array', 'bar', 'foo', 'xxx'], [-3000003, +3000002, +2000001, +4000003], [2000001, 3000002, 4000003]));
         },
     });
 })($ || ($ = {}));
@@ -1112,7 +1108,7 @@ var $;
         to(type, stamp) {
             if (this.type === type)
                 return this.as(type);
-            this.type_store.apply($.$hyoo_crowd_delta([type], [stamp || -this.clock.generate()]));
+            this.type_store.apply(this.clock.delta([type], [stamp || -this.clock.generate()]));
             if (this.type !== type)
                 return this.as(this.type);
             const store = new this.Types[type](this.clock);
@@ -1120,12 +1116,11 @@ var $;
                 store.apply(this.value_store.delta());
             return this.value_store = store;
         }
-        delta(clock = new $.$hyoo_crowd_clock, delta = $.$hyoo_crowd_delta([], [])) {
-            var _a;
+        delta(clock = new $.$hyoo_crowd_clock, delta = this.clock.delta([], [])) {
             const begin = delta.values.length;
             this.type_store.delta(undefined, delta);
             const middle = delta.values.length;
-            (_a = this.value_store) === null || _a === void 0 ? void 0 : _a.delta(clock, delta);
+            this.value_store?.delta(clock, delta);
             if (delta.values.length === middle && !clock.is_new(this.type_store.version)) {
                 delta.values.length = begin;
                 delta.stamps.length = begin;
@@ -1142,7 +1137,7 @@ var $;
                 return this;
             }
             const store = this.to(type, delta.stamps[0]);
-            store.apply($.$hyoo_crowd_delta(delta.values.slice(1), delta.stamps.slice(1)));
+            store.apply($.$hyoo_crowd_delta(delta.values.slice(1), delta.stamps.slice(1), delta.clock));
             return this;
         }
     }
@@ -2780,6 +2775,55 @@ var $;
 "use strict";
 var $;
 (function ($_1) {
+    $_1.$mol_test_mocks.push(context => {
+        class $mol_state_arg_mock extends $_1.$mol_state_arg {
+            static href(next) { return next || ''; }
+        }
+        $mol_state_arg_mock.$ = context;
+        __decorate([
+            $_1.$mol_mem
+        ], $mol_state_arg_mock, "href", null);
+        context.$mol_state_arg = $mol_state_arg_mock;
+    });
+    $_1.$mol_test({
+        'args as dictionary'($) {
+            $.$mol_state_arg.href('#!foo=bar/xxx');
+            $_1.$mol_assert_like($.$mol_state_arg.dict(), { foo: 'bar', xxx: '' });
+            $.$mol_state_arg.dict({ foo: null, yyy: '', lol: '123' });
+            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!yyy/lol=123');
+        },
+        'one value from args'($) {
+            $.$mol_state_arg.href('#!foo=bar/xxx');
+            $_1.$mol_assert_equal($.$mol_state_arg.value('foo'), 'bar');
+            $_1.$mol_assert_equal($.$mol_state_arg.value('xxx'), '');
+            $.$mol_state_arg.value('foo', 'lol');
+            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!foo=lol/xxx');
+            $.$mol_state_arg.value('foo', '');
+            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!foo/xxx');
+            $.$mol_state_arg.value('foo', null);
+            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!xxx');
+        },
+        'nested args'($) {
+            const base = new $.$mol_state_arg('nested.');
+            class Nested extends $_1.$mol_state_arg {
+                constructor(prefix) {
+                    super(base.prefix + prefix);
+                }
+            }
+            Nested.value = (key, next) => base.value(key, next);
+            $.$mol_state_arg.href('#!foo=bar/nested.xxx=123');
+            $_1.$mol_assert_equal(Nested.value('foo'), null);
+            $_1.$mol_assert_equal(Nested.value('xxx'), '123');
+            Nested.value('foo', 'lol');
+            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!foo=bar/nested.xxx=123/nested.foo=lol');
+        },
+    });
+})($ || ($ = {}));
+//arg.web.test.js.map
+;
+"use strict";
+var $;
+(function ($_1) {
     var $$;
     (function ($$) {
         $_1.$mol_test({
@@ -2871,55 +2915,6 @@ var $;
 ;
 "use strict";
 var $;
-(function ($_1) {
-    $_1.$mol_test_mocks.push(context => {
-        class $mol_state_arg_mock extends $_1.$mol_state_arg {
-            static href(next) { return next || ''; }
-        }
-        $mol_state_arg_mock.$ = context;
-        __decorate([
-            $_1.$mol_mem
-        ], $mol_state_arg_mock, "href", null);
-        context.$mol_state_arg = $mol_state_arg_mock;
-    });
-    $_1.$mol_test({
-        'args as dictionary'($) {
-            $.$mol_state_arg.href('#!foo=bar/xxx');
-            $_1.$mol_assert_like($.$mol_state_arg.dict(), { foo: 'bar', xxx: '' });
-            $.$mol_state_arg.dict({ foo: null, yyy: '', lol: '123' });
-            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!yyy/lol=123');
-        },
-        'one value from args'($) {
-            $.$mol_state_arg.href('#!foo=bar/xxx');
-            $_1.$mol_assert_equal($.$mol_state_arg.value('foo'), 'bar');
-            $_1.$mol_assert_equal($.$mol_state_arg.value('xxx'), '');
-            $.$mol_state_arg.value('foo', 'lol');
-            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!foo=lol/xxx');
-            $.$mol_state_arg.value('foo', '');
-            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!foo/xxx');
-            $.$mol_state_arg.value('foo', null);
-            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!xxx');
-        },
-        'nested args'($) {
-            const base = new $.$mol_state_arg('nested.');
-            class Nested extends $_1.$mol_state_arg {
-                constructor(prefix) {
-                    super(base.prefix + prefix);
-                }
-            }
-            Nested.value = (key, next) => base.value(key, next);
-            $.$mol_state_arg.href('#!foo=bar/nested.xxx=123');
-            $_1.$mol_assert_equal(Nested.value('foo'), null);
-            $_1.$mol_assert_equal(Nested.value('xxx'), '123');
-            Nested.value('foo', 'lol');
-            $_1.$mol_assert_equal($.$mol_state_arg.href().replace(/.*#/, '#'), '#!foo=bar/nested.xxx=123/nested.foo=lol');
-        },
-    });
-})($ || ($ = {}));
-//arg.web.test.js.map
-;
-"use strict";
-var $;
 (function ($) {
     $.$mol_test({
         'Change dict by different keys'() {
@@ -2928,7 +2923,7 @@ var $;
             val.for('bar').insert(777);
             val.for('foo').insert(888, 0);
             val.for('bar').cut(777);
-            $.$mol_assert_like(val.delta(), $.$hyoo_crowd_delta(['foo', 888, 666, 'bar', 777], [-2, 3000001, 1000001, -1, -4000001]));
+            $.$mol_assert_like(val.delta(), $.$hyoo_crowd_delta(['foo', 888, 666, 'bar', 777], [-2, 3000001, 1000001, -1, -4000001], [4000001]));
         },
         'Slice dict after version'() {
             const val = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_set }).make().fork(1);
@@ -2940,8 +2935,8 @@ var $;
             val.for('bar').add(5);
             val.for('xxx').add(6);
             const clock2 = val.clock.fork(0);
-            $.$mol_assert_like(val.delta(clock1), $.$hyoo_crowd_delta(['foo', 4, 'bar', 5, 'xxx', 6], [-1, +4000001, -1, +5000001, -1, +6000001]));
-            $.$mol_assert_like(val.delta(clock2), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(val.delta(clock1), $.$hyoo_crowd_delta(['foo', 4, 'bar', 5, 'xxx', 6], [-1, +4000001, -1, +5000001, -1, +6000001], [6000001]));
+            $.$mol_assert_like(val.delta(clock2), $.$hyoo_crowd_delta([], [], [6000001]));
         },
         'Merge different dicts'() {
             const left = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make().fork(1);
@@ -2953,8 +2948,8 @@ var $;
             right.for('bar').insert('zzz');
             const left_delta = left.delta();
             const right_delta = right.delta();
-            $.$mol_assert_like(left.apply(right_delta).delta(), $.$hyoo_crowd_delta(['foo', 777, 666, '', 'xxx', 'bar', 'yyy', 'zzz'], [-2, 1000002, 1000001, -1, 2000001, -2, 2000002, 3000002]));
-            $.$mol_assert_like(right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 777, 666, 'bar', 'yyy', 'zzz', '', 'xxx'], [-2, 1000002, 1000001, -2, 2000002, 3000002, -1, 2000001]));
+            $.$mol_assert_like(left.apply(right_delta).delta(), $.$hyoo_crowd_delta(['foo', 777, 666, '', 'xxx', 'bar', 'yyy', 'zzz'], [-2, 1000002, 1000001, -1, 2000001, -2, 2000002, 3000002], [2000001, 3000002]));
+            $.$mol_assert_like(right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 777, 666, 'bar', 'yyy', 'zzz', '', 'xxx'], [-2, 1000002, 1000001, -2, 2000002, 3000002, -1, 2000001], [2000001, 3000002]));
         },
         'Merge increases versions in dicts'() {
             const base = $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }).make();
@@ -2965,7 +2960,7 @@ var $;
             right.for('bar').insert(18);
             left.apply(right.delta());
             left.for('foo').insert('yyy');
-            $.$mol_assert_like(left.delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'yyy', 'bar', 17, 18], [-2, 1000001, 3000001, -2, 1000002, 2000002]));
+            $.$mol_assert_like(left.delta(), $.$hyoo_crowd_delta(['foo', 'xxx', 'yyy', 'bar', 17, 18], [-2, 1000001, 3000001, -2, 1000002, 2000002], [2000002, 3000001]));
         },
         'Dictionary of Union'() {
             const base = $.$hyoo_crowd_dict.of({
@@ -2981,7 +2976,7 @@ var $;
             right.for('foo').to('array').insert('xxx');
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
-            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 'array', 'xxx', 'bar'], [-3, -1000002, 2000002, 2000001]));
+            $.$mol_assert_like(left.apply(right_delta).delta(), right.apply(left_delta).delta(), $.$hyoo_crowd_delta(['foo', 'array', 'xxx', 'bar'], [-3, -1000002, 2000002, 2000001], [2000001, 2000002]));
         },
         'Dictionary of Dictionary'() {
             const base = $.$hyoo_crowd_dict.of({
@@ -3007,7 +3002,7 @@ var $;
             }).make();
             $.$mol_assert_like(store.for('keys').items(), []);
             $.$mol_assert_like(store.for('vals').for('foo').str(), '');
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], []));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta([], [], []));
         },
         'Changed tuple state'() {
             const Map = $.$hyoo_crowd_dict.of({
@@ -3021,7 +3016,7 @@ var $;
             $.$mol_assert_like(store.for('vers').numb(), 0);
             $.$mol_assert_like(store.for('keys').items, ['foo', 'bar']);
             $.$mol_assert_like(store.for('vals').for('xxx').str(), 'yyy');
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['keys', 'foo', 'bar', 'vals', 'xxx', 'yyy'], [-2, +1000001, +2000001, -2, -1, +3000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(['keys', 'foo', 'bar', 'vals', 'xxx', 'yyy'], [-2, +1000001, +2000001, -2, -1, +3000001], [3000001]));
         },
         'Tuple of tuples'() {
             const Point = $.$hyoo_crowd_dict.of({
@@ -3041,11 +3036,17 @@ var $;
             $.$mol_assert_like(store.for('TL').for('Y').numb(), -3);
             $.$mol_assert_like(store.for('BR').for('X').numb(), +5);
             $.$mol_assert_like(store.for('BR').for('Y').numb(), +7);
-            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(["TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7], [-4, -1, +1000001, -1, +2000001, -4, -1, +3000001, -1, +4000001]));
+            $.$mol_assert_like(store.delta(), $.$hyoo_crowd_delta(["TL", "X", -2, "Y", -3, "BR", "X", +5, "Y", +7], [-4, -1, +1000001, -1, +2000001, -4, -1, +3000001, -1, +4000001], [4000001]));
         },
     });
 })($ || ($ = {}));
 //dict.test.js.map
+;
+"use strict";
+//equals.test.js.map
+;
+"use strict";
+//merge.test.js.map
 ;
 "use strict";
 //intersect.test.js.map
@@ -3059,85 +3060,93 @@ var $;
             $.$mol_assert_equal(specials.source, '\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\');
         },
         'char code'() {
-            const space = $.$mol_regexp.char_code(32);
-            $.$mol_assert_equal(space.exec(' ')[0], ' ');
+            const space = $.$mol_regexp.from(32);
+            $.$mol_assert_like(' '.match(space), [' ']);
         },
         'repeat fixed'() {
-            const { repeat, digit } = $.$mol_regexp;
+            const { repeat, decimal_only: digit } = $.$mol_regexp;
             const year = repeat(digit, 4, 4);
-            $.$mol_assert_equal(year.exec('#2020#')[0], '2020');
+            $.$mol_assert_like('#2020#'.match(year), ['2020']);
         },
         'greedy repeat'() {
-            const { repeat, repeat_greedy, letter } = $.$mol_regexp;
-            $.$mol_assert_equal(repeat(letter).exec('abc')[0], '');
-            $.$mol_assert_equal(repeat_greedy(letter).exec('abc')[0], 'abc');
+            const { repeat, repeat_greedy, latin_only: letter } = $.$mol_regexp;
+            $.$mol_assert_like('abc'.match(repeat(letter, 1, 2)), ['a', 'b', 'c']);
+            $.$mol_assert_like('abc'.match(repeat_greedy(letter, 1, 2)), ['ab', 'c']);
         },
         'repeat range'() {
-            const { repeat_greedy, digit } = $.$mol_regexp;
+            const { repeat_greedy, decimal_only: digit } = $.$mol_regexp;
             const year = repeat_greedy(digit, 2, 4);
-            $.$mol_assert_equal(year.exec('#2#'), null);
-            $.$mol_assert_equal(year.exec('#20#')[0], '20');
-            $.$mol_assert_equal(year.exec('#2020#')[0], '2020');
-            $.$mol_assert_equal(year.exec('#20201#')[0], '2020');
+            $.$mol_assert_like('#2#'.match(year), null);
+            $.$mol_assert_like('#20#'.match(year), ['20']);
+            $.$mol_assert_like('#2020#'.match(year), ['2020']);
+            $.$mol_assert_like('#20201#'.match(year), ['2020']);
         },
         'repeat from'() {
-            const { repeat_greedy, letter } = $.$mol_regexp;
+            const { repeat_greedy, latin_only: letter } = $.$mol_regexp;
             const name = repeat_greedy(letter, 2);
-            $.$mol_assert_equal(name.exec('##'), null);
-            $.$mol_assert_equal(name.exec('#a#'), null);
-            $.$mol_assert_equal(name.exec('#ab#')[0], 'ab');
-            $.$mol_assert_equal(name.exec('#abc#')[0], 'abc');
-        },
-        'optional'() {
-            const { optional, letter } = $.$mol_regexp;
-            const name = optional(letter);
-            $.$mol_assert_equal(name.exec('')[0], '');
-            $.$mol_assert_equal(name.exec('a')[0], 'a');
-            $.$mol_assert_equal(name.exec('ab')[0], 'a');
+            $.$mol_assert_like('##'.match(name), null);
+            $.$mol_assert_like('#a#'.match(name), null);
+            $.$mol_assert_like('#ab#'.match(name), ['ab']);
+            $.$mol_assert_like('#abc#'.match(name), ['abc']);
         },
         'from string'() {
             const regexp = $.$mol_regexp.from('[\\d]');
             $.$mol_assert_equal(regexp.source, '\\[\\\\d\\]');
-            $.$mol_assert_equal(regexp.flags, 'gu');
+            $.$mol_assert_equal(regexp.flags, 'gsu');
         },
         'from regexp'() {
             const regexp = $.$mol_regexp.from(/[\d]/i);
             $.$mol_assert_equal(regexp.source, '[\\d]');
             $.$mol_assert_equal(regexp.flags, 'i');
         },
+        'split'() {
+            const regexp = $.$mol_regexp.from(';');
+            $.$mol_assert_like('aaa;bbb;ccc'.split(regexp), ['aaa', ';', 'bbb', ';', 'ccc']);
+            $.$mol_assert_like('aaa;;ccc'.split(regexp), ['aaa', ';', '', ';', 'ccc']);
+            $.$mol_assert_like('aaa'.split(regexp), ['aaa']);
+            $.$mol_assert_like(''.split(regexp), ['']);
+        },
         'case ignoring'() {
             const xxx = $.$mol_regexp.from('x', { ignoreCase: true });
-            $.$mol_assert_like(xxx.flags, 'giu');
+            $.$mol_assert_like(xxx.flags, 'gisu');
             $.$mol_assert_like(xxx.exec('xx')[0], 'x');
             $.$mol_assert_like(xxx.exec('XX')[0], 'X');
         },
         'multiline mode'() {
-            const { end } = $.$mol_regexp;
-            const xxx = $.$mol_regexp.from(['x', end], { multiline: true });
+            const { end, from } = $.$mol_regexp;
+            const xxx = from(['x', end], { multiline: true });
             $.$mol_assert_like(xxx.exec('x\ny')[0], 'x');
-            $.$mol_assert_like(xxx.flags, 'gmu');
+            $.$mol_assert_like(xxx.flags, 'gmsu');
+        },
+        'flags override'() {
+            const triplet = $.$mol_regexp.from($.$mol_regexp.from(/.../, { ignoreCase: true }), { multiline: true });
+            $.$mol_assert_like(triplet.toString(), '/.../gmsu');
         },
         'sequence'() {
-            const { begin, end, digit, repeat } = $.$mol_regexp;
+            const { begin, end, decimal_only: digit, repeat, from } = $.$mol_regexp;
             const year = repeat(digit, 4, 4);
             const dash = '-';
             const month = repeat(digit, 2, 2);
             const day = repeat(digit, 2, 2);
-            const date = $.$mol_regexp.from([begin, year, dash, month, dash, day, end], { ignoreCase: true });
+            const date = from([begin, year, dash, month, dash, day, end]);
             $.$mol_assert_like(date.exec('2020-01-02')[0], '2020-01-02');
-            $.$mol_assert_like(date.ignoreCase, true);
+        },
+        'optional'() {
+            const name = $.$mol_regexp.from(['A', ['4']]);
+            $.$mol_assert_equal('AB'.match(name)[0], 'A');
+            $.$mol_assert_equal('A4'.match(name)[0], 'A4');
         },
         'only groups'() {
             const regexp = $.$mol_regexp.from({ dog: '@' });
-            $.$mol_assert_like([...regexp.parse('#')], [{ 0: '#' }]);
-            $.$mol_assert_like([...regexp.parse('@')], [{ dog: '@' }]);
+            $.$mol_assert_like([...'#'.matchAll(regexp)][0].groups, undefined);
+            $.$mol_assert_like([...'@'.matchAll(regexp)][0].groups, { dog: '@' });
         },
         'catch skipped'() {
             const regexp = $.$mol_regexp.from(/(@)(\d?)/g);
-            $.$mol_assert_like([...regexp.parse('[[@]]')], [
-                { 0: '[[' },
-                { 1: '@', 2: '' },
-                { 0: ']]' },
+            $.$mol_assert_like([...'[[@]]'.matchAll(regexp)].map(f => [...f]), [
+                ['[['],
+                ['@', '@', ''],
+                [']]'],
             ]);
         },
         'enum variants'() {
@@ -3147,9 +3156,10 @@ var $;
                 Sex["female"] = "female";
             })(Sex || (Sex = {}));
             const sexism = $.$mol_regexp.from(Sex);
-            $.$mol_assert_like([...sexism.parse('')], []);
-            $.$mol_assert_like([...sexism.parse('male')], [{ male: 'male', female: '' }]);
-            $.$mol_assert_like([...sexism.parse('female')], [{ male: '', female: 'female' }]);
+            $.$mol_assert_like([...''.matchAll(sexism)].length, 0);
+            $.$mol_assert_like([...'trans'.matchAll(sexism)][0].groups, undefined);
+            $.$mol_assert_like([...'male'.matchAll(sexism)][0].groups, { male: 'male', female: '' });
+            $.$mol_assert_like([...'female'.matchAll(sexism)][0].groups, { male: '', female: 'female' });
         },
         'recursive only groups'() {
             let Sex;
@@ -3158,95 +3168,155 @@ var $;
                 Sex["female"] = "female";
             })(Sex || (Sex = {}));
             const sexism = $.$mol_regexp.from({ Sex });
-            $.$mol_assert_like([...sexism.parse('')], []);
-            $.$mol_assert_like([...sexism.parse('male')], [{ Sex: 'male', male: 'male', female: '' }]);
-            $.$mol_assert_like([...sexism.parse('female')], [{ Sex: 'female', male: '', female: 'female' }]);
+            $.$mol_assert_like([...''.matchAll(sexism)].length, 0);
+            $.$mol_assert_like([...'male'.matchAll(sexism)][0].groups, { Sex: 'male', male: 'male', female: '' });
+            $.$mol_assert_like([...'female'.matchAll(sexism)][0].groups, { Sex: 'female', male: '', female: 'female' });
         },
         'sequence with groups'() {
-            const { begin, end, digit, repeat } = $.$mol_regexp;
+            const { begin, end, decimal_only: digit, repeat, from } = $.$mol_regexp;
             const year = repeat(digit, 4, 4);
             const dash = '-';
             const month = repeat(digit, 2, 2);
             const day = repeat(digit, 2, 2);
-            const regexp = $.$mol_regexp.from([begin, { year }, dash, { month }, dash, { day }, end]);
-            const found = [...regexp.parse('2020-01-02')];
-            $.$mol_assert_like(found, [{
-                    year: '2020',
-                    month: '01',
-                    day: '02',
-                }]);
+            const regexp = from([begin, { year }, dash, { month }, dash, { day }, end]);
+            const found = [...'2020-01-02'.matchAll(regexp)];
+            $.$mol_assert_like(found[0].groups, {
+                year: '2020',
+                month: '01',
+                day: '02',
+            });
         },
         'sequence with groups of mixed type'() {
             const prefix = '/';
             const postfix = '/';
             const regexp = $.$mol_regexp.from([{ prefix }, /(\w+)/, { postfix }, /([gumi]*)/]);
-            const found = [...regexp.parse('/foo/mi')];
-            $.$mol_assert_like(found, [{
-                    prefix: '/',
-                    0: 'foo',
-                    postfix: '/',
-                    1: 'mi',
-                }]);
+            $.$mol_assert_like([...'/foo/mi'.matchAll(regexp)], [
+                Object.assign(["/foo/mi", "/", "foo", "/", "mi"], {
+                    groups: {
+                        prefix: '/',
+                        postfix: '/',
+                    },
+                    index: 0,
+                    input: "/",
+                }),
+            ]);
         },
         'recursive sequence with groups'() {
-            const { begin, end, digit, repeat } = $.$mol_regexp;
+            const { begin, end, decimal_only: digit, repeat, from } = $.$mol_regexp;
             const year = repeat(digit, 4, 4);
             const dash = '-';
             const month = repeat(digit, 2, 2);
             const day = repeat(digit, 2, 2);
-            const regexp = $.$mol_regexp.from([begin, { date: [{ year }, dash, { month }] }, dash, { day }, end]);
-            const found = [...regexp.parse('2020-01-02')];
-            $.$mol_assert_like(found, [{
-                    date: '2020-01',
-                    year: '2020',
-                    month: '01',
-                    day: '02',
-                }]);
+            const regexp = from([
+                begin, { date: [{ year }, dash, { month }] }, dash, { day }, end
+            ]);
+            const found = [...'2020-01-02'.matchAll(regexp)];
+            $.$mol_assert_like(found[0].groups, {
+                date: '2020-01',
+                year: '2020',
+                month: '01',
+                day: '02',
+            });
         },
         'parse multiple'() {
-            const { digit } = $.$mol_regexp;
-            const regexp = $.$mol_regexp.from({ digit });
-            $.$mol_assert_like([...regexp.parse('123')], [
+            const { decimal_only: digit, from } = $.$mol_regexp;
+            const regexp = from({ digit });
+            $.$mol_assert_like([...'123'.matchAll(regexp)].map(f => f.groups), [
                 { digit: '1' },
                 { digit: '2' },
                 { digit: '3' },
             ]);
         },
         'variants'() {
-            const { begin, or, end } = $.$mol_regexp;
-            const sexism = $.$mol_regexp.from([begin, 'sex = ', { sex: ['male', or, 'female'] }, end]);
-            $.$mol_assert_like([...sexism.parse('sex = male')], [{ sex: 'male' }]);
-            $.$mol_assert_like([...sexism.parse('sex = female')], [{ sex: 'female' }]);
-            $.$mol_assert_like([...sexism.parse('sex = malefemale')], [{ 0: 'sex = malefemale' }]);
+            const { begin, or, end, from } = $.$mol_regexp;
+            const sexism = from([
+                begin, 'sex = ', { sex: ['male', or, 'female'] }, end
+            ]);
+            $.$mol_assert_like([...'sex = male'.matchAll(sexism)][0].groups, { sex: 'male' });
+            $.$mol_assert_like([...'sex = female'.matchAll(sexism)][0].groups, { sex: 'female' });
+            $.$mol_assert_like([...'sex = malefemale'.matchAll(sexism)][0].groups, undefined);
         },
         'force after'() {
-            const { letter, force_after } = $.$mol_regexp;
-            const regexp = $.$mol_regexp.from([letter, force_after('.')]);
-            $.$mol_assert_equal(regexp.exec('x.')[0], 'x');
-            $.$mol_assert_equal(regexp.exec('x5'), null);
+            const { latin_only: letter, force_after, from } = $.$mol_regexp;
+            const regexp = from([letter, force_after('.')]);
+            $.$mol_assert_like('x.'.match(regexp), ['x']);
+            $.$mol_assert_like('x,'.match(regexp), null);
         },
         'forbid after'() {
-            const { letter, forbid_after } = $.$mol_regexp;
-            const regexp = $.$mol_regexp.from([letter, forbid_after('.')]);
-            $.$mol_assert_equal(regexp.exec('x.'), null);
-            $.$mol_assert_equal(regexp.exec('x5')[0], 'x');
+            const { latin_only: letter, forbid_after, from } = $.$mol_regexp;
+            const regexp = from([letter, forbid_after('.')]);
+            $.$mol_assert_like('x.'.match(regexp), null);
+            $.$mol_assert_like('x,'.match(regexp), ['x']);
         },
-        'byte except'() {
-            const { char_except, letter, tab } = $.$mol_regexp;
-            const name = char_except(letter, tab);
-            $.$mol_assert_equal(name.exec('a'), null);
-            $.$mol_assert_equal(name.exec('\t'), null);
-            $.$mol_assert_equal(name.exec('(')[0], '(');
+        'char except'() {
+            const { char_except, latin_only, tab } = $.$mol_regexp;
+            const name = char_except(latin_only, tab);
+            $.$mol_assert_like('a'.match(name), null);
+            $.$mol_assert_like('\t'.match(name), null);
+            $.$mol_assert_like('('.match(name), ['(']);
         },
         'unicode only'() {
-            const { unicode_only } = $.$mol_regexp;
-            const name = $.$mol_regexp.from([
+            const { unicode_only, from } = $.$mol_regexp;
+            const name = from([
                 unicode_only('Script', 'Cyrillic'),
                 unicode_only('Hex_Digit'),
             ]);
-            $.$mol_assert_equal(name.exec('FF'), null);
-            $.$mol_assert_equal(name.exec('ФG'), null);
-            $.$mol_assert_equal(name.exec('ФF')[0], 'ФF');
+            $.$mol_assert_like('FF'.match(name), null);
+            $.$mol_assert_like('ФG'.match(name), null);
+            $.$mol_assert_like('ФF'.match(name), ['ФF']);
+        },
+        'generate by optional with inner group'() {
+            const { begin, end, from } = $.$mol_regexp;
+            const animals = from([begin, '#', ['^', { dog: '@' }], end]);
+            $.$mol_assert_equal(animals.generate({}), '#');
+            $.$mol_assert_equal(animals.generate({ dog: false }), '#');
+            $.$mol_assert_equal(animals.generate({ dog: true }), '#^@');
+            $.$mol_assert_fail(() => animals.generate({ dog: '$' }), 'Wrong param: dog=$');
+        },
+        'generate by optional with inner group with variants'() {
+            const { begin, end, from } = $.$mol_regexp;
+            const animals = from([begin, '#', ['^', { animal: { dog: '@', fox: '&' } }], end]);
+            $.$mol_assert_equal(animals.generate({}), '#');
+            $.$mol_assert_equal(animals.generate({ dog: true }), '#^@');
+            $.$mol_assert_equal(animals.generate({ fox: true }), '#^&');
+            $.$mol_assert_fail(() => animals.generate({ dog: '$' }), 'Wrong param: dog=$');
+        },
+        'complex example'() {
+            const { begin, end, char_only, char_range, latin_only, slash_back, repeat_greedy, from, } = $.$mol_regexp;
+            const atom_char = char_only(latin_only, "!#$%&'*+/=?^`{|}~-");
+            const atom = repeat_greedy(atom_char, 1);
+            const dot_atom = from([atom, repeat_greedy(['.', atom])]);
+            const name_letter = char_only(char_range(0x01, 0x08), 0x0b, 0x0c, char_range(0x0e, 0x1f), 0x21, char_range(0x23, 0x5b), char_range(0x5d, 0x7f));
+            const quoted_pair = from([
+                slash_back,
+                char_only(char_range(0x01, 0x09), 0x0b, 0x0c, char_range(0x0e, 0x7f))
+            ]);
+            const name = repeat_greedy({ name_letter, quoted_pair });
+            const quoted_name = from(['"', { name }, '"']);
+            const local_part = from({ dot_atom, quoted_name });
+            const domain = dot_atom;
+            const mail = from([begin, local_part, '@', { domain }, end]);
+            $.$mol_assert_equal('foo..bar@example.org'.match(mail), null);
+            $.$mol_assert_equal('foo..bar"@example.org'.match(mail), null);
+            $.$mol_assert_like([...'foo.bar@example.org'.matchAll(mail)][0].groups, {
+                domain: "example.org",
+                dot_atom: "foo.bar",
+                name: "",
+                name_letter: "",
+                quoted_name: "",
+                quoted_pair: "",
+            });
+            $.$mol_assert_like([...'"foo..bar"@example.org'.matchAll(mail)][0].groups, {
+                dot_atom: "",
+                quoted_name: '"foo..bar"',
+                name: "foo..bar",
+                name_letter: "r",
+                quoted_pair: "",
+                domain: "example.org",
+            });
+            $.$mol_assert_equal(mail.generate({ dot_atom: 'foo.bar', domain: 'example.org' }), 'foo.bar@example.org');
+            $.$mol_assert_equal(mail.generate({ name: 'foo..bar', domain: 'example.org' }), '"foo..bar"@example.org');
+            $.$mol_assert_fail(() => mail.generate({ dot_atom: 'foo..bar', domain: 'example.org' }), 'Wrong param: dot_atom=foo..bar');
         },
     });
 })($ || ($ = {}));
@@ -3257,31 +3327,31 @@ var $;
 (function ($) {
     $.$mol_test({
         'empty string'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('')], []);
+            $.$mol_assert_like(''.match($.$hyoo_crowd_text_tokenizer), null);
         },
         'new lines'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('\n\r\n')].map(t => t.token), ['\n', '\r\n']);
+            $.$mol_assert_like('\n\r\n'.match($.$hyoo_crowd_text_tokenizer), ['\n', '\r\n']);
         },
         'emoji'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('😀😁')].map(t => t.token), ['😀', '😁']);
+            $.$mol_assert_like('😀😁'.match($.$hyoo_crowd_text_tokenizer), ['😀', '😁']);
         },
         'emoji with modifier'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('👩🏿👩🏿')].map(t => t.token), ['👩🏿', '👩🏿']);
+            $.$mol_assert_like('👩🏿👩🏿'.match($.$hyoo_crowd_text_tokenizer), ['👩🏿', '👩🏿']);
         },
         'combo emoji with modifier'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿')].map(t => t.token), ['👩🏿‍🤝‍🧑🏿', '👩🏿‍🤝‍🧑🏿']);
+            $.$mol_assert_like('👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿'.match($.$hyoo_crowd_text_tokenizer), ['👩🏿‍🤝‍🧑🏿', '👩🏿‍🤝‍🧑🏿']);
         },
         'word with spaces'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('foo1  bar2')].map(t => t.token), ['foo1 ', ' ', 'bar2']);
+            $.$mol_assert_like('foo1  bar2'.match($.$hyoo_crowd_text_tokenizer), ['foo1 ', ' ', 'bar2']);
         },
         'word with diactric'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('Е́е́')].map(t => t.token), ['Е́е́']);
+            $.$mol_assert_like('Е́е́'.match($.$hyoo_crowd_text_tokenizer), ['Е́е́']);
         },
         'word with punctuation'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('foo--bar')].map(t => t.token), ['foo--', 'bar']);
+            $.$mol_assert_like('foo--bar'.match($.$hyoo_crowd_text_tokenizer), ['foo--', 'bar']);
         },
         'CamelCase'() {
-            $.$mol_assert_like([...$.$hyoo_crowd_text_tokenizer.parse('Foo1BAR2')].map(t => t.token), ['Foo1', 'BAR2']);
+            $.$mol_assert_like('Foo1BAR2'.match($.$hyoo_crowd_text_tokenizer), ['Foo1', 'BAR2']);
         },
     });
 })($ || ($ = {}));
@@ -3608,12 +3678,6 @@ var $;
 //view.js.map
 ;
 "use strict";
-//equals.test.js.map
-;
-"use strict";
-//equals.js.map
-;
-"use strict";
 var $;
 (function ($) {
     $.$mol_test({
@@ -3678,7 +3742,7 @@ var $;
             super(message);
             this.errors = errors;
             if (errors.length) {
-                const stacks = [...errors.map(error => error.message), this.stack];
+                const stacks = [...errors.map(error => error.stack), this.stack];
                 const diff = $.$mol_diff_path(...stacks.map(stack => {
                     if (!stack)
                         return [];
