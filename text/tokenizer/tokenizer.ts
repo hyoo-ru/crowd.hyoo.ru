@@ -9,7 +9,7 @@ namespace $ {
 			
 			'emoji': [
 				
-				unicode_only( 'Emoji' ),
+				unicode_only( 'Extended_Pictographic' ),
 				optional( unicode_only( 'Emoji_Modifier' ) ),
 				
 				repeat_greedy([

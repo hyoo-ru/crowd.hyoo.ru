@@ -15,6 +15,13 @@ namespace $ {
 			)
 		},
 		
+		'numbers'() {
+			$mol_assert_like(
+				'123'.match( $hyoo_crowd_text_tokenizer ),
+				[ '123' ],
+			)
+		},
+		
 		'emoji'() {
 			$mol_assert_like(
 				'😀😁'.match( $hyoo_crowd_text_tokenizer ),
