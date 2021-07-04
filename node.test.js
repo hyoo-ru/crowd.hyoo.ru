@@ -5722,7 +5722,7 @@ var $;
         token: {
             'line-break': line_end,
             'emoji': [
-                unicode_only('Emoji'),
+                unicode_only('Extended_Pictographic'),
                 optional(unicode_only('Emoji_Modifier')),
                 repeat_greedy([
                     unicode_only('Emoji_Component'),
@@ -11728,6 +11728,9 @@ var $;
         },
         'new lines'() {
             $.$mol_assert_like('\n\r\n'.match($.$hyoo_crowd_text_tokenizer), ['\n', '\r\n']);
+        },
+        'numbers'() {
+            $.$mol_assert_like('123'.match($.$hyoo_crowd_text_tokenizer), ['123']);
         },
         'emoji'() {
             $.$mol_assert_like('😀😁'.match($.$hyoo_crowd_text_tokenizer), ['😀', '😁']);

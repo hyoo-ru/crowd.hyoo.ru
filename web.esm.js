@@ -5515,7 +5515,7 @@ var $;
         token: {
             'line-break': line_end,
             'emoji': [
-                unicode_only('Emoji'),
+                unicode_only('Extended_Pictographic'),
                 optional(unicode_only('Emoji_Modifier')),
                 repeat_greedy([
                     unicode_only('Emoji_Component'),
