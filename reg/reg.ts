@@ -42,7 +42,7 @@ namespace $ {
 			if( this._value === next ) return this._value
 			
 			this._value = next
-			this.clock.feed( this._stamp = this._mult * this.clock.generate() )
+			this.clock.see( this._stamp = this._mult * this.clock.tick() )
 
 			return next
 		}
@@ -56,7 +56,7 @@ namespace $ {
 				const val = delta.values[i]
 				const stamp = delta.stamps[i]
 			
-				this.clock.feed( stamp )
+				this.clock.see( stamp )
 				
 				if( this._mult * stamp <= this._mult * this._stamp ) continue
 				

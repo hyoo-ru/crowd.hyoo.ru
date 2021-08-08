@@ -47,8 +47,8 @@ namespace $ {
 		}
 		
 		version_feed( version: number ) {
-			this.clock.feed( version )
-			this.clock_self.feed( version )
+			this.clock.see( version )
+			this.clock_self.see( version )
 		}
 		
 		delta(
@@ -89,7 +89,7 @@ namespace $ {
 			}
 			
 			delta.values.push( key )
-			delta.stamps.push( this.clock.generate() )
+			delta.stamps.push( this.clock.tick() )
 				
 			this.apply( delta )
 			
@@ -105,7 +105,7 @@ namespace $ {
 			
 			this.apply( this.clock.delta(
 				[ key ],
-				[ - this.clock.generate() ]
+				[ - this.clock.tick() ]
 			) )
 			
 			return this

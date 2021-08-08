@@ -1,94 +1,59 @@
 namespace $ {
 	
-	const concurrency = 1_000_000
-	
-	/** Manages stamps for composed CROWD stores */
-	export class $hyoo_crowd_clock {
+	/** Vector version clock. */
+	export class $hyoo_crowd_clock extends Map<
+		$hyoo_crowd_node['peer'],
+		$hyoo_crowd_node['version']
+	> {
 		
-		readonly peer: number
+		/** Maximum version for all peers. */
 		version_max = 0
 		
-		readonly saw_versions = new Map< number, number >()
-		
-		constructor(
-			peer?: number,
-		) {
+		constructor( entries?: Iterable< readonly [ number, number ] > ) {
 			
-			this.peer = peer
-				? peer % concurrency
-				: Math.floor( concurrency * Math.random() )
-				
-		}
-		
-		version_from( stamp: number ) {
-			return Math.abs( stamp )
-		}
-		
-		index_from( stamp: number ) {
-			return Math.floor( Math.abs( stamp ) / concurrency )
-		}
-		
-		peer_from( stamp: number ) {
-			return Math.abs( stamp ) % concurrency
-		}
-		
-		make( index: number, peer = this.peer ) {
-			return index * concurrency + peer
-		}
-		
-		feed( stamp: number ) {
+			super( entries! )
 			
-			const version = this.version_from( stamp )
-			
-			if( this.version_max < version ) {
-				this.version_max = version
+			if( entries ) {
+				for( const [ peer, version ] of entries ) {
+					if( this.version_max < version ) this.version_max = version
+				}
 			}
 			
-			const peer = this.peer_from( stamp )
+		}
+		
+		/** Add new `version` for `peer` and increase `version_max`. */
+		see( peer: number, version: number ) {
 			
-			if( ( this.saw_versions.get( peer ) ?? 0 ) < version ) {
-				this.saw_versions.set( peer, version )
+			if( this.version_max < version ) this.version_max = version
+			
+			const peer_version = this.get( peer )
+			if( !peer_version || peer_version < version ) {
+				this.set( peer, version )
 			}
 			
 			return version
 		}
 		
-		is_new( stamp: number ) {
-			const version = this.version_from( stamp )
-			return version > ( this.saw_versions.get( this.peer_from( stamp ) ) ?? 0 )
+		/** Checks if version from future. */
+		fresh( peer: number, version: number ) {
+			return version > ( this.get( peer ) ?? 0 )
 		}
 		
-		is_ahead( clock: $hyoo_crowd_clock ) {
+		/** Checks if clock from future. */
+		ahead( clock: $hyoo_crowd_clock ) {
 			
-			for( const version of this.saw_versions.values() ) {
-				if( clock.is_new( version ) ) return true
+			for( const [ peer, version ] of this.entries() ) {
+				if( clock.fresh( peer, version ) ) return true
 			}
 			
 			return false
 		}
 		
-		generate() {
-			return this.feed( ( Math.floor( this.version_max / concurrency ) + 1 ) * concurrency + this.peer )
+		/** Gererates new version for peer that greated then other seen. */
+		tick( peer: number ) {
+			return this.see( peer, this.version_max + 1 )
 		}
-		
-		fork( peer: number ) {
 			
-			const clock = new $hyoo_crowd_clock( peer )
-			
-			for( const version of this.saw_versions.values() ) {
-				clock.feed( version )
-			}
-
-			return clock
-		}
-		
-		delta(
-			values: $hyoo_crowd_delta_value[],
-			stamps: number[],
-		) {
-			return $hyoo_crowd_delta( values, stamps, [ ... this.saw_versions.values() ].sort() )
-		}
-		
 	}
 	
 }

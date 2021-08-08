@@ -49,7 +49,7 @@ namespace $ {
 			
 			this.apply( this.clock.delta(
 				[ key ],
-				[ this.clock.generate() ],
+				[ this.clock.tick() ],
 			) )
 			
 			return this
@@ -63,7 +63,7 @@ namespace $ {
 			
 			this.apply( this.clock.delta(
 				[ key ],
-				[ - this.clock.generate() ],
+				[ - this.clock.tick() ],
 			) )
 			
 			return this
@@ -82,7 +82,7 @@ namespace $ {
 				if( this.version_item( key ) >= version ) continue
 				
 				this.stamps.set( key, stamp )
-				this.clock.feed( version )
+				this.clock.see( version )
 				
 			}
 			

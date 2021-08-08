@@ -40,7 +40,7 @@ namespace $ {
 			this.type_store.apply(
 				this.clock.delta(
 					[ type as string ],
-					[ stamp || - this.clock.generate() ],
+					[ stamp || - this.clock.tick() ],
 				)
 			)
 			
