@@ -27,7 +27,7 @@ namespace $ {
 			)
 		]])
 		
-		protected kids = new Map< number, $hyoo_crowd_node[] >()
+		protected _kids = new Map< number, $hyoo_crowd_node[] >()
 		
 		node( guid: $hyoo_crowd_node['guid'] ) {
 			return this.nodes.get( guid )!
@@ -38,8 +38,77 @@ namespace $ {
 		}
 		
 		/** Returns list of all alive children of node. */ 
-		list( guid: number ): readonly $hyoo_crowd_node[] {
-			return this.kids.get( guid )?.filter( node => node.data !== null ) ?? []
+		kids( guid: number ): readonly $hyoo_crowd_node[] {
+			return this._kids.get( guid )?.filter( node => node.data !== null ) ?? []
+		}
+		
+		list< Item extends unknown >( guid: number, next?: readonly Item[] ): readonly Item[] {
+			
+			let kids = this.kids( guid )
+			
+			if( next === undefined ) {
+				
+				return kids.map( node => node.data as Item )
+				
+			} else {
+				
+				let k = 0
+				let n = 0
+				let leader = 0
+				
+				while( k < kids.length || n < next.length ) {
+					
+					if( kids[k]?.data === next[n] ) {
+						
+						leader = kids[k].guid
+						
+						++ k
+						++ n
+						
+					} else if( next.length - n > kids.length - k ) {
+						
+						leader = this.put({
+							parent: guid,
+							leader,
+							data: next[n],
+						})
+						
+						++ n
+						
+					} else if( next.length - n < kids.length - k ) {
+						
+						leader = this.wipe( kids[k] )
+						++ k
+						
+					} else {
+						
+						leader = this.put({
+							guid: kids[k].guid,
+							parent: guid,
+							leader,
+							data: next[n],
+						})
+						
+						++ k
+						++ n
+						
+					}
+					
+				}
+				
+				return next
+			}
+			
+		}
+		
+		text( guid: number, next?: string ) {
+			if( next === undefined ) {
+				return this.list( guid ).join( '' )
+			} else {
+				const words = [ ... next.matchAll( $hyoo_crowd_text_tokenizer ) ].map( token => token[0] )
+				this.list( guid, words )
+				return next
+			}
 		}
 		
 		/** Makes independent clone with defined peer. */
@@ -98,12 +167,12 @@ namespace $ {
 			let parent = this.nodes.get( node.parent )!
 			let leader = node.leader ? this.nodes.get( node.leader )! : null
 			
-			let siblings = this.kids.get( parent.guid )
+			let siblings = this._kids.get( parent.guid )
 			if( siblings ) {
 				const index = leader ? siblings.indexOf( leader ) + 1 : 0
 				siblings.splice( index, 0, node )
 			} else {
-				this.kids.set( parent.guid, [ node ] )
+				this._kids.set( parent.guid, [ node ] )
 			}
 
 			return this
@@ -113,7 +182,7 @@ namespace $ {
 		protected back_unlink( node: $hyoo_crowd_node ) {
 			
 			let parent = this.nodes.get( node.parent )!
-			let siblings = this.kids.get( parent.guid )!
+			let siblings = this._kids.get( parent.guid )!
 			
 			const index = siblings.indexOf( node )
 			siblings.splice( index, 1 )
@@ -124,16 +193,17 @@ namespace $ {
 		/** Marks node with its subtree as deleted and wipes data. */
 		wipe( node: $hyoo_crowd_node ) {
 			
-			if( node.data === null ) return this
+			if( node.data === null ) return node.guid
 			
-			for( const kid of this.list( node.guid ) ) {
+			for( const kid of this.kids( node.guid ) ) {
 				this.wipe( kid )
 			}
 			
-			return this.apply([
+			this.apply([
 				node.wiped( this.peer, this.clock.tick( this.peer ) )
 			])
 			
+			return node.guid
 		}
 		
 		/** Places data to tree. */

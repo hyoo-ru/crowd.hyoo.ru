@@ -9,7 +9,7 @@ namespace $ {
 			store.put({ guid: 222, data: 'bar' })
 			
 			$mol_assert_like(
-				store.list( 0 ).map( node => ({ ... node }) ),
+				store.kids( 0 ).map( node => ({ ... node }) ),
 				[
 					{
 						guid: 222,
@@ -42,7 +42,7 @@ namespace $ {
 			store.put({ guid: 222, parent: 0, leader: 111, data: 'bar' })
 			
 			$mol_assert_like(
-				store.list( 0 ).map( node => ({ ... node }) ),
+				store.kids( 0 ).map( node => ({ ... node }) ),
 				[
 					{
 						guid: 111,
@@ -76,7 +76,7 @@ namespace $ {
 			store.put({ guid: 333, parent: 0, leader: 111, data: 'lol' })
 			
 			$mol_assert_like(
-				store.list( 0 ).map( node => ({ ... node }) ),
+				store.kids( 0 ).map( node => ({ ... node }) ),
 				[
 					{
 						guid: 111,
@@ -118,7 +118,7 @@ namespace $ {
 			store.put({ guid: 222, parent: 111, data: 'bar' })
 			
 			$mol_assert_like(
-				store.list( 0 ).map( node => ({ ... node }) ),
+				store.kids( 0 ).map( node => ({ ... node }) ),
 				[
 					{
 						guid: 111,
@@ -133,7 +133,7 @@ namespace $ {
 			)
 			
 			$mol_assert_like(
-				store.list( 111 ).map( node => ({ ... node }) ),
+				store.kids( 111 ).map( node => ({ ... node }) ),
 				[
 					{
 						guid: 222,
@@ -158,7 +158,7 @@ namespace $ {
 			store.put({ guid: 111, parent: 0, leader: 222, data: 'lol' })
 			
 			$mol_assert_like(
-				store.list( 0 ).map( node => ({ ... node }) ),
+				store.kids( 0 ).map( node => ({ ... node }) ),
 				[
 					{
 						guid: 222,
@@ -257,23 +257,23 @@ namespace $ {
 			const guid2 = store.put({ guid: 222, parent: 111, data: 'bar' })
 			const guid3 = store.put({ guid: 333, parent: 222, data: 'lol' })
 			
-			$mol_assert_like( store.list( 0 ).map( n => n.guid ), [ guid1 ] )
-			$mol_assert_like( store.list( guid1 ).map( n => n.guid ), [ guid2 ] )
-			$mol_assert_like( store.list( guid2 ).map( n => n.guid ), [ guid3 ] )
+			$mol_assert_like( store.kids( 0 ).map( n => n.guid ), [ guid1 ] )
+			$mol_assert_like( store.kids( guid1 ).map( n => n.guid ), [ guid2 ] )
+			$mol_assert_like( store.kids( guid2 ).map( n => n.guid ), [ guid3 ] )
 			
 			const node3 = store.node( guid3 )
 			
 			store.wipe( store.node( guid1 ) )
 			
-			$mol_assert_like( store.list( 0 ).map( n => n.guid ), [] )
-			$mol_assert_like( store.list( guid1 ).map( n => n.guid ), [] )
-			$mol_assert_like( store.list( guid2 ).map( n => n.guid ), [] )
+			$mol_assert_like( store.kids( 0 ).map( n => n.guid ), [] )
+			$mol_assert_like( store.kids( guid1 ).map( n => n.guid ), [] )
+			$mol_assert_like( store.kids( guid2 ).map( n => n.guid ), [] )
 			
 			store.put( node3 )
 			
-			$mol_assert_like( store.list( 0 ).map( n => n.guid ), [] )
-			$mol_assert_like( store.list( guid1 ).map( n => n.guid ), [] )
-			$mol_assert_like( store.list( guid2 ).map( n => n.guid ), [ guid3 ] )
+			$mol_assert_like( store.kids( 0 ).map( n => n.guid ), [] )
+			$mol_assert_like( store.kids( guid1 ).map( n => n.guid ), [] )
+			$mol_assert_like( store.kids( guid2 ).map( n => n.guid ), [ guid3 ] )
 			
 		},
 		
