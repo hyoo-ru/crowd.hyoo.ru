@@ -5,16 +5,13 @@ namespace $ {
 		
 		constructor(
 			
-			/** Global unique node identifier. 6B */
-			readonly guid: number,
+			/** Global unique node identifier. */
+			readonly guid: '' | `/${ string }`,
 			
-			/** Guid of parent node. 6B */
-			readonly parent: $hyoo_crowd_node['guid'],
+			/** Local unique identifier of leader node. */
+			readonly leader: string,
 			
-			/** Guid of leader node. 6B */
-			readonly leader: $hyoo_crowd_node['guid'],
-			
-			/** Global unique peer identifier. 6B */
+			/** Global unique identifier of peer. 6B */
 			readonly peer: number,
 			
 			/** Monotonic version. 6B */
@@ -24,9 +21,17 @@ namespace $ {
 			readonly data: unknown,
 			
 			/** Sign for whole node data. 32B */
-			readonly sign: null | Uint8Array & { length: 32 } = null,
+			readonly sign: null | Uint8Array & { length: 32 },
 		
 		) {}
+		
+		get luid() {
+			return this.guid.replace( /.*\//, '' )
+		}
+		
+		get parent() {
+			return this.guid.replace( /\/[^/]+$/, '' ) as $hyoo_crowd_node['guid']
+		}
 		
 		get deleted() {
 			return this.data === null
@@ -39,11 +44,11 @@ namespace $ {
 		) {
 			return new $hyoo_crowd_node(
 				this.guid,
-				this.parent,
 				this.leader,
 				peer,
 				version,
 				data,
+				null,
 			)
 		}
 		

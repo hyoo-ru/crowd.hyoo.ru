@@ -5,25 +5,23 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put({ guid: 111, data: 'foo' })
-			store.put({ guid: 222, data: 'bar' })
+			store.put( '/111', '', 'foo' )
+			store.put( '/222', '', 'bar' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => ({ ... node }) ),
+				store.kids('').map( node => ({ ... node }) ),
 				[
 					{
-						guid: 222,
-						parent: 0,
-						leader: 0,
+						guid: '/222',
+						leader: '',
 						peer: 123,
 						version: 2,
 						data: 'bar',
 						sign: null,
 					},
 					{
-						guid: 111,
-						parent: 0,
-						leader: 0,
+						guid: '/111',
+						leader: '',
 						peer: 123,
 						version: 1,
 						data: 'foo',
@@ -38,25 +36,23 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put({ guid: 111, data: 'foo' })
-			store.put({ guid: 222, parent: 0, leader: 111, data: 'bar' })
+			store.put( '/111', '', 'foo' )
+			store.put( '/222', '111', 'bar' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => ({ ... node }) ),
+				store.kids( '' ).map( node => ({ ... node }) ),
 				[
 					{
-						guid: 111,
-						parent: 0,
-						leader: 0,
+						guid: '/111',
+						leader: '',
 						peer: 123,
 						version: 1,
 						data: 'foo',
 						sign: null,
 					},
 					{
-						guid: 222,
-						parent: 0,
-						leader: 111,
+						guid: '/222',
+						leader: '111',
 						peer: 123,
 						version: 2,
 						data: 'bar',
@@ -71,35 +67,32 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put({ guid: 111, data: 'foo' })
-			store.put({ guid: 222, parent: 0, leader: 111, data: 'bar' })
-			store.put({ guid: 333, parent: 0, leader: 111, data: 'lol' })
+			store.put( '/111', '', 'foo' )
+			store.put( '/222', '111', 'bar' )
+			store.put( '/333', '111', 'lol' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => ({ ... node }) ),
+				store.kids( '' ).map( node => ({ ... node }) ),
 				[
 					{
-						guid: 111,
-						parent: 0,
-						leader: 0,
+						guid: '/111',
+						leader: '',
 						peer: 123,
 						version: 1,
 						data: 'foo',
 						sign: null,
 					},
 					{
-						guid: 333,
-						parent: 0,
-						leader: 111,
+						guid: '/333',
+						leader: '111',
 						peer: 123,
 						version: 3,
 						data: 'lol',
 						sign: null,
 					},
 					{
-						guid: 222,
-						parent: 0,
-						leader: 111,
+						guid: '/222',
+						leader: '111',
 						peer: 123,
 						version: 2,
 						data: 'bar',
@@ -114,16 +107,15 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put({ guid: 111, data: 'foo' })
-			store.put({ guid: 222, parent: 111, data: 'bar' })
+			store.put( '/111', '', 'foo' )
+			store.put( '/111/222', '', 'bar' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => ({ ... node }) ),
+				store.kids( '' ).map( node => ({ ... node }) ),
 				[
 					{
-						guid: 111,
-						parent: 0,
-						leader: 0,
+						guid: '/111',
+						leader: '',
 						peer: 123,
 						version: 1,
 						data: 'foo',
@@ -133,12 +125,11 @@ namespace $ {
 			)
 			
 			$mol_assert_like(
-				store.kids( 111 ).map( node => ({ ... node }) ),
+				store.kids( '/111' ).map( node => ({ ... node }) ),
 				[
 					{
-						guid: 222,
-						parent: 111,
-						leader: 0,
+						guid: '/111/222',
+						leader: '',
 						peer: 123,
 						version: 2,
 						data: 'bar',
@@ -153,26 +144,24 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put({ guid: 111, data: 'foo' })
-			store.put({ guid: 222, parent: 0, leader: 111, data: 'bar' })
-			store.put({ guid: 111, parent: 0, leader: 222, data: 'lol' })
+			store.put( '/111', '', 'foo' )
+			store.put( '/222', '111', 'bar' )
+			store.put( '/111', '222', 'lol' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => ({ ... node }) ),
+				store.kids( '' ).map( node => ({ ... node }) ),
 				[
 					{
-						guid: 222,
-						parent: 0,
-						leader: 111,
+						guid: '/222',
+						leader: '111',
 						peer: 123,
 						version: 2,
 						data: 'bar',
 						sign: null,
 					},
 					{
-						guid: 111,
-						parent: 0,
-						leader: 222,
+						guid: '/111',
+						leader: '222',
 						peer: 123,
 						version: 3,
 						data: 'lol',
@@ -187,9 +176,9 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put({ guid: 111, data: 'foo' })
-			store.put({ guid: 222, parent: 111, data: 'bar' })
-			store.put({ guid: 333, parent: 111, data: 'lol' })
+			store.put( '/111', '', 'foo' )
+			store.put( '/111/222', '', 'bar' )
+			store.put( '/111/333', '', 'lol' )
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
@@ -197,27 +186,24 @@ namespace $ {
 				]) ).map( node => ({ ... node }) ),
 				[
 					{
-						guid: 111,
-						parent: 0,
-						leader: 0,
+						guid: '/111',
+						leader: '',
 						peer: 123,
 						version: 1,
 						data: 'foo',
 						sign: null,
 					},
 					{
-						guid: 222,
-						parent: 111,
-						leader: 0,
+						guid: '/111/222',
+						leader: '',
 						peer: 123,
 						version: 2,
 						data: 'bar',
 						sign: null,
 					},
 					{
-						guid: 333,
-						parent: 111,
-						leader: 0,
+						guid: '/111/333',
+						leader: '',
 						peer: 123,
 						version: 3,
 						data: 'lol',
@@ -230,14 +216,14 @@ namespace $ {
 				store.delta( new $hyoo_crowd_clock([
 					[ 123, 1 ],
 				]) ).map( node => node.guid ),
-				[ 222, 333 ],
+				[ '/111/222', '/111/333' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 123, 2 ],
 				]) ).map( node => node.guid ),
-				[ 333 ],
+				[ '/111/333' ],
 			)
 			
 			$mol_assert_like(
@@ -253,27 +239,25 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			const guid1 = store.put({ guid: 111, data: 'foo' })
-			const guid2 = store.put({ guid: 222, parent: 111, data: 'bar' })
-			const guid3 = store.put({ guid: 333, parent: 222, data: 'lol' })
+			const node1 = store.put( '/111', '', 'foo' )
+			const node2 = store.put( '/111/222', '', 'bar' )
+			let node3 = store.put( '/111/222/333', '', 'lol' )
 			
-			$mol_assert_like( store.kids( 0 ).map( n => n.guid ), [ guid1 ] )
-			$mol_assert_like( store.kids( guid1 ).map( n => n.guid ), [ guid2 ] )
-			$mol_assert_like( store.kids( guid2 ).map( n => n.guid ), [ guid3 ] )
+			$mol_assert_like( store.kids( '' ), [ node1 ] )
+			$mol_assert_like( store.kids( node1.guid ), [ node2 ] )
+			$mol_assert_like( store.kids( node2.guid ), [ node3 ] )
 			
-			const node3 = store.node( guid3 )
+			store.wipe( node1 )
 			
-			store.wipe( store.node( guid1 ) )
+			$mol_assert_like( store.kids( '' ), [] )
+			$mol_assert_like( store.kids( node1.guid ), [] )
+			$mol_assert_like( store.kids( node2.guid ), [] )
 			
-			$mol_assert_like( store.kids( 0 ).map( n => n.guid ), [] )
-			$mol_assert_like( store.kids( guid1 ).map( n => n.guid ), [] )
-			$mol_assert_like( store.kids( guid2 ).map( n => n.guid ), [] )
+			node3 = store.put( node3.guid, node3.leader, node3.data )
 			
-			store.put( node3 )
-			
-			$mol_assert_like( store.kids( 0 ).map( n => n.guid ), [] )
-			$mol_assert_like( store.kids( guid1 ).map( n => n.guid ), [] )
-			$mol_assert_like( store.kids( guid2 ).map( n => n.guid ), [ guid3 ] )
+			$mol_assert_like( store.kids( '' ), [] )
+			$mol_assert_like( store.kids( node1.guid ), [] )
+			$mol_assert_like( store.kids( node2.guid ), [ node3 ] )
 			
 		},
 		

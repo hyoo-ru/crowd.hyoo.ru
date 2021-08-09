@@ -1,7 +1,6 @@
 namespace $ {
 	
 	const max_peer = 2 ** ( 6 * 8 ) - 1
-	const max_guid = 2 ** ( 6 * 8 ) - 1
 	
 	/** Conflict-free Tree */
 	export class $hyoo_crowd_tree {
@@ -15,34 +14,28 @@ namespace $ {
 		protected nodes = new Map<
 			$hyoo_crowd_node['guid'],
 			$hyoo_crowd_node | undefined
-		>([[
-			0,
-			new $hyoo_crowd_node(
-				0,
-				0,
-				0,
-				0,
-				0,
-				null,
-			)
-		]])
+		>()
 		
-		protected _kids = new Map< number, $hyoo_crowd_node[] >()
+		protected _kids = new Map<
+			$hyoo_crowd_node['guid'],
+			$hyoo_crowd_node[]
+		>()
 		
 		node( guid: $hyoo_crowd_node['guid'] ) {
 			return this.nodes.get( guid )!
 		}
 		
-		get root() {
-			return this.node( 0 )
-		}
-		
 		/** Returns list of all alive children of node. */ 
-		kids( guid: number ): readonly $hyoo_crowd_node[] {
+		kids(
+			guid: $hyoo_crowd_node['guid']
+		): readonly $hyoo_crowd_node[] {
 			return this._kids.get( guid )?.filter( node => node.data !== null ) ?? []
 		}
 		
-		list< Item extends unknown >( guid: number, next?: readonly Item[] ): readonly Item[] {
+		list< Item extends unknown >(
+			guid: $hyoo_crowd_node['guid'],
+			next?: readonly Item[],
+		): readonly Item[] {
 			
 			let kids = this.kids( guid )
 			
@@ -54,40 +47,39 @@ namespace $ {
 				
 				let k = 0
 				let n = 0
-				let leader = 0
+				let leader = ""
 				
 				while( k < kids.length || n < next.length ) {
 					
 					if( kids[k]?.data === next[n] ) {
 						
-						leader = kids[k].guid
+						leader = kids[k].luid
 						
 						++ k
 						++ n
 						
 					} else if( next.length - n > kids.length - k ) {
 						
-						leader = this.put({
-							parent: guid,
+						leader = this.put(
+							this.populate( guid ),
 							leader,
-							data: next[n],
-						})
+							next[n],
+						).luid
 						
 						++ n
 						
 					} else if( next.length - n < kids.length - k ) {
 						
-						leader = this.wipe( kids[k] )
+						leader = this.wipe( kids[k] ).luid
 						++ k
 						
 					} else {
 						
-						leader = this.put({
-							guid: kids[k].guid,
-							parent: guid,
+						leader = this.put(
+							kids[k].guid,
 							leader,
-							data: next[n],
-						})
+							next[n],
+						).luid
 						
 						++ k
 						++ n
@@ -101,7 +93,7 @@ namespace $ {
 			
 		}
 		
-		text( guid: number, next?: string ) {
+		text( guid: $hyoo_crowd_node['guid'], next?: string ) {
 			if( next === undefined ) {
 				return this.list( guid ).join( '' )
 			} else {
@@ -161,18 +153,21 @@ namespace $ {
 			return this
 		}
 		
+		populate( guid: $hyoo_crowd_node['guid'] ) {
+			return `${ guid }/${ $mol_guid() }` as $hyoo_crowd_node['guid']
+		}
+		
 		/** Makes back links to node inside Parent/Leader */
 		protected back_link( node: $hyoo_crowd_node ) {
 			
-			let parent = this.nodes.get( node.parent )!
-			let leader = node.leader ? this.nodes.get( node.leader )! : null
+			let leader = node.leader ? this.nodes.get( `${ node.parent }/${ node.leader }` )! : null
 			
-			let siblings = this._kids.get( parent.guid )
+			let siblings = this._kids.get( node.parent )
 			if( siblings ) {
 				const index = leader ? siblings.indexOf( leader ) + 1 : 0
 				siblings.splice( index, 0, node )
 			} else {
-				this._kids.set( parent.guid, [ node ] )
+				this._kids.set( node.parent, [ node ] )
 			}
 
 			return this
@@ -181,8 +176,7 @@ namespace $ {
 		/** Romoves back links to node inside Parent/Leader */
 		protected back_unlink( node: $hyoo_crowd_node ) {
 			
-			let parent = this.nodes.get( node.parent )!
-			let siblings = this._kids.get( parent.guid )!
+			let siblings = this._kids.get( node.parent )!
 			
 			const index = siblings.indexOf( node )
 			siblings.splice( index, 1 )
@@ -193,39 +187,37 @@ namespace $ {
 		/** Marks node with its subtree as deleted and wipes data. */
 		wipe( node: $hyoo_crowd_node ) {
 			
-			if( node.data === null ) return node.guid
+			if( node.data === null ) return node
 			
 			for( const kid of this.kids( node.guid ) ) {
 				this.wipe( kid )
 			}
 			
-			this.apply([
-				node.wiped( this.peer, this.clock.tick( this.peer ) )
-			])
+			node = node.wiped( this.peer, this.clock.tick( this.peer ) )
+			this.apply([ node ])
 			
-			return node.guid
+			return node
 		}
 		
 		/** Places data to tree. */
-		put( {
-			guid = Math.ceil( Math.random() * max_guid ),
-			parent = 0,
-			leader = 0,
-			data = null,
-		}: Partial< Pick< $hyoo_crowd_node, 'guid' | 'parent' | 'leader' | 'data' > > ) {
+		put(
+			guid: $hyoo_crowd_node['guid'],
+			leader: $hyoo_crowd_node['leader'],
+			data: $hyoo_crowd_node['data'],
+		) {
 			
-			this.apply([
-				new $hyoo_crowd_node(
-					guid,
-					parent,
-					leader,
-					this.peer,
-					this.clock.tick( this.peer ),
-					data,
-				)
-			])
+			const node = new $hyoo_crowd_node(
+				guid,
+				leader,
+				this.peer,
+				this.clock.tick( this.peer ),
+				data,
+				null,
+			)
 			
-			return guid
+			this.apply([ node ])
+			
+			return node
 		}
 		
 	}
