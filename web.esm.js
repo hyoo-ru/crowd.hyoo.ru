@@ -4208,13 +4208,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/lights/toggle/toggle.view.css", "[mol_lights_toggle] {\n\ttransform: rotate(-90deg);\n}\n");
-})($ || ($ = {}));
-//toggle.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
     var $$;
     (function ($$) {
         class $mol_lights_toggle extends $.$mol_lights_toggle {
@@ -5927,113 +5920,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_float extends $.$mol_view {
-        style() {
-            return {
-                ...super.style(),
-                minHeight: "auto"
-            };
-        }
-    }
-    $.$mol_float = $mol_float;
-})($ || ($ = {}));
-//float.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_style_attach("mol/float/float.view.css", "[mol_float] {\n\tposition: sticky;\n\ttop: 0;\n\tleft: 0;\n\tz-index: 1;\n\topacity: 1;\n\ttransition: opacity .25s ease-in;\n\tdisplay: block;\n\tbackground: var(--mol_theme_back);\n\tbox-shadow: 0 0 .5rem hsla(0,0%,0%,.25);\n}\n\n");
-})($ || ($ = {}));
-//float.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_icon_chevron extends $.$mol_icon {
-        path() {
-            return "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z";
-        }
-    }
-    $.$mol_icon_chevron = $mol_icon_chevron;
-})($ || ($ = {}));
-//chevron.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_check_expand extends $.$mol_check {
-        minimal_height() {
-            return 40;
-        }
-        Icon() {
-            const obj = new this.$.$mol_icon_chevron();
-            return obj;
-        }
-        level() {
-            return 0;
-        }
-        style() {
-            return {
-                ...super.style(),
-                paddingLeft: this.level_style()
-            };
-        }
-        checked(val) {
-            return this.expanded(val);
-        }
-        enabled() {
-            return this.expandable();
-        }
-        level_style() {
-            return "0px";
-        }
-        expanded(val) {
-            if (val !== undefined)
-                return val;
-            return false;
-        }
-        expandable() {
-            return false;
-        }
-    }
-    __decorate([
-        $.$mol_mem
-    ], $mol_check_expand.prototype, "Icon", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_check_expand.prototype, "expanded", null);
-    $.$mol_check_expand = $mol_check_expand;
-})($ || ($ = {}));
-//expand.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_style_attach("mol/check/expand/expand.view.css", "[mol_check_expand] {\n\tmin-width: 20px;\n}\n\n[mol_check_expand][disabled] [mol_check_expand_icon] {\n\tvisibility: hidden;\n}\n\n[mol_check_expand_icon] {\n\tbox-shadow: none;\n\tmargin: .25rem 0;\n}\n[mol_check_expand_icon] {\n\ttransform: rotateZ(0deg);\n}\n\n[mol_check_checked] > [mol_check_expand_icon] {\n\ttransform: rotateZ(90deg);\n}\n\n[mol_check_expand_icon] {\n\tvertical-align: text-top;\n}\n\n[mol_check_expand_label] {\n\tmargin-left: 0;\n}\n");
-})($ || ($ = {}));
-//expand.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_check_expand extends $.$mol_check_expand {
-            level_style() {
-                return `${this.level() * 1 - 1}rem`;
-            }
-            expandable() {
-                return this.expanded() !== null;
-            }
-        }
-        $$.$mol_check_expand = $mol_check_expand;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//expand.view.js.map
-;
-"use strict";
-var $;
-(function ($) {
     class $mol_paragraph extends $.$mol_view {
         line_height() {
             return 24;
@@ -6190,6 +6076,716 @@ var $;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
 //dimmer.view.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_text_code_token extends $.$mol_dimmer {
+        attr() {
+            return {
+                ...super.attr(),
+                mol_text_code_token_type: this.type()
+            };
+        }
+        type() {
+            return "";
+        }
+    }
+    $.$mol_text_code_token = $mol_text_code_token;
+    class $mol_text_code_token_link extends $mol_text_code_token {
+        dom_name() {
+            return "a";
+        }
+        type() {
+            return "code-link";
+        }
+        attr() {
+            return {
+                ...super.attr(),
+                href: this.haystack(),
+                target: "_blank"
+            };
+        }
+        haystack() {
+            return "";
+        }
+    }
+    $.$mol_text_code_token_link = $mol_text_code_token_link;
+})($ || ($ = {}));
+//token.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        const { hsla } = $.$mol_style_func;
+        $.$mol_style_define($.$mol_text_code_token, {
+            display: 'inline',
+            textDecoration: 'none',
+            '@': {
+                mol_text_code_token_type: {
+                    'code-keyword': {
+                        color: hsla(0, 70, 50, 1),
+                    },
+                    'code-field': {
+                        color: hsla(300, 70, 50, 1),
+                    },
+                    'code-tag': {
+                        color: hsla(330, 70, 50, 1),
+                    },
+                    'code-global': {
+                        color: hsla(210, 80, 50, 1),
+                    },
+                    'code-decorator': {
+                        color: hsla(180, 40, 50, 1),
+                    },
+                    'code-punctuation': {
+                        color: hsla(0, 0, 50, 1),
+                    },
+                    'code-string': {
+                        color: hsla(90, 40, 50, 1),
+                    },
+                    'code-number': {
+                        color: hsla(60, 70, 50, 1),
+                    },
+                    'code-call': {
+                        color: hsla(270, 60, 50, 1),
+                    },
+                    'code-link': {
+                        color: hsla(240, 60, 50, 1),
+                    },
+                    'code-comment-inline': {
+                        opacity: .5,
+                    },
+                    'code-comment-block': {
+                        opacity: .5,
+                    },
+                    'code-docs': {
+                        opacity: .75,
+                    },
+                },
+            }
+        });
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//token.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_text_code_row extends $.$mol_paragraph {
+        text() {
+            return "";
+        }
+        minimal_height() {
+            return 24;
+        }
+        numb_showed() {
+            return true;
+        }
+        Numb() {
+            const obj = new this.$.$mol_view();
+            obj.sub = () => [
+                this.numb()
+            ];
+            return obj;
+        }
+        Token(id) {
+            const obj = new this.$.$mol_text_code_token();
+            obj.type = () => this.token_type(id);
+            obj.haystack = () => this.token_text(id);
+            obj.needle = () => this.highlight();
+            return obj;
+        }
+        Token_link(id) {
+            const obj = new this.$.$mol_text_code_token_link();
+            obj.haystack = () => this.token_text(id);
+            obj.needle = () => this.highlight();
+            return obj;
+        }
+        numb() {
+            return 0;
+        }
+        token_type(id) {
+            return "";
+        }
+        token_text(id) {
+            return "";
+        }
+        highlight() {
+            return "";
+        }
+    }
+    __decorate([
+        $.$mol_mem
+    ], $mol_text_code_row.prototype, "Numb", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $mol_text_code_row.prototype, "Token", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $mol_text_code_row.prototype, "Token_link", null);
+    $.$mol_text_code_row = $mol_text_code_row;
+})($ || ($ = {}));
+//row.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_syntax2 {
+        lexems;
+        constructor(lexems) {
+            this.lexems = lexems;
+            for (let name in lexems) {
+                this.rules.push({
+                    name: name,
+                    regExp: lexems[name],
+                    size: RegExp('^$|' + lexems[name].source).exec('').length - 1,
+                });
+            }
+            const parts = '(' + this.rules.map(rule => rule.regExp.source).join(')|(') + ')';
+            this.regexp = RegExp(`([\\s\\S]*?)(?:(${parts})|$(?![^]))`, 'gm');
+        }
+        rules = [];
+        regexp;
+        tokenize(text, handle) {
+            let end = 0;
+            lexing: while (end < text.length) {
+                const start = end;
+                this.regexp.lastIndex = start;
+                var found = this.regexp.exec(text);
+                end = this.regexp.lastIndex;
+                if (start === end)
+                    throw new Error('Empty token');
+                var prefix = found[1];
+                if (prefix)
+                    handle('', prefix, [], start);
+                var suffix = found[2];
+                if (!suffix)
+                    continue;
+                let offset = 4;
+                for (let rule of this.rules) {
+                    if (found[offset - 1]) {
+                        handle(rule.name, suffix, found.slice(offset, offset + rule.size), start + prefix.length);
+                        continue lexing;
+                    }
+                    offset += rule.size + 1;
+                }
+                $.$mol_fail(new Error('$mol_syntax2 is broken'));
+            }
+        }
+        parse(text, handlers) {
+            this.tokenize(text, (name, ...args) => handlers[name](...args));
+        }
+    }
+    $.$mol_syntax2 = $mol_syntax2;
+})($ || ($ = {}));
+//syntax2.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_syntax2_md_flow = new $.$mol_syntax2({
+        'quote': /^((?:(?:> )(?:[^]*?)$(\r?\n?))+)([\n\r]*)/,
+        'header': /^(#+)(\s*)(.*?)$([\n\r]*)/,
+        'list': /^((?:(?:\s?[*+-]|\d+\.)\s+(?:[^]*?)$(?:\r?\n?))+)((?:\r?\n)*)/,
+        'code': /^(```\s*)(\w*)[\r\n]+([^]*?)^(```)$([\n\r]*)/,
+        'code-indent': /^((?:(?:  |\t)(?:[^]*?)$([\n\r]*))+)/,
+        'table': /((?:^\|.+?$\r?\n)+)([\n\r]*)/,
+        'block': /^(.*?(?:\r?\n.+?)*)$((?:\r?\n)*)/,
+    });
+    $.$mol_syntax2_md_line = new $.$mol_syntax2({
+        'strong': /\*\*(.+?)\*\*/,
+        'emphasis': /\*(?!\s)(.+?)\*/,
+        'code3': /```(.+?)```/,
+        'code': /`(.+?)`/,
+        'strike': /~~(.+?)~~/,
+        'text-link': /\[(.*?(?:\[.*?\].*?)*)\]\((.*?)\)/,
+        'image-link': /!\[([^\[\]]*?)\]\((.*?)\)/,
+    });
+    $.$mol_syntax2_md_code = new $.$mol_syntax2({
+        'code-docs': /\/\/\/.*?$/,
+        'code-comment-block': /(?:\/\*[^]*?\*\/|\/\+[^]*?\+\/|<![^]*?>)/,
+        'code-link': /(?:\w+:|#|\?|\/)\S+?(?=\s|\\\\|""|$)/,
+        'code-comment-inline': /\/\/.*?$/,
+        'code-string': /(?:".*?"|'.*?'|`.*?`|\/.+?\/[gmi]*\b|(?:^|[ \t])\\[^\n]*\n)/,
+        'code-number': /[+-]?(?:\d*\.)?\d+\w*/,
+        'code-call': /\.?\w+(?=\()/,
+        'code-field': /(?:\.\w+|[\w-]+\??\s*:(?!\/\/))/,
+        'code-keyword': /\b(throw|readonly|unknown|keyof|typeof|never|from|class|interface|type|function|extends|implements|module|namespace|import|export|include|require|var|let|const|for|do|while|until|in|of|new|if|then|else|switch|case|this|return|async|await|try|catch|break|continue|get|set|public|private|protected|string|boolean|number|null|undefined|true|false|void)\b/,
+        'code-global': /[$]+\w*|\b[A-Z][a-z0-9]+[A-Z]\w*/,
+        'code-decorator': /@\s*\S+/,
+        'code-tag': /<\/?[\w-]+\/?>?|&\w+;/,
+        'code-punctuation': /[\-\[\]\{\}\(\)<=>`~!\?@#%&\*_\+\\\/\|'";:\.,\^]+/,
+    });
+})($ || ($ = {}));
+//md.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        const { rem } = $.$mol_style_unit;
+        $.$mol_style_define($$.$mol_text_code_row, {
+            display: 'block',
+            Numb: {
+                textAlign: 'right',
+                color: $.$mol_theme.shade,
+                width: rem(3),
+                padding: {
+                    right: rem(1.5),
+                },
+                margin: {
+                    left: rem(-3),
+                },
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+                userSelect: 'none',
+            },
+        });
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//row.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_text_code_row extends $.$mol_text_code_row {
+            maximal_width() {
+                return this.text().length * this.letter_width();
+            }
+            tokens(path) {
+                const tokens = [];
+                const text = (path.length > 0)
+                    ? this.tokens(path.slice(0, path.length - 1))[path[path.length - 1]].found.slice(1, -1)
+                    : this.text();
+                this.$.$mol_syntax2_md_code.tokenize(text, (name, found, chunks) => tokens.push({ name, found, chunks }));
+                return tokens;
+            }
+            sub() {
+                return [
+                    ...this.numb_showed() ? [this.Numb()] : [],
+                    ...this.row_content([])
+                ];
+            }
+            row_content(path) {
+                return this.tokens(path).map((t, i) => this.Token([...path, i]));
+            }
+            Token(path) {
+                return this.token_type(path) === 'code-link' ? this.Token_link(path) : super.Token(path);
+            }
+            token_type(path) {
+                return this.tokens([...path.slice(0, path.length - 1)])[path[path.length - 1]].name;
+            }
+            token_content(path) {
+                const tokens = this.tokens([...path.slice(0, path.length - 1)]);
+                const token = tokens[path[path.length - 1]];
+                switch (token.name) {
+                    case 'code-string': return [
+                        token.found[0],
+                        ...this.row_content(path),
+                        token.found[token.found.length - 1],
+                    ];
+                    default: return [token.found];
+                }
+            }
+            token_text(path) {
+                const tokens = this.tokens([...path.slice(0, path.length - 1)]);
+                const token = tokens[path[path.length - 1]];
+                return token.found;
+            }
+            *view_find(check, path = []) {
+                if (check(this, this.text())) {
+                    yield [...path, this];
+                }
+            }
+        }
+        __decorate([
+            $.$mol_mem_key
+        ], $mol_text_code_row.prototype, "tokens", null);
+        __decorate([
+            $.$mol_mem_key
+        ], $mol_text_code_row.prototype, "row_content", null);
+        __decorate([
+            $.$mol_mem_key
+        ], $mol_text_code_row.prototype, "token_type", null);
+        __decorate([
+            $.$mol_mem_key
+        ], $mol_text_code_row.prototype, "token_content", null);
+        __decorate([
+            $.$mol_mem_key
+        ], $mol_text_code_row.prototype, "token_text", null);
+        $$.$mol_text_code_row = $mol_text_code_row;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//row.view.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_text_code extends $.$mol_list {
+        attr() {
+            return {
+                ...super.attr(),
+                mol_text_code_sidebar_showed: this.sidebar_showed()
+            };
+        }
+        text() {
+            return "";
+        }
+        text_lines() {
+            return [];
+        }
+        Row(id) {
+            const obj = new this.$.$mol_text_code_row();
+            obj.numb_showed = () => this.sidebar_showed();
+            obj.numb = () => this.row_numb(id);
+            obj.text = () => this.row_text(id);
+            obj.highlight = () => this.highlight();
+            return obj;
+        }
+        sidebar_showed() {
+            return false;
+        }
+        row_numb(id) {
+            return 0;
+        }
+        row_text(id) {
+            return "";
+        }
+        highlight() {
+            return "";
+        }
+    }
+    __decorate([
+        $.$mol_mem_key
+    ], $mol_text_code.prototype, "Row", null);
+    $.$mol_text_code = $mol_text_code;
+})($ || ($ = {}));
+//code.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        const { rem } = $.$mol_style_unit;
+        $.$mol_style_define($$.$mol_text_code, {
+            padding: $.$mol_gap.text,
+            whiteSpace: 'pre-wrap',
+            font: {
+                family: 'monospace',
+            },
+            '@': {
+                'mol_text_code_sidebar_showed': {
+                    true: {
+                        margin: {
+                            left: rem(3),
+                        },
+                    },
+                },
+            },
+        });
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//code.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_text_code extends $.$mol_text_code {
+            text_lines() {
+                return this.text().split('\n');
+            }
+            rows() {
+                return this.text_lines().map((_, index) => this.Row(index + 1));
+            }
+            row_text(index) {
+                return this.text_lines()[index - 1];
+            }
+            row_numb(index) {
+                return index;
+            }
+        }
+        __decorate([
+            $.$mol_mem
+        ], $mol_text_code.prototype, "text_lines", null);
+        __decorate([
+            $.$mol_mem
+        ], $mol_text_code.prototype, "rows", null);
+        __decorate([
+            $.$mol_mem_key
+        ], $mol_text_code.prototype, "row_text", null);
+        $$.$mol_text_code = $mol_text_code;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//code.view.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_textarea extends $.$mol_view {
+        attr() {
+            return {
+                ...super.attr(),
+                mol_textarea_clickable: this.clickable(),
+                mol_textarea_sidebar_showed: this.sidebar_showed()
+            };
+        }
+        event() {
+            return {
+                keydown: (event) => this.press(event),
+                pointermove: (event) => this.hover(event)
+            };
+        }
+        sub() {
+            return [
+                this.Edit(),
+                this.View()
+            ];
+        }
+        clickable(val) {
+            if (val !== undefined)
+                return val;
+            return false;
+        }
+        sidebar_showed() {
+            return false;
+        }
+        press(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        hover(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        value(val) {
+            if (val !== undefined)
+                return val;
+            return "";
+        }
+        hint() {
+            return "";
+        }
+        enabled() {
+            return true;
+        }
+        length_max() {
+            return Infinity;
+        }
+        selection(val) {
+            if (val !== undefined)
+                return val;
+            return [];
+        }
+        Edit() {
+            const obj = new this.$.$mol_string();
+            obj.dom_name = () => "textarea";
+            obj.value = (val) => this.value(val);
+            obj.hint = () => this.hint();
+            obj.enabled = () => this.enabled();
+            obj.length_max = () => this.length_max();
+            obj.selection = (val) => this.selection(val);
+            return obj;
+        }
+        row_numb(index) {
+            return 0;
+        }
+        highlight() {
+            return "";
+        }
+        View() {
+            const obj = new this.$.$mol_text_code();
+            obj.text = () => this.value();
+            obj.render_visible_only = () => false;
+            obj.row_numb = (index) => this.row_numb(index);
+            obj.sidebar_showed = () => this.sidebar_showed();
+            obj.highlight = () => this.highlight();
+            return obj;
+        }
+    }
+    __decorate([
+        $.$mol_mem
+    ], $mol_textarea.prototype, "clickable", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_textarea.prototype, "press", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_textarea.prototype, "hover", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_textarea.prototype, "value", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_textarea.prototype, "selection", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_textarea.prototype, "Edit", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_textarea.prototype, "View", null);
+    $.$mol_textarea = $mol_textarea;
+})($ || ($ = {}));
+//textarea.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_style_attach("mol/textarea/textarea.view.css", "[mol_textarea] {\n\tflex: 1 0 auto;\n\tdisplay: flex;\n\tflex-direction: column;\n\tposition: relative;\n\tz-index: 0;\n\tvertical-align: top;\n\tmin-height: max-content;\n\twhite-space: pre-wrap;\n}\n\n[mol_textarea_view] {\n\tpointer-events: none;\n\tz-index: 1;\n\twhite-space: inherit;\n}\n[mol_textarea_clickable] > [mol_textarea_view] {\n\tpointer-events: all;\n}\n\n[mol_textarea_edit] {\n\tfont-family: monospace;\n\tz-index: -1 !important;\n\tpadding: var(--mol_gap_text);\n\tposition: absolute;\n\tleft: 0;\n\ttop: 0;\n\twidth: 100%;\n\theight: 100%;\n\tcolor: transparent;\n\tcaret-color: var(--mol_theme_text);\n\tresize: none;\n\twhite-space: inherit;\n\ttab-size: 4;\n\toverflow-anchor: none;\n}\n\n[mol_textarea_sidebar_showed] [mol_textarea_edit] {\n\tleft: 3rem;\n\twidth: calc( 100% - 3rem );\n}\n");
+})($ || ($ = {}));
+//textarea.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_textarea extends $.$mol_textarea {
+            indent_inc() {
+                document.execCommand('insertText', false, '\t');
+            }
+            indent_dec() {
+            }
+            hover(event) {
+                this.clickable(event.ctrlKey);
+            }
+            press(event) {
+                switch (event.keyCode) {
+                    case $.$mol_keyboard_code.tab:
+                        this.indent_inc();
+                        break;
+                    case event.shiftKey && $.$mol_keyboard_code.tab:
+                        this.indent_dec();
+                        break;
+                    default: return;
+                }
+                event.preventDefault();
+            }
+            row_numb(index) {
+                return index;
+            }
+        }
+        $$.$mol_textarea = $mol_textarea;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//textarea.view.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_float extends $.$mol_view {
+        style() {
+            return {
+                ...super.style(),
+                minHeight: "auto"
+            };
+        }
+    }
+    $.$mol_float = $mol_float;
+})($ || ($ = {}));
+//float.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_style_attach("mol/float/float.view.css", "[mol_float] {\n\tposition: sticky;\n\ttop: 0;\n\tleft: 0;\n\tz-index: 1;\n\topacity: 1;\n\ttransition: opacity .25s ease-in;\n\tdisplay: block;\n\tbackground: var(--mol_theme_back);\n\tbox-shadow: 0 0 .5rem hsla(0,0%,0%,.25);\n}\n\n");
+})($ || ($ = {}));
+//float.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_icon_chevron extends $.$mol_icon {
+        path() {
+            return "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z";
+        }
+    }
+    $.$mol_icon_chevron = $mol_icon_chevron;
+})($ || ($ = {}));
+//chevron.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_check_expand extends $.$mol_check {
+        minimal_height() {
+            return 40;
+        }
+        Icon() {
+            const obj = new this.$.$mol_icon_chevron();
+            return obj;
+        }
+        level() {
+            return 0;
+        }
+        style() {
+            return {
+                ...super.style(),
+                paddingLeft: this.level_style()
+            };
+        }
+        checked(val) {
+            return this.expanded(val);
+        }
+        enabled() {
+            return this.expandable();
+        }
+        level_style() {
+            return "0px";
+        }
+        expanded(val) {
+            if (val !== undefined)
+                return val;
+            return false;
+        }
+        expandable() {
+            return false;
+        }
+    }
+    __decorate([
+        $.$mol_mem
+    ], $mol_check_expand.prototype, "Icon", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_check_expand.prototype, "expanded", null);
+    $.$mol_check_expand = $mol_check_expand;
+})($ || ($ = {}));
+//expand.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_style_attach("mol/check/expand/expand.view.css", "[mol_check_expand] {\n\tmin-width: 20px;\n}\n\n[mol_check_expand][disabled] [mol_check_expand_icon] {\n\tvisibility: hidden;\n}\n\n[mol_check_expand_icon] {\n\tbox-shadow: none;\n\tmargin: .25rem 0;\n}\n[mol_check_expand_icon] {\n\ttransform: rotateZ(0deg);\n}\n\n[mol_check_checked] > [mol_check_expand_icon] {\n\ttransform: rotateZ(90deg);\n}\n\n[mol_check_expand_icon] {\n\tvertical-align: text-top;\n}\n\n[mol_check_expand_label] {\n\tmargin-left: 0;\n}\n");
+})($ || ($ = {}));
+//expand.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_check_expand extends $.$mol_check_expand {
+            level_style() {
+                return `${this.level() * 1 - 1}rem`;
+            }
+            expandable() {
+                return this.expanded() !== null;
+            }
+        }
+        $$.$mol_check_expand = $mol_check_expand;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//expand.view.js.map
 ;
 "use strict";
 var $;
@@ -6656,6 +7252,11 @@ var $;
             const obj = new this.$.$mol_text_span();
             return obj;
         }
+        String(id) {
+            const obj = new this.$.$mol_text_string();
+            obj.needle = () => this.highlight();
+            return obj;
+        }
         Link(id) {
             const obj = new this.$.$mol_text_link();
             obj.target = () => this.link_target(id);
@@ -6669,6 +7270,12 @@ var $;
             const obj = new this.$.$mol_text_header();
             obj.level = () => this.header_level(id);
             obj.content = () => this.header_content(id);
+            return obj;
+        }
+        Code(id) {
+            const obj = new this.$.$mol_text_code();
+            obj.text = () => this.code_text(id);
+            obj.highlight = () => this.highlight();
             return obj;
         }
         Table(id) {
@@ -6701,6 +7308,9 @@ var $;
         block_type(id) {
             return "";
         }
+        highlight() {
+            return "";
+        }
         link_target(id) {
             return "_blank";
         }
@@ -6709,6 +7319,9 @@ var $;
         }
         header_content(id) {
             return [];
+        }
+        code_text(id) {
+            return "";
         }
         table_head_cells(id) {
             return [];
@@ -6734,6 +7347,9 @@ var $;
     ], $mol_text.prototype, "Span", null);
     __decorate([
         $.$mol_mem_key
+    ], $mol_text.prototype, "String", null);
+    __decorate([
+        $.$mol_mem_key
     ], $mol_text.prototype, "Link", null);
     __decorate([
         $.$mol_mem_key
@@ -6741,6 +7357,9 @@ var $;
     __decorate([
         $.$mol_mem_key
     ], $mol_text.prototype, "Header", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $mol_text.prototype, "Code", null);
     __decorate([
         $.$mol_mem_key
     ], $mol_text.prototype, "Table", null);
@@ -6823,6 +7442,20 @@ var $;
         $.$mol_mem
     ], $mol_text_span.prototype, "content", null);
     $.$mol_text_span = $mol_text_span;
+    class $mol_text_string extends $.$mol_dimmer {
+        dom_name() {
+            return "span";
+        }
+        haystack(val) {
+            if (val !== undefined)
+                return val;
+            return "";
+        }
+    }
+    __decorate([
+        $.$mol_mem
+    ], $mol_text_string.prototype, "haystack", null);
+    $.$mol_text_string = $mol_text_string;
     class $mol_text_link extends $.$mol_link_iconed {
         attr() {
             return {
@@ -6908,99 +7541,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_syntax2 {
-        lexems;
-        constructor(lexems) {
-            this.lexems = lexems;
-            for (let name in lexems) {
-                this.rules.push({
-                    name: name,
-                    regExp: lexems[name],
-                    size: RegExp('^$|' + lexems[name].source).exec('').length - 1,
-                });
-            }
-            const parts = '(' + this.rules.map(rule => rule.regExp.source).join(')|(') + ')';
-            this.regexp = RegExp(`([\\s\\S]*?)(?:(${parts})|$(?![^]))`, 'gm');
-        }
-        rules = [];
-        regexp;
-        tokenize(text, handle) {
-            let end = 0;
-            lexing: while (end < text.length) {
-                const start = end;
-                this.regexp.lastIndex = start;
-                var found = this.regexp.exec(text);
-                end = this.regexp.lastIndex;
-                if (start === end)
-                    throw new Error('Empty token');
-                var prefix = found[1];
-                if (prefix)
-                    handle('', prefix, [], start);
-                var suffix = found[2];
-                if (!suffix)
-                    continue;
-                let offset = 4;
-                for (let rule of this.rules) {
-                    if (found[offset - 1]) {
-                        handle(rule.name, suffix, found.slice(offset, offset + rule.size), start + prefix.length);
-                        continue lexing;
-                    }
-                    offset += rule.size + 1;
-                }
-                $.$mol_fail(new Error('$mol_syntax2 is broken'));
-            }
-        }
-        parse(text, handlers) {
-            this.tokenize(text, (name, ...args) => handlers[name](...args));
-        }
-    }
-    $.$mol_syntax2 = $mol_syntax2;
-})($ || ($ = {}));
-//syntax2.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_syntax2_md_flow = new $.$mol_syntax2({
-        'quote': /^((?:(?:> )(?:[^]*?)$(\r?\n?))+)([\n\r]*)/,
-        'header': /^(#+)(\s*)(.*?)$([\n\r]*)/,
-        'list': /^((?:(?:\s?[*+-]|\d+\.)\s+(?:[^]*?)$(?:\r?\n?))+)((?:\r?\n)*)/,
-        'code': /^(```\s*)(\w*)[\r\n]+([^]*?)^(```)$([\n\r]*)/,
-        'code-indent': /^((?:(?:  |\t)(?:[^]*?)$([\n\r]*))+)/,
-        'table': /((?:^\|.+?$\r?\n)+)([\n\r]*)/,
-        'block': /^(.*?(?:\r?\n.+?)*)$((?:\r?\n)*)/,
-    });
-    $.$mol_syntax2_md_line = new $.$mol_syntax2({
-        'strong': /\*\*(.+?)\*\*/,
-        'emphasis': /\*(?!\s)(.+?)\*/,
-        'code3': /```(.+?)```/,
-        'code': /`(.+?)`/,
-        'strike': /~~(.+?)~~/,
-        'text-link': /\[(.*?(?:\[.*?\].*?)*)\]\((.*?)\)/,
-        'image-link': /!\[([^\[\]]*?)\]\((.*?)\)/,
-    });
-    $.$mol_syntax2_md_code = new $.$mol_syntax2({
-        'code-docs': /\/\/\/.*?$/,
-        'code-comment-block': /(?:\/\*[^]*?\*\/|\/\+[^]*?\+\/|<![^]*?>)/,
-        'code-link': /(?:\w+:|#|\?|\/)\S+?(?=\s|\\\\|""|$)/,
-        'code-comment-inline': /\/\/.*?$/,
-        'code-string': /(?:".*?"|'.*?'|`.*?`|\/.+?\/[gmi]*\b|(?:^|[ \t])\\[^\n]*\n)/,
-        'code-number': /[+-]?(?:\d*\.)?\d+\w*/,
-        'code-call': /\.?\w+(?=\()/,
-        'code-field': /(?:\.\w+|[\w-]+\??\s*:(?!\/\/))/,
-        'code-keyword': /\b(throw|readonly|unknown|keyof|typeof|never|from|class|interface|type|function|extends|implements|module|namespace|import|export|include|require|var|let|const|for|do|while|until|in|of|new|if|then|else|switch|case|this|return|async|await|try|catch|break|continue|get|set|public|private|protected|string|boolean|number|null|undefined|true|false|void)\b/,
-        'code-global': /[$]+\w*|\b[A-Z][a-z0-9]+[A-Z]\w*/,
-        'code-decorator': /@\s*\S+/,
-        'code-tag': /<\/?[\w-]+\/?>?|&\w+;/,
-        'code-punctuation': /[\-\[\]\{\}\(\)<=>`~!\?@#%&\*_\+\\\/\|'";:\.,\^]+/,
-    });
-})($ || ($ = {}));
-//md.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_style_attach("mol/text/text.view.css", "[mol_text] {\n\tline-height: 1.5em;\n\tbox-sizing: border-box;\n\tmax-width: 60rem;\n\tpadding: var(--mol_gap_block);\n\tborder-radius: var(--mol_gap_round);\n\twhite-space: pre-line;\n\tdisplay: flex;\n\tflex-direction: column;\n\tflex: 0 0 auto;\n\ttab-size: 4;\n}\n\n[mol_text_row] {\n\tmargin: var(--mol_gap_text);\n\toverflow: auto;\n\tmax-width: 100%;\n\tdisplay: block;\n}\n\n[mol_text_span] {\n\tdisplay: inline;\n}\n\n[mol_text_type=\"block\"] {\n}\n\n[mol_text_header] {\n\tdisplay: block;\n\tpadding: var(--mol_gap_block);\n\tfont-weight: 500;\n}\n\n[mol_text_header_level=\"1\"] {\n\tfont-size: 1.5em;\n}\n\n[mol_text_header_level=\"2\"] {\n\tfont-size: 1.3em;\n}\n\n[mol_text_header_level=\"3\"] {\n\tfont-size: 1.1em;\n}\n\n[mol_text_header_level=\"4\"] {\n\tfont-size: 1.1em;\n\tfont-style: italic;\n}\n\n[mol_text_header_level=\"5\"] {\n\tfont-size: 1.1em;\n\tfont-weight: normal;\n\tfont-style: italic;\n}\n\n[mol_text_type=\"list-item\"] {\n\tdisplay: list-item;\n}\n\n[mol_text_type=\"list-item\"]:before {\n\tcontent: '•';\n\tmargin-right: 1ch;\n}\n\n[mol_text_table] {\n\tmax-width: 100%;\n\tmax-height: 75vh;\n\toverflow: auto;\n\tmargin: .5rem;\n\tflex-grow: 0;\n}\n\n[mol_text_type=\"code-indent\"] ,\n[mol_text_type=\"code\"] {\n\tfont-family: var(--mol_skin_font_monospace);\n\twhite-space: pre-wrap;\n\tborder-radius: var(--mol_gap_round);\n}\n\n[mol_text_type=\"text-link\"] {\n\tcolor: var(--mol_theme_control);\n\ttext-decoration: none;\n\tpadding: 0 .25rem 0 0;\n}\n\n[mol_text_link]:hover ,\n[mol_text_link]:focus {\n\toutline: none;\n}\n\n[mol_text_image] {\n\tmax-width: 100%;\n\tmax-height: 75vh;\n\tobject-fit: scale-down;\n}\n\n[mol_text_type=\"strong\"] {\n\tcolor: var(--mol_theme_focus);\n}\n\n[mol_text_type=\"emphasis\"] {\n\tfont-style: italic;\n}\n\n[mol_text_type=\"strike\"] {\n\ttext-decoration: line-through;\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_text_type=\"code-keyword\"] {\n\tcolor: hsl(0, 70%, 60%);\n}\n\n[mol_text_type=\"code-field\"] {\n\tcolor: hsl(300, 70%, 60%);\n}\n\n[mol_text_type=\"code-tag\"] {\n\tcolor: hsl(330, 70%, 60%);\n}\n\n[mol_text_type=\"code-global\"] {\n\tcolor: hsl(210, 80%, 40%);\n}\n\n[mol_text_type=\"code-decorator\"] {\n\tcolor: hsl(180, 40%, 60%);\n}\n\n[mol_text_type=\"code-punctuation\"] {\n\tcolor: hsl( 0, 0%, 50% );\n}\n\n[mol_text_type=\"code-string\"] {\n\tcolor: hsl(90, 40%, 40%);\n}\n\n[mol_text_type=\"code-number\"] {\n\tcolor: hsl(60, 70%, 30%);\n}\n\n[mol_text_type=\"code-call\"] {\n\tcolor: hsl(270, 60%, 60%);\n}\n\n[mol_text_type=\"code-link\"] {\n\tcolor: hsl(240, 60%, 60%);\n}\n\n[mol_text_type=\"code-comment-inline\"] ,\n[mol_text_type=\"code-comment-block\"] {\n\topacity: .5;\n}\n\n[mol_text_type=\"code-docs\"] {\n\topacity: .75;\n}\n");
+    $.$mol_style_attach("mol/text/text.view.css", "[mol_text] {\n\tline-height: 1.5em;\n\tbox-sizing: border-box;\n\tmax-width: 60rem;\n\tpadding: var(--mol_gap_block);\n\tborder-radius: var(--mol_gap_round);\n\twhite-space: pre-line;\n\tdisplay: flex;\n\tflex-direction: column;\n\tflex: 0 0 auto;\n\ttab-size: 4;\n}\n\n[mol_text_row] {\n\tmargin: var(--mol_gap_text);\n\toverflow: auto;\n\tmax-width: 100%;\n\tdisplay: block;\n}\n\n[mol_text_span] {\n\tdisplay: inline;\n}\n\n[mol_text_string] {\n\tdisplay: inline;\n}\n\n[mol_text_quote] {\n\tbox-shadow: inset 1px 0 0px 0px var(--mol_theme_line);\n}\n\n[mol_text_header] {\n\tdisplay: block;\n\tpadding: var(--mol_gap_block);\n\tfont-weight: 500;\n}\n\n[mol_text_header_level=\"1\"] {\n\tfont-size: 1.5em;\n}\n\n[mol_text_header_level=\"2\"] {\n\tfont-size: 1.3em;\n}\n\n[mol_text_header_level=\"3\"] {\n\tfont-size: 1.1em;\n}\n\n[mol_text_header_level=\"4\"] {\n\tfont-size: 1.1em;\n\tfont-style: italic;\n}\n\n[mol_text_header_level=\"5\"] {\n\tfont-size: 1.1em;\n\tfont-weight: normal;\n\tfont-style: italic;\n}\n\n[mol_text_type=\"list-item\"] {\n\tdisplay: list-item;\n}\n\n[mol_text_type=\"list-item\"]:before {\n\tcontent: '•';\n\tmargin-right: 1ch;\n}\n\n[mol_text_table] {\n\tmax-width: 100%;\n\tmax-height: 75vh;\n\toverflow: auto;\n\tmargin: .5rem;\n\tflex-grow: 0;\n}\n\n[mol_text_type=\"code-indent\"] ,\n[mol_text_type=\"code\"] {\n\tfont-family: var(--mol_skin_font_monospace);\n\twhite-space: pre-wrap;\n\tborder-radius: var(--mol_gap_round);\n}\n\n[mol_text_type=\"text-link\"] {\n\tcolor: var(--mol_theme_control);\n\ttext-decoration: none;\n\tpadding: 0 .25rem 0 0;\n}\n\n[mol_text_link]:hover ,\n[mol_text_link]:focus {\n\toutline: none;\n}\n\n[mol_text_image] {\n\tmax-width: 100%;\n\tmax-height: 75vh;\n\tobject-fit: scale-down;\n}\n\n[mol_text_type=\"strong\"] {\n\tcolor: var(--mol_theme_focus);\n}\n\n[mol_text_type=\"emphasis\"] {\n\tfont-style: italic;\n}\n\n[mol_text_type=\"strike\"] {\n\ttext-decoration: line-through;\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_text_type=\"code-keyword\"] {\n\tcolor: hsl(0, 70%, 60%);\n}\n\n[mol_text_type=\"code-field\"] {\n\tcolor: hsl(300, 70%, 60%);\n}\n\n[mol_text_type=\"code-tag\"] {\n\tcolor: hsl(330, 70%, 60%);\n}\n\n[mol_text_type=\"code-global\"] {\n\tcolor: hsl(210, 80%, 40%);\n}\n\n[mol_text_type=\"code-decorator\"] {\n\tcolor: hsl(180, 40%, 60%);\n}\n\n[mol_text_type=\"code-punctuation\"] {\n\tcolor: hsl( 0, 0%, 50% );\n}\n\n[mol_text_type=\"code-string\"] {\n\tcolor: hsl(90, 40%, 40%);\n}\n\n[mol_text_type=\"code-number\"] {\n\tcolor: hsl(60, 70%, 30%);\n}\n\n[mol_text_type=\"code-call\"] {\n\tcolor: hsl(270, 60%, 60%);\n}\n\n[mol_text_type=\"code-link\"] {\n\tcolor: hsl(240, 60%, 60%);\n}\n\n[mol_text_type=\"code-comment-inline\"] ,\n[mol_text_type=\"code-comment-block\"] {\n\topacity: .5;\n}\n\n[mol_text_type=\"code-docs\"] {\n\topacity: .75;\n}\n");
 })($ || ($ = {}));
 //text.view.css.js.map
 ;
@@ -7021,6 +7562,8 @@ var $;
                         case 'table': return this.Table(index);
                         case 'header': return this.Header(index);
                         case 'quote': return this.Quote(index);
+                        case 'code': return this.Code(index);
+                        case 'code-indent': return this.Code(index);
                     }
                     return this.Row(index);
                 });
@@ -7030,6 +7573,10 @@ var $;
             }
             header_content(index) {
                 return this.text2spans(`${index}`, this.tokens()[index].chunks[2]);
+            }
+            code_text(index) {
+                const token = this.tokens()[index];
+                return (token.chunks[2] ?? token.chunks[0].replace(/^\t/gm, '')).replace(/[\n\r]*$/, '');
             }
             quote_text(index) {
                 return this.tokens()[index].chunks[0].replace(/^> /mg, '');
@@ -7105,12 +7652,17 @@ var $;
                             return spans.push(span);
                         }
                     }
-                    const span = this.Span(id);
-                    span.type(name);
-                    span.content(name
-                        ? [].concat.apply([], chunks.map((text, index) => this.text2spans(`${id}/${index}`, text)))
-                        : [found]);
-                    spans.push(span);
+                    if (name) {
+                        const span = this.Span(id);
+                        span.type(name);
+                        span.content([].concat.apply([], chunks.map((text, index) => this.text2spans(`${id}/${index}`, text))));
+                        spans.push(span);
+                    }
+                    else {
+                        const span = this.String(id);
+                        span.haystack(found);
+                        spans.push(span);
+                    }
                 });
                 return spans;
             }
@@ -7144,8 +7696,6 @@ var $;
                 switch (token.name) {
                     case 'header': return this.text2spans(`${indexBlock}`, token.chunks[2]);
                     case 'list': return this.text2spans(`${indexBlock}`, token.chunks[0]);
-                    case 'code': return this.code2spans(`${indexBlock}`, token.chunks[2]);
-                    case 'code-indent': return this.code2spans(`${indexBlock}`, token.chunks[0].replace(/[\n\r]*$/, '\n').replace(/^\t/gm, ''));
                 }
                 return this.text2spans(`${indexBlock}`, token.chunks[0]);
             }
@@ -7184,517 +7734,6 @@ var $;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
 //text.view.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_text_code_token extends $.$mol_dimmer {
-        attr() {
-            return {
-                ...super.attr(),
-                mol_text_code_token_type: this.type()
-            };
-        }
-        type() {
-            return "";
-        }
-    }
-    $.$mol_text_code_token = $mol_text_code_token;
-    class $mol_text_code_token_link extends $mol_text_code_token {
-        dom_name() {
-            return "a";
-        }
-        type() {
-            return "code-link";
-        }
-        attr() {
-            return {
-                ...super.attr(),
-                href: this.haystack(),
-                target: "_blank"
-            };
-        }
-        haystack() {
-            return "";
-        }
-    }
-    $.$mol_text_code_token_link = $mol_text_code_token_link;
-})($ || ($ = {}));
-//token.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        const { hsla } = $.$mol_style_func;
-        $.$mol_style_define($.$mol_text_code_token, {
-            display: 'inline',
-            textDecoration: 'none',
-            '@': {
-                mol_text_code_token_type: {
-                    'code-keyword': {
-                        color: hsla(0, 70, 50, 1),
-                    },
-                    'code-field': {
-                        color: hsla(300, 70, 50, 1),
-                    },
-                    'code-tag': {
-                        color: hsla(330, 70, 50, 1),
-                    },
-                    'code-global': {
-                        color: hsla(210, 80, 50, 1),
-                    },
-                    'code-decorator': {
-                        color: hsla(180, 40, 50, 1),
-                    },
-                    'code-punctuation': {
-                        color: hsla(0, 0, 50, 1),
-                    },
-                    'code-string': {
-                        color: hsla(90, 40, 50, 1),
-                    },
-                    'code-number': {
-                        color: hsla(60, 70, 50, 1),
-                    },
-                    'code-call': {
-                        color: hsla(270, 60, 50, 1),
-                    },
-                    'code-link': {
-                        color: hsla(240, 60, 50, 1),
-                    },
-                    'code-comment-inline': {
-                        opacity: .5,
-                    },
-                    'code-comment-block': {
-                        opacity: .5,
-                    },
-                    'code-docs': {
-                        opacity: .75,
-                    },
-                },
-            }
-        });
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//token.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_text_code_row extends $.$mol_paragraph {
-        text() {
-            return "";
-        }
-        minimal_height() {
-            return 24;
-        }
-        numb_showed() {
-            return true;
-        }
-        Numb() {
-            const obj = new this.$.$mol_view();
-            obj.sub = () => [
-                this.numb()
-            ];
-            return obj;
-        }
-        Token(id) {
-            const obj = new this.$.$mol_text_code_token();
-            obj.type = () => this.token_type(id);
-            obj.haystack = () => this.token_text(id);
-            obj.needle = () => this.highlight();
-            return obj;
-        }
-        Token_link(id) {
-            const obj = new this.$.$mol_text_code_token_link();
-            obj.haystack = () => this.token_text(id);
-            obj.needle = () => this.highlight();
-            return obj;
-        }
-        numb() {
-            return 0;
-        }
-        token_type(id) {
-            return "";
-        }
-        token_text(id) {
-            return "";
-        }
-        highlight() {
-            return "";
-        }
-    }
-    __decorate([
-        $.$mol_mem
-    ], $mol_text_code_row.prototype, "Numb", null);
-    __decorate([
-        $.$mol_mem_key
-    ], $mol_text_code_row.prototype, "Token", null);
-    __decorate([
-        $.$mol_mem_key
-    ], $mol_text_code_row.prototype, "Token_link", null);
-    $.$mol_text_code_row = $mol_text_code_row;
-})($ || ($ = {}));
-//row.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        const { rem } = $.$mol_style_unit;
-        $.$mol_style_define($$.$mol_text_code_row, {
-            display: 'block',
-            Numb: {
-                textAlign: 'right',
-                color: $.$mol_theme.shade,
-                width: rem(3),
-                padding: {
-                    right: rem(1.5),
-                },
-                margin: {
-                    left: rem(-3),
-                },
-                display: 'inline-block',
-                whiteSpace: 'nowrap',
-                userSelect: 'none',
-            },
-        });
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//row.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_text_code_row extends $.$mol_text_code_row {
-            maximal_width() {
-                return this.text().length * this.letter_width();
-            }
-            tokens(path) {
-                const tokens = [];
-                const text = (path.length > 0)
-                    ? this.tokens(path.slice(0, path.length - 1))[path[path.length - 1]].found.slice(1, -1)
-                    : this.text();
-                this.$.$mol_syntax2_md_code.tokenize(text, (name, found, chunks) => tokens.push({ name, found, chunks }));
-                return tokens;
-            }
-            sub() {
-                return [
-                    ...this.numb_showed() ? [this.Numb()] : [],
-                    ...this.row_content([])
-                ];
-            }
-            row_content(path) {
-                return this.tokens(path).map((t, i) => this.Token([...path, i]));
-            }
-            Token(path) {
-                return this.token_type(path) === 'code-link' ? this.Token_link(path) : super.Token(path);
-            }
-            token_type(path) {
-                return this.tokens([...path.slice(0, path.length - 1)])[path[path.length - 1]].name;
-            }
-            token_content(path) {
-                const tokens = this.tokens([...path.slice(0, path.length - 1)]);
-                const token = tokens[path[path.length - 1]];
-                switch (token.name) {
-                    case 'code-string': return [
-                        token.found[0],
-                        ...this.row_content(path),
-                        token.found[token.found.length - 1],
-                    ];
-                    default: return [token.found];
-                }
-            }
-            token_text(path) {
-                const tokens = this.tokens([...path.slice(0, path.length - 1)]);
-                const token = tokens[path[path.length - 1]];
-                return token.found;
-            }
-            *view_find(check, path = []) {
-                if (check(this, this.text())) {
-                    yield [...path, this];
-                }
-            }
-        }
-        __decorate([
-            $.$mol_mem_key
-        ], $mol_text_code_row.prototype, "tokens", null);
-        __decorate([
-            $.$mol_mem_key
-        ], $mol_text_code_row.prototype, "row_content", null);
-        __decorate([
-            $.$mol_mem_key
-        ], $mol_text_code_row.prototype, "token_type", null);
-        __decorate([
-            $.$mol_mem_key
-        ], $mol_text_code_row.prototype, "token_content", null);
-        __decorate([
-            $.$mol_mem_key
-        ], $mol_text_code_row.prototype, "token_text", null);
-        $$.$mol_text_code_row = $mol_text_code_row;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//row.view.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_text_code extends $.$mol_list {
-        attr() {
-            return {
-                ...super.attr(),
-                mol_text_code_sidebar_showed: this.sidebar_showed()
-            };
-        }
-        text() {
-            return "";
-        }
-        text_lines() {
-            return [];
-        }
-        Row(id) {
-            const obj = new this.$.$mol_text_code_row();
-            obj.numb_showed = () => this.sidebar_showed();
-            obj.numb = () => this.row_numb(id);
-            obj.text = () => this.row_text(id);
-            obj.highlight = () => this.highlight();
-            return obj;
-        }
-        sidebar_showed() {
-            return false;
-        }
-        row_numb(id) {
-            return 0;
-        }
-        row_text(id) {
-            return "";
-        }
-        highlight() {
-            return "";
-        }
-    }
-    __decorate([
-        $.$mol_mem_key
-    ], $mol_text_code.prototype, "Row", null);
-    $.$mol_text_code = $mol_text_code;
-})($ || ($ = {}));
-//code.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        const { rem } = $.$mol_style_unit;
-        $.$mol_style_define($$.$mol_text_code, {
-            padding: $.$mol_gap.text,
-            whiteSpace: 'pre-wrap',
-            font: {
-                family: 'monospace',
-            },
-            '@': {
-                'mol_text_code_sidebar_showed': {
-                    true: {
-                        margin: {
-                            left: rem(3),
-                        },
-                    },
-                },
-            },
-        });
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//code.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_text_code extends $.$mol_text_code {
-            text_lines() {
-                return this.text().split('\n');
-            }
-            rows() {
-                return this.text_lines().map((_, index) => this.Row(index + 1));
-            }
-            row_text(index) {
-                return this.text_lines()[index - 1];
-            }
-            row_numb(index) {
-                return index;
-            }
-        }
-        __decorate([
-            $.$mol_mem
-        ], $mol_text_code.prototype, "text_lines", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_text_code.prototype, "rows", null);
-        __decorate([
-            $.$mol_mem_key
-        ], $mol_text_code.prototype, "row_text", null);
-        $$.$mol_text_code = $mol_text_code;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//code.view.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_textarea extends $.$mol_view {
-        attr() {
-            return {
-                ...super.attr(),
-                mol_textarea_clickable: this.clickable(),
-                mol_textarea_sidebar_showed: this.sidebar_showed()
-            };
-        }
-        event() {
-            return {
-                keydown: (event) => this.press(event),
-                pointermove: (event) => this.hover(event)
-            };
-        }
-        sub() {
-            return [
-                this.Edit(),
-                this.View()
-            ];
-        }
-        clickable(val) {
-            if (val !== undefined)
-                return val;
-            return false;
-        }
-        sidebar_showed() {
-            return false;
-        }
-        press(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        hover(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        value(val) {
-            if (val !== undefined)
-                return val;
-            return "";
-        }
-        hint() {
-            return "";
-        }
-        enabled() {
-            return true;
-        }
-        length_max() {
-            return Infinity;
-        }
-        selection(val) {
-            if (val !== undefined)
-                return val;
-            return [];
-        }
-        Edit() {
-            const obj = new this.$.$mol_string();
-            obj.dom_name = () => "textarea";
-            obj.value = (val) => this.value(val);
-            obj.hint = () => this.hint();
-            obj.enabled = () => this.enabled();
-            obj.length_max = () => this.length_max();
-            obj.selection = (val) => this.selection(val);
-            return obj;
-        }
-        row_numb(index) {
-            return 0;
-        }
-        highlight() {
-            return "";
-        }
-        View() {
-            const obj = new this.$.$mol_text_code();
-            obj.text = () => this.value();
-            obj.render_visible_only = () => false;
-            obj.row_numb = (index) => this.row_numb(index);
-            obj.sidebar_showed = () => this.sidebar_showed();
-            obj.highlight = () => this.highlight();
-            return obj;
-        }
-    }
-    __decorate([
-        $.$mol_mem
-    ], $mol_textarea.prototype, "clickable", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_textarea.prototype, "press", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_textarea.prototype, "hover", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_textarea.prototype, "value", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_textarea.prototype, "selection", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_textarea.prototype, "Edit", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_textarea.prototype, "View", null);
-    $.$mol_textarea = $mol_textarea;
-})($ || ($ = {}));
-//textarea.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_style_attach("mol/textarea/textarea.view.css", "[mol_textarea] {\n\tflex: 1 0 auto;\n\tdisplay: flex;\n\tflex-direction: column;\n\tposition: relative;\n\tz-index: 0;\n\tvertical-align: top;\n\tmin-height: max-content;\n\twhite-space: pre-wrap;\n}\n\n[mol_textarea_view] {\n\tpointer-events: none;\n\tz-index: 1;\n\twhite-space: inherit;\n}\n[mol_textarea_clickable] > [mol_textarea_view] {\n\tpointer-events: all;\n}\n\n[mol_textarea_edit] {\n\tfont-family: monospace;\n\tz-index: -1 !important;\n\tpadding: var(--mol_gap_text);\n\tposition: absolute;\n\tleft: 0;\n\ttop: 0;\n\twidth: 100%;\n\theight: 100%;\n\tcolor: transparent;\n\tcaret-color: var(--mol_theme_text);\n\tresize: none;\n\twhite-space: inherit;\n\ttab-size: 4;\n\toverflow-anchor: none;\n}\n\n[mol_textarea_sidebar_showed] [mol_textarea_edit] {\n\tleft: 3rem;\n\twidth: calc( 100% - 3rem );\n}\n");
-})($ || ($ = {}));
-//textarea.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_textarea extends $.$mol_textarea {
-            indent_inc() {
-                document.execCommand('insertText', false, '\t');
-            }
-            indent_dec() {
-            }
-            hover(event) {
-                this.clickable(event.ctrlKey);
-            }
-            press(event) {
-                switch (event.keyCode) {
-                    case $.$mol_keyboard_code.tab:
-                        this.indent_inc();
-                        break;
-                    case event.shiftKey && $.$mol_keyboard_code.tab:
-                        this.indent_dec();
-                        break;
-                    default: return;
-                }
-                event.preventDefault();
-            }
-            row_numb(index) {
-                return index;
-            }
-        }
-        $$.$mol_textarea = $mol_textarea;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//textarea.view.js.map
 ;
 "use strict";
 var $;

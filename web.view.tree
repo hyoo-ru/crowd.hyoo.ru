@@ -195,23 +195,6 @@ $mol_list $mol_view
 		0
 		0
 
-$mol_float $mol_view
-	style *
-		^
-		minHeight \auto
-
-$mol_icon_chevron $mol_icon path \M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z
-
-$mol_check_expand $mol_check
-	minimal_height 40
-	Icon $mol_icon_chevron
-	level 0
-	style *
-		^
-		paddingLeft <= level_style \0px
-	checked?val <=> expanded?val false
-	enabled <= expandable false
-
 $mol_paragraph $mol_view
 	line_height 24
 	letter_width 7
@@ -228,6 +211,86 @@ $mol_dimmer $mol_paragraph
 	High!id $mol_paragraph
 		sub /
 			<= string!id \
+
+$mol_text_code_token $mol_dimmer
+	attr *
+		^
+		mol_text_code_token_type <= type \
+
+$mol_text_code_token_link $mol_text_code_token
+	dom_name \a
+	type \code-link
+	attr *
+		^
+		href <= haystack \
+		target \_blank
+
+$mol_text_code_row $mol_paragraph
+	text \
+	minimal_height 24
+	numb_showed true
+	Numb $mol_view
+		sub /
+			<= numb 0
+	Token!id $mol_text_code_token
+		type <= token_type!id \
+		haystack <= token_text!id \
+		needle <= highlight \
+	Token_link!id $mol_text_code_token_link
+		haystack <= token_text!id \
+		needle <= highlight \
+
+$mol_text_code $mol_list
+	attr *
+		^
+		mol_text_code_sidebar_showed <= sidebar_showed false
+	text \
+	text_lines /string
+	Row!id $mol_text_code_row
+		numb_showed <= sidebar_showed
+		numb <= row_numb!id 0
+		text <= row_text!id \
+		highlight <= highlight \
+
+$mol_textarea $mol_view
+	attr *
+		^
+		mol_textarea_clickable <= clickable?val false
+		mol_textarea_sidebar_showed <= sidebar_showed false
+	event *
+		keydown?event <=> press?event null
+		pointermove?event <=> hover?event null
+	sub /
+		<= Edit $mol_string
+			dom_name \textarea
+			value?val <=> value?val \
+			hint <= hint \
+			enabled <= enabled true
+			length_max <= length_max Infinity
+			selection?val <=> selection?val /number
+		<= View $mol_text_code
+			text <= value
+			render_visible_only false
+			row_numb!index <= row_numb!index 0
+			sidebar_showed <= sidebar_showed
+			highlight <= highlight \
+
+$mol_float $mol_view
+	style *
+		^
+		minHeight \auto
+
+$mol_icon_chevron $mol_icon path \M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z
+
+$mol_check_expand $mol_check
+	minimal_height 40
+	Icon $mol_icon_chevron
+	level 0
+	style *
+		^
+		paddingLeft <= level_style \0px
+	checked?val <=> expanded?val false
+	enabled <= expandable false
 
 $mol_grid $mol_scroll
 	row_height 32
@@ -306,12 +369,17 @@ $mol_text $mol_list
 		sub <= block_content!id /
 		type <= block_type!id \
 	Span!id $mol_text_span
+	String!id $mol_text_string
+		needle <= highlight \
 	Link!id $mol_text_link
 		target <= link_target!id \_blank
 	Image!id $mol_text_image
 	Header!id $mol_text_header
 		level <= header_level!id 0
 		content <= header_content!id /
+	Code!id $mol_text_code
+		text <= code_text!id \
+		highlight <= highlight \
 	Table!id $mol_grid
 		head_cells <= table_head_cells!id /
 		rows <= table_rows!id /
@@ -341,6 +409,10 @@ $mol_text_span $mol_paragraph
 		mol_text_type <= type?val \
 	sub <= content?val /
 
+$mol_text_string $mol_dimmer
+	dom_name \span
+	haystack?val \
+
 $mol_text_link $mol_link_iconed
 	attr *
 		^
@@ -357,69 +429,6 @@ $mol_text_image $mol_view
 		data <= link?val \
 	sub /
 		<= title?val \
-
-$mol_text_code_token $mol_dimmer
-	attr *
-		^
-		mol_text_code_token_type <= type \
-
-$mol_text_code_token_link $mol_text_code_token
-	dom_name \a
-	type \code-link
-	attr *
-		^
-		href <= haystack \
-		target \_blank
-
-$mol_text_code_row $mol_paragraph
-	text \
-	minimal_height 24
-	numb_showed true
-	Numb $mol_view
-		sub /
-			<= numb 0
-	Token!id $mol_text_code_token
-		type <= token_type!id \
-		haystack <= token_text!id \
-		needle <= highlight \
-	Token_link!id $mol_text_code_token_link
-		haystack <= token_text!id \
-		needle <= highlight \
-
-$mol_text_code $mol_list
-	attr *
-		^
-		mol_text_code_sidebar_showed <= sidebar_showed false
-	text \
-	text_lines /string
-	Row!id $mol_text_code_row
-		numb_showed <= sidebar_showed
-		numb <= row_numb!id 0
-		text <= row_text!id \
-		highlight <= highlight \
-
-$mol_textarea $mol_view
-	attr *
-		^
-		mol_textarea_clickable <= clickable?val false
-		mol_textarea_sidebar_showed <= sidebar_showed false
-	event *
-		keydown?event <=> press?event null
-		pointermove?event <=> hover?event null
-	sub /
-		<= Edit $mol_string
-			dom_name \textarea
-			value?val <=> value?val \
-			hint <= hint \
-			enabled <= enabled true
-			length_max <= length_max Infinity
-			selection?val <=> selection?val /number
-		<= View $mol_text_code
-			text <= value
-			render_visible_only false
-			row_numb!index <= row_numb!index 0
-			sidebar_showed <= sidebar_showed
-			highlight <= highlight \
 
 $hyoo_crowd_app $mol_book2
 	Placeholder null
