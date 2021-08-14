@@ -316,7 +316,7 @@ namespace $ {
 			
 		},
 		
-		'Insert before moved'() {
+		'Insert before moved left'() {
 			
 			const base = new $hyoo_crowd_tree( 123 )
 			base.list( '', [ 'foo', 'bar', 'zak' ] )
@@ -337,6 +337,31 @@ namespace $ {
 				left.list( '' ),
 				right.list( '' ),
 				[ 'bar', 'foo', 'xxx', 'zak' ],
+			)
+			
+		},
+		
+		'Insert before moved right'() {
+			
+			const base = new $hyoo_crowd_tree( 123 )
+			base.list( '', [ 'foo', 'bar', 'zak' ] )
+			
+			const left = base.fork( 234 )
+			left.list( '', [ 'foo', 'xxx', 'bar', 'zak' ] )
+			
+			const right = base.fork( 345 )
+			right.move( right.kids( '' )[1], right.kids( '' )[2].luid )
+			
+			const left_delta = left.delta( base.clock )
+			const right_delta = right.delta( base.clock )
+			
+			left.apply( right_delta )
+			right.apply( left_delta )
+	
+			$mol_assert_like(
+				left.list( '' ),
+				right.list( '' ),
+				[ 'foo', 'xxx', 'zak', 'bar' ],
 			)
 			
 		},
