@@ -1,5 +1,7 @@
 # Conflict-free Reinterpretable Ordered Washed Data (CROWD)
 
+**Under development. Don't use it on production.**
+
 ![](https://habrastorage.org/webt/lz/d_/kh/lzd_khq4fnql2hgo3zlhfwkebg4.png)
 
 # Key Properties
