@@ -32,6 +32,11 @@ namespace $ {
 			return this._kids.get( guid )?.filter( node => node.data !== null ) ?? []
 		}
 		
+		follower( node: $hyoo_crowd_node ) {
+			const siblings = this._kids.get( node.parent )!
+			return siblings[ siblings.indexOf( node ) + 1 ]
+		} 
+		
 		list< Item extends unknown >(
 			guid: $hyoo_crowd_node['guid'],
 			next?: readonly Item[],
@@ -125,7 +130,42 @@ namespace $ {
 				delta.push( node! )
 			}
 			
+			delta.sort( ( left, right )=> left.prefer( right ) ? 1 : -1 )
+			
 			return delta as readonly $hyoo_crowd_node[]
+		}
+		
+		resort( guid: $hyoo_crowd_node['guid'] ) {
+			const kids = this._kids.get( guid )!
+			kids.sort( ( left, right )=> {
+				if( left.offset > right.offset ) return +1
+				if( left.offset < right.offset ) return -1
+				if( left.prefer( right ) ) return +1
+				else return -1
+			} )
+			const ordered = [] as typeof kids
+			for( const kid of kids ) {
+				
+				let leader = kid.leader ? this.nodes.get( `${ guid }/${ kid.leader }` )! : null
+				let index = leader ? ordered.indexOf( leader ) + 1 : 0
+				if( index === 0 && leader ) index = ordered.length
+				if( index < kid.offset ) {
+					index = ordered.length
+				}
+				
+				// while( index < siblings.length ) {
+					
+				// 	const follower = siblings[ index ]
+				// 	if( node.prefer( follower ) ) break
+					
+				// 	++ index
+				// }
+				
+				// if( node.offset < 0 ) node.offset = index
+				ordered.splice( index, 0, kid )
+				
+			}
+			this._kids.set( guid, ordered )
 		}
 		
 		/** Applies Delta to current state. */
@@ -138,8 +178,7 @@ namespace $ {
 				let node = this.nodes.get( patch.guid )
 				if( node ) {
 					
-					if( patch.version < node.version ) continue
-					if( patch.version === node.version && patch.peer < node.peer ) continue
+					if( node.prefer( patch ) ) continue
 				
 					this.back_unlink( node )
 					
@@ -147,6 +186,7 @@ namespace $ {
 				
 				this.nodes.set( patch.guid, patch )
 				this.back_link( patch )
+				this.resort( patch.parent )
 				
 			}
 			
@@ -164,10 +204,25 @@ namespace $ {
 			
 			let siblings = this._kids.get( node.parent )
 			if( siblings ) {
-				const index = leader ? siblings.indexOf( leader ) + 1 : 0
+				
+				let index = leader ? siblings.indexOf( leader ) + 1 : 0
+				
+				// while( index < siblings.length ) {
+					
+				// 	const follower = siblings[ index ]
+				// 	if( node.prefer( follower ) ) break
+					
+				// 	++ index
+				// }
+				
+				if( node.offset < 0 ) node.offset = index
 				siblings.splice( index, 0, node )
+				
 			} else {
+				
+				if( node.offset < 0 ) node.offset = 0
 				this._kids.set( node.parent, [ node ] )
+				
 			}
 
 			return this
@@ -184,7 +239,68 @@ namespace $ {
 			return this
 		}
 		
-		/** Marks node with its subtree as deleted and wipes data. */
+		/** Places data to tree. */
+		put(
+			guid: $hyoo_crowd_node['guid'],
+			leader: $hyoo_crowd_node['leader'],
+			data: $hyoo_crowd_node['data'],
+		) {
+			
+			// const existen = this.node( guid )
+			// if( existen && existen.leader !== leader ) {
+				
+			// 	const follower = this.follower( existen )
+			// 	if( follower ) {
+					
+			// 		this.apply([
+			// 			new $hyoo_crowd_node(
+			// 				follower.guid,
+			// 				existen.leader,
+			// 				follower.offset,
+			// 				this.peer,
+			// 				this.clock.tick( this.peer ),
+			// 				follower.data,
+			// 			)
+			// 		])
+					
+			// 	}
+				
+			// }
+			
+			const node = new $hyoo_crowd_node(
+				guid,
+				leader,
+				-1,
+				this.peer,
+				this.clock.tick( this.peer ),
+				data,
+			)
+			
+			this.apply([ node ])
+			
+			// if( !existen || existen.leader !== leader ) {
+				
+			// 	const follower = this.follower( node )
+			// 	if( follower ) {
+					
+			// 		this.apply([
+			// 			new $hyoo_crowd_node(
+			// 				follower.guid,
+			// 				node.luid,
+			// 				this.peer,
+			// 				this.clock.tick( this.peer ),
+			// 				follower.data,
+			// 			)
+			// 		])
+				
+			// 	}
+				
+			// }
+			
+			return node
+		}
+		
+		/** Recursively marks node with its subtree as deleted and wipes data. */
 		wipe( node: $hyoo_crowd_node ) {
 			
 			if( node.data === null ) return node
@@ -193,31 +309,26 @@ namespace $ {
 				this.wipe( kid )
 			}
 			
-			node = node.wiped( this.peer, this.clock.tick( this.peer ) )
-			this.apply([ node ])
-			
-			return node
-		}
-		
-		/** Places data to tree. */
-		put(
-			guid: $hyoo_crowd_node['guid'],
-			leader: $hyoo_crowd_node['leader'],
-			data: $hyoo_crowd_node['data'],
-		) {
-			
-			const node = new $hyoo_crowd_node(
-				guid,
-				leader,
-				this.peer,
-				this.clock.tick( this.peer ),
-				data,
+			return this.put(
+				node.guid,
+				node.leader,
 				null,
 			)
 			
-			this.apply([ node ])
+		}
+		
+		/** Moves node after another leader. */
+		move(
+			node: $hyoo_crowd_node,
+			leader: $hyoo_crowd_node['leader'],
+		) {
 			
-			return node
+			return this.put(
+				node.guid,
+				leader,
+				node.data
+			)
+			
 		}
 		
 	}
