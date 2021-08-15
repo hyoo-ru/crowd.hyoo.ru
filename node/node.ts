@@ -1,15 +1,18 @@
 namespace $ {
 	
-	/** Independent part of data. 64+B */
+	/** Independent part of data. 66+B */
 	export class $hyoo_crowd_node {
 		
 		constructor(
 			
-			/** Global unique node identifier. */
-			readonly guid: '' | `/${ string }`,
+			/** Identifier of head node. 6B */
+			readonly head: number,
 			
-			/** Local unique identifier of leader node. */
-			readonly leader: string,
+			/** Self identifier inside head after lead. 6B */
+			readonly self: number,
+			
+			/** Identifier of lead node. 6B */
+			readonly lead: number,
 			
 			/** Offset at the time of the update. 2B */
 			public offset: number,
@@ -20,7 +23,10 @@ namespace $ {
 			/** Monotonic version. 6B */
 			readonly version: number,
 			
-			/** Associated atomic data. 2+B */
+			/** Name inside parent. 1+B */
+			readonly name: string,
+			
+			/** Associated atomic data. 1+B */
 			readonly data: unknown,
 			
 			/** Sign for whole node data. 32B */
@@ -28,12 +34,8 @@ namespace $ {
 		
 		) {}
 		
-		get luid() {
-			return this.guid.replace( /.*\//, '' )
-		}
-		
-		get parent() {
-			return this.guid.replace( /\/[^/]+$/, '' ) as $hyoo_crowd_node['guid']
+		get guid() {
+			return `${ this.head }/${ this.self }` as const
 		}
 		
 		get deleted() {
