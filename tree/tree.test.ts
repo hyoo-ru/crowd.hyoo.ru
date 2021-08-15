@@ -283,7 +283,7 @@ namespace $ {
 			left.list( 0, [ 'foo', 'xxx', 'bar', 'zak' ] )
 			
 			const right = base.fork( 345 )
-			right.move( right.kids( 0 )[0], right.kids( 0 )[1].self )
+			right.insert( right.kids( 0 )[0], 0, 2 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -308,7 +308,7 @@ namespace $ {
 			left.list( 0, [ 'foo', 'xxx', 'bar', 'zak' ] )
 			
 			const right = base.fork( 345 )
-			right.move( right.kids( 0 )[1], 0 )
+			right.insert( right.kids( 0 )[1], 0, 0 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -333,7 +333,7 @@ namespace $ {
 			left.list( 0, [ 'foo', 'xxx', 'bar', 'zak' ] )
 			
 			const right = base.fork( 345 )
-			right.move( right.kids( 0 )[1], right.kids( 0 )[2].self )
+			right.insert( right.kids( 0 )[1], 0, 3 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -370,6 +370,37 @@ namespace $ {
 				left.list( 0 ),
 				right.list( 0 ),
 				[ 'xxx', 'bar' ],
+			)
+			
+		},
+		
+		'Insert after removed out'() {
+			
+			const base = new $hyoo_crowd_tree( 123 )
+			base.list( 111, [ 'foo', 'bar', 'zak' ] )
+			
+			const left = base.fork( 234 )
+			left.list( 111, [ 'foo', 'bar', 'xxx', 'zak' ] )
+			
+			const right = base.fork( 345 )
+			right.insert( right.kids( 111 )[1], 222, 0 )
+			
+			const left_delta = left.delta( base.clock )
+			const right_delta = right.delta( base.clock )
+			
+			left.apply( right_delta )
+			right.apply( left_delta )
+	
+			$mol_assert_like(
+				left.list( 111 ),
+				right.list( 111 ),
+				[ 'foo', 'xxx', 'zak' ],
+			)
+			
+			$mol_assert_like(
+				left.list( 222 ),
+				right.list( 222 ),
+				[ 'bar' ],
 			)
 			
 		},

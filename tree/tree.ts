@@ -342,20 +342,36 @@ namespace $ {
 			
 		}
 		
-		/** Moves node after another leader. */
+		/** Moves node after another lead inside some head. */
 		move(
 			node: $hyoo_crowd_node,
+			head: $hyoo_crowd_node['head'],
 			lead: $hyoo_crowd_node['lead'],
 		) {
 			
+			this.wipe( node )
+			
 			return this.put(
-				node.head,
+				head,
 				node.self,
 				lead,
 				node.name,
 				node.data
 			)
 			
+		}
+		
+		/** Moves node at some offset inside some head. */
+		insert(
+			node: $hyoo_crowd_node,
+			head: $hyoo_crowd_node['head'],
+			offset: $hyoo_crowd_node['offset'],
+		) {
+			
+			const siblings = this.kids( head )
+			const lead = offset ? siblings[ offset - 1 ].self : 0
+			
+			return this.move( node, head, lead )
 		}
 		
 	}
