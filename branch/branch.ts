@@ -1,16 +1,16 @@
 namespace $ {
 	
 	/** Stateless non-unique adapter to CROWD Tree for given Head. */
-	export class $hyoo_crowd_node {
+	export class $hyoo_crowd_branch {
 		
 		constructor(
 			readonly tree: $hyoo_crowd_tree,
 			readonly head: $hyoo_crowd_chunk['head'],
 		) {}
 		
-		/** Returns inner node for id. */
-		node( self: $hyoo_crowd_chunk['self'] ) {
-			return new $hyoo_crowd_node( this.tree, self )
+		/** Returns inner branch for id. */
+		branch( self: $hyoo_crowd_chunk['self'] ) {
+			return new $hyoo_crowd_branch( this.tree, self )
 		}
 		
 		/** Ordered inner chunks. Including tombstones. */
@@ -18,9 +18,9 @@ namespace $ {
 			return this.tree.kids( this.head )
 		}
 		
-		/** Ordered inner nodes. Including tombstones. */
-		nodes() {
-			return this.chunks().map( chunk => this.node( chunk.self ) )
+		/** Ordered inner branch. Including tombstones. */
+		branches() {
+			return this.chunks().map( chunk => this.branch( chunk.self ) )
 		}
 		
 		/** Data list representation. */

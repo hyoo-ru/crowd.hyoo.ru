@@ -99,13 +99,13 @@ namespace $ {
 			)
 			
 			$mol_assert_like(
-				store.node( 111 ).chunks().map( chunk => chunk.self ),
+				store.branch( 111 ).chunks().map( chunk => chunk.self ),
 				[ 222 ],
 			)
 			
 		},
 		
-		'Move existen node'() {
+		'Move existen Chunk'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
@@ -131,28 +131,28 @@ namespace $ {
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 321, 2 ],
-				]) ).map( node => node.self ),
+				]) ).map( chunk => chunk.self ),
 				[ 111, 222, 333 ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 123, 0 ],
-				]) ).map( node => node.self ),
+				]) ).map( chunk => chunk.self ),
 				[ 111, 222, 333 ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 123, 1 ],
-				]) ).map( node => node.self ),
+				]) ).map( chunk => chunk.self ),
 				[ 222, 333 ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 123, 2 ],
-				]) ).map( node => node.self ),
+				]) ).map( chunk => chunk.self ),
 				[ 333 ],
 			)
 			
@@ -169,25 +169,25 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			const node1 = store.put( 0, 111, 0, '', 'foo' )
-			const node2 = store.put( 111, 222, 0, '', 'bar' )
-			let node3 = store.put( 222, 333, 0, '', 'lol' )
+			const chunk1 = store.put( 0, 111, 0, '', 'foo' )
+			const chunk2 = store.put( 111, 222, 0, '', 'bar' )
+			let chunk3 = store.put( 222, 333, 0, '', 'lol' )
 			
 			$mol_assert_like( store.root.text(), 'foo' )
-			$mol_assert_like( store.node( node1.self ).text(), 'bar' )
-			$mol_assert_like( store.node( node2.self ).text(), 'lol' )
+			$mol_assert_like( store.branch( chunk1.self ).text(), 'bar' )
+			$mol_assert_like( store.branch( chunk2.self ).text(), 'lol' )
 			
-			store.wipe( node1 )
-			
-			$mol_assert_like( store.root.text(), '' )
-			$mol_assert_like( store.node( node1.self ).text(), '' )
-			$mol_assert_like( store.node( node2.self ).text(), '' )
-			
-			node3 = store.put( node3.head, node3.self, node3.lead, node3.name, node3.data )
+			store.wipe( chunk1 )
 			
 			$mol_assert_like( store.root.text(), '' )
-			$mol_assert_like( store.node( node1.self ).text(), '' )
-			$mol_assert_like( store.node( node2.self ).text(), 'lol' )
+			$mol_assert_like( store.branch( chunk1.self ).text(), '' )
+			$mol_assert_like( store.branch( chunk2.self ).text(), '' )
+			
+			chunk3 = store.put( chunk3.head, chunk3.self, chunk3.lead, chunk3.name, chunk3.data )
+			
+			$mol_assert_like( store.root.text(), '' )
+			$mol_assert_like( store.branch( chunk1.self ).text(), '' )
+			$mol_assert_like( store.branch( chunk2.self ).text(), 'lol' )
 			
 		},
 		
@@ -197,7 +197,7 @@ namespace $ {
 			$mol_assert_like( store.root.list(), [] )
 			
 			store.root.list([ 'foo', 'bar', 'foo' ])
-			const first = store.root.nodes()[0]
+			const first = store.root.branches()[0]
 			first.list([ 'bar', 'foo', 'bar' ])
 			
 			$mol_assert_like( store.root.list(), [ 'foo', 'bar', 'foo' ] )
@@ -211,7 +211,7 @@ namespace $ {
 			$mol_assert_like( store.root.text(), '' )
 			
 			store.root.text( 'foo bar foo' )
-			const first = store.root.nodes()[0]
+			const first = store.root.branches()[0]
 			first.text( 'bar foo bar' )
 			
 			$mol_assert_like( store.root.text(), 'foo bar foo' )
@@ -391,13 +391,13 @@ namespace $ {
 		'Insert after removed out'() {
 			
 			const base = new $hyoo_crowd_tree( 123 )
-			base.node( 111 ).text( 'foo bar|zak' )
+			base.branch( 111 ).text( 'foo bar|zak' )
 			
 			const left = base.fork( 234 )
-			left.node( 111 ).text( 'foo bar|xxx zak' )
+			left.branch( 111 ).text( 'foo bar|xxx zak' )
 			
 			const right = base.fork( 345 )
-			right.insert( right.node( 111 ).chunks()[1], 222, 0 )
+			right.insert( right.branch( 111 ).chunks()[1], 222, 0 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -406,14 +406,14 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.node( 111 ).text(),
-				right.node( 111 ).text(),
+				left.branch( 111 ).text(),
+				right.branch( 111 ).text(),
 				'foo xxx zak',
 			)
 			
 			$mol_assert_like(
-				left.node( 222 ).text(),
-				right.node( 222 ).text(),
+				left.branch( 222 ).text(),
+				right.branch( 222 ).text(),
 				'bar|',
 			)
 			

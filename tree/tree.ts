@@ -31,7 +31,7 @@ namespace $ {
 			return this._chunks.get( `${ head }/${ self }` ) ?? null
 		}
 		
-		/** Returns list of all alive children of node. */ 
+		/** Returns ordered list of chunks for Branch. */ 
 		kids( head: $hyoo_crowd_chunk['head'] ): readonly $hyoo_crowd_chunk[] {
 			
 			let chunks = this._kids.get( head )
@@ -42,13 +42,14 @@ namespace $ {
 			return chunks
 		}
 		
-		/** */
+		/** Root Branch. */
 		get root() {
-			return this.node( 0 )
+			return this.branch( 0 )
 		}
 		
-		node( head: $hyoo_crowd_chunk['head'] ) {
-			return new $hyoo_crowd_node( this, head )
+		/** Returns branch for Branch. */
+		branch( head: $hyoo_crowd_chunk['head'] ) {
+			return new $hyoo_crowd_branch( this, head )
 		}
 		
 		/** Generates new 6B identifier. */
@@ -68,14 +69,14 @@ namespace $ {
 			
 			const delta = [] as $hyoo_crowd_chunk[]
 			
-			for( const node of this._chunks.values() ) {
+			for( const chunk of this._chunks.values() ) {
 				
-				if( !node?.guid ) continue
+				if( !chunk?.guid ) continue
 				
-				const version = clock.get( node!.peer )
-				if( version && node!.version <= version ) continue
+				const version = clock.get( chunk!.peer )
+				if( version && chunk!.version <= version ) continue
 				
-				delta.push( node! )
+				delta.push( chunk! )
 			}
 			
 			delta.sort( ( left, right )=> left.prefer( right ) ? 1 : -1 )
@@ -119,12 +120,12 @@ namespace $ {
 				
 				this.clock.see( patch.peer, patch.version )
 				
-				let node = this._chunks.get( patch.guid )
-				if( node ) {
+				let chunk = this._chunks.get( patch.guid )
+				if( chunk ) {
 					
-					if( node.prefer( patch ) ) continue
+					if( chunk.prefer( patch ) ) continue
 				
-					this.back_unlink( node )
+					this.back_unlink( chunk )
 					
 				}
 				
@@ -137,26 +138,26 @@ namespace $ {
 			return this
 		}
 		
-		/** Makes back links to node inside Parent/Leader */
-		protected back_link( node: $hyoo_crowd_chunk ) {
+		/** Makes back links to chunk inside Head. */
+		protected back_link( chunk: $hyoo_crowd_chunk ) {
 			
-			let lead = node.lead ? this.chunk( node.head, node.lead )! : null
+			let lead = chunk.lead ? this.chunk( chunk.head, chunk.lead )! : null
 			
-			let siblings = this.kids( node.head ) as $hyoo_crowd_chunk[]
+			let siblings = this.kids( chunk.head ) as $hyoo_crowd_chunk[]
 			let index = lead ? siblings.indexOf( lead ) + 1 : 0
 			
-			if( node.offset < 0 ) node.offset = index
-			siblings.splice( index, 0, node )
+			if( chunk.offset < 0 ) chunk.offset = index
+			siblings.splice( index, 0, chunk )
 				
 			return this
 		}
 		
-		/** Romoves back links to node inside Parent/Leader */
-		protected back_unlink( node: $hyoo_crowd_chunk ) {
+		/** Romoves back links to chunk inside Head. */
+		protected back_unlink( chunk: $hyoo_crowd_chunk ) {
 			
-			let siblings = this.kids( node.head ) as $hyoo_crowd_chunk[]
+			let siblings = this.kids( chunk.head ) as $hyoo_crowd_chunk[]
 			
-			const index = siblings.indexOf( node )
+			const index = siblings.indexOf( chunk )
 			siblings.splice( index, 1 )
 			
 			return this
@@ -171,7 +172,7 @@ namespace $ {
 			data: $hyoo_crowd_chunk['data'],
 		) {
 			
-			const node = new $hyoo_crowd_chunk(
+			const chunk = new $hyoo_crowd_chunk(
 				head,
 				self,
 				lead,
@@ -182,52 +183,52 @@ namespace $ {
 				data,
 			)
 			
-			this.apply([ node ])
+			this.apply([ chunk ])
 			
-			return node
+			return chunk
 		}
 		
-		/** Recursively marks node with its subtree as deleted and wipes data. */
-		wipe( node: $hyoo_crowd_chunk ) {
+		/** Recursively marks chunk with its subtree as deleted and wipes data. */
+		wipe( chunk: $hyoo_crowd_chunk ) {
 			
-			if( node.data === null ) return node
+			if( chunk.data === null ) return chunk
 			
-			for( const kid of this.kids( node.self ) ) {
+			for( const kid of this.kids( chunk.self ) ) {
 				this.wipe( kid )
 			}
 			
 			return this.put(
-				node.head,
-				node.self,
-				node.lead,
+				chunk.head,
+				chunk.self,
+				chunk.lead,
 				"",
 				null,
 			)
 			
 		}
 		
-		/** Moves node after another lead inside some head. */
+		/** Moves chunk after another Lead inside some Head. */
 		move(
-			node: $hyoo_crowd_chunk,
+			chunk: $hyoo_crowd_chunk,
 			head: $hyoo_crowd_chunk['head'],
 			lead: $hyoo_crowd_chunk['lead'],
 		) {
 			
-			this.wipe( node )
+			this.wipe( chunk )
 			
 			return this.put(
 				head,
-				node.self,
+				chunk.self,
 				lead,
-				node.name,
-				node.data
+				chunk.name,
+				chunk.data
 			)
 			
 		}
 		
-		/** Moves node at some offset inside some head. */
+		/** Moves chunk at given offset inside some Head. */
 		insert(
-			node: $hyoo_crowd_chunk,
+			chunk: $hyoo_crowd_chunk,
 			head: $hyoo_crowd_chunk['head'],
 			offset: $hyoo_crowd_chunk['offset'],
 		) {
@@ -235,7 +236,7 @@ namespace $ {
 			const siblings = this.kids( head )
 			const lead = offset ? siblings[ offset - 1 ].self : 0
 			
-			return this.move( node, head, lead )
+			return this.move( chunk, head, lead )
 		}
 		
 	}
