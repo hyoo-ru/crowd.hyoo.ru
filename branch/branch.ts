@@ -14,21 +14,69 @@ namespace $ {
 		}
 		
 		/** Ordered inner chunks. Including tombstones. */
-		chunks() {
-			return this.tree.chunk_list( this.head )
+		chunks( name: string ) {
+			return this.tree.chunk_list( this.head ).filter( chunk => chunk.data !== null && chunk.name === name )
 		}
 		
 		/** Ordered inner branch. Including tombstones. */
-		branches() {
-			return this.chunks().map( chunk => this.branch( chunk.self ) )
+		branches( name: string ) {
+			return this.chunks( name ).map( chunk => this.branch( chunk.self ) )
+		}
+		
+		value( name: string, next?: unknown ) {
+			
+			const chunks = this.chunks( name )
+			let last
+			
+			for( const chunk of chunks ) {
+				if( !last || chunk.prefer( last ) ) last = chunk
+			}
+			
+			if( next === undefined ) {
+				
+				return last?.data ?? null
+				
+			} else {
+				
+				if( last?.data === next ) return next
+				
+				for( const chunk of chunks ) {
+					if( chunk === last ) continue
+					this.tree.wipe( chunk )
+				}
+				
+				this.tree.put(
+					this.head,
+					last?.self ?? this.tree.id_new(),
+					0,
+					name,
+					next,
+				)
+			
+				return next
+			}
+			
+		}
+		
+		str( name: string, next?: string ) {
+			return String( this.value( name, next ) ?? '' )
+		}
+		
+		numb( name: string, next?: number ) {
+			return Number( this.value( name, next ) ?? 0 )
+		}
+		
+		bool( name: string, next?: boolean ) {
+			return Boolean( this.value( name, next ) ?? false )
 		}
 		
 		/** Data list representation. */
 		list(
+			name: string, 
 			next?: readonly unknown[],
 		) {
 			
-			let prev = this.chunks().filter( chunk => chunk.data !== null )
+			let prev = this.chunks( name )
 			
 			if( next === undefined ) {
 				
@@ -94,16 +142,16 @@ namespace $ {
 		}
 		
 		/** Text representation. Based on list of strings. */
-		text( next?: string ) {
+		text( name: string, next?: string ) {
 			
 			if( next === undefined ) {
 				
-				return this.list().join( '' )
+				return this.list( name ).join( '' )
 			
 			} else {
 				
 				const words = [ ... next.matchAll( $hyoo_crowd_text_tokenizer ) ].map( token => token[0] )
-				this.list( words )
+				this.list( name, words )
 				
 				return next
 			}
