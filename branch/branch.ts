@@ -15,7 +15,7 @@ namespace $ {
 		
 		/** Ordered inner chunks. Including tombstones. */
 		chunks() {
-			return this.tree.kids( this.head )
+			return this.tree.chunk_list( this.head )
 		}
 		
 		/** Ordered inner branch. Including tombstones. */
