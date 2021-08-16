@@ -168,8 +168,7 @@ namespace $ {
 		) {
 			
 			let chunk_lead = lead ? this.chunk( head, lead )! : null
-			let siblings = this.chunk_list( head )
-			let offset = chunk_lead ? siblings.filter( chunk => chunk.self !== self ).indexOf( chunk_lead ) + 1 : 0
+			let offset = chunk_lead ? this.chunk_list( head ).filter( chunk => chunk.self !== self ).indexOf( chunk_lead ) + 1 : 0
 			
 			const chunk = new $hyoo_crowd_chunk(
 				head,

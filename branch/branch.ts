@@ -24,15 +24,15 @@ namespace $ {
 		}
 		
 		/** Data list representation. */
-		list< Item extends unknown >(
-			next?: readonly Item[],
-		): readonly Item[] {
+		list(
+			next?: readonly unknown[],
+		) {
 			
 			let prev = this.chunks().filter( chunk => chunk.data !== null )
 			
 			if( next === undefined ) {
 				
-				return prev.map( chunk => chunk.data as Item )
+				return prev.map( chunk => chunk.data )
 				
 			} else {
 				
