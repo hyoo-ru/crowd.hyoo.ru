@@ -1,51 +1,102 @@
 namespace $ {
 	
-	/** Independent part of data. 66+B */
 	export class $hyoo_crowd_node {
 		
 		constructor(
-			
-			/** Identifier of head node. 6B */
-			readonly head: number,
-			
-			/** Self identifier inside head after lead. 6B */
-			readonly self: number,
-			
-			/** Identifier of lead node. 6B */
-			readonly lead: number,
-			
-			/** Offset at the time of the update. 2B */
-			public offset: number,
-			
-			/** Global unique identifier of peer. 6B */
-			readonly peer: number,
-			
-			/** Monotonic version. 6B */
-			readonly version: number,
-			
-			/** Name inside parent. 1+B */
-			readonly name: string,
-			
-			/** Associated atomic data. 1+B */
-			readonly data: unknown,
-			
-			/** Sign for whole node data. 32B */
-			// readonly sign: null | Uint8Array & { length: 32 },
-		
+			readonly tree: $hyoo_crowd_tree,
+			readonly head: $hyoo_crowd_chunk['head'],
 		) {}
 		
-		get guid() {
-			return `${ this.head }/${ this.self }` as const
+		node( self: $hyoo_crowd_chunk['self'] ) {
+			return new $hyoo_crowd_node( this.tree, self )
 		}
 		
-		get deleted() {
-			return this.data === null
+		chunks() {
+			return this.tree.kids( this.head )
 		}
 		
-		prefer( node: $hyoo_crowd_node ) {
-			if( this.version > node.version ) return true
-			if( this.version < node.version ) return false
-			return this.peer > node.peer
+		nodes() {
+			return this.chunks().map( chunk => this.node( chunk.self ) )
+		}
+		
+		list< Item extends unknown >(
+			next?: readonly Item[],
+		): readonly Item[] {
+			
+			let prev = this.chunks()
+			
+			if( next === undefined ) {
+				
+				return prev.map( node => node.data as Item )
+				
+			} else {
+				
+				let k = 0
+				let n = 0
+				let lead = 0
+				
+				while( k < prev.length || n < next.length ) {
+					
+					if( prev[k]?.data === next[n] ) {
+						
+						lead = prev[k].self
+						
+						++ k
+						++ n
+						
+					} else if( next.length - n > prev.length - k ) {
+						
+						lead = this.tree.put(
+							this.head,
+							this.tree.id_new(),
+							lead,
+							"",
+							next[n],
+						).self
+						
+						++ n
+						
+					} else if( next.length - n < prev.length - k ) {
+						
+						lead = this.tree.wipe( prev[k] ).self
+						++ k
+						
+					} else {
+						
+						lead = this.tree.put(
+							prev[k].head,
+							prev[k].self,
+							lead,
+							"",
+							next[n],
+						).self
+						
+						++ k
+						++ n
+						
+					}
+					
+				}
+				
+				return next
+			}
+			
+		}
+		
+		text( next?: string ) {
+			
+			if( next === undefined ) {
+				
+				return this.list().join( '' )
+			
+			} else {
+				
+				const words = [ ... next.matchAll( $hyoo_crowd_text_tokenizer ) ].map( token => token[0] )
+				this.list( words )
+				
+				return next
+			}
+			
 		}
 		
 	}

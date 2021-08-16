@@ -194,46 +194,60 @@ namespace $ {
 		'Put/get list'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )
-			$mol_assert_like( store.list( 0 ), [] )
+			$mol_assert_like( store.root.list(), [] )
 			
-			store.list( 0, [ 'foo', 'bar', 'foo' ] )
-			const self1 = store.kids( 0 )[0].self
-			store.list( self1, [ 'bar', 'foo', 'bar' ] )
+			store.root.list([ 'foo', 'bar', 'foo' ])
+			const first = store.root.nodes()[0]
+			first.list([ 'bar', 'foo', 'bar' ])
 			
-			$mol_assert_like( store.list( 0 ), [ 'foo', 'bar', 'foo' ] )
-			$mol_assert_like( store.list( self1 ), [ 'bar', 'foo', 'bar' ] )
+			$mol_assert_like( store.root.list(), [ 'foo', 'bar', 'foo' ] )
+			$mol_assert_like( first.list(), [ 'bar', 'foo', 'bar' ] )
 			
 		},
 		
-		'Change list'() {
+		'Put/get text'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )
-			$mol_assert_like( store.list( 0 ), [] )
+			$mol_assert_like( store.root.text(), '' )
 			
-			store.list( 0, [ 'foo' ] )
-			$mol_assert_like( store.list( 0 ), [ 'foo' ] )
+			store.root.text( 'foo bar foo' )
+			const first = store.root.nodes()[0]
+			first.text( 'bar foo bar' )
 			
-			store.list( 0, [ 'foo', 'bar' ] )
-			$mol_assert_like( store.list( 0 ), [ 'foo', 'bar' ] )
-			
-			store.list( 0, [ 'foo', 'lol', 'bar' ] )
-			$mol_assert_like( store.list( 0 ), [ 'foo', 'lol', 'bar' ] )
-			
-			store.list( 0, [ 'lol', 'bar' ] )
-			$mol_assert_like( store.list( 0 ), [ 'lol', 'bar' ] )
-			
-			store.list( 0, [ 'foo', 'bar' ] )
-			$mol_assert_like( store.list( 0 ), [ 'foo', 'bar' ] )
+			$mol_assert_like( store.root.text(), 'foo bar foo' )
+			$mol_assert_like( first.text(), 'bar foo bar' )
 			
 		},
 		
-		'Merge different lists'() {
+		'Change sequences'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			$mol_assert_like( store.root.text(), '' )
+			
+			store.root.text( 'foo' )
+			$mol_assert_like( store.root.text(), 'foo' )
+			
+			store.root.text( 'foo bar' )
+			$mol_assert_like( store.root.text(), 'foo bar' )
+			
+			store.root.text( 'foo lol bar' )
+			$mol_assert_like( store.root.text(), 'foo lol bar' )
+			
+			store.root.text( 'lol bar' )
+			$mol_assert_like( store.root.text(), 'lol bar' )
+			
+			store.root.text( 'foo bar' )
+			$mol_assert_like( store.root.text(), 'foo bar' )
+			
+		},
+		
+		'Merge different sequences'() {
 			
 			const left = new $hyoo_crowd_tree( 123 )
-			left.list( 0, [ 'foo', 'bar' ] )
+			left.root.text( 'foo bar.' )
 			
 			const right = new $hyoo_crowd_tree( 234 )
-			right.list( 0, [ 'xxx', 'yyy' ] )
+			right.root.text( 'xxx yyy.' )
 			
 			const left_delta = left.delta()
 			const right_delta = right.delta()
@@ -242,23 +256,23 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.list( 0 ),
-				right.list( 0 ),
-				[ 'xxx', 'yyy', 'foo', 'bar' ],
+				left.root.text(),
+				right.root.text(),
+				'xxx yyy.foo bar.',
 			)
 			
 		},
 		
-		'Merge different insertions to same place of same list'() {
+		'Merge different insertions to same place of same sequence'() {
 			
 			const base = new $hyoo_crowd_tree( 123 )
-			base.list( 0, [ 'foo', 'bar' ] )
+			base.root.text( 'foo bar' )
 			
 			const left = base.fork( 234 )
-			left.list( 0, [ 'foo', 'xxx', 'bar' ] )
+			left.root.text( 'foo xxx bar' )
 			
 			const right = base.fork( 345 )
-			right.list( 0, [ 'foo', 'yyy', 'bar' ] )
+			right.root.text( 'foo yyy bar' )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -267,9 +281,9 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.list( 0 ),
-				right.list( 0 ),
-				[ 'foo', 'yyy', 'xxx', 'bar' ],
+				left.root.text(),
+				right.root.text(),
+				'foo yyy xxx bar',
 			)
 			
 		},
@@ -277,10 +291,10 @@ namespace $ {
 		'Insert after moved'() {
 			
 			const base = new $hyoo_crowd_tree( 123 )
-			base.list( 0, [ 'foo', 'bar', 'zak' ] )
+			base.root.text( 'foo bar zak' )
 			
 			const left = base.fork( 234 )
-			left.list( 0, [ 'foo', 'xxx', 'bar', 'zak' ] )
+			left.root.text( 'foo xxx bar zak' )
 			
 			const right = base.fork( 345 )
 			right.insert( right.kids( 0 )[0], 0, 2 )
@@ -292,9 +306,9 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.list( 0 ),
-				right.list( 0 ),
-				[ 'bar', 'foo', 'xxx', 'zak' ],
+				left.root.text(),
+				right.root.text(),
+				'bar foo xxx zak',
 			)
 			
 		},
@@ -302,10 +316,10 @@ namespace $ {
 		'Insert before moved left'() {
 			
 			const base = new $hyoo_crowd_tree( 123 )
-			base.list( 0, [ 'foo', 'bar', 'zak' ] )
+			base.root.text( 'foo bar zak' )
 			
 			const left = base.fork( 234 )
-			left.list( 0, [ 'foo', 'xxx', 'bar', 'zak' ] )
+			left.root.text( 'foo xxx bar zak' )
 			
 			const right = base.fork( 345 )
 			right.insert( right.kids( 0 )[1], 0, 0 )
@@ -317,9 +331,9 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.list( 0 ),
-				right.list( 0 ),
-				[ 'bar', 'foo', 'xxx', 'zak' ],
+				left.root.text(),
+				right.root.text(),
+				'bar foo xxx zak',
 			)
 			
 		},
@@ -327,10 +341,10 @@ namespace $ {
 		'Insert before moved right'() {
 			
 			const base = new $hyoo_crowd_tree( 123 )
-			base.list( 0, [ 'foo', 'bar', 'zak' ] )
+			base.root.text( 'foo bar.zak.' )
 			
 			const left = base.fork( 234 )
-			left.list( 0, [ 'foo', 'xxx', 'bar', 'zak' ] )
+			left.root.text( 'foo xxx bar.zak.' )
 			
 			const right = base.fork( 345 )
 			right.insert( right.kids( 0 )[1], 0, 3 )
@@ -342,9 +356,9 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.list( 0 ),
-				right.list( 0 ),
-				[ 'foo', 'xxx', 'zak', 'bar' ],
+				left.root.text(),
+				right.root.text(),
+				'foo xxx zak.bar.',
 			)
 			
 		},
@@ -352,13 +366,13 @@ namespace $ {
 		'Insert after removed'() {
 			
 			const base = new $hyoo_crowd_tree( 123 )
-			base.list( 0, [ 'foo', 'bar' ] )
+			base.root.text( 'foo bar' )
 			
 			const left = base.fork( 234 )
-			left.list( 0, [ 'foo', 'xxx', 'bar' ] )
+			left.root.text( 'foo xxx bar' )
 			
 			const right = base.fork( 345 )
-			right.list( 0, [ 'bar' ] )
+			right.root.text( 'bar' )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -367,9 +381,9 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.list( 0 ),
-				right.list( 0 ),
-				[ 'xxx', 'bar' ],
+				left.root.text(),
+				right.root.text(),
+				'xxx bar',
 			)
 			
 		},
@@ -377,13 +391,13 @@ namespace $ {
 		'Insert after removed out'() {
 			
 			const base = new $hyoo_crowd_tree( 123 )
-			base.list( 111, [ 'foo', 'bar', 'zak' ] )
+			base.node( 111 ).text( 'foo bar|zak' )
 			
 			const left = base.fork( 234 )
-			left.list( 111, [ 'foo', 'bar', 'xxx', 'zak' ] )
+			left.node( 111 ).text( 'foo bar|xxx zak' )
 			
 			const right = base.fork( 345 )
-			right.insert( right.kids( 111 )[1], 222, 0 )
+			right.insert( right.node( 111 ).chunks()[1], 222, 0 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -392,15 +406,15 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.list( 111 ),
-				right.list( 111 ),
-				[ 'foo', 'xxx', 'zak' ],
+				left.node( 111 ).text(),
+				right.node( 111 ).text(),
+				'foo xxx zak',
 			)
 			
 			$mol_assert_like(
-				left.list( 222 ),
-				right.list( 222 ),
-				[ 'bar' ],
+				left.node( 222 ).text(),
+				right.node( 222 ).text(),
+				'bar|',
 			)
 			
 		},

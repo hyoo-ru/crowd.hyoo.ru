@@ -2,8 +2,8 @@ namespace $ {
 	
 	/** Vector version clock. */
 	export class $hyoo_crowd_clock extends Map<
-		$hyoo_crowd_node['peer'],
-		$hyoo_crowd_node['version']
+		$hyoo_crowd_chunk['peer'],
+		$hyoo_crowd_chunk['version']
 	> {
 		
 		/** Maximum version for all peers. */

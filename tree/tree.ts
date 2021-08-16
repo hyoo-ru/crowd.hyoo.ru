@@ -2,129 +2,60 @@ namespace $ {
 	
 	const id_max = 2 ** ( 6 * 8 ) - 2
 	
-	function id_new() {
-		return 1 + Math.floor( Math.random() * id_max )
-	}
-	
 	/** Conflict-free Reinterpretable Ordered Washed Data Tree */
 	export class $hyoo_crowd_tree {
 		
 		constructor(
-			readonly peer = id_new()
-		) { }
+			readonly peer = 0
+		) {
+			if( !peer ) this.peer = this.id_new()
+		}
 		
-		clock = new $hyoo_crowd_clock
+		readonly clock = new $hyoo_crowd_clock
 		
-		protected nodes = new Map<
-			$hyoo_crowd_node['guid'],
-			$hyoo_crowd_node
+		protected _chunks = new Map<
+			$hyoo_crowd_chunk['guid'],
+			$hyoo_crowd_chunk
 		>()
 		
 		protected _kids = new Map<
-			$hyoo_crowd_node['self'],
-			$hyoo_crowd_node[]
+			$hyoo_crowd_chunk['self'],
+			$hyoo_crowd_chunk[]
 		>()
 		
-		node(
-			head: $hyoo_crowd_node['head'],
-			self: $hyoo_crowd_node['self'],
+		chunk(
+			head: $hyoo_crowd_chunk['head'],
+			self: $hyoo_crowd_chunk['self'],
 		) {
-			return this.nodes.get( `${ head }/${ self }` ) ?? null
+			return this._chunks.get( `${ head }/${ self }` ) ?? null
 		}
 		
 		/** Returns list of all alive children of node. */ 
-		kids(
-			head: $hyoo_crowd_node['head'],
-		): readonly $hyoo_crowd_node[] {
+		kids( head: $hyoo_crowd_chunk['head'] ): readonly $hyoo_crowd_chunk[] {
 			return this._kids.get( head )?.filter( node => node.data !== null ) ?? []
 		}
 		
-		lead( node: $hyoo_crowd_node ): $hyoo_crowd_node | null {
+		lead( node: $hyoo_crowd_chunk ): $hyoo_crowd_chunk | null {
 			const siblings = this._kids.get( node.head )!
 			return siblings[ siblings.indexOf( node ) - 1 ] ?? null
 		}
 		
-		next( node: $hyoo_crowd_node ): $hyoo_crowd_node | null {
+		next( node: $hyoo_crowd_chunk ): $hyoo_crowd_chunk | null {
 			const siblings = this._kids.get( node.head )!
 			return siblings[ siblings.indexOf( node ) + 1 ] ?? null
-		} 
-		
-		list< Item extends unknown >(
-			head: $hyoo_crowd_node['head'],
-			next?: readonly Item[],
-		): readonly Item[] {
-			
-			let kids = this.kids( head )
-			
-			if( next === undefined ) {
-				
-				return kids.map( node => node.data as Item )
-				
-			} else {
-				
-				let k = 0
-				let n = 0
-				let lead = 0
-				
-				while( k < kids.length || n < next.length ) {
-					
-					if( kids[k]?.data === next[n] ) {
-						
-						lead = kids[k].self
-						
-						++ k
-						++ n
-						
-					} else if( next.length - n > kids.length - k ) {
-						
-						lead = this.put(
-							head,
-							id_new(),
-							lead,
-							"",
-							next[n],
-						).self
-						
-						++ n
-						
-					} else if( next.length - n < kids.length - k ) {
-						
-						lead = this.wipe( kids[k] ).self
-						++ k
-						
-					} else {
-						
-						lead = this.put(
-							kids[k].head,
-							kids[k].self,
-							lead,
-							"",
-							next[n],
-						).self
-						
-						++ k
-						++ n
-						
-					}
-					
-				}
-				
-				return next
-			}
-			
 		}
 		
-		text(
-			head: $hyoo_crowd_node['self'],
-			next?: string,
-		) {
-			if( next === undefined ) {
-				return this.list( head ).join( '' )
-			} else {
-				const words = [ ... next.matchAll( $hyoo_crowd_text_tokenizer ) ].map( token => token[0] )
-				this.list( head, words )
-				return next
-			}
+		get root() {
+			return this.node( 0 )
+		}
+		
+		node( head: $hyoo_crowd_chunk['head'] ) {
+			return new $hyoo_crowd_node( this, head )
+		}
+		
+		/** Generates new 6B identifier. */
+		id_new() {
+			return 1 + Math.floor( Math.random() * id_max )
 		}
 		
 		/** Makes independent clone with defined peer. */
@@ -137,9 +68,9 @@ namespace $ {
 			clock = new $hyoo_crowd_clock,
 		) {
 			
-			const delta = [] as $hyoo_crowd_node[]
+			const delta = [] as $hyoo_crowd_chunk[]
 			
-			for( const node of this.nodes.values() ) {
+			for( const node of this._chunks.values() ) {
 				
 				if( !node?.guid ) continue
 				
@@ -151,11 +82,11 @@ namespace $ {
 			
 			delta.sort( ( left, right )=> left.prefer( right ) ? 1 : -1 )
 			
-			return delta as readonly $hyoo_crowd_node[]
+			return delta as readonly $hyoo_crowd_chunk[]
 		}
 		
 		resort(
-			head: $hyoo_crowd_node['head'],
+			head: $hyoo_crowd_chunk['head'],
 		) {
 			
 			const kids = this._kids.get( head )!
@@ -169,7 +100,7 @@ namespace $ {
 			const ordered = [] as typeof kids
 			for( const kid of kids ) {
 				
-				let leader = kid.lead ? this.node( head, kid.lead )! : null
+				let leader = kid.lead ? this.chunk( head, kid.lead )! : null
 				let index = leader ? ordered.indexOf( leader ) + 1 : 0
 				if( index === 0 && leader ) index = ordered.length
 				if( index < kid.offset ) {
@@ -192,13 +123,13 @@ namespace $ {
 		}
 		
 		/** Applies Delta to current state. */
-		apply( delta: readonly $hyoo_crowd_node[] ) {
+		apply( delta: readonly $hyoo_crowd_chunk[] ) {
 			
 			for( const patch of delta ) {
 				
 				this.clock.see( patch.peer, patch.version )
 				
-				let node = this.nodes.get( patch.guid )
+				let node = this._chunks.get( patch.guid )
 				if( node ) {
 					
 					if( node.prefer( patch ) ) continue
@@ -207,7 +138,7 @@ namespace $ {
 					
 				}
 				
-				this.nodes.set( patch.guid, patch )
+				this._chunks.set( patch.guid, patch )
 				this.back_link( patch )
 				this.resort( patch.head )
 				
@@ -217,9 +148,9 @@ namespace $ {
 		}
 		
 		/** Makes back links to node inside Parent/Leader */
-		protected back_link( node: $hyoo_crowd_node ) {
+		protected back_link( node: $hyoo_crowd_chunk ) {
 			
-			let lead = node.lead ? this.node( node.head, node.lead )! : null
+			let lead = node.lead ? this.chunk( node.head, node.lead )! : null
 			
 			let siblings = this._kids.get( node.head )
 			if( siblings ) {
@@ -248,7 +179,7 @@ namespace $ {
 		}
 		
 		/** Romoves back links to node inside Parent/Leader */
-		protected back_unlink( node: $hyoo_crowd_node ) {
+		protected back_unlink( node: $hyoo_crowd_chunk ) {
 			
 			let siblings = this._kids.get( node.head )!
 			
@@ -260,11 +191,11 @@ namespace $ {
 		
 		/** Places data to tree. */
 		put(
-			head: $hyoo_crowd_node['head'],
-			self: $hyoo_crowd_node['self'],
-			lead: $hyoo_crowd_node['lead'],
-			name: $hyoo_crowd_node['name'],
-			data: $hyoo_crowd_node['data'],
+			head: $hyoo_crowd_chunk['head'],
+			self: $hyoo_crowd_chunk['self'],
+			lead: $hyoo_crowd_chunk['lead'],
+			name: $hyoo_crowd_chunk['name'],
+			data: $hyoo_crowd_chunk['data'],
 		) {
 			
 			// const existen = this.node( guid )
@@ -288,7 +219,7 @@ namespace $ {
 				
 			// }
 			
-			const node = new $hyoo_crowd_node(
+			const node = new $hyoo_crowd_chunk(
 				head,
 				self,
 				lead,
@@ -324,7 +255,7 @@ namespace $ {
 		}
 		
 		/** Recursively marks node with its subtree as deleted and wipes data. */
-		wipe( node: $hyoo_crowd_node ) {
+		wipe( node: $hyoo_crowd_chunk ) {
 			
 			if( node.data === null ) return node
 			
@@ -344,9 +275,9 @@ namespace $ {
 		
 		/** Moves node after another lead inside some head. */
 		move(
-			node: $hyoo_crowd_node,
-			head: $hyoo_crowd_node['head'],
-			lead: $hyoo_crowd_node['lead'],
+			node: $hyoo_crowd_chunk,
+			head: $hyoo_crowd_chunk['head'],
+			lead: $hyoo_crowd_chunk['lead'],
 		) {
 			
 			this.wipe( node )
@@ -363,9 +294,9 @@ namespace $ {
 		
 		/** Moves node at some offset inside some head. */
 		insert(
-			node: $hyoo_crowd_node,
-			head: $hyoo_crowd_node['head'],
-			offset: $hyoo_crowd_node['offset'],
+			node: $hyoo_crowd_chunk,
+			head: $hyoo_crowd_chunk['head'],
+			offset: $hyoo_crowd_chunk['offset'],
 		) {
 			
 			const siblings = this.kids( head )
