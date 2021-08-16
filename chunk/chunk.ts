@@ -15,13 +15,13 @@ namespace $ {
 			readonly lead: number,
 			
 			/** Offset at the time of the update. 2B */
-			public offset: number,
+			public seat: number,
 			
 			/** Global unique identifier of peer. 6B */
 			readonly peer: number,
 			
-			/** Monotonic version. 6B */
-			readonly version: number,
+			/** Monotonic version clock. 6B */
+			readonly time: number,
 			
 			/** Name inside parent. 1+B */
 			readonly name: string,
@@ -43,8 +43,8 @@ namespace $ {
 		}
 		
 		prefer( node: $hyoo_crowd_chunk ) {
-			if( this.version > node.version ) return true
-			if( this.version < node.version ) return false
+			if( this.time > node.time ) return true
+			if( this.time < node.time ) return false
 			return this.peer > node.peer
 		}
 		

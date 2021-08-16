@@ -95,8 +95,8 @@ namespace $ {
 				
 				if( !chunk?.guid ) continue
 				
-				const version = clock.get( chunk!.peer )
-				if( version && chunk!.version <= version ) continue
+				const time = clock.get( chunk!.peer )
+				if( time && chunk!.time <= time ) continue
 				
 				delta.push( chunk! )
 			}
@@ -112,8 +112,8 @@ namespace $ {
 			
 			const kids = this._chunk_lists.get( head )!
 			kids.sort( ( left, right )=> {
-				if( left.offset > right.offset ) return +1
-				if( left.offset < right.offset ) return -1
+				if( left.seat > right.seat ) return +1
+				if( left.seat < right.seat ) return -1
 				if( left.prefer( right ) ) return +1
 				else return -1
 			} )
@@ -124,7 +124,7 @@ namespace $ {
 				let leader = kid.lead ? this.chunk( head, kid.lead )! : null
 				let index = leader ? ordered.indexOf( leader ) + 1 : 0
 				if( index === 0 && leader ) index = ordered.length
-				if( index < kid.offset ) {
+				if( index < kid.seat ) {
 					index = ordered.length
 				}
 				
@@ -140,7 +140,7 @@ namespace $ {
 			
 			for( const next of delta ) {
 				
-				this.clock.see( next.peer, next.version )
+				this.clock.see( next.peer, next.time )
 				const chunks = this.chunk_set( next.head )
 				
 				let prev = this._chunk_all.get( next.guid )
@@ -168,13 +168,13 @@ namespace $ {
 		) {
 			
 			let chunk_lead = lead ? this.chunk( head, lead )! : null
-			let offset = chunk_lead ? this.chunk_list( head ).filter( chunk => chunk.self !== self ).indexOf( chunk_lead ) + 1 : 0
+			let seat = chunk_lead ? this.chunk_list( head ).filter( chunk => chunk.self !== self ).indexOf( chunk_lead ) + 1 : 0
 			
 			const chunk = new $hyoo_crowd_chunk(
 				head,
 				self,
 				lead,
-				offset,
+				seat,
 				this.peer,
 				this.clock.tick( this.peer ),
 				name,
@@ -224,13 +224,13 @@ namespace $ {
 			
 		}
 		
-		/** Moves chunk at given offset inside some Head. */
+		/** Moves Chunk at given Seat inside given Head. */
 		insert(
 			chunk: $hyoo_crowd_chunk,
 			head: $hyoo_crowd_chunk['head'],
-			offset: $hyoo_crowd_chunk['offset'],
+			seat: $hyoo_crowd_chunk['seat'],
 		) {
-			const lead = offset ? this.chunk_list( head )[ offset - 1 ].self : 0
+			const lead = seat ? this.chunk_list( head )[ seat - 1 ].self : 0
 			return this.move( chunk, head, lead )
 		}
 		
