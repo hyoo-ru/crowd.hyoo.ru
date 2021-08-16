@@ -23,6 +23,7 @@ namespace $ {
 			$hyoo_crowd_chunk[]
 		>()
 		
+		/** Returns existen data chunk for unique head+self. */
 		chunk(
 			head: $hyoo_crowd_chunk['head'],
 			self: $hyoo_crowd_chunk['self'],
@@ -32,19 +33,16 @@ namespace $ {
 		
 		/** Returns list of all alive children of node. */ 
 		kids( head: $hyoo_crowd_chunk['head'] ): readonly $hyoo_crowd_chunk[] {
-			return this._kids.get( head )?.filter( node => node.data !== null ) ?? []
+			
+			let chunks = this._kids.get( head )
+			if( !chunks ) {
+				this._kids.set( head, chunks = [] )
+			}
+			
+			return chunks
 		}
 		
-		lead( node: $hyoo_crowd_chunk ): $hyoo_crowd_chunk | null {
-			const siblings = this._kids.get( node.head )!
-			return siblings[ siblings.indexOf( node ) - 1 ] ?? null
-		}
-		
-		next( node: $hyoo_crowd_chunk ): $hyoo_crowd_chunk | null {
-			const siblings = this._kids.get( node.head )!
-			return siblings[ siblings.indexOf( node ) + 1 ] ?? null
-		}
-		
+		/** */
 		get root() {
 			return this.node( 0 )
 		}
@@ -89,7 +87,7 @@ namespace $ {
 			head: $hyoo_crowd_chunk['head'],
 		) {
 			
-			const kids = this._kids.get( head )!
+			const kids = this.kids( head ) as $hyoo_crowd_chunk[]
 			kids.sort( ( left, right )=> {
 				if( left.offset > right.offset ) return +1
 				if( left.offset < right.offset ) return -1
@@ -107,19 +105,11 @@ namespace $ {
 					index = ordered.length
 				}
 				
-				// while( index < siblings.length ) {
-					
-				// 	const follower = siblings[ index ]
-				// 	if( node.prefer( follower ) ) break
-					
-				// 	++ index
-				// }
-				
-				// if( node.offset < 0 ) node.offset = index
 				ordered.splice( index, 0, kid )
 				
 			}
 			this._kids.set( head, ordered )
+			
 		}
 		
 		/** Applies Delta to current state. */
@@ -152,36 +142,19 @@ namespace $ {
 			
 			let lead = node.lead ? this.chunk( node.head, node.lead )! : null
 			
-			let siblings = this._kids.get( node.head )
-			if( siblings ) {
+			let siblings = this.kids( node.head ) as $hyoo_crowd_chunk[]
+			let index = lead ? siblings.indexOf( lead ) + 1 : 0
+			
+			if( node.offset < 0 ) node.offset = index
+			siblings.splice( index, 0, node )
 				
-				let index = lead ? siblings.indexOf( lead ) + 1 : 0
-				
-				// while( index < siblings.length ) {
-					
-				// 	const follower = siblings[ index ]
-				// 	if( node.prefer( follower ) ) break
-					
-				// 	++ index
-				// }
-				
-				if( node.offset < 0 ) node.offset = index
-				siblings.splice( index, 0, node )
-				
-			} else {
-				
-				if( node.offset < 0 ) node.offset = 0
-				this._kids.set( node.head, [ node ] )
-				
-			}
-
 			return this
 		}
 		
 		/** Romoves back links to node inside Parent/Leader */
 		protected back_unlink( node: $hyoo_crowd_chunk ) {
 			
-			let siblings = this._kids.get( node.head )!
+			let siblings = this.kids( node.head ) as $hyoo_crowd_chunk[]
 			
 			const index = siblings.indexOf( node )
 			siblings.splice( index, 1 )
@@ -198,27 +171,6 @@ namespace $ {
 			data: $hyoo_crowd_chunk['data'],
 		) {
 			
-			// const existen = this.node( guid )
-			// if( existen && existen.leader !== leader ) {
-				
-			// 	const follower = this.follower( existen )
-			// 	if( follower ) {
-					
-			// 		this.apply([
-			// 			new $hyoo_crowd_node(
-			// 				follower.guid,
-			// 				existen.leader,
-			// 				follower.offset,
-			// 				this.peer,
-			// 				this.clock.tick( this.peer ),
-			// 				follower.data,
-			// 			)
-			// 		])
-					
-			// 	}
-				
-			// }
-			
 			const node = new $hyoo_crowd_chunk(
 				head,
 				self,
@@ -231,25 +183,6 @@ namespace $ {
 			)
 			
 			this.apply([ node ])
-			
-			// if( !existen || existen.leader !== leader ) {
-				
-			// 	const follower = this.follower( node )
-			// 	if( follower ) {
-					
-			// 		this.apply([
-			// 			new $hyoo_crowd_node(
-			// 				follower.guid,
-			// 				node.luid,
-			// 				this.peer,
-			// 				this.clock.tick( this.peer ),
-			// 				follower.data,
-			// 			)
-			// 		])
-				
-			// 	}
-				
-			// }
 			
 			return node
 		}

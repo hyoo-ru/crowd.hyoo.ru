@@ -9,7 +9,7 @@ namespace $ {
 			store.put( 0, 222, 0, '', 'bar' )
 			
 			$mol_assert_like(
-				store.kids(0).map( node => ({ ... node }) ),
+				store.root.chunks().map( chunk => ({ ... chunk }) ),
 				[
 					{
 						head: 0,
@@ -44,7 +44,7 @@ namespace $ {
 			store.put( 0, 222, 111, '', 'bar' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => ({ ... node }) ),
+				store.root.chunks().map( chunk => ({ ... chunk }) ),
 				[
 					{
 						head: 0,
@@ -80,7 +80,7 @@ namespace $ {
 			store.put( 0, 333, 111, '', 'lol' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => node.self ),
+				store.root.chunks().map( chunk => chunk.self ),
 				[ 111, 333, 222 ],
 			)
 			
@@ -94,12 +94,12 @@ namespace $ {
 			store.put( 111, 222, 0, '', 'bar' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => node.self ),
+				store.root.chunks().map( chunk => chunk.self ),
 				[ 111 ],
 			)
 			
 			$mol_assert_like(
-				store.kids( 111 ).map( node => node.self ),
+				store.node( 111 ).chunks().map( chunk => chunk.self ),
 				[ 222 ],
 			)
 			
@@ -114,7 +114,7 @@ namespace $ {
 			store.put( 0, 111, 222, '', 'lol' )
 			
 			$mol_assert_like(
-				store.kids( 0 ).map( node => node.self ),
+				store.root.chunks().map( chunk => chunk.self ),
 				[ 222, 111 ],
 			)
 			
@@ -173,21 +173,21 @@ namespace $ {
 			const node2 = store.put( 111, 222, 0, '', 'bar' )
 			let node3 = store.put( 222, 333, 0, '', 'lol' )
 			
-			$mol_assert_like( store.kids( 0 ), [ node1 ] )
-			$mol_assert_like( store.kids( node1.self ), [ node2 ] )
-			$mol_assert_like( store.kids( node2.self ), [ node3 ] )
+			$mol_assert_like( store.root.text(), 'foo' )
+			$mol_assert_like( store.node( node1.self ).text(), 'bar' )
+			$mol_assert_like( store.node( node2.self ).text(), 'lol' )
 			
 			store.wipe( node1 )
 			
-			$mol_assert_like( store.kids( 0 ), [] )
-			$mol_assert_like( store.kids( node1.self ), [] )
-			$mol_assert_like( store.kids( node2.self ), [] )
+			$mol_assert_like( store.root.text(), '' )
+			$mol_assert_like( store.node( node1.self ).text(), '' )
+			$mol_assert_like( store.node( node2.self ).text(), '' )
 			
 			node3 = store.put( node3.head, node3.self, node3.lead, node3.name, node3.data )
 			
-			$mol_assert_like( store.kids( 0 ), [] )
-			$mol_assert_like( store.kids( node1.self ), [] )
-			$mol_assert_like( store.kids( node2.self ), [ node3 ] )
+			$mol_assert_like( store.root.text(), '' )
+			$mol_assert_like( store.node( node1.self ).text(), '' )
+			$mol_assert_like( store.node( node2.self ).text(), 'lol' )
 			
 		},
 		
@@ -297,7 +297,7 @@ namespace $ {
 			left.root.text( 'foo xxx bar zak' )
 			
 			const right = base.fork( 345 )
-			right.insert( right.kids( 0 )[0], 0, 2 )
+			right.insert( right.root.chunks()[0], 0, 2 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -322,7 +322,7 @@ namespace $ {
 			left.root.text( 'foo xxx bar zak' )
 			
 			const right = base.fork( 345 )
-			right.insert( right.kids( 0 )[1], 0, 0 )
+			right.insert( right.root.chunks()[1], 0, 0 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -347,7 +347,7 @@ namespace $ {
 			left.root.text( 'foo xxx bar.zak.' )
 			
 			const right = base.fork( 345 )
-			right.insert( right.kids( 0 )[1], 0, 3 )
+			right.insert( right.root.chunks()[1], 0, 3 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
