@@ -239,15 +239,59 @@ namespace $ {
 		
 		'Put/get text'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
-			$mol_assert_like( store.root.text(), '' )
+			const store1 = new $hyoo_crowd_tree( 123 )
 			
-			store.root.text( 'foo bar foo' )
-			const first = store.root.branches()[0]
-			first.text( 'bar foo bar' )
+			store1.root.text( 'foo bar foo' )
+			$mol_assert_like( store1.root.text(), 'foo bar foo' )
+			$mol_assert_like( store1.root.list(), [ 'foo ', 'bar ', 'foo' ] )
 			
-			$mol_assert_like( store.root.text(), 'foo bar foo' )
-			$mol_assert_like( first.text(), 'bar foo bar' )
+			const store2 = store1.fork( 234 )
+			store2.root.text( 'barFFFoo  bar' )
+			$mol_assert_like( store2.root.text(), 'barFFFoo  bar' )
+			$mol_assert_like( store2.root.list(), [ 'bar', 'FFFoo ', ' ', 'bar' ] )
+			
+		},
+		
+		'Text modifications'() {
+			
+			const store1 = new $hyoo_crowd_tree( 123 )
+			store1.root.text( 'foo bar' )
+			
+			const store2 = store1.fork( 234 )
+			store2.root.text( 'foo  bar' )
+			$mol_assert_like(
+				store1.root.chunks().map( chunk => chunk.self ),
+				[
+					store2.root.chunks()[0].self,
+					store2.root.chunks()[2].self,
+				],
+			)
+			
+			const store3 = store2.fork( 345 )
+			store3.root.text( 'foo ton bar' )
+			$mol_assert_like(
+				store2.root.chunks().map( chunk => chunk.self ),
+				store3.root.chunks().map( chunk => chunk.self ),
+			)
+			
+			const store4 = store3.fork( 456 )
+			store4.root.text( 'foo bar' )
+			$mol_assert_like(
+				[
+					store3.root.chunks()[0].self,
+					store3.root.chunks()[2].self,
+				],
+				store4.root.chunks().map( chunk => chunk.self ),
+			)
+			
+			const store5 = store3.fork( 567 )
+			store5.root.text( 'foo ' )
+			$mol_assert_like(
+				[
+					store4.root.chunks()[0].self,
+				],
+				store5.root.chunks().map( chunk => chunk.self ),
+			)
 			
 		},
 		
@@ -449,6 +493,31 @@ namespace $ {
 				'bar|',
 			)
 			
+		},
+		
+		'Merge text changes'() {
+			
+			const base = new $hyoo_crowd_tree( 123 )
+			base.root.text( 'Hello World and fun!' )
+			
+			const left = base.fork( 234 )
+			const right = base.fork( 345 )
+			
+			left.root.text( 'Hello Alice and fun!' )
+			right.root.text( 'Bye World and fun!' )
+			
+			const left_delta = left.delta()
+			const right_delta = right.delta()
+			
+			left.apply( right_delta )
+			right.apply( left_delta )
+
+			$mol_assert_equal(
+				left.root.text(),
+				right.root.text(),
+				'Bye Alice and fun!',
+			)
+
 		},
 		
 	})
