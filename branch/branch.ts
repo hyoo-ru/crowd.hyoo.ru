@@ -13,16 +13,17 @@ namespace $ {
 			return new $hyoo_crowd_branch( this.tree, self )
 		}
 		
-		/** Ordered inner chunks. Including tombstones. */
+		/** Ordered inner alive chunks from name space. */
 		chunks( name: string ) {
 			return this.tree.chunk_list( this.head ).filter( chunk => chunk.data !== null && chunk.name === name )
 		}
 		
-		/** Ordered inner branch. Including tombstones. */
+		/** Ordered inner alive branches from name space. */
 		branches( name: string ) {
 			return this.chunks( name ).map( chunk => this.branch( chunk.self ) )
 		}
 		
+		/** Atomic value for name space. */
 		value( name: string, next?: unknown ) {
 			
 			const chunks = this.chunks( name )
@@ -58,19 +59,26 @@ namespace $ {
 			
 		}
 		
+		/** Atomic string for name space. */
 		str( name: string, next?: string ) {
 			return String( this.value( name, next ) ?? '' )
 		}
 		
+		/** Atomic number for name space. */
 		numb( name: string, next?: number ) {
 			return Number( this.value( name, next ) ?? 0 )
 		}
 		
+		/** Atomic boolean for name space. */
 		bool( name: string, next?: boolean ) {
 			return Boolean( this.value( name, next ) ?? false )
 		}
 		
-		/** Data list representation. */
+		count( name: string ) {
+			return this.chunks( name ).length
+		}
+		
+		/** Data list representation of name space. */
 		list(
 			name: string, 
 			next?: readonly unknown[],
@@ -141,7 +149,7 @@ namespace $ {
 			
 		}
 		
-		/** Text representation. Based on list of strings. */
+		/** Text representation of name space. Based on list of strings. */
 		text( name: string, next?: string ) {
 			
 			if( next === undefined ) {
@@ -156,6 +164,44 @@ namespace $ {
 				return next
 			}
 			
+		}
+		
+		insert(
+			name: string,
+			data: unknown,
+			seat = this.count(''),
+		) {
+			
+			const lead = seat ? this.chunks( name )[ seat - 1 ].self : 0
+			
+			return this.tree.put(
+				this.head,
+				this.tree.id_new(),
+				lead,
+				name,
+				data
+			)
+			
+		}
+		
+		move(
+			name: string,
+			from: number,
+			to: number,
+		) {
+			
+			const chunks = this.chunks( name )
+			const lead = to ? chunks[ to - 1 ].self : 0
+			
+			return this.tree.move( chunks[ from ], this.head, lead )
+			
+		}
+		
+		cut(
+			name: string,
+			seat: number,
+		) {
+			return this.tree.wipe( this.chunks( name )[ seat ] )
 		}
 		
 	}

@@ -75,107 +75,49 @@ namespace $ {
 			
 		},
 		
-		'Put values cuncurrent to the root'() {
+		'Serial insert values'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put( 0, 111, 0, '', 'foo' )
-			store.put( 0, 222, 0, '', 'bar' )
+			store.root.insert( '', 'foo' )
+			store.root.insert( '', 'bar' )
 			
-			$mol_assert_like(
-				store.root.chunks( '' ).map( chunk => ({ ... chunk }) ),
-				[
-					{
-						head: 0,
-						self: 222,
-						lead: 0,
-						seat: 0,
-						peer: 123,
-						time: 2,
-						name: '',
-						data: 'bar',
-					},
-					{
-						head: 0,
-						self: 111,
-						lead: 0,
-						seat: 0,
-						peer: 123,
-						time: 1,
-						name: '',
-						data: 'foo',
-					},
-				],
-			)
+			$mol_assert_like( store.root.list(''), [ 'foo', 'bar' ] )
 			
 		},
 		
-		'Put values serial to the root'() {
+		'Concurent insert values'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put( 0, 111, 0, '', 'foo' )
-			store.put( 0, 222, 111, '', 'bar' )
+			store.root.insert( '', 'foo', 0 )
+			store.root.insert( '', 'bar', 0 )
 			
-			$mol_assert_like(
-				store.root.chunks('').map( chunk => ({ ... chunk }) ),
-				[
-					{
-						head: 0,
-						self: 111,
-						lead: 0,
-						seat: 0,
-						peer: 123,
-						time: 1,
-						name: '',
-						data: 'foo',
-					},
-					{
-						head: 0,
-						self: 222,
-						lead: 111,
-						seat: 1,
-						peer: 123,
-						time: 2,
-						name: '',
-						data: 'bar',
-					},
-				],
-			)
+			$mol_assert_like( store.root.list(''), [ 'bar', 'foo' ] )
 			
 		},
 		
-		'Put value between others'() {
+		'Insert value between others'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put( 0, 111, 0, '', 'foo' )
-			store.put( 0, 222, 111, '', 'bar' )
-			store.put( 0, 333, 111, '', 'lol' )
+			store.root.insert( '', 'foo' )
+			store.root.insert( '', 'bar' )
+			store.root.insert( '', 'lol', 1 )
 			
-			$mol_assert_like(
-				store.root.chunks('').map( chunk => chunk.self ),
-				[ 111, 333, 222 ],
-			)
+			$mol_assert_like( store.root.list(''), [ 'foo', 'lol', 'bar' ] )
 			
 		},
 		
-		'Put value inside other'() {
+		'Insert value inside other'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put( 0, 111, 0, '', 'foo' )
-			store.put( 111, 222, 0, '', 'bar' )
+			const id = store.root.insert( '', 'foo' ).self
+			store.branch( id ).insert( '', 'bar' )
 			
-			$mol_assert_like(
-				store.root.chunks('').map( chunk => chunk.self ),
-				[ 111 ],
-			)
-			
-			$mol_assert_like(
-				store.branch( 111 ).chunks('').map( chunk => chunk.self ),
-				[ 222 ],
-			)
+			$mol_assert_like( store.root.list(''), [ 'foo' ] )
+			$mol_assert_like( store.branch( id ).list(''), [ 'bar' ] )
 			
 		},
 		
@@ -183,14 +125,10 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put( 0, 111, 0, '', 'foo' )
-			store.put( 0, 222, 111, '', 'bar' )
-			store.put( 0, 111, 222, '', 'lol' )
+			store.root.text( '', 'foo.bar.lol.' )
+			store.root.move( '', 0, 2 )
 			
-			$mol_assert_like(
-				store.root.chunks('').map( chunk => chunk.self ),
-				[ 222, 111 ],
-			)
+			$mol_assert_like( store.root.text(''), 'bar.foo.lol.' )
 			
 		},
 		
@@ -198,36 +136,34 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.put( 0, 111, 0, '', 'foo' )
-			store.put( 111, 222, 0, '', 'bar' )
-			store.put( 111, 333, 0, '', 'lol' )
+			store.root.list( '', [ 'foo', 'bar', 'lol' ] )
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 321, 2 ],
-				]) ).map( chunk => chunk.self ),
-				[ 111, 222, 333 ],
+				]) ).map( chunk => chunk.data ),
+				[ 'foo', 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 123, 0 ],
-				]) ).map( chunk => chunk.self ),
-				[ 111, 222, 333 ],
+				]) ).map( chunk => chunk.data ),
+				[ 'foo', 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 123, 1 ],
-				]) ).map( chunk => chunk.self ),
-				[ 222, 333 ],
+				]) ).map( chunk => chunk.data ),
+				[ 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ 123, 2 ],
-				]) ).map( chunk => chunk.self ),
-				[ 333 ],
+				]) ).map( chunk => chunk.data ),
+				[ 'lol' ],
 			)
 			
 			$mol_assert_like(
@@ -243,21 +179,21 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			const chunk1 = store.put( 0, 111, 0, '', 'foo' )
-			const chunk2 = store.put( 111, 222, 0, '', 'bar' )
-			let chunk3 = store.put( 222, 333, 0, '', 'lol' )
+			const chunk1 = store.root.insert( '', 'foo' )
+			const chunk2 = store.branch( chunk1.self ).insert( '', 'bar' )
+			let chunk3 = store.branch( chunk2.self ).insert( '', 'lol' )
 			
 			$mol_assert_like( store.root.text(''), 'foo' )
 			$mol_assert_like( store.branch( chunk1.self ).text(''), 'bar' )
 			$mol_assert_like( store.branch( chunk2.self ).text(''), 'lol' )
 			
-			store.wipe( chunk1 )
+			store.root.cut( '', 0 )
 			
 			$mol_assert_like( store.root.text(''), '' )
 			$mol_assert_like( store.branch( chunk1.self ).text(''), '' )
 			$mol_assert_like( store.branch( chunk2.self ).text(''), '' )
 			
-			chunk3 = store.put( chunk3.head, chunk3.self, chunk3.lead, chunk3.name, chunk3.data )
+			chunk3 = store.move( chunk3, chunk3.head, chunk3.lead )
 			
 			$mol_assert_like( store.root.text(''), '' )
 			$mol_assert_like( store.branch( chunk1.self ).text(''), '' )

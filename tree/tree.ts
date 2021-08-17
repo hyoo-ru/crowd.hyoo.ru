@@ -65,9 +65,7 @@ namespace $ {
 		}
 		
 		/** Root Branch. */
-		get root() {
-			return this.branch( 0 )
-		}
+		root = this.branch( 0 )
 		
 		/** Returns branch for Branch. */
 		branch( head: $hyoo_crowd_chunk['head'] ) {
@@ -153,6 +151,31 @@ namespace $ {
 				chunks.add( next )
 				this._chunk_lists.delete( next.head )
 				
+				// const list = this._chunk_lists.get( next.head )
+				// if( list ) {
+					
+				// 	if( prev ) {
+				// 		list.splice( list.indexOf( prev ), 1 )
+				// 	}
+					
+				// 	let seat = next.lead ? list.indexOf( this.chunk( next.head, next.lead )! ) + 1 : 0
+					
+				// 	while( seat < list.length ) {
+						
+				// 		if( list[ seat ].lead === next.lead && list[ seat ].prefer( next ) )  {
+				// 			++ seat
+				// 			continue
+				// 		}
+						
+				// 		break
+				// 	}
+					
+				// 	list.splice( seat, 0, next )
+					
+				// } else {
+				// 	this._chunk_lists.set( next.head, [ next ] )
+				// }
+				
 			}
 			
 			return this
@@ -167,10 +190,20 @@ namespace $ {
 			data: $hyoo_crowd_chunk['data'],
 		) {
 			
+			let chunk_old = this.chunk( head, self )
 			let chunk_lead = lead ? this.chunk( head, lead )! : null
-			let seat = chunk_lead ? this.chunk_list( head ).filter( chunk => chunk.self !== self ).indexOf( chunk_lead ) + 1 : 0
 			
-			const chunk = new $hyoo_crowd_chunk(
+			const chunk_set = this.chunk_set( head )
+			const chunk_list = this.chunk_list( head ) as $hyoo_crowd_chunk[]
+			
+			if( chunk_old ) {
+				chunk_set.delete( chunk_old )
+				chunk_list.splice( chunk_list.indexOf( chunk_old ), 1 )
+			}
+			
+			let seat = chunk_lead ? chunk_list.indexOf( chunk_lead ) + 1 : 0
+			
+			const chunk_new = new $hyoo_crowd_chunk(
 				head,
 				self,
 				lead,
@@ -180,10 +213,14 @@ namespace $ {
 				name,
 				data,
 			)
+			this._chunk_all.set( chunk_new.guid, chunk_new )
 			
-			this.apply([ chunk ])
+			chunk_set.add( chunk_new )
+			chunk_list.splice( seat, 0, chunk_new )
+
+			// this.apply([ chunk ])
 			
-			return chunk
+			return chunk_new
 		}
 		
 		/** Recursively marks chunk with its subtree as deleted and wipes data. */
