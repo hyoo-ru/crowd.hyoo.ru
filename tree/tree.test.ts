@@ -61,6 +61,28 @@ namespace $ {
 			
 		},
 		
+		'Name spaces merging'() {
+			
+			const left = new $hyoo_crowd_tree( 123 )
+			left.root.sub( 'foo' ).list([ 111 ])
+			
+			const right = new $hyoo_crowd_tree( 234 )
+			right.root.sub( 'foo' ).list([ 222 ])
+			
+			const left_delta = left.delta()
+			const right_delta = right.delta()
+			
+			left.apply( right_delta )
+			right.apply( left_delta )
+
+			$mol_assert_like(
+				left.root.sub( 'foo' ).list(),
+				right.root.sub( 'foo' ).list(),
+				[ 222, 111 ],
+			)
+			
+		},
+		
 		'Ignore same changes'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )

@@ -21,6 +21,11 @@ namespace $ {
 			$hyoo_crowd_chunk[]
 		>()
 		
+		protected _chunk_alive = new Map<
+			$hyoo_crowd_chunk['self'],
+			undefined | $hyoo_crowd_chunk[]
+		>()
+		
 		/** Returns existen data chunk for unique head+self. */
 		chunk(
 			head: $hyoo_crowd_chunk['head'],
@@ -40,12 +45,26 @@ namespace $ {
 			return chunks
 		}
 		
+		/** Returns list of chunks for Branch. */ 
+		chunk_alive(
+			head: $hyoo_crowd_chunk['head']
+		): readonly $hyoo_crowd_chunk[] {
+			
+			let chunks = this._chunk_alive.get( head )
+			if( !chunks ) {
+				chunks = this.chunk_list( head ).filter( chunk => chunk.data !== null )
+				this._chunk_alive.set( head, chunks )
+			}
+			
+			return chunks
+		}
+		
 		/** Root Branch. */
 		root = this.branch( 0 )
 		
 		/** Returns branch for Branch. */
 		branch( head: $hyoo_crowd_chunk['head'] ) {
-			return new $hyoo_crowd_branch( this, head )
+			return new $hyoo_crowd_branch( this, [ head ] )
 		}
 		
 		/** Generates new 6B identifier. */
@@ -159,7 +178,10 @@ namespace $ {
 				
 			}
 			
-			for( const head of unordered ) this.resort( head )
+			for( const head of unordered ) {
+				this.resort( head )
+				this._chunk_alive.set( head, undefined )
+			}
 			
 			return this
 		}
@@ -195,7 +217,8 @@ namespace $ {
 			this._chunk_all.set( chunk_new.guid, chunk_new )
 			
 			chunk_list.splice( seat, 0, chunk_new )
-
+			this._chunk_alive.set( head, undefined )
+			
 			// this.apply([ chunk ])
 			
 			return chunk_new
