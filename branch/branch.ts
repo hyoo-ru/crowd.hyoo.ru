@@ -6,27 +6,33 @@ namespace $ {
 		constructor(
 			readonly tree: $hyoo_crowd_tree,
 			readonly head: $hyoo_crowd_chunk['head'],
+			readonly name: $hyoo_crowd_chunk['name'],
 		) {}
 		
 		/** Returns inner branch for id. */
 		branch( self: $hyoo_crowd_chunk['self'] ) {
-			return new $hyoo_crowd_branch( this.tree, self )
+			return new $hyoo_crowd_branch( this.tree, self, '' )
+		}
+		
+		/** Returns inner branch for name space. */
+		space( name: string ) {
+			return new $hyoo_crowd_branch( this.tree, this.head, name )
 		}
 		
 		/** Ordered inner alive chunks from name space. */
-		chunks( name: string ) {
-			return this.tree.chunk_list( this.head ).filter( chunk => chunk.data !== null && chunk.name === name )
+		chunks() {
+			return this.tree.chunk_list( this.head ).filter( chunk => chunk.data !== null && chunk.name === this.name )
 		}
 		
 		/** Ordered inner alive branches from name space. */
-		branches( name: string ) {
-			return this.chunks( name ).map( chunk => this.branch( chunk.self ) )
+		branches() {
+			return this.chunks().map( chunk => this.branch( chunk.self ) )
 		}
 		
 		/** Atomic value for name space. */
-		value( name: string, next?: unknown ) {
+		value( next?: unknown ) {
 			
-			const chunks = this.chunks( name )
+			const chunks = this.chunks()
 			let last
 			
 			for( const chunk of chunks ) {
@@ -50,7 +56,7 @@ namespace $ {
 					this.head,
 					last?.self ?? this.tree.id_new(),
 					0,
-					name,
+					this.name,
 					next,
 				)
 			
@@ -60,31 +66,28 @@ namespace $ {
 		}
 		
 		/** Atomic string for name space. */
-		str( name: string, next?: string ) {
-			return String( this.value( name, next ) ?? '' )
+		str( next?: string ) {
+			return String( this.value( next ) ?? '' )
 		}
 		
 		/** Atomic number for name space. */
-		numb( name: string, next?: number ) {
-			return Number( this.value( name, next ) ?? 0 )
+		numb( next?: number ) {
+			return Number( this.value( next ) ?? 0 )
 		}
 		
 		/** Atomic boolean for name space. */
-		bool( name: string, next?: boolean ) {
-			return Boolean( this.value( name, next ) ?? false )
+		bool( next?: boolean ) {
+			return Boolean( this.value( next ) ?? false )
 		}
 		
-		count( name: string ) {
-			return this.chunks( name ).length
+		count() {
+			return this.chunks().length
 		}
 		
 		/** Data list representation of name space. */
-		list(
-			name: string, 
-			next?: readonly unknown[],
-		) {
+		list( next?: readonly unknown[] ) {
 			
-			let prev = this.chunks( name )
+			let prev = this.chunks()
 			
 			if( next === undefined ) {
 				
@@ -150,16 +153,16 @@ namespace $ {
 		}
 		
 		/** Text representation of name space. Based on list of strings. */
-		text( name: string, next?: string ) {
+		text( next?: string ) {
 			
 			if( next === undefined ) {
 				
-				return this.list( name ).join( '' )
+				return this.list().join( '' )
 			
 			} else {
 				
 				const words = [ ... next.matchAll( $hyoo_crowd_text_tokenizer ) ].map( token => token[0] )
-				this.list( name, words )
+				this.list( words )
 				
 				return next
 			}
@@ -167,41 +170,36 @@ namespace $ {
 		}
 		
 		insert(
-			name: string,
 			data: unknown,
-			seat = this.count(''),
+			seat = this.count(),
 		) {
 			
-			const lead = seat ? this.chunks( name )[ seat - 1 ].self : 0
+			const lead = seat ? this.chunks()[ seat - 1 ].self : 0
 			
 			return this.tree.put(
 				this.head,
 				this.tree.id_new(),
 				lead,
-				name,
+				this.name,
 				data
 			)
 			
 		}
 		
 		move(
-			name: string,
 			from: number,
 			to: number,
 		) {
 			
-			const chunks = this.chunks( name )
+			const chunks = this.chunks()
 			const lead = to ? chunks[ to - 1 ].self : 0
 			
 			return this.tree.move( chunks[ from ], this.head, lead )
 			
 		}
 		
-		cut(
-			name: string,
-			seat: number,
-		) {
-			return this.tree.wipe( this.chunks( name )[ seat ] )
+		cut( seat: number ) {
+			return this.tree.wipe( this.chunks()[ seat ] )
 		}
 		
 	}
