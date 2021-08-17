@@ -1,7 +1,5 @@
 namespace $ {
 	
-	const id_max = 2 ** ( 6 * 8 ) - 2
-	
 	/** Conflict-free Reinterpretable Ordered Washed Data Tree */
 	export class $hyoo_crowd_tree {
 		
@@ -69,12 +67,12 @@ namespace $ {
 		
 		/** Returns branch for Branch. */
 		branch( head: $hyoo_crowd_chunk['head'] ) {
-			return new $hyoo_crowd_branch( this, head, '' )
+			return new $hyoo_crowd_branch( this, head )
 		}
 		
 		/** Generates new 6B identifier. */
 		id_new() {
-			return 1 + Math.floor( Math.random() * id_max )
+			return 1 + Math.floor( Math.random() * ( 2 ** ( 6 * 8 ) - 2 ) )
 		}
 		
 		/** Makes independent clone with defined peer. */
@@ -186,7 +184,6 @@ namespace $ {
 			head: $hyoo_crowd_chunk['head'],
 			self: $hyoo_crowd_chunk['self'],
 			lead: $hyoo_crowd_chunk['lead'],
-			name: $hyoo_crowd_chunk['name'],
 			data: $hyoo_crowd_chunk['data'],
 		) {
 			
@@ -210,7 +207,6 @@ namespace $ {
 				seat,
 				this.peer,
 				this.clock.tick( this.peer ),
-				name,
 				data,
 			)
 			this._chunk_all.set( chunk_new.guid, chunk_new )
@@ -236,7 +232,6 @@ namespace $ {
 				chunk.head,
 				chunk.self,
 				chunk.lead,
-				"",
 				null,
 			)
 			
@@ -255,7 +250,6 @@ namespace $ {
 				head,
 				chunk.self,
 				lead,
-				chunk.name,
 				chunk.data
 			)
 			

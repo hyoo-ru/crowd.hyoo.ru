@@ -6,30 +6,28 @@ namespace $ {
 		constructor(
 			readonly tree: $hyoo_crowd_tree,
 			readonly head: $hyoo_crowd_chunk['head'],
-			readonly name: $hyoo_crowd_chunk['name'],
 		) {}
 		
-		/** Returns inner branch for id. */
-		branch( self: $hyoo_crowd_chunk['self'] ) {
-			return new $hyoo_crowd_branch( this.tree, self, '' )
+		/** Returns inner branch for key. */
+		sub( data: unknown ) {
+			
+			let chunk = this.chunks().find( chunk => chunk.data === data )
+			if( !chunk ) chunk = this.insert( data, 0 )
+			
+			return new $hyoo_crowd_branch( this.tree, chunk.self )
 		}
 		
-		/** Returns inner branch for name space. */
-		space( name: string ) {
-			return new $hyoo_crowd_branch( this.tree, this.head, name )
-		}
-		
-		/** Ordered inner alive chunks from name space. */
+		/** Ordered inner alive chunks. */
 		chunks() {
-			return this.tree.chunk_list( this.head ).filter( chunk => chunk.data !== null && chunk.name === this.name )
+			return this.tree.chunk_list( this.head ).filter( chunk => chunk.data !== null )
 		}
 		
-		/** Ordered inner alive branches from name space. */
+		/** Ordered inner alive branches. */
 		branches() {
-			return this.chunks().map( chunk => this.branch( chunk.self ) )
+			return this.chunks().map( chunk => this.tree.branch( chunk.self ) )
 		}
 		
-		/** Atomic value for name space. */
+		/** Atomic value. */
 		value( next?: unknown ) {
 			
 			const chunks = this.chunks()
@@ -56,7 +54,6 @@ namespace $ {
 					this.head,
 					last?.self ?? this.tree.id_new(),
 					0,
-					this.name,
 					next,
 				)
 			
@@ -65,17 +62,17 @@ namespace $ {
 			
 		}
 		
-		/** Atomic string for name space. */
+		/** Atomic string. */
 		str( next?: string ) {
 			return String( this.value( next ) ?? '' )
 		}
 		
-		/** Atomic number for name space. */
+		/** Atomic number. */
 		numb( next?: number ) {
 			return Number( this.value( next ) ?? 0 )
 		}
 		
-		/** Atomic boolean for name space. */
+		/** Atomic boolean. */
 		bool( next?: boolean ) {
 			return Boolean( this.value( next ) ?? false )
 		}
@@ -84,7 +81,7 @@ namespace $ {
 			return this.chunks().length
 		}
 		
-		/** Data list representation of name space. */
+		/** Data list representation. */
 		list( next?: readonly unknown[] ) {
 			
 			let prev = this.chunks()
@@ -119,7 +116,6 @@ namespace $ {
 							this.head,
 							this.tree.id_new(),
 							lead,
-							"",
 							next[n],
 						).self
 						
@@ -136,7 +132,6 @@ namespace $ {
 							prev[p].head,
 							prev[p].self,
 							lead,
-							"",
 							next[n],
 						).self
 						
@@ -152,7 +147,7 @@ namespace $ {
 			
 		}
 		
-		/** Text representation of name space. Based on list of strings. */
+		/** Text representation. Based on list of strings. */
 		text( next?: string ) {
 			
 			if( next === undefined ) {
@@ -180,7 +175,6 @@ namespace $ {
 				this.head,
 				this.tree.id_new(),
 				lead,
-				this.name,
 				data
 			)
 			

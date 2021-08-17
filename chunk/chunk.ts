@@ -23,9 +23,6 @@ namespace $ {
 			/** Monotonic version clock. 6B */
 			readonly time: number,
 			
-			/** Name inside parent. 1+B */
-			readonly name: string,
-			
 			/** Associated atomic data. 1+B */
 			readonly data: unknown,
 			

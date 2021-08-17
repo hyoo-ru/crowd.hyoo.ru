@@ -48,16 +48,16 @@ namespace $ {
 			const store = new $hyoo_crowd_tree( 123 )
 			
 			store.root.numb( 111 )
-			store.root.space( 'aaa' ).numb( 222 )
-			store.root.space( 'bbb' ).numb( 333 )
+			store.root.sub( 111 ).sub( 'aaa' ).numb( 222 )
+			store.root.sub( 111 ).sub( 'bbb' ).numb( 333 )
 
 			$mol_assert_like( store.root.value(), 111 )
-			$mol_assert_like( store.root.space('aaa').value(), 222 )
-			$mol_assert_like( store.root.space('bbb').value(), 333 )
+			$mol_assert_like( store.root.sub( 111 ).value(), 'bbb' )
+			$mol_assert_like( store.root.sub( 111 ).sub( 'aaa' ).value(), 222 )
 			
 			$mol_assert_like( store.root.list(), [ 111 ] )
-			$mol_assert_like( store.root.space('aaa').list(), [ 222 ] )
-			$mol_assert_like( store.root.space('bbb').list(), [ 333 ] )
+			$mol_assert_like( store.root.sub( 111 ).list(), [ 'bbb', 'aaa' ] )
+			$mol_assert_like( store.root.sub( 111 ).sub( 'bbb' ).list(), [ 333 ] )
 			
 		},
 		
