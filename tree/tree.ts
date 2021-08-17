@@ -16,11 +16,6 @@ namespace $ {
 			$hyoo_crowd_chunk
 		>()
 		
-		protected _chunk_sets = new Map<
-			$hyoo_crowd_chunk['self'],
-			Set< $hyoo_crowd_chunk >
-		>()
-		
 		protected _chunk_lists = new Map<
 			$hyoo_crowd_chunk['self'],
 			$hyoo_crowd_chunk[]
@@ -34,30 +29,13 @@ namespace $ {
 			return this._chunk_all.get( `${ head }/${ self }` ) ?? null
 		}
 		
-		/** Returns set of chunks for Branch. */ 
-		chunk_set(
-			head: $hyoo_crowd_chunk['head']
-		): Set< $hyoo_crowd_chunk > {
-			
-			let chunks = this._chunk_sets.get( head )
-			if( !chunks ) {
-				this._chunk_sets.set( head, chunks = new Set )
-			}
-			
-			return chunks
-		}
-		
 		/** Returns list of chunks for Branch. */ 
 		chunk_list(
 			head: $hyoo_crowd_chunk['head']
-		): readonly $hyoo_crowd_chunk[] {
+		): $hyoo_crowd_chunk[] {
 			
 			let chunks = this._chunk_lists.get( head )
-			if( !chunks ) {
-				chunks = [ ... this.chunk_set( head ).values() ]
-				this._chunk_lists.set( head, chunks )
-				chunks = this.resort( head )
-			}
+			if( !chunks ) this._chunk_lists.set( head, chunks = [] )
 			
 			return chunks
 		}
@@ -106,48 +84,53 @@ namespace $ {
 			head: $hyoo_crowd_chunk['head'],
 		) {
 			
-			const kids = this._chunk_lists.get( head )!
-			kids.sort( ( left, right )=> {
+			const chunks = this._chunk_lists.get( head )!
+			
+			const queue = chunks.splice(0).sort( ( left, right )=> {
 				if( left.seat > right.seat ) return +1
 				if( left.seat < right.seat ) return -1
 				if( left.prefer( right ) ) return +1
 				else return -1
 			} )
 			
-			const ordered = [] as typeof kids
-			for( const kid of kids ) {
+			for( const kid of queue ) {
 				
 				let leader = kid.lead ? this.chunk( head, kid.lead )! : null
-				let index = leader ? ordered.indexOf( leader ) + 1 : 0
-				if( index === 0 && leader ) index = ordered.length
+				let index = leader ? chunks.indexOf( leader ) + 1 : 0
+				if( index === 0 && leader ) index = chunks.length
 				if( index < kid.seat ) {
-					index = ordered.length
+					index = chunks.length
 				}
 				
-				ordered.splice( index, 0, kid )
+				chunks.splice( index, 0, kid )
 				
 			}
-			this._chunk_lists.set( head, ordered )
-			return ordered
+			
+			this._chunk_lists.set( head, chunks )
+			
+			return chunks
 		}
 		
 		/** Applies Delta to current state. */
 		apply( delta: readonly $hyoo_crowd_chunk[] ) {
 			
+			const unordered = new Set< number >()
+			
 			for( const next of delta ) {
 				
 				this.clock.see( next.peer, next.time )
-				const chunks = this.chunk_set( next.head )
+				const chunks = this.chunk_list( next.head )
 				
 				let prev = this._chunk_all.get( next.guid )
 				if( prev ) {
 					if( prev.prefer( next ) ) continue
-					chunks.delete( prev )
+					chunks.splice( chunks.indexOf( prev ), 1, next )
+				} else {
+					chunks.push( next )
 				}
 				
 				this._chunk_all.set( next.guid, next )
-				chunks.add( next )
-				this._chunk_lists.delete( next.head )
+				unordered.add( next.head )
 				
 				// const list = this._chunk_lists.get( next.head )
 				// if( list ) {
@@ -176,6 +159,8 @@ namespace $ {
 				
 			}
 			
+			for( const head of unordered ) this.resort( head )
+			
 			return this
 		}
 		
@@ -190,11 +175,9 @@ namespace $ {
 			let chunk_old = this.chunk( head, self )
 			let chunk_lead = lead ? this.chunk( head, lead )! : null
 			
-			const chunk_set = this.chunk_set( head )
 			const chunk_list = this.chunk_list( head ) as $hyoo_crowd_chunk[]
 			
 			if( chunk_old ) {
-				chunk_set.delete( chunk_old )
 				chunk_list.splice( chunk_list.indexOf( chunk_old ), 1 )
 			}
 			
@@ -211,7 +194,6 @@ namespace $ {
 			)
 			this._chunk_all.set( chunk_new.guid, chunk_new )
 			
-			chunk_set.add( chunk_new )
 			chunk_list.splice( seat, 0, chunk_new )
 
 			// this.apply([ chunk ])

@@ -1,6 +1,6 @@
 namespace $ {
 	
-	/** Independent part of data. 66+B */
+	/** Independent part of data. 64+B */
 	export class $hyoo_crowd_chunk {
 		
 		constructor(
@@ -23,7 +23,7 @@ namespace $ {
 			/** Monotonic version clock. 6B */
 			readonly time: number,
 			
-			/** Associated atomic data. 1+B */
+			/** Associated atomic data. */
 			readonly data: unknown,
 			
 			/** Sign for whole node data. 32B */
