@@ -26,6 +26,10 @@ namespace $ {
 			undefined | $hyoo_crowd_chunk[]
 		>()
 		
+		size() {
+			return this._chunk_all.size
+		}
+		
 		/** Returns existen data chunk for unique head+self. */
 		chunk(
 			head: $hyoo_crowd_chunk['head'],
@@ -97,6 +101,10 @@ namespace $ {
 			delta.sort( ( left, right )=> left.prefer( right ) ? 1 : -1 )
 			
 			return delta as readonly $hyoo_crowd_chunk[]
+		}
+		
+		toJSON() {
+			return this.delta()
 		}
 		
 		resort(

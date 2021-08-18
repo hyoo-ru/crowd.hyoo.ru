@@ -23,7 +23,7 @@ namespace $ {
 			
 			const right = new $hyoo_crowd_clock( left )
 			
-			$mol_assert_equal( right.version_max, 2 )
+			$mol_assert_equal( right.now, 2 )
 			
 			$mol_assert_like(
 				[ ... right ],
@@ -44,7 +44,7 @@ namespace $ {
 			const version = clock.tick( 111 )
 			
 			$mol_assert_equal( version, 3 )
-			$mol_assert_equal( clock.version_max, 3 )
+			$mol_assert_equal( clock.now, 3 )
 			
 			$mol_assert_like(
 				[ ... clock ],

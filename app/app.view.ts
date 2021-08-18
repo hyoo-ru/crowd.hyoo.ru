@@ -17,8 +17,8 @@ namespace $.$$ {
 			this.Left().store().apply( right_delta )
 			this.Right().store().apply( left_delta )
 			
-			this.Left().sync_clock( this.Left().store().clock.fork(0) )
-			this.Right().sync_clock( this.Right().store().clock.fork(0) )
+			this.Left().sync_clock( new $hyoo_crowd_clock( this.Left().store().clock ) )
+			this.Right().sync_clock( new $hyoo_crowd_clock( this.Right().store().clock ) )
 			
 			return Math.random()
 		}
@@ -35,7 +35,7 @@ namespace $.$$ {
 		@ $mol_mem
 		text( next?: string ) {
 			this.sync()
-			return this.store().text( next )
+			return this.store().root.text( next )
 		}
 		
 		delta() {
@@ -46,26 +46,30 @@ namespace $.$$ {
 		changes() {
 			this.text()
 			const clock = this.store().clock
-			return clock.index_from( clock.version_max ) - clock.index_from( this.sync_clock().version_max )
+			return clock.now - this.sync_clock().now
 		}
 		
 		size_state() {
 			this.text()
-			return JSON.stringify( this.store() ).length
+			return $mol_charset_encode( JSON.stringify( this.store() ) ).length
 		}
 		
 		size_delta() {
-			return JSON.stringify( this.delta() ).length
+			return $mol_charset_encode( JSON.stringify( this.delta() ) ).length
+		}
+		
+		size_text() {
+			return $mol_charset_encode( this.text() ).length
 		}
 		
 		tokens_alive() {
 			this.text()
-			return this.store().root.items_internal.length
+			return this.store().root.list().length
 		}
 		
 		tokens_total() {
 			this.text()
-			return this.store().for( 'token' ).stores.size
+			return this.store().size()
 		}
 		
 		tokens_dead() {
@@ -75,17 +79,16 @@ namespace $.$$ {
 		stats() {
 			this.text()
 			return super.stats()
-			.replace( '{peer}', this.store().clock.peer.toLocaleString() )
+			.replace( '{peer}', this.store().peer.toLocaleString() )
 			.replace( '{changes}', this.changes().toLocaleString() )
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
 			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
-			.replace( '{stamp:now}', this.store().clock.version_max.toLocaleString() )
-			.replace( '{stamp:sync}', this.sync_clock().version_max.toLocaleString() )
-			.replace( '{size:text}', this.text().length.toLocaleString() )
+			.replace( '{stamp:now}', this.store().clock.now.toLocaleString() )
+			.replace( '{stamp:sync}', this.sync_clock().now.toLocaleString() )
+			.replace( '{size:text}', this.size_text().toLocaleString() )
 			.replace( '{size:state}', this.size_state().toLocaleString() )
 			.replace( '{size:delta}', this.size_delta().toLocaleString() )
-			.replace( '{dump:delta}', JSON.stringify( this.delta() ) )
 		}
 		
 	}
