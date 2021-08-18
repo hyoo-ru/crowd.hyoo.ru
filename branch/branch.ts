@@ -12,7 +12,10 @@ namespace $ {
 		sub( data: unknown ) {
 			
 			let chunks = this.chunks().filter( chunk => chunk.data === data )
-			if( !chunks.length ) chunks.push( this.insert( data, 0 ) )
+			if( !chunks.length ) {
+				this.insert( [ data ], 0 )
+				chunks.push( this.chunks()[0] )
+			}
 			
 			return new $hyoo_crowd_branch( this.tree, chunks.map( chunk => chunk.self ) )
 		}
@@ -84,65 +87,66 @@ namespace $ {
 		/** Data list representation. */
 		list( next?: readonly unknown[] ) {
 			
+			if( next === undefined ) {
+				return this.chunks().map( chunk => chunk.data )
+			} else {
+				this.insert( next, 0, this.count() )
+				return next
+			}
+			
+		}
+		
+		insert(
+			next: readonly unknown[],
+			from = this.count(),
+			to = from,
+		) {
+			
 			let prev = this.chunks()
 			
-			if( next === undefined ) {
+			let p = from
+			let n = 0
+			let lead = p ? prev[ p - 1 ].self : 0
+			
+			while( p < to || n < next.length ) {
 				
-				return prev.map( chunk => chunk.data )
-				
-			} else {
-				
-				let p = 0
-				let n = 0
-				let lead = 0
-				
-				while( p < prev.length || n < next.length ) {
+				if( p < to && n < next.length && prev[p].data === next[n] ) {
 					
-					if( prev[p] && prev[p]?.data === null ) {
-						++p
-						continue
-					}
+					lead = prev[p].self
 					
-					if( prev[p]?.data === next[n] ) {
-						
-						lead = prev[p].self
-						
-						++ p
-						++ n
-						
-					} else if( next.length - n > prev.length - p ) {
-						
-						lead = this.tree.put(
-							this.heads[0],
-							this.tree.id_new(),
-							lead,
-							next[n],
-						).self
-						
-						++ n
-						
-					} else if( next.length - n < prev.length - p ) {
-						
-						lead = this.tree.wipe( prev[p] ).self
-						++ p
-						
-					} else {
-						
-						lead = this.tree.put(
-							prev[p].head,
-							prev[p].self,
-							lead,
-							next[n],
-						).self
-						
-						++ p
-						++ n
-						
-					}
+					++ p
+					++ n
+					
+				} else if( next.length - n > to - p ) {
+					
+					lead = this.tree.put(
+						this.heads[0],
+						this.tree.id_new(),
+						lead,
+						next[n],
+					).self
+					
+					++ n
+					
+				} else if( next.length - n < to - p ) {
+					
+					lead = this.tree.wipe( prev[p] ).self
+					++ p
+					
+				} else {
+					
+					lead = this.tree.put(
+						prev[p].head,
+						prev[p].self,
+						lead,
+						next[n],
+					).self
+					
+					++ p
+					++ n
 					
 				}
 				
-				return next
 			}
 			
 		}
@@ -156,30 +160,67 @@ namespace $ {
 			
 			} else {
 				
-				const words = [ ... next.matchAll( $hyoo_crowd_text_tokenizer ) ].map( token => token[0] )
-				this.list( words )
+				this.write( next, 0, -1 )
 				
 				return next
 			}
 			
 		}
 		
-		insert(
-			data: unknown,
-			seat = this.count(),
+		write(
+			next: string,
+			str_from = -1,
+			str_to = str_from,
 		) {
 			
-			const lead = seat ? this.chunks()[ seat - 1 ].self : 0
+			const list = this.chunks()
 			
-			return this.tree.put(
-				this.heads[0],
-				this.tree.id_new(),
-				lead,
-				data
-			)
+			let from = str_from < 0 ? list.length : 0
+			let word = ''
 			
+			while( from < list.length ) {
+				
+				word = String( list[ from ].data )
+				
+				if( str_from <= word.length ) {
+					next = word.slice( 0, str_from ) + next
+					break
+				}
+				
+				str_from -= word.length
+				if( str_to > 0 ) str_to -= word.length
+				
+				from ++
+				
+			}
+			
+			let to = str_to < 0 ? list.length : from
+			
+			while( to < list.length ) {
+				
+				word = String( list[ to ].data )
+				to ++
+				
+				if( str_to < word.length ) {
+					next = next + word.slice( str_to )
+					break
+				}
+				
+				str_to -= word.length
+				
+			}
+			
+			if( from && from === list.length ) {
+				-- from
+				next = String( list[ from ].data ) + next
+			}
+			
+			const words = [ ... next.matchAll( $hyoo_crowd_text_tokenizer ) ].map( token => token[0] )
+			this.insert( words, from, to )
+			
+			return this
 		}
-		
+
 		move(
 			from: number,
 			to: number,

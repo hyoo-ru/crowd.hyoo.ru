@@ -20,14 +20,17 @@ namespace $ {
 			$mol_assert_like( store.root.value(), null )
 			$mol_assert_like( store.root.list(), [] )
 			
+			$mol_assert_like( store.root.bool(), false )
 			store.root.bool( true )
 			$mol_assert_like( store.root.value(), true )
 			$mol_assert_like( store.root.list(), [ true ] )
 			
+			$mol_assert_like( store.root.numb(), 1 )
 			store.root.numb( 1 )
 			$mol_assert_like( store.root.value(), 1 )
 			$mol_assert_like( store.root.list(), [ 1 ] )
 			
+			$mol_assert_like( store.root.str(), '1' )
 			store.root.str( 'x' )
 			$mol_assert_like( store.root.value(), 'x' )
 			$mol_assert_like( store.root.list(), [ 'x' ] )
@@ -101,8 +104,8 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.root.insert( 'foo' )
-			store.root.insert( 'bar' )
+			store.root.insert([ 'foo' ])
+			store.root.insert([ 'bar' ])
 			
 			$mol_assert_like( store.root.list(), [ 'foo', 'bar' ] )
 			
@@ -112,8 +115,8 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.root.insert( 'foo', 0 )
-			store.root.insert( 'bar', 0 )
+			store.root.insert( [ 'foo' ], 0 )
+			store.root.insert( [ 'bar' ], 0 )
 			
 			$mol_assert_like( store.root.list(), [ 'bar', 'foo' ] )
 			
@@ -123,9 +126,9 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			store.root.insert( 'foo' )
-			store.root.insert( 'bar' )
-			store.root.insert( 'lol', 1 )
+			store.root.insert([ 'foo' ])
+			store.root.insert([ 'bar' ])
+			store.root.insert( [ 'lol' ], 1 )
 			
 			$mol_assert_like( store.root.list(), [ 'foo', 'lol', 'bar' ] )
 			
@@ -135,11 +138,11 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_tree( 123 )
 			
-			const id = store.root.insert( 'foo' ).self
-			store.branch( id ).insert( 'bar' )
+			store.root.insert([ 'foo' ])
+			store.root.branches()[0].insert([ 'bar' ])
 			
 			$mol_assert_like( store.root.list(), [ 'foo' ] )
-			$mol_assert_like( store.branch( id ).list(), [ 'bar' ] )
+			$mol_assert_like( store.root.branches()[0].list(), [ 'bar' ] )
 			
 		},
 		
@@ -200,26 +203,23 @@ namespace $ {
 		'Delete with subtree and ignore inserted into deleted'() {
 			
 			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'foo' )
 			
-			const chunk1 = store.root.insert( 'foo' )
-			const chunk2 = store.branch( chunk1.self ).insert( 'bar' )
-			let chunk3 = store.branch( chunk2.self ).insert( 'lol' )
+			const b2 = store.root.branches()[0]
+			b2.text( 'bar' )
 			
-			$mol_assert_like( store.root.text(), 'foo' )
-			$mol_assert_like( store.branch( chunk1.self ).text(), 'bar' )
-			$mol_assert_like( store.branch( chunk2.self ).text(), 'lol' )
+			const b3 = b2.branches()[0]
+			b3.text( 'lol' )
+			
+			$mol_assert_like( store.root.value(), 'foo' )
+			$mol_assert_like( b2.value(), 'bar' )
+			$mol_assert_like( b3.value(), 'lol' )
 			
 			store.root.cut( 0 )
 			
-			$mol_assert_like( store.root.text(), '' )
-			$mol_assert_like( store.branch( chunk1.self ).text(), '' )
-			$mol_assert_like( store.branch( chunk2.self ).text(), '' )
-			
-			chunk3 = store.move( chunk3, chunk3.head, chunk3.lead )
-			
-			$mol_assert_like( store.root.text(), '' )
-			$mol_assert_like( store.branch( chunk1.self ).text(), '' )
-			$mol_assert_like( store.branch( chunk2.self ).text(), 'lol' )
+			$mol_assert_like( store.root.value(), null )
+			$mol_assert_like( b2.value(), null )
+			$mol_assert_like( b3.value(), null )
 			
 		},
 		
@@ -518,6 +518,76 @@ namespace $ {
 				'Bye Alice and fun!',
 			)
 
+		},
+		
+		'Write into token'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'foobar' )
+			store.root.write( 'xyz', 3 )
+			
+			$mol_assert_like( store.root.list(), [ 'fooxyzbar' ] )
+			
+		},
+		
+		'Write into token with split'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'foobar' )
+			store.root.write( 'XYZ', 2, 4 )
+			
+			$mol_assert_like( store.root.list(), [ 'fo', 'XYZar' ] )
+			
+		},
+		
+		'Write over few tokens'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'xxx foo bar yyy' )
+			store.root.write( 'X Y Z', 6, 9 )
+			
+			$mol_assert_like( store.root.list(), [ 'xxx ', 'fo', 'X ', 'Y ', 'Zar ', 'yyy' ] )
+			
+		},
+		
+		'Write whole token'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'xxxFoo yyy' )
+			store.root.write( 'bar', 3, 7 )
+			
+			$mol_assert_like( store.root.list(), [ 'xxxbaryyy' ] )
+			
+		},
+		
+		'Write whole text'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'foo bar' )
+			store.root.write( 'xxx', 0, 7 )
+			
+			$mol_assert_like( store.root.list(), [ 'xxx' ] )
+			
+		},
+		
+		'Write at the end'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'foo' )
+			store.root.write( 'bar' )
+			
+			$mol_assert_like( store.root.list(), [ 'foobar' ] )
+			
+		},
+		
+		'Write between tokens'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'foo bar' )
+			store.root.write( 'xxx', 4 )
+			
+			$mol_assert_like( store.root.list(), [ 'foo ', 'xxxbar' ] )
+			
 		},
 		
 	})
