@@ -6790,7 +6790,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_grid extends $.$mol_scroll {
+    class $mol_grid extends $.$mol_view {
         row_height() {
             return 32;
         }
