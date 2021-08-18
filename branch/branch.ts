@@ -5,24 +5,17 @@ namespace $ {
 		
 		constructor(
 			readonly tree: $hyoo_crowd_tree,
-			readonly heads: readonly $hyoo_crowd_chunk['head'][],
+			readonly head: $hyoo_crowd_chunk['head'],
 		) {}
 		
 		/** Returns inner branch for key. */
-		sub( data: unknown ) {
-			
-			let chunks = this.chunks().filter( chunk => chunk.data === data )
-			if( !chunks.length ) {
-				this.insert( [ data ], 0 )
-				chunks.push( this.chunks()[0] )
-			}
-			
-			return new $hyoo_crowd_branch( this.tree, chunks.map( chunk => chunk.self ) )
+		sub( key: string ) {
+			return this.tree.branch( $mol_hash_string( key, this.head ) )
 		}
 		
 		/** Ordered inner alive chunks. */
 		chunks() {
-			return ( [] as $hyoo_crowd_chunk[] ).concat( ... this.heads.map( head => this.tree.chunk_alive( head ) ) )
+			return this.tree.chunk_alive( this.head )
 		}
 		
 		/** Ordered inner alive branches. */
@@ -54,7 +47,7 @@ namespace $ {
 				}
 				
 				this.tree.put(
-					this.heads[0],
+					this.head,
 					last?.self ?? this.tree.id_new(),
 					0,
 					next,
@@ -120,7 +113,7 @@ namespace $ {
 				} else if( next.length - n > to - p ) {
 					
 					lead = this.tree.put(
-						this.heads[0],
+						this.head,
 						this.tree.id_new(),
 						lead,
 						next[n],
@@ -229,7 +222,7 @@ namespace $ {
 			const chunks = this.chunks()
 			const lead = to ? chunks[ to - 1 ].self : 0
 			
-			return this.tree.move( chunks[ from ], this.heads[0], lead )
+			return this.tree.move( chunks[ from ], this.head, lead )
 			
 		}
 		

@@ -68,7 +68,7 @@ namespace $ {
 		
 		/** Returns branch for Branch. */
 		branch( head: $hyoo_crowd_chunk['head'] ) {
-			return new $hyoo_crowd_branch( this, [ head ] )
+			return new $hyoo_crowd_branch( this, head )
 		}
 		
 		/** Generates new 6B identifier. */
