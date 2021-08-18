@@ -4909,6 +4909,25 @@ var $;
 //clock.js.map
 ;
 "use strict";
+var $;
+(function ($) {
+    function $mol_hash_string(str, seed = 0) {
+        let h1 = 0xdeadbeef ^ seed;
+        let h2 = 0x41c6ce57 ^ seed;
+        for (let i = 0; i < str.length; i++) {
+            const ch = str.charCodeAt(i);
+            h1 = Math.imul(h1 ^ ch, 2654435761);
+            h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+        return 4294967296 * ((1 << 16) & h2) + (h1 >>> 0);
+    }
+    $.$mol_hash_string = $mol_hash_string;
+})($ || ($ = {}));
+//string.js.map
+;
+"use strict";
 //text.js.map
 ;
 "use strict";
@@ -5232,21 +5251,16 @@ var $;
 (function ($) {
     class $hyoo_crowd_branch {
         tree;
-        heads;
-        constructor(tree, heads) {
+        head;
+        constructor(tree, head) {
             this.tree = tree;
-            this.heads = heads;
+            this.head = head;
         }
-        sub(data) {
-            let chunks = this.chunks().filter(chunk => chunk.data === data);
-            if (!chunks.length) {
-                this.insert([data], 0);
-                chunks.push(this.chunks()[0]);
-            }
-            return new $hyoo_crowd_branch(this.tree, chunks.map(chunk => chunk.self));
+        sub(key) {
+            return this.tree.branch($.$mol_hash_string(key, this.head));
         }
         chunks() {
-            return [].concat(...this.heads.map(head => this.tree.chunk_alive(head)));
+            return this.tree.chunk_alive(this.head);
         }
         branches() {
             return this.chunks().map(chunk => this.tree.branch(chunk.self));
@@ -5269,7 +5283,7 @@ var $;
                         continue;
                     this.tree.wipe(chunk);
                 }
-                this.tree.put(this.heads[0], last?.self ?? this.tree.id_new(), 0, next);
+                this.tree.put(this.head, last?.self ?? this.tree.id_new(), 0, next);
                 return next;
             }
         }
@@ -5306,7 +5320,7 @@ var $;
                     ++n;
                 }
                 else if (next.length - n > to - p) {
-                    lead = this.tree.put(this.heads[0], this.tree.id_new(), lead, next[n]).self;
+                    lead = this.tree.put(this.head, this.tree.id_new(), lead, next[n]).self;
                     ++n;
                 }
                 else if (next.length - n < to - p) {
@@ -5365,7 +5379,7 @@ var $;
         move(from, to) {
             const chunks = this.chunks();
             const lead = to ? chunks[to - 1].self : 0;
-            return this.tree.move(chunks[from], this.heads[0], lead);
+            return this.tree.move(chunks[from], this.head, lead);
         }
         cut(seat) {
             return this.tree.wipe(this.chunks()[seat]);
@@ -5411,7 +5425,7 @@ var $;
         }
         root = this.branch(0);
         branch(head) {
-            return new $.$hyoo_crowd_branch(this, [head]);
+            return new $.$hyoo_crowd_branch(this, head);
         }
         id_new() {
             return 1 + Math.floor(Math.random() * (2 ** (6 * 8) - 2));
@@ -10454,15 +10468,12 @@ var $;
         },
         'Name spaces'() {
             const store = new $.$hyoo_crowd_tree(123);
-            store.root.numb(111);
-            store.root.sub(111).sub('aaa').numb(222);
-            store.root.sub(111).sub('bbb').numb(333);
-            $.$mol_assert_like(store.root.value(), 111);
-            $.$mol_assert_like(store.root.sub(111).value(), 'bbb');
-            $.$mol_assert_like(store.root.sub(111).sub('aaa').value(), 222);
-            $.$mol_assert_like(store.root.list(), [111]);
-            $.$mol_assert_like(store.root.sub(111).list(), ['bbb', 'aaa']);
-            $.$mol_assert_like(store.root.sub(111).sub('bbb').list(), [333]);
+            store.root.sub('foo').sub('bar').numb(111);
+            store.root.sub('foo').sub('ton').numb(222);
+            $.$mol_assert_like(store.root.list(), []);
+            $.$mol_assert_like(store.root.sub('foo').list(), []);
+            $.$mol_assert_like(store.root.sub('foo').sub('bar').list(), [111]);
+            $.$mol_assert_like(store.root.sub('foo').sub('ton').list(), [222]);
         },
         'Name spaces merging'() {
             const left = new $.$hyoo_crowd_tree(123);

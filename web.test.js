@@ -2310,15 +2310,12 @@ var $;
         },
         'Name spaces'() {
             const store = new $.$hyoo_crowd_tree(123);
-            store.root.numb(111);
-            store.root.sub(111).sub('aaa').numb(222);
-            store.root.sub(111).sub('bbb').numb(333);
-            $.$mol_assert_like(store.root.value(), 111);
-            $.$mol_assert_like(store.root.sub(111).value(), 'bbb');
-            $.$mol_assert_like(store.root.sub(111).sub('aaa').value(), 222);
-            $.$mol_assert_like(store.root.list(), [111]);
-            $.$mol_assert_like(store.root.sub(111).list(), ['bbb', 'aaa']);
-            $.$mol_assert_like(store.root.sub(111).sub('bbb').list(), [333]);
+            store.root.sub('foo').sub('bar').numb(111);
+            store.root.sub('foo').sub('ton').numb(222);
+            $.$mol_assert_like(store.root.list(), []);
+            $.$mol_assert_like(store.root.sub('foo').list(), []);
+            $.$mol_assert_like(store.root.sub('foo').sub('bar').list(), [111]);
+            $.$mol_assert_like(store.root.sub('foo').sub('ton').list(), [222]);
         },
         'Name spaces merging'() {
             const left = new $.$hyoo_crowd_tree(123);

@@ -1451,6 +1451,10 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_hash_string(str: string, seed?: number): number;
+}
+
+declare namespace $ {
     type $mol_type_equals<A, B> = (<X>() => X extends A ? 1 : 2) extends (<X>() => X extends B ? 1 : 2) ? unknown : never;
 }
 
@@ -1561,10 +1565,10 @@ declare namespace $ {
 declare namespace $ {
     class $hyoo_crowd_branch {
         readonly tree: $hyoo_crowd_tree;
-        readonly heads: readonly $hyoo_crowd_chunk['head'][];
-        constructor(tree: $hyoo_crowd_tree, heads: readonly $hyoo_crowd_chunk['head'][]);
-        sub(data: unknown): $hyoo_crowd_branch;
-        chunks(): $hyoo_crowd_chunk[];
+        readonly head: $hyoo_crowd_chunk['head'];
+        constructor(tree: $hyoo_crowd_tree, head: $hyoo_crowd_chunk['head']);
+        sub(key: string): $hyoo_crowd_branch;
+        chunks(): readonly $hyoo_crowd_chunk[];
         branches(): $hyoo_crowd_branch[];
         value(next?: unknown): unknown;
         str(next?: string): string;
