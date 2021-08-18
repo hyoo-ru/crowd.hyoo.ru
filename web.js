@@ -4631,72 +4631,76 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $hyoo_crowd_delta(values, stamps, clock) {
-        return { values, stamps, clock };
+    class $hyoo_crowd_chunk {
+        head;
+        self;
+        lead;
+        seat;
+        peer;
+        time;
+        data;
+        constructor(head, self, lead, seat, peer, time, data) {
+            this.head = head;
+            this.self = self;
+            this.lead = lead;
+            this.seat = seat;
+            this.peer = peer;
+            this.time = time;
+            this.data = data;
+        }
+        get guid() {
+            return `${this.head}/${this.self}`;
+        }
+        get deleted() {
+            return this.data === null;
+        }
+        prefer(node) {
+            if (this.time > node.time)
+                return true;
+            if (this.time < node.time)
+                return false;
+            return this.peer > node.peer;
+        }
     }
-    $.$hyoo_crowd_delta = $hyoo_crowd_delta;
+    $.$hyoo_crowd_chunk = $hyoo_crowd_chunk;
 })($ || ($ = {}));
-//delta.js.map
+//chunk.js.map
 ;
 "use strict";
 var $;
 (function ($) {
-    const concurrency = 1_000_000;
-    class $hyoo_crowd_clock {
-        peer;
-        version_max = 0;
-        saw_versions = new Map();
-        constructor(peer) {
-            this.peer = peer
-                ? peer % concurrency
-                : Math.floor(concurrency * Math.random());
-        }
-        version_from(stamp) {
-            return Math.abs(stamp);
-        }
-        index_from(stamp) {
-            return Math.floor(Math.abs(stamp) / concurrency);
-        }
-        peer_from(stamp) {
-            return Math.abs(stamp) % concurrency;
-        }
-        make(index, peer = this.peer) {
-            return index * concurrency + peer;
-        }
-        feed(stamp) {
-            const version = this.version_from(stamp);
-            if (this.version_max < version) {
-                this.version_max = version;
+    class $hyoo_crowd_clock extends Map {
+        now = 0;
+        constructor(entries) {
+            super(entries);
+            if (entries) {
+                for (const [peer, time] of entries) {
+                    if (this.now < time)
+                        this.now = time;
+                }
             }
-            const peer = this.peer_from(stamp);
-            if ((this.saw_versions.get(peer) ?? 0) < version) {
-                this.saw_versions.set(peer, version);
+        }
+        see(peer, time) {
+            if (this.now < time)
+                this.now = time;
+            const peer_version = this.get(peer);
+            if (!peer_version || peer_version < time) {
+                this.set(peer, time);
             }
-            return version;
+            return time;
         }
-        is_new(stamp) {
-            const version = this.version_from(stamp);
-            return version > (this.saw_versions.get(this.peer_from(stamp)) ?? 0);
+        fresh(peer, time) {
+            return time > (this.get(peer) ?? 0);
         }
-        is_ahead(clock) {
-            for (const version of this.saw_versions.values()) {
-                if (clock.is_new(version))
+        ahead(clock) {
+            for (const [peer, time] of this.entries()) {
+                if (clock.fresh(peer, time))
                     return true;
             }
             return false;
         }
-        generate() {
-            return this.feed((Math.floor(this.version_max / concurrency) + 1) * concurrency + this.peer);
-        }
-        fork(peer) {
-            const clock = new $hyoo_crowd_clock(peer);
-            for (const version of this.saw_versions.values()) {
-                clock.feed(version);
-            }
-            return clock;
-        }
-        delta(values, stamps) {
-            return $.$hyoo_crowd_delta(values, stamps, [...this.saw_versions.values()].sort());
+        tick(peer) {
+            return this.see(peer, this.now + 1);
         }
     }
     $.$hyoo_crowd_clock = $hyoo_crowd_clock;
@@ -4704,306 +4708,7 @@ var $;
 //clock.js.map
 ;
 "use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_store {
-        clock;
-        static make() {
-            return new this();
-        }
-        constructor(clock = new $.$hyoo_crowd_clock) {
-            this.clock = clock;
-        }
-        delta(clock = new $.$hyoo_crowd_clock, delta = this.clock.delta([], [])) {
-            return delta;
-        }
-        toJSON() {
-            return this.delta();
-        }
-        apply(delta) {
-            return this;
-        }
-        fork(peer) {
-            const Fork = this.constructor;
-            const fork = new Fork(this.clock.fork(peer));
-            fork.apply(this.delta());
-            return fork;
-        }
-    }
-    $.$hyoo_crowd_store = $hyoo_crowd_store;
-})($ || ($ = {}));
-//store.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_dict extends $.$hyoo_crowd_store {
-        static of(Types) {
-            return class Tuple extends this {
-                Fields = Types;
-            };
-        }
-        Fields;
-        stores = new Map();
-        has(key) {
-            return this.stores.has(key);
-        }
-        for(key) {
-            let store = this.stores.get(key);
-            if (store)
-                return store;
-            const Type = this.Fields[String(key ?? '')] || Object.values(this.Fields)[0];
-            store = new Type(this.clock);
-            this.stores.set(key, store);
-            return store;
-        }
-        delta(clock = new $.$hyoo_crowd_clock, delta = this.clock.delta([], [])) {
-            for (let [key, value] of this.stores) {
-                delta.values.push(key);
-                delta.stamps.push(0);
-                let size = -delta.values.length;
-                value.delta(clock, delta);
-                size += delta.values.length;
-                if (size === 0) {
-                    delta.values.pop();
-                    delta.stamps.pop();
-                }
-                else {
-                    delta.stamps[delta.stamps.length - 1 - size] = -size;
-                }
-            }
-            return delta;
-        }
-        apply(delta) {
-            let key;
-            let count = 0;
-            let patch = $.$hyoo_crowd_delta([], [], delta.clock);
-            const dump = () => {
-                if (patch.values.length === 0)
-                    return;
-                this.for(key).apply(patch);
-                patch = $.$hyoo_crowd_delta([], [], delta.clock);
-            };
-            for (let i = 0; i < delta.values.length; ++i) {
-                const val = delta.values[i];
-                const stamp = delta.stamps[i];
-                if (count === 0) {
-                    dump();
-                    key = val;
-                    count = -stamp;
-                    continue;
-                }
-                else {
-                    patch.values.push(val);
-                    patch.stamps.push(stamp);
-                    --count;
-                }
-            }
-            dump();
-            return this;
-        }
-    }
-    $.$hyoo_crowd_dict = $hyoo_crowd_dict;
-})($ || ($ = {}));
-//dict.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_list extends $.$hyoo_crowd_store {
-        clock_self = new $.$hyoo_crowd_clock;
-        array = [];
-        stamps = new Map();
-        get count() {
-            return this.array.length;
-        }
-        items(next) {
-            const prev = this.array;
-            if (!next)
-                return prev.slice();
-            for (let i = 0; i < next.length; ++i) {
-                let n = next[i];
-                let p = prev[i];
-                if (n === p)
-                    continue;
-                if (next.length > prev.length) {
-                    this.insert(n, i);
-                }
-                else {
-                    this.cut(p);
-                    i--;
-                }
-            }
-            return prev.slice();
-        }
-        get items_internal() {
-            return this.array;
-        }
-        has(val) {
-            return this.stamps.get(val) > 0;
-        }
-        version_item(val) {
-            return this.clock.version_from(this.stamps.get(val) ?? 0);
-        }
-        version_feed(version) {
-            this.clock.feed(version);
-            this.clock_self.feed(version);
-        }
-        delta(clock = new $.$hyoo_crowd_clock, delta = this.clock.delta([], [])) {
-            if (!this.clock_self.is_ahead(clock))
-                return delta;
-            for (const key of this.array) {
-                delta.values.push(key);
-                delta.stamps.push(this.stamps.get(key));
-            }
-            for (const [key, stamp] of this.stamps) {
-                if (stamp > 0)
-                    continue;
-                delta.values.push(key);
-                delta.stamps.push(stamp);
-            }
-            return delta;
-        }
-        insert(key, pos = this.array.length) {
-            const exists = this.array[pos];
-            if (exists === key)
-                return this;
-            const delta = this.clock.delta([], []);
-            if (pos > 0) {
-                const anchor = this.array[pos - 1];
-                delta.values.push(anchor);
-                delta.stamps.push(this.stamps.get(anchor));
-            }
-            delta.values.push(key);
-            delta.stamps.push(this.clock.generate());
-            this.apply(delta);
-            return this;
-        }
-        cut(key) {
-            const stamp = this.stamps.get(key) ?? 0;
-            if (stamp <= 0)
-                return this;
-            this.apply(this.clock.delta([key], [-this.clock.generate()]));
-            return this;
-        }
-        apply(delta) {
-            const patch_array = [];
-            const patch_stamps = new Map();
-            for (let i = 0; i < delta.values.length; ++i) {
-                const key = delta.values[i];
-                const stamp = delta.stamps[i];
-                patch_stamps.set(key, stamp);
-                if (stamp > 0)
-                    patch_array.push(key);
-            }
-            for (let i = 0; i < delta.values.length; ++i) {
-                const current_key = delta.values[i];
-                const current_patch_stamp = delta.stamps[i];
-                const current_self_stamp = this.stamps.get(current_key) ?? 0;
-                const current_patch_version = this.clock.version_from(current_patch_stamp);
-                if (this.version_item(current_key) >= current_patch_version)
-                    continue;
-                this.stamps.set(current_key, current_patch_stamp);
-                this.version_feed(current_patch_version);
-                if (current_patch_stamp <= 0) {
-                    if (current_self_stamp > 0) {
-                        this.array.splice(this.array.indexOf(current_key), 1);
-                    }
-                    continue;
-                }
-                for (let anchor = patch_array.indexOf(current_key) - 1;; anchor--) {
-                    const anchor_key = patch_array[anchor];
-                    if (anchor >= 0) {
-                        const anchor_self_version = this.version_item(anchor_key);
-                        if (anchor_self_version === 0)
-                            continue;
-                        if (anchor_self_version > this.clock.version_from(patch_stamps.get(anchor_key)))
-                            continue;
-                    }
-                    let next_pos = anchor_key !== undefined ? this.array.indexOf(anchor_key) + 1 : 0;
-                    while (next_pos < this.array.length) {
-                        if (this.version_item(this.array[next_pos]) <= current_patch_version)
-                            break;
-                        next_pos++;
-                    }
-                    if (current_self_stamp <= 0) {
-                        this.array.splice(next_pos, 0, current_key);
-                        break;
-                    }
-                    const current_pos = this.array.indexOf(current_key);
-                    if (current_pos === next_pos)
-                        break;
-                    if (current_pos > next_pos) {
-                        this.array.splice(next_pos, current_pos - next_pos + 1, current_key, ...this.array.slice(next_pos, current_pos));
-                    }
-                    else {
-                        this.array.splice(current_pos, next_pos - current_pos + 1, ...this.array.slice(current_pos + 1, next_pos + 1), current_key);
-                    }
-                    break;
-                }
-            }
-            return this;
-        }
-    }
-    $.$hyoo_crowd_list = $hyoo_crowd_list;
-})($ || ($ = {}));
-//list.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_reg extends $.$hyoo_crowd_store {
-        _value = null;
-        _stamp = 0;
-        _mult = 1;
-        get version() {
-            return this.clock.version_from(this._stamp);
-        }
-        str(next) {
-            return String(this.value(next) ?? '');
-        }
-        numb(next) {
-            return Number(this.value(next) ?? 0);
-        }
-        bool(next) {
-            return Boolean(this.value(next) ?? false);
-        }
-        delta(clock = new $.$hyoo_crowd_clock, delta = this.clock.delta([], [])) {
-            if (clock.is_new(this._stamp)) {
-                delta.values.push(this._value);
-                delta.stamps.push(this._stamp);
-            }
-            return delta;
-        }
-        value(next) {
-            if (next === undefined)
-                return this._value;
-            if (this._value === next)
-                return this._value;
-            this._value = next;
-            this.clock.feed(this._stamp = this._mult * this.clock.generate());
-            return next;
-        }
-        apply(delta) {
-            for (let i = 0; i < delta.values.length; ++i) {
-                const val = delta.values[i];
-                const stamp = delta.stamps[i];
-                this.clock.feed(stamp);
-                if (this._mult * stamp <= this._mult * this._stamp)
-                    continue;
-                this._value = val;
-                this._stamp = stamp;
-            }
-            return this;
-        }
-    }
-    $.$hyoo_crowd_reg = $hyoo_crowd_reg;
-    class $hyoo_crowd_reg_back extends $hyoo_crowd_reg {
-        _mult = -1;
-    }
-    $.$hyoo_crowd_reg_back = $hyoo_crowd_reg_back;
-})($ || ($ = {}));
-//reg.js.map
+//text.js.map
 ;
 "use strict";
 //equals.js.map
@@ -5292,7 +4997,7 @@ var $;
                 optional(unicode_only('Emoji_Modifier')),
                 repeat_greedy([
                     unicode_only('Emoji_Component'),
-                    unicode_only('Extended_Pictographic'),
+                    unicode_only('Emoji'),
                     optional(unicode_only('Emoji_Modifier')),
                 ]),
             ],
@@ -5324,128 +5029,293 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crowd_text extends $.$hyoo_crowd_dict.of({
-        flow: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_list }),
-        token: $.$hyoo_crowd_dict.of({ val: $.$hyoo_crowd_reg }),
-    }) {
-        get root() {
-            return this.for('flow').for(null);
+    class $hyoo_crowd_branch {
+        tree;
+        heads;
+        constructor(tree, heads) {
+            this.tree = tree;
+            this.heads = heads;
         }
-        get tokens() {
-            return this.root.items();
+        sub(data) {
+            let chunks = this.chunks().filter(chunk => chunk.data === data);
+            if (!chunks.length) {
+                this.insert([data], 0);
+                chunks.push(this.chunks()[0]);
+            }
+            return new $hyoo_crowd_branch(this.tree, chunks.map(chunk => chunk.self));
         }
-        value_of(token) {
-            return this.for('token').for(token).str();
+        chunks() {
+            return [].concat(...this.heads.map(head => this.tree.chunk_alive(head)));
         }
-        text(next) {
+        branches() {
+            return this.chunks().map(chunk => this.tree.branch(chunk.self));
+        }
+        value(next) {
+            const chunks = this.chunks();
+            let last;
+            for (const chunk of chunks) {
+                if (!last || chunk.prefer(last))
+                    last = chunk;
+            }
             if (next === undefined) {
-                const tokens = this.for('token');
-                return this.tokens.map(id => tokens.for(id).str()).join('');
+                return last?.data ?? null;
             }
             else {
-                this.splice_line(null, 0, this.root.count, next);
+                if (last?.data === next)
+                    return next;
+                for (const chunk of chunks) {
+                    if (chunk === last)
+                        continue;
+                    this.tree.wipe(chunk);
+                }
+                this.tree.put(this.heads[0], last?.self ?? this.tree.id_new(), 0, next);
                 return next;
             }
         }
-        point_by_offset(offset) {
-            for (const token of this.tokens) {
-                const len = this.value_of(token).length;
-                if (offset < len)
-                    return [token, offset];
-                else
-                    offset -= len;
-            }
-            return [0, 0];
+        str(next) {
+            return String(this.value(next) ?? '');
         }
-        offset_by_point(point) {
-            let offset = 0;
-            for (const token of this.tokens) {
-                if (token === point[0])
-                    return offset + point[1];
-                offset += this.value_of(token).length;
-            }
-            return offset;
+        numb(next) {
+            return Number(this.value(next) ?? 0);
         }
-        splice_line(id, from, to, text) {
-            const flow = this.for('flow').for(id);
-            const token_ids = flow.items_internal;
-            const tokens = this.for('token');
-            const words = [...text.matchAll($.$hyoo_crowd_text_tokenizer)];
-            while (from < to || words.length > 0) {
-                const prev = from < token_ids.length ? tokens.for(token_ids[from]).str() : null;
-                const next = words.length ? words[0][0] : '';
-                const min_len = Math.max(1, Math.min(prev?.length ?? 0, next.length) - 1);
-                if (prev === next) {
-                    ++from;
-                    words.shift();
+        bool(next) {
+            return Boolean(this.value(next) ?? false);
+        }
+        count() {
+            return this.chunks().length;
+        }
+        list(next) {
+            if (next === undefined) {
+                return this.chunks().map(chunk => chunk.data);
+            }
+            else {
+                this.insert(next, 0, this.count());
+                return next;
+            }
+        }
+        insert(next, from = this.count(), to = from) {
+            let prev = this.chunks();
+            let p = from;
+            let n = 0;
+            let lead = p ? prev[p - 1].self : 0;
+            while (p < to || n < next.length) {
+                if (p < to && n < next.length && prev[p].data === next[n]) {
+                    lead = prev[p].self;
+                    ++p;
+                    ++n;
                 }
-                else if (prev && next && (prev.slice(0, min_len) === next.slice(0, min_len))) {
-                    tokens.for(token_ids[from]).str(next);
-                    ++from;
-                    words.shift();
+                else if (next.length - n > to - p) {
+                    lead = this.tree.put(this.heads[0], this.tree.id_new(), lead, next[n]).self;
+                    ++n;
                 }
-                else if (words.length > to - from) {
-                    let key;
-                    do {
-                        key = Math.floor(Math.random() * 1_000_000);
-                    } while (tokens.has(key));
-                    tokens.for(key).str(next);
-                    flow.insert(key, from);
-                    words.shift();
-                    ++from;
-                    ++to;
-                }
-                else if (words.length < to - from) {
-                    flow.cut(token_ids[from]);
-                    --to;
+                else if (next.length - n < to - p) {
+                    lead = this.tree.wipe(prev[p]).self;
+                    ++p;
                 }
                 else {
-                    tokens.for(token_ids[from]).str(next);
-                    ++from;
-                    words.shift();
+                    lead = this.tree.put(prev[p].head, prev[p].self, lead, next[n]).self;
+                    ++p;
+                    ++n;
                 }
             }
-            return this;
         }
-        write(text, offset = -1, count = 0) {
-            if (offset < 0)
-                return this.splice_line(null, this.root.items_internal.length, 0, text);
-            const flow = this.for('flow').for(null);
-            const token_ids = flow.items_internal;
-            const tokens = this.for('token');
-            let from = 0;
+        text(next) {
+            if (next === undefined) {
+                return this.list().join('');
+            }
+            else {
+                this.write(next, 0, -1);
+                return next;
+            }
+        }
+        write(next, str_from = -1, str_to = str_from) {
+            const list = this.chunks();
+            let from = str_from < 0 ? list.length : 0;
             let word = '';
-            while (true) {
-                if (from >= token_ids.length)
-                    break;
-                word = tokens.for(token_ids[from]).str();
-                if (offset <= word.length) {
-                    text = word.slice(0, offset) + text;
-                    count += offset;
+            while (from < list.length) {
+                word = String(list[from].data);
+                if (str_from <= word.length) {
+                    next = word.slice(0, str_from) + next;
                     break;
                 }
-                offset -= word.length;
+                str_from -= word.length;
+                if (str_to > 0)
+                    str_to -= word.length;
                 from++;
             }
-            let to = from;
-            while (true) {
-                if (to >= token_ids.length)
-                    break;
-                word = tokens.for(token_ids[to]).str();
+            let to = str_to < 0 ? list.length : from;
+            while (to < list.length) {
+                word = String(list[to].data);
                 to++;
-                if (count < word.length) {
-                    text = text + word.slice(count);
+                if (str_to < word.length) {
+                    next = next + word.slice(str_to);
                     break;
                 }
-                count -= word.length;
+                str_to -= word.length;
             }
-            this.splice_line(null, from, to, text);
+            if (from && from === list.length) {
+                --from;
+                next = String(list[from].data) + next;
+            }
+            const words = [...next.matchAll($.$hyoo_crowd_text_tokenizer)].map(token => token[0]);
+            this.insert(words, from, to);
             return this;
         }
+        move(from, to) {
+            const chunks = this.chunks();
+            const lead = to ? chunks[to - 1].self : 0;
+            return this.tree.move(chunks[from], this.heads[0], lead);
+        }
+        cut(seat) {
+            return this.tree.wipe(this.chunks()[seat]);
+        }
     }
-    $.$hyoo_crowd_text = $hyoo_crowd_text;
+    $.$hyoo_crowd_branch = $hyoo_crowd_branch;
 })($ || ($ = {}));
-//text.js.map
+//branch.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_tree {
+        peer;
+        constructor(peer = 0) {
+            this.peer = peer;
+            if (!peer)
+                this.peer = this.id_new();
+        }
+        clock = new $.$hyoo_crowd_clock;
+        _chunk_all = new Map();
+        _chunk_lists = new Map();
+        _chunk_alive = new Map();
+        size() {
+            return this._chunk_all.size;
+        }
+        chunk(head, self) {
+            return this._chunk_all.get(`${head}/${self}`) ?? null;
+        }
+        chunk_list(head) {
+            let chunks = this._chunk_lists.get(head);
+            if (!chunks)
+                this._chunk_lists.set(head, chunks = []);
+            return chunks;
+        }
+        chunk_alive(head) {
+            let chunks = this._chunk_alive.get(head);
+            if (!chunks) {
+                chunks = this.chunk_list(head).filter(chunk => chunk.data !== null);
+                this._chunk_alive.set(head, chunks);
+            }
+            return chunks;
+        }
+        root = this.branch(0);
+        branch(head) {
+            return new $.$hyoo_crowd_branch(this, [head]);
+        }
+        id_new() {
+            return 1 + Math.floor(Math.random() * (2 ** (6 * 8) - 2));
+        }
+        fork(peer) {
+            return new $hyoo_crowd_tree(peer).apply(this.delta());
+        }
+        delta(clock = new $.$hyoo_crowd_clock) {
+            const delta = [];
+            for (const chunk of this._chunk_all.values()) {
+                if (!chunk?.guid)
+                    continue;
+                const time = clock.get(chunk.peer);
+                if (time && chunk.time <= time)
+                    continue;
+                delta.push(chunk);
+            }
+            delta.sort((left, right) => left.prefer(right) ? 1 : -1);
+            return delta;
+        }
+        toJSON() {
+            return this.delta();
+        }
+        resort(head) {
+            const chunks = this._chunk_lists.get(head);
+            const queue = chunks.splice(0).sort((left, right) => {
+                if (left.seat > right.seat)
+                    return +1;
+                if (left.seat < right.seat)
+                    return -1;
+                if (left.prefer(right))
+                    return +1;
+                else
+                    return -1;
+            });
+            for (const kid of queue) {
+                let leader = kid.lead ? this.chunk(head, kid.lead) : null;
+                let index = leader ? chunks.indexOf(leader) + 1 : 0;
+                if (index === 0 && leader)
+                    index = chunks.length;
+                if (index < kid.seat) {
+                    index = chunks.length;
+                }
+                chunks.splice(index, 0, kid);
+            }
+            this._chunk_lists.set(head, chunks);
+            return chunks;
+        }
+        apply(delta) {
+            const unordered = new Set();
+            for (const next of delta) {
+                this.clock.see(next.peer, next.time);
+                const chunks = this.chunk_list(next.head);
+                let prev = this._chunk_all.get(next.guid);
+                if (prev) {
+                    if (prev.prefer(next))
+                        continue;
+                    chunks.splice(chunks.indexOf(prev), 1, next);
+                }
+                else {
+                    chunks.push(next);
+                }
+                this._chunk_all.set(next.guid, next);
+                unordered.add(next.head);
+            }
+            for (const head of unordered) {
+                this.resort(head);
+                this._chunk_alive.set(head, undefined);
+            }
+            return this;
+        }
+        put(head, self, lead, data) {
+            let chunk_old = this.chunk(head, self);
+            let chunk_lead = lead ? this.chunk(head, lead) : null;
+            const chunk_list = this.chunk_list(head);
+            if (chunk_old) {
+                chunk_list.splice(chunk_list.indexOf(chunk_old), 1);
+            }
+            let seat = chunk_lead ? chunk_list.indexOf(chunk_lead) + 1 : 0;
+            const chunk_new = new $.$hyoo_crowd_chunk(head, self, lead, seat, this.peer, this.clock.tick(this.peer), data);
+            this._chunk_all.set(chunk_new.guid, chunk_new);
+            chunk_list.splice(seat, 0, chunk_new);
+            this._chunk_alive.set(head, undefined);
+            return chunk_new;
+        }
+        wipe(chunk) {
+            if (chunk.data === null)
+                return chunk;
+            for (const kid of this.chunk_list(chunk.self)) {
+                this.wipe(kid);
+            }
+            return this.put(chunk.head, chunk.self, chunk.lead, null);
+        }
+        move(chunk, head, lead) {
+            this.wipe(chunk);
+            return this.put(head, chunk.self, lead, chunk.data);
+        }
+        insert(chunk, head, seat) {
+            const lead = seat ? this.chunk_list(head)[seat - 1].self : 0;
+            return this.move(chunk, head, lead);
+        }
+    }
+    $.$hyoo_crowd_tree = $hyoo_crowd_tree;
+})($ || ($ = {}));
+//tree.js.map
 ;
 "use strict";
 var $;
@@ -7541,7 +7411,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/text/text.view.css", "[mol_text] {\n\tline-height: 1.5em;\n\tbox-sizing: border-box;\n\tmax-width: 60rem;\n\tpadding: var(--mol_gap_block);\n\tborder-radius: var(--mol_gap_round);\n\twhite-space: pre-line;\n\tdisplay: flex;\n\tflex-direction: column;\n\tflex: 0 0 auto;\n\ttab-size: 4;\n}\n\n[mol_text_row] {\n\tmargin: var(--mol_gap_text);\n\toverflow: auto;\n\tmax-width: 100%;\n\tdisplay: block;\n}\n\n[mol_text_span] {\n\tdisplay: inline;\n}\n\n[mol_text_string] {\n\tdisplay: inline;\n}\n\n[mol_text_quote] {\n\tbox-shadow: inset 1px 0 0px 0px var(--mol_theme_line);\n}\n\n[mol_text_header] {\n\tdisplay: block;\n\tpadding: var(--mol_gap_block);\n\tfont-weight: 500;\n}\n\n[mol_text_header_level=\"1\"] {\n\tfont-size: 1.5em;\n}\n\n[mol_text_header_level=\"2\"] {\n\tfont-size: 1.3em;\n}\n\n[mol_text_header_level=\"3\"] {\n\tfont-size: 1.1em;\n}\n\n[mol_text_header_level=\"4\"] {\n\tfont-size: 1.1em;\n\tfont-style: italic;\n}\n\n[mol_text_header_level=\"5\"] {\n\tfont-size: 1.1em;\n\tfont-weight: normal;\n\tfont-style: italic;\n}\n\n[mol_text_type=\"list-item\"] {\n\tdisplay: list-item;\n}\n\n[mol_text_type=\"list-item\"]:before {\n\tcontent: '•';\n\tmargin-right: 1ch;\n}\n\n[mol_text_table] {\n\tmax-width: 100%;\n\tmax-height: 75vh;\n\toverflow: auto;\n\tmargin: .5rem;\n\tflex-grow: 0;\n}\n\n[mol_text_type=\"code-indent\"] ,\n[mol_text_type=\"code\"] {\n\tfont-family: var(--mol_skin_font_monospace);\n\twhite-space: pre-wrap;\n\tborder-radius: var(--mol_gap_round);\n}\n\n[mol_text_type=\"text-link\"] {\n\tcolor: var(--mol_theme_control);\n\ttext-decoration: none;\n\tpadding: 0 .25rem 0 0;\n}\n\n[mol_text_link]:hover ,\n[mol_text_link]:focus {\n\toutline: none;\n}\n\n[mol_text_image] {\n\tmax-width: 100%;\n\tmax-height: 75vh;\n\tobject-fit: scale-down;\n}\n\n[mol_text_type=\"strong\"] {\n\tcolor: var(--mol_theme_focus);\n}\n\n[mol_text_type=\"emphasis\"] {\n\tfont-style: italic;\n}\n\n[mol_text_type=\"strike\"] {\n\ttext-decoration: line-through;\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_text_type=\"code-keyword\"] {\n\tcolor: hsl(0, 70%, 60%);\n}\n\n[mol_text_type=\"code-field\"] {\n\tcolor: hsl(300, 70%, 60%);\n}\n\n[mol_text_type=\"code-tag\"] {\n\tcolor: hsl(330, 70%, 60%);\n}\n\n[mol_text_type=\"code-global\"] {\n\tcolor: hsl(210, 80%, 40%);\n}\n\n[mol_text_type=\"code-decorator\"] {\n\tcolor: hsl(180, 40%, 60%);\n}\n\n[mol_text_type=\"code-punctuation\"] {\n\tcolor: hsl( 0, 0%, 50% );\n}\n\n[mol_text_type=\"code-string\"] {\n\tcolor: hsl(90, 40%, 40%);\n}\n\n[mol_text_type=\"code-number\"] {\n\tcolor: hsl(60, 70%, 30%);\n}\n\n[mol_text_type=\"code-call\"] {\n\tcolor: hsl(270, 60%, 60%);\n}\n\n[mol_text_type=\"code-link\"] {\n\tcolor: hsl(240, 60%, 60%);\n}\n\n[mol_text_type=\"code-comment-inline\"] ,\n[mol_text_type=\"code-comment-block\"] {\n\topacity: .5;\n}\n\n[mol_text_type=\"code-docs\"] {\n\topacity: .75;\n}\n");
+    $.$mol_style_attach("mol/text/text.view.css", "[mol_text] {\n\tline-height: 1.5em;\n\tbox-sizing: border-box;\n\tmax-width: 60rem;\n\tpadding: var(--mol_gap_block);\n\tborder-radius: var(--mol_gap_round);\n\twhite-space: pre-line;\n\tdisplay: flex;\n\tflex-direction: column;\n\tflex: 0 0 auto;\n\ttab-size: 4;\n}\n\n[mol_text_row] {\n\tmargin: var(--mol_gap_text);\n\toverflow: auto;\n\tmax-width: 100%;\n\tdisplay: block;\n}\n\n[mol_text_span] {\n\tdisplay: inline;\n}\n\n[mol_text_string] {\n\tdisplay: inline;\n}\n\n[mol_text_quote] {\n\tbox-shadow: inset 1px 0 0px 0px var(--mol_theme_line);\n}\n\n[mol_text_header] {\n\tdisplay: block;\n\tpadding: var(--mol_gap_block);\n\ttext-shadow: 0 0;\n}\n\n[mol_text_header_level=\"1\"] {\n\tfont-size: 1.5em;\n}\n\n[mol_text_header_level=\"2\"] {\n\tfont-size: 1.3em;\n}\n\n[mol_text_header_level=\"3\"] {\n\tfont-size: 1.1em;\n}\n\n[mol_text_header_level=\"4\"] {\n\tfont-size: 1.1em;\n\tfont-style: italic;\n}\n\n[mol_text_header_level=\"5\"] {\n\tfont-size: 1.1em;\n\tfont-weight: normal;\n\tfont-style: italic;\n}\n\n[mol_text_type=\"list-item\"] {\n\tdisplay: list-item;\n}\n\n[mol_text_type=\"list-item\"]:before {\n\tcontent: '•';\n\tmargin-right: 1ch;\n}\n\n[mol_text_table] {\n\tmax-width: 100%;\n\tmax-height: 75vh;\n\toverflow: auto;\n\tmargin: .5rem;\n\tflex-grow: 0;\n}\n\n[mol_text_type=\"code-indent\"] ,\n[mol_text_type=\"code\"] {\n\tfont-family: var(--mol_skin_font_monospace);\n\twhite-space: pre-wrap;\n\tborder-radius: var(--mol_gap_round);\n}\n\n[mol_text_type=\"text-link\"] {\n\tcolor: var(--mol_theme_control);\n\ttext-decoration: none;\n\tpadding: 0 .25rem 0 0;\n}\n\n[mol_text_link]:hover ,\n[mol_text_link]:focus {\n\toutline: none;\n}\n\n[mol_text_image] {\n\tmax-width: 100%;\n\tmax-height: 75vh;\n\tobject-fit: scale-down;\n}\n\n[mol_text_type=\"strong\"] {\n\tcolor: var(--mol_theme_focus);\n}\n\n[mol_text_type=\"emphasis\"] {\n\tfont-style: italic;\n}\n\n[mol_text_type=\"strike\"] {\n\ttext-decoration: line-through;\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_text_type=\"code-keyword\"] {\n\tcolor: hsl(0, 70%, 60%);\n}\n\n[mol_text_type=\"code-field\"] {\n\tcolor: hsl(300, 70%, 60%);\n}\n\n[mol_text_type=\"code-tag\"] {\n\tcolor: hsl(330, 70%, 60%);\n}\n\n[mol_text_type=\"code-global\"] {\n\tcolor: hsl(210, 80%, 40%);\n}\n\n[mol_text_type=\"code-decorator\"] {\n\tcolor: hsl(180, 40%, 60%);\n}\n\n[mol_text_type=\"code-punctuation\"] {\n\tcolor: hsl( 0, 0%, 50% );\n}\n\n[mol_text_type=\"code-string\"] {\n\tcolor: hsl(90, 40%, 40%);\n}\n\n[mol_text_type=\"code-number\"] {\n\tcolor: hsl(60, 70%, 30%);\n}\n\n[mol_text_type=\"code-call\"] {\n\tcolor: hsl(270, 60%, 60%);\n}\n\n[mol_text_type=\"code-link\"] {\n\tcolor: hsl(240, 60%, 60%);\n}\n\n[mol_text_type=\"code-comment-inline\"] ,\n[mol_text_type=\"code-comment-block\"] {\n\topacity: .5;\n}\n\n[mol_text_type=\"code-docs\"] {\n\topacity: .75;\n}\n");
 })($ || ($ = {}));
 //text.view.css.js.map
 ;
@@ -7738,6 +7608,44 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    class $mol_section extends $.$mol_list {
+        rows() {
+            return [
+                this.Head(),
+                this.Content()
+            ];
+        }
+        head() {
+            return [
+                this.title()
+            ];
+        }
+        Head() {
+            const obj = new this.$.$mol_view();
+            obj.sub = () => this.head();
+            return obj;
+        }
+        Content() {
+            return null;
+        }
+    }
+    __decorate([
+        $.$mol_mem
+    ], $mol_section.prototype, "Head", null);
+    $.$mol_section = $mol_section;
+})($ || ($ = {}));
+//section.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_style_attach("mol/section/section.view.css", "[mol_section_head] {\n\tfont-size: 1.5rem;\n\tline-height: 2.5rem;\n\tdisplay: flex;\n\tjustify-content: space-between;\n\talign-items: flex-end;\n\tflex-wrap: wrap;\n\ttext-shadow: 0 0;\n}\n");
+})($ || ($ = {}));
+//section.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
     class $hyoo_crowd_app extends $.$mol_book2 {
         Placeholder() {
             return null;
@@ -7827,7 +7735,7 @@ var $;
     $.$hyoo_crowd_app = $hyoo_crowd_app;
     class $hyoo_crowd_app_peer extends $.$mol_page {
         store() {
-            const obj = new this.$.$hyoo_crowd_text();
+            const obj = new this.$.$hyoo_crowd_tree();
             return obj;
         }
         sync() {
@@ -7836,7 +7744,8 @@ var $;
         body() {
             return [
                 this.Text(),
-                this.Stats()
+                this.Stats(),
+                this.Delta_section()
             ];
         }
         hint() {
@@ -7855,11 +7764,25 @@ var $;
             return obj;
         }
         stats() {
-            return "# Stats\n\nPeer: **{peer}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Stamp | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n\n# Delta\n```\n{dump:delta}\n```";
+            return "# Stats\n\nPeer: **{peer}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Time | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n";
         }
         Stats() {
             const obj = new this.$.$mol_text();
             obj.text = () => this.stats();
+            return obj;
+        }
+        delta() {
+            return {};
+        }
+        Delta() {
+            const obj = new this.$.$mol_grid();
+            obj.records = () => this.delta();
+            return obj;
+        }
+        Delta_section() {
+            const obj = new this.$.$mol_section();
+            obj.title = () => "Delta";
+            obj.Content = () => this.Delta();
             return obj;
         }
     }
@@ -7875,6 +7798,12 @@ var $;
     __decorate([
         $.$mol_mem
     ], $hyoo_crowd_app_peer.prototype, "Stats", null);
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_crowd_app_peer.prototype, "Delta", null);
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_crowd_app_peer.prototype, "Delta_section", null);
     $.$hyoo_crowd_app_peer = $hyoo_crowd_app_peer;
 })($ || ($ = {}));
 //app.view.tree.js.map
@@ -7891,11 +7820,18 @@ var $;
                 shrink: 0,
                 basis: rem(20),
             },
+            Body: {
+                padding: 0,
+            },
             Text: {
                 margin: $.$mol_gap.block,
                 flex: {
                     grow: 0,
                 },
+            },
+            Delta_section: {
+                margin: $.$mol_gap.block,
+                padding: $.$mol_gap.block,
             },
         });
     })($$ = $.$$ || ($.$$ = {}));
@@ -7918,8 +7854,8 @@ var $;
                 const right_delta = this.Right().delta();
                 this.Left().store().apply(right_delta);
                 this.Right().store().apply(left_delta);
-                this.Left().sync_clock(this.Left().store().clock.fork(0));
-                this.Right().sync_clock(this.Right().store().clock.fork(0));
+                this.Left().sync_clock(new $.$hyoo_crowd_clock(this.Left().store().clock));
+                this.Right().sync_clock(new $.$hyoo_crowd_clock(this.Right().store().clock));
                 return Math.random();
             }
         }
@@ -7933,7 +7869,7 @@ var $;
             }
             text(next) {
                 this.sync();
-                return this.store().text(next);
+                return this.store().root.text(next);
             }
             delta() {
                 this.text();
@@ -7942,22 +7878,25 @@ var $;
             changes() {
                 this.text();
                 const clock = this.store().clock;
-                return clock.index_from(clock.version_max) - clock.index_from(this.sync_clock().version_max);
+                return clock.now - this.sync_clock().now;
             }
             size_state() {
                 this.text();
-                return JSON.stringify(this.store()).length;
+                return $.$mol_charset_encode(JSON.stringify(this.store())).length;
             }
             size_delta() {
-                return JSON.stringify(this.delta()).length;
+                return $.$mol_charset_encode(JSON.stringify(this.delta())).length;
+            }
+            size_text() {
+                return $.$mol_charset_encode(this.text()).length;
             }
             tokens_alive() {
                 this.text();
-                return this.store().root.items_internal.length;
+                return this.store().root.list().length;
             }
             tokens_total() {
                 this.text();
-                return this.store().for('token').stores.size;
+                return this.store().size();
             }
             tokens_dead() {
                 return this.tokens_total() - this.tokens_alive();
@@ -7965,17 +7904,16 @@ var $;
             stats() {
                 this.text();
                 return super.stats()
-                    .replace('{peer}', this.store().clock.peer.toLocaleString())
+                    .replace('{peer}', this.store().peer.toLocaleString())
                     .replace('{changes}', this.changes().toLocaleString())
                     .replace('{tokens:alive}', this.tokens_alive().toLocaleString())
                     .replace('{tokens:dead}', this.tokens_dead().toLocaleString())
                     .replace('{tokens:total}', this.tokens_total().toLocaleString())
-                    .replace('{stamp:now}', this.store().clock.version_max.toLocaleString())
-                    .replace('{stamp:sync}', this.sync_clock().version_max.toLocaleString())
-                    .replace('{size:text}', this.text().length.toLocaleString())
+                    .replace('{stamp:now}', this.store().clock.now.toLocaleString())
+                    .replace('{stamp:sync}', this.sync_clock().now.toLocaleString())
+                    .replace('{size:text}', this.size_text().toLocaleString())
                     .replace('{size:state}', this.size_state().toLocaleString())
-                    .replace('{size:delta}', this.size_delta().toLocaleString())
-                    .replace('{dump:delta}', JSON.stringify(this.delta()));
+                    .replace('{size:delta}', this.size_delta().toLocaleString());
             }
         }
         __decorate([
