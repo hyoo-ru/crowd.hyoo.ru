@@ -1,7 +1,7 @@
 namespace $ {
 	
 	/** Conflict-free Reinterpretable Ordered Washed Data Tree */
-	export class $hyoo_crowd_tree {
+	export class $hyoo_crowd_doc {
 		
 		constructor(
 			readonly peer = 0
@@ -78,7 +78,7 @@ namespace $ {
 		
 		/** Makes independent clone with defined peer. */
 		fork( peer: number ) {
-			return new $hyoo_crowd_tree( peer ).apply( this.delta() )
+			return new $hyoo_crowd_doc( peer ).apply( this.delta() )
 		}
 		
 		/** Makes Delta betwteen Clock and now. */

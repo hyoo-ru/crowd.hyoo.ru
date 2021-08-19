@@ -4,7 +4,7 @@ namespace $ {
 	export class $hyoo_crowd_branch {
 		
 		constructor(
-			readonly tree: $hyoo_crowd_tree,
+			readonly tree: $hyoo_crowd_doc,
 			readonly head: $hyoo_crowd_chunk['head'],
 		) {}
 		

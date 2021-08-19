@@ -3,7 +3,7 @@ namespace $ {
 		
 		'Default state'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			
 			$mol_assert_like( store.root.value(), null )
 			$mol_assert_like( store.root.bool(), false )
@@ -16,7 +16,7 @@ namespace $ {
 		
 		'Serial changes'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			$mol_assert_like( store.root.value(), null )
 			$mol_assert_like( store.root.list(), [] )
 			
@@ -48,7 +48,7 @@ namespace $ {
 		
 		'Name spaces'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			
 			store.root.sub( 'foo' ).sub( 'bar' ).numb( 111 )
 			store.root.sub( 'foo' ).sub( 'ton' ).numb( 222 )
@@ -62,10 +62,10 @@ namespace $ {
 		
 		'Name spaces merging'() {
 			
-			const left = new $hyoo_crowd_tree( 123 )
+			const left = new $hyoo_crowd_doc( 123 )
 			left.root.sub( 'foo' ).list([ 111 ])
 			
-			const right = new $hyoo_crowd_tree( 234 )
+			const right = new $hyoo_crowd_doc( 234 )
 			right.root.sub( 'foo' ).list([ 222 ])
 			
 			const left_delta = left.delta()
@@ -84,7 +84,7 @@ namespace $ {
 		
 		'Ignore same changes'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.str( 'foo' )
 			store.root.str( 'foo' )
 			store.root.list( [ 'foo' ] )
@@ -98,7 +98,7 @@ namespace $ {
 		
 		'Serial insert values'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			
 			store.root.insert([ 'foo' ])
 			store.root.insert([ 'bar' ])
@@ -109,7 +109,7 @@ namespace $ {
 		
 		'Concurent insert values'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			
 			store.root.insert( [ 'foo' ], 0 )
 			store.root.insert( [ 'bar' ], 0 )
@@ -120,7 +120,7 @@ namespace $ {
 		
 		'Insert value between others'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			
 			store.root.insert([ 'foo' ])
 			store.root.insert([ 'bar' ])
@@ -132,7 +132,7 @@ namespace $ {
 		
 		'Insert value inside other'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			
 			store.root.insert([ 'foo' ])
 			store.root.branches()[0].insert([ 'bar' ])
@@ -144,7 +144,7 @@ namespace $ {
 		
 		'Move existen Chunk'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			
 			store.root.text( 'foo.bar.lol.' )
 			store.root.move( 0, 2 )
@@ -155,7 +155,7 @@ namespace $ {
 		
 		'Deltas for different versions'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			
 			store.root.list( [ 'foo', 'bar', 'lol' ] )
 			
@@ -198,7 +198,7 @@ namespace $ {
 		
 		'Delete with subtree and ignore inserted into deleted'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'foo' )
 			
 			const b2 = store.root.branches()[0]
@@ -221,7 +221,7 @@ namespace $ {
 		
 		'Put/get list'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			$mol_assert_like( store.root.list(), [] )
 			
 			store.root.list( [ 'foo', 'bar', 'foo' ] )
@@ -235,7 +235,7 @@ namespace $ {
 		
 		'Put/get text'() {
 			
-			const store1 = new $hyoo_crowd_tree( 123 )
+			const store1 = new $hyoo_crowd_doc( 123 )
 			
 			store1.root.text( 'foo bar foo' )
 			$mol_assert_like( store1.root.text(), 'foo bar foo' )
@@ -250,7 +250,7 @@ namespace $ {
 		
 		'Text modifications'() {
 			
-			const store1 = new $hyoo_crowd_tree( 123 )
+			const store1 = new $hyoo_crowd_doc( 123 )
 			store1.root.text( 'foo bar' )
 			
 			const store2 = store1.fork( 234 )
@@ -293,7 +293,7 @@ namespace $ {
 		
 		'Change sequences'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			$mol_assert_like( store.root.text(), '' )
 			
 			store.root.text( 'foo' )
@@ -315,10 +315,10 @@ namespace $ {
 		
 		'Merge different sequences'() {
 			
-			const left = new $hyoo_crowd_tree( 123 )
+			const left = new $hyoo_crowd_doc( 123 )
 			left.root.text( 'foo bar.' )
 			
-			const right = new $hyoo_crowd_tree( 234 )
+			const right = new $hyoo_crowd_doc( 234 )
 			right.root.text( 'xxx yyy.' )
 			
 			const left_delta = left.delta()
@@ -337,7 +337,7 @@ namespace $ {
 		
 		'Merge different insertions to same place of same sequence'() {
 			
-			const base = new $hyoo_crowd_tree( 123 )
+			const base = new $hyoo_crowd_doc( 123 )
 			base.root.text( 'foo bar' )
 			
 			const left = base.fork( 234 )
@@ -362,7 +362,7 @@ namespace $ {
 		
 		'Insert after moved'() {
 			
-			const base = new $hyoo_crowd_tree( 123 )
+			const base = new $hyoo_crowd_doc( 123 )
 			base.root.text( 'foo bar zak' )
 			
 			const left = base.fork( 234 )
@@ -387,7 +387,7 @@ namespace $ {
 		
 		'Insert before moved left'() {
 			
-			const base = new $hyoo_crowd_tree( 123 )
+			const base = new $hyoo_crowd_doc( 123 )
 			base.root.text( 'foo bar zak' )
 			
 			const left = base.fork( 234 )
@@ -412,7 +412,7 @@ namespace $ {
 		
 		'Insert before moved right'() {
 			
-			const base = new $hyoo_crowd_tree( 123 )
+			const base = new $hyoo_crowd_doc( 123 )
 			base.root.text( 'foo bar.zak.' )
 			
 			const left = base.fork( 234 )
@@ -437,7 +437,7 @@ namespace $ {
 		
 		'Insert after removed'() {
 			
-			const base = new $hyoo_crowd_tree( 123 )
+			const base = new $hyoo_crowd_doc( 123 )
 			base.root.text( 'foo bar' )
 			
 			const left = base.fork( 234 )
@@ -462,7 +462,7 @@ namespace $ {
 		
 		'Insert after removed out'() {
 			
-			const base = new $hyoo_crowd_tree( 123 )
+			const base = new $hyoo_crowd_doc( 123 )
 			base.branch( 111 ).text( 'foo bar|zak' )
 			
 			const left = base.fork( 234 )
@@ -493,7 +493,7 @@ namespace $ {
 		
 		'Merge text changes'() {
 			
-			const base = new $hyoo_crowd_tree( 123 )
+			const base = new $hyoo_crowd_doc( 123 )
 			base.root.text( 'Hello World and fun!' )
 			
 			const left = base.fork( 234 )
@@ -518,7 +518,7 @@ namespace $ {
 		
 		'Write into token'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'foobar' )
 			store.root.write( 'xyz', 3 )
 			
@@ -528,7 +528,7 @@ namespace $ {
 		
 		'Write into token with split'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'foobar' )
 			store.root.write( 'XYZ', 2, 4 )
 			
@@ -538,7 +538,7 @@ namespace $ {
 		
 		'Write over few tokens'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'xxx foo bar yyy' )
 			store.root.write( 'X Y Z', 6, 9 )
 			
@@ -548,7 +548,7 @@ namespace $ {
 		
 		'Write whole token'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'xxxFoo yyy' )
 			store.root.write( 'bar', 3, 7 )
 			
@@ -558,7 +558,7 @@ namespace $ {
 		
 		'Write whole text'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'foo bar' )
 			store.root.write( 'xxx', 0, 7 )
 			
@@ -568,7 +568,7 @@ namespace $ {
 		
 		'Write at the end'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'foo' )
 			store.root.write( 'bar' )
 			
@@ -578,7 +578,7 @@ namespace $ {
 		
 		'Write between tokens'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'foo bar' )
 			store.root.write( 'xxx', 4 )
 			
@@ -588,7 +588,7 @@ namespace $ {
 
 		'Offset <=> path'() {
 			
-			const store = new $hyoo_crowd_tree( 123 )
+			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'foo bar' )
 			const [ first, second ] = store.root.chunks()
 			

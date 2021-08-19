@@ -22,7 +22,7 @@ $hyoo_crowd_app $mol_book2
 					uri \https://github.com/hyoo-ru/crowd.hyoo.ru/
 
 $hyoo_crowd_app_peer $mol_page
-	store $hyoo_crowd_tree
+	store $hyoo_crowd_doc
 	sync 0
 	body /
 		<= Text $mol_textarea
