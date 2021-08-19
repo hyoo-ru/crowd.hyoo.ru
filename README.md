@@ -95,13 +95,13 @@ Single value store. Just CvRDT LWW-Register.
 
 - `sub( key: string )` Returns inner Node for field name.
 
-Chunk for field isn't required. make derived Head by formula, to lookup Node:
+Chunk for field may be absent. To lookup It internally makes derived Head by formula:
 
 ```javascript
 field_head = hash_48bit( field_name, struct_self )
 ```
 
-So all Peers writes to same Node when uses the same key.
+So all Peers writes to the same Node when uses the same key.
 
 ## Mergeable Ordered List
 
