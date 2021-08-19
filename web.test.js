@@ -2354,9 +2354,9 @@ var $;
         'Insert value inside other'() {
             const store = new $.$hyoo_crowd_doc(123);
             store.root.insert(['foo']);
-            store.root.branches()[0].insert(['bar']);
+            store.root.nodes()[0].insert(['bar']);
             $.$mol_assert_like(store.root.list(), ['foo']);
-            $.$mol_assert_like(store.root.branches()[0].list(), ['bar']);
+            $.$mol_assert_like(store.root.nodes()[0].list(), ['bar']);
         },
         'Move existen Chunk'() {
             const store = new $.$hyoo_crowd_doc(123);
@@ -2386,9 +2386,9 @@ var $;
         'Delete with subtree and ignore inserted into deleted'() {
             const store = new $.$hyoo_crowd_doc(123);
             store.root.text('foo');
-            const b2 = store.root.branches()[0];
+            const b2 = store.root.nodes()[0];
             b2.text('bar');
-            const b3 = b2.branches()[0];
+            const b3 = b2.nodes()[0];
             b3.text('lol');
             $.$mol_assert_like(store.root.value(), 'foo');
             $.$mol_assert_like(b2.value(), 'bar');
@@ -2402,7 +2402,7 @@ var $;
             const store = new $.$hyoo_crowd_doc(123);
             $.$mol_assert_like(store.root.list(), []);
             store.root.list(['foo', 'bar', 'foo']);
-            const first = store.root.branches()[0];
+            const first = store.root.nodes()[0];
             first.list(['bar', 'foo', 'bar']);
             $.$mol_assert_like(store.root.list(), ['foo', 'bar', 'foo']);
             $.$mol_assert_like(first.list(), ['bar', 'foo', 'bar']);
@@ -2533,17 +2533,17 @@ var $;
         },
         'Insert after removed out'() {
             const base = new $.$hyoo_crowd_doc(123);
-            base.branch(111).text('foo bar|zak');
+            base.node(111).text('foo bar|zak');
             const left = base.fork(234);
-            left.branch(111).text('foo bar|xxx zak');
+            left.node(111).text('foo bar|xxx zak');
             const right = base.fork(345);
-            right.insert(right.branch(111).chunks()[1], 222, 0);
+            right.insert(right.node(111).chunks()[1], 222, 0);
             const left_delta = left.delta(base.clock);
             const right_delta = right.delta(base.clock);
             left.apply(right_delta);
             right.apply(left_delta);
-            $.$mol_assert_like(left.branch(111).text(), right.branch(111).text(), 'foo xxx zak');
-            $.$mol_assert_like(left.branch(222).text(), right.branch(222).text(), 'bar|');
+            $.$mol_assert_like(left.node(111).text(), right.node(111).text(), 'foo xxx zak');
+            $.$mol_assert_like(left.node(222).text(), right.node(222).text(), 'bar|');
         },
         'Merge text changes'() {
             const base = new $.$hyoo_crowd_doc(123);
@@ -2615,7 +2615,7 @@ var $;
         },
     });
 })($ || ($ = {}));
-//tree.test.js.map
+//doc.test.js.map
 ;
 "use strict";
 var $;

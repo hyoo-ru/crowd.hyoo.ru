@@ -5045,7 +5045,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crowd_branch {
+    class $hyoo_crowd_node {
         tree;
         head;
         constructor(tree, head) {
@@ -5053,13 +5053,13 @@ var $;
             this.head = head;
         }
         sub(key) {
-            return this.tree.branch($.$mol_hash_string(key, this.head));
+            return this.tree.node($.$mol_hash_string(key, this.head));
         }
         chunks() {
             return this.tree.chunk_alive(this.head);
         }
-        branches() {
-            return this.chunks().map(chunk => this.tree.branch(chunk.self));
+        nodes() {
+            return this.chunks().map(chunk => this.tree.node(chunk.self));
         }
         value(next) {
             const chunks = this.chunks();
@@ -5201,9 +5201,9 @@ var $;
             return this.tree.wipe(this.chunks()[seat]);
         }
     }
-    $.$hyoo_crowd_branch = $hyoo_crowd_branch;
+    $.$hyoo_crowd_node = $hyoo_crowd_node;
 })($ || ($ = {}));
-//branch.js.map
+//node.js.map
 ;
 "use strict";
 var $;
@@ -5239,9 +5239,9 @@ var $;
             }
             return chunks;
         }
-        root = this.branch(0);
-        branch(head) {
-            return new $.$hyoo_crowd_branch(this, head);
+        root = this.node(0);
+        node(head) {
+            return new $.$hyoo_crowd_node(this, head);
         }
         id_new() {
             return 1 + Math.floor(Math.random() * (2 ** (6 * 8) - 2));
@@ -5346,7 +5346,7 @@ var $;
     }
     $.$hyoo_crowd_doc = $hyoo_crowd_doc;
 })($ || ($ = {}));
-//tree.js.map
+//doc.js.map
 ;
 "use strict";
 var $;

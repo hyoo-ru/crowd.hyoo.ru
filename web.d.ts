@@ -1580,13 +1580,13 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    class $hyoo_crowd_branch {
+    class $hyoo_crowd_node {
         readonly tree: $hyoo_crowd_doc;
         readonly head: $hyoo_crowd_chunk['head'];
         constructor(tree: $hyoo_crowd_doc, head: $hyoo_crowd_chunk['head']);
-        sub(key: string): $hyoo_crowd_branch;
+        sub(key: string): $hyoo_crowd_node;
         chunks(): readonly $hyoo_crowd_chunk[];
-        branches(): $hyoo_crowd_branch[];
+        nodes(): $hyoo_crowd_node[];
         value(next?: unknown): unknown;
         str(next?: string): string;
         numb(next?: number): number;
@@ -1621,8 +1621,8 @@ declare namespace $ {
         chunk(head: $hyoo_crowd_chunk['head'], self: $hyoo_crowd_chunk['self']): $hyoo_crowd_chunk | null;
         chunk_list(head: $hyoo_crowd_chunk['head']): $hyoo_crowd_chunk[];
         chunk_alive(head: $hyoo_crowd_chunk['head']): readonly $hyoo_crowd_chunk[];
-        root: $hyoo_crowd_branch;
-        branch(head: $hyoo_crowd_chunk['head']): $hyoo_crowd_branch;
+        root: $hyoo_crowd_node;
+        node(head: $hyoo_crowd_chunk['head']): $hyoo_crowd_node;
         id_new(): number;
         fork(peer: number): $hyoo_crowd_doc;
         delta(clock?: $hyoo_crowd_clock): readonly $hyoo_crowd_chunk[];

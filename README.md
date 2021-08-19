@@ -21,7 +21,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 
 ## Ordered
 
-- Every data have a stable place in the common tree.
+- Every data have a stable place in the document.
 - Wiped data inside some Head stays tombstone to hold place.
 - Interleaving-free.
 
@@ -50,14 +50,14 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 
 # Vocabulary
 
-- **Peer** - independent actor with its own state.
-- **Tree** - Full CROWD document which consists of real chunks and virtual branches. It's actually DAG.
-- **Branch** - A single subtree which represented by one or more chunks in different Heads.
+- **Doc** - Full CROWD document (DAG) which consists of real Chunks and virtual Nodes over them.
+- **Node** - A single subtree which represented by few chunks with same Self in different Heads.
 - **Chunk** - Minimal atomic chunk of data with metadata. It's extended LWW-Register.
   - **Self** -
   - **Head** -
   - **Lead** -
   - **Seat** -
+  - **Peer** - Global unique identifier of independent actor.
   - **Time** -
   - **Data** -
   - **Sign** -
