@@ -12,7 +12,7 @@ namespace $ {
 		readonly clock = new $hyoo_crowd_clock
 		
 		protected _chunk_all = new Map<
-			$hyoo_crowd_chunk['guid'],
+			`${ number }/${ number }`,
 			$hyoo_crowd_chunk
 		>()
 		
@@ -92,15 +92,13 @@ namespace $ {
 			
 			for( const chunk of this._chunk_all.values() ) {
 				
-				if( !chunk?.guid ) continue
-				
 				const time = clock.get( chunk!.peer )
 				if( time && chunk!.time <= time ) continue
 				
 				delta.push( chunk! )
 			}
 			
-			delta.sort( ( left, right )=> left.prefer( right ) ? 1 : -1 )
+			delta.sort( $hyoo_crowd_chunk_compare )
 			
 			return delta as readonly $hyoo_crowd_chunk[]
 		}
@@ -118,8 +116,7 @@ namespace $ {
 			const queue = chunks.splice(0).sort( ( left, right )=> {
 				if( left.seat > right.seat ) return +1
 				if( left.seat < right.seat ) return -1
-				if( left.prefer( right ) ) return +1
-				else return -1
+				return $hyoo_crowd_chunk_compare( left, right )
 			} )
 			
 			for( const kid of queue ) {
@@ -148,16 +145,17 @@ namespace $ {
 				
 				this.clock.see( next.peer, next.time )
 				const chunks = this.chunk_list( next.head )
+				const guid = `${ next.head }/${ next.self }` as const
 				
-				let prev = this._chunk_all.get( next.guid )
+				let prev = this._chunk_all.get( guid )
 				if( prev ) {
-					if( prev.prefer( next ) ) continue
+					if( $hyoo_crowd_chunk_compare( prev, next ) > 0 ) continue
 					chunks.splice( chunks.indexOf( prev ), 1, next )
 				} else {
 					chunks.push( next )
 				}
 				
-				this._chunk_all.set( next.guid, next )
+				this._chunk_all.set( guid, next )
 				chunks.dirty = true
 				this._chunk_alive.set( next.head, undefined )
 				
@@ -210,16 +208,16 @@ namespace $ {
 			
 			let seat = chunk_lead ? chunk_list.indexOf( chunk_lead ) + 1 : 0
 			
-			const chunk_new = new $hyoo_crowd_chunk(
+			const chunk_new: $hyoo_crowd_chunk = {
 				head,
 				self,
 				lead,
 				seat,
-				this.peer,
-				this.clock.tick( this.peer ),
+				peer: this.peer,
+				time: this.clock.tick( this.peer ),
 				data,
-			)
-			this._chunk_all.set( chunk_new.guid, chunk_new )
+			}
+			this._chunk_all.set( `${ chunk_new.head }/${ chunk_new.self }`, chunk_new )
 			
 			chunk_list.splice( seat, 0, chunk_new )
 			this._chunk_alive.set( head, undefined )

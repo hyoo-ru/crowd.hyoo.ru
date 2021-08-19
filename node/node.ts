@@ -30,7 +30,7 @@ namespace $ {
 			let last
 			
 			for( const chunk of chunks ) {
-				if( !last || chunk.prefer( last ) ) last = chunk
+				if( !last || $hyoo_crowd_chunk_compare( chunk, last ) > 0 ) last = chunk
 			}
 			
 			if( next === undefined ) {
