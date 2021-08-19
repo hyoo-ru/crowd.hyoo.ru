@@ -1424,19 +1424,19 @@ declare namespace $.$$ {
 }
 
 declare namespace $ {
-    class $hyoo_crowd_chunk {
+    type $hyoo_crowd_chunk = {
         readonly head: number;
         readonly self: number;
         readonly lead: number;
-        seat: number;
+        readonly seat: number;
         readonly peer: number;
         readonly time: number;
         readonly data: unknown;
-        constructor(head: number, self: number, lead: number, seat: number, peer: number, time: number, data: unknown);
-        get guid(): `${number}/${number}`;
-        get deleted(): boolean;
-        prefer(node: $hyoo_crowd_chunk): boolean;
-    }
+        readonly sign?: Uint8Array & {
+            length: 32;
+        };
+    };
+    function $hyoo_crowd_chunk_compare(left: $hyoo_crowd_chunk, right: $hyoo_crowd_chunk): number;
 }
 
 declare namespace $ {

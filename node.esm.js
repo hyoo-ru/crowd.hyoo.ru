@@ -4840,38 +4840,14 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crowd_chunk {
-        head;
-        self;
-        lead;
-        seat;
-        peer;
-        time;
-        data;
-        constructor(head, self, lead, seat, peer, time, data) {
-            this.head = head;
-            this.self = self;
-            this.lead = lead;
-            this.seat = seat;
-            this.peer = peer;
-            this.time = time;
-            this.data = data;
-        }
-        get guid() {
-            return `${this.head}/${this.self}`;
-        }
-        get deleted() {
-            return this.data === null;
-        }
-        prefer(node) {
-            if (this.time > node.time)
-                return true;
-            if (this.time < node.time)
-                return false;
-            return this.peer > node.peer;
-        }
+    function $hyoo_crowd_chunk_compare(left, right) {
+        if (left.time > right.time)
+            return 1;
+        if (left.time < right.time)
+            return -1;
+        return left.peer - right.peer;
     }
-    $.$hyoo_crowd_chunk = $hyoo_crowd_chunk;
+    $.$hyoo_crowd_chunk_compare = $hyoo_crowd_chunk_compare;
 })($ || ($ = {}));
 //chunk.js.map
 ;
@@ -5274,7 +5250,7 @@ var $;
             const chunks = this.chunks();
             let last;
             for (const chunk of chunks) {
-                if (!last || chunk.prefer(last))
+                if (!last || $.$hyoo_crowd_chunk_compare(chunk, last) > 0)
                     last = chunk;
             }
             if (next === undefined) {
@@ -5464,14 +5440,12 @@ var $;
         delta(clock = new $.$hyoo_crowd_clock) {
             const delta = [];
             for (const chunk of this._chunk_all.values()) {
-                if (!chunk?.guid)
-                    continue;
                 const time = clock.get(chunk.peer);
                 if (time && chunk.time <= time)
                     continue;
                 delta.push(chunk);
             }
-            delta.sort((left, right) => left.prefer(right) ? 1 : -1);
+            delta.sort($.$hyoo_crowd_chunk_compare);
             return delta;
         }
         toJSON() {
@@ -5484,10 +5458,7 @@ var $;
                     return +1;
                 if (left.seat < right.seat)
                     return -1;
-                if (left.prefer(right))
-                    return +1;
-                else
-                    return -1;
+                return $.$hyoo_crowd_chunk_compare(left, right);
             });
             for (const kid of queue) {
                 let leader = kid.lead ? this.chunk(head, kid.lead) : null;
@@ -5507,16 +5478,17 @@ var $;
             for (const next of delta) {
                 this.clock.see(next.peer, next.time);
                 const chunks = this.chunk_list(next.head);
-                let prev = this._chunk_all.get(next.guid);
+                const guid = `${next.head}/${next.self}`;
+                let prev = this._chunk_all.get(guid);
                 if (prev) {
-                    if (prev.prefer(next))
+                    if ($.$hyoo_crowd_chunk_compare(prev, next) > 0)
                         continue;
                     chunks.splice(chunks.indexOf(prev), 1, next);
                 }
                 else {
                     chunks.push(next);
                 }
-                this._chunk_all.set(next.guid, next);
+                this._chunk_all.set(guid, next);
                 chunks.dirty = true;
                 this._chunk_alive.set(next.head, undefined);
             }
@@ -5530,8 +5502,16 @@ var $;
                 chunk_list.splice(chunk_list.indexOf(chunk_old), 1);
             }
             let seat = chunk_lead ? chunk_list.indexOf(chunk_lead) + 1 : 0;
-            const chunk_new = new $.$hyoo_crowd_chunk(head, self, lead, seat, this.peer, this.clock.tick(this.peer), data);
-            this._chunk_all.set(chunk_new.guid, chunk_new);
+            const chunk_new = {
+                head,
+                self,
+                lead,
+                seat,
+                peer: this.peer,
+                time: this.clock.tick(this.peer),
+                data,
+            };
+            this._chunk_all.set(`${chunk_new.head}/${chunk_new.self}`, chunk_new);
             chunk_list.splice(seat, 0, chunk_new);
             this._chunk_alive.set(head, undefined);
             return chunk_new;
