@@ -173,12 +173,7 @@ type Delta = readonly Chunk[]
 ```typescript
 // // Usage from NPM. Isn't required in MAM.
 // import {
-//   $hyoo_crowd_reg,
-//   $hyoo_crowd_union,
-//   $hyoo_crowd_set
-//   $hyoo_crowd_list,
-//   $hyoo_crowd_dict,
-//   $hyoo_crowd_text,
+//   $hyoo_crowd_doc,
 // } from 'hyoo_crowd_lib'
 
 // Create document
@@ -195,10 +190,10 @@ alice.root.sub("foo").str("A2");
 
 // Change register named "foo" then converts it to sequence and insert value
 bob.root.sub("foo").str("B1");
-bob.root.sub("foo").insert([ "B2", "B3" ]);
+bob.root.sub("foo").insert(["B2", "B3"]);
 
 // Serial insert to sequence named "foo"
-carol.root.sub("foo").insert([ "C1", "C2"]);
+carol.root.sub("foo").insert(["C1", "C2"]);
 
 // Make deltas
 const alice_delta = alice.delta(base.clock);
