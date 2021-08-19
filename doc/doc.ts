@@ -18,7 +18,7 @@ namespace $ {
 		
 		protected _chunk_lists = new Map<
 			$hyoo_crowd_chunk['self'],
-			$hyoo_crowd_chunk[]
+			$hyoo_crowd_chunk[] & { dirty: boolean }
 		>()
 		
 		protected _chunk_alive = new Map<
@@ -39,12 +39,12 @@ namespace $ {
 		}
 		
 		/** Returns list of all Chunks for Node. */ 
-		chunk_list(
+		protected chunk_list(
 			head: $hyoo_crowd_chunk['head']
-		): $hyoo_crowd_chunk[] {
+		) {
 			
 			let chunks = this._chunk_lists.get( head )
-			if( !chunks ) this._chunk_lists.set( head, chunks = [] )
+			if( !chunks ) this._chunk_lists.set( head, chunks = Object.assign( [], { dirty: false } ) )
 			
 			return chunks
 		}
@@ -56,7 +56,9 @@ namespace $ {
 			
 			let chunks = this._chunk_alive.get( head )
 			if( !chunks ) {
-				chunks = this.chunk_list( head ).filter( chunk => chunk.data !== null )
+				const all = this.chunk_list( head )
+				if( all.dirty ) this.resort( head )
+				chunks = all.filter( chunk => chunk.data !== null )
 				this._chunk_alive.set( head, chunks )
 			}
 			
@@ -134,14 +136,13 @@ namespace $ {
 			}
 			
 			this._chunk_lists.set( head, chunks )
+			chunks.dirty = false
 			
 			return chunks
 		}
 		
 		/** Applies Delta to current state. */
 		apply( delta: readonly $hyoo_crowd_chunk[] ) {
-			
-			const unordered = new Set< number >()
 			
 			for( const next of delta ) {
 				
@@ -157,7 +158,8 @@ namespace $ {
 				}
 				
 				this._chunk_all.set( next.guid, next )
-				unordered.add( next.head )
+				chunks.dirty = true
+				this._chunk_alive.set( next.head, undefined )
 				
 				// const list = this._chunk_lists.get( next.head )
 				// if( list ) {
@@ -184,11 +186,6 @@ namespace $ {
 				// 	this._chunk_lists.set( next.head, [ next ] )
 				// }
 				
-			}
-			
-			for( const head of unordered ) {
-				this.resort( head )
-				this._chunk_alive.set( head, undefined )
 			}
 			
 			return this
