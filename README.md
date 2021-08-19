@@ -27,7 +27,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 
 ## Washed
 
-- Wiped data complely reoved from state.
+- Wiped data comptely removes from state.
 - Past state can't be reproduced. Snapshots/layers/changelog should be used for this.
 - Small footprint. Metadata size ~= 4x-8x user data size.
 - Garbage collection isn't required.
