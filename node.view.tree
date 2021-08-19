@@ -430,6 +430,12 @@ $mol_text_image $mol_view
 	sub /
 		<= title?val \
 
+$mol_section $mol_list rows /
+	<= Head $mol_view
+		sub <= head /
+			<= title
+	<= Content null
+
 $hyoo_crowd_app $mol_book2
 	Placeholder null
 	plugins /
@@ -454,7 +460,7 @@ $hyoo_crowd_app $mol_book2
 					uri \https://github.com/hyoo-ru/crowd.hyoo.ru/
 
 $hyoo_crowd_app_peer $mol_page
-	store $hyoo_crowd_text
+	store $hyoo_crowd_doc
 	sync 0
 	body /
 		<= Text $mol_textarea
@@ -474,13 +480,13 @@ $hyoo_crowd_app_peer $mol_page
 				\
 				\| | Now | Sync
 				\|--|--|--
-				\| Stamp | **{stamp:now}** | **{stamp:sync}**
+				\| Time | **{stamp:now}** | **{stamp:sync}**
 				\
 				\| | Text | State (JSON) | Delta (JSON)
 				\|--|--|--|--
 				\| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**
 				\
-				\# Delta
-				\```
-				\{dump:delta}
-				\```
+		<= Delta_section $mol_section
+			title \Delta
+			Content <= Delta $mol_grid
+				records <= delta *

@@ -1,42 +1,96 @@
-# Conflict-free Reinterpretable Ordered Washed Data (CROWD)
+# CROWDs
 
-**Under development. Don't use it on production.**
+Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with additional abilities.
 
-![](https://habrastorage.org/webt/lz/d_/kh/lzd_khq4fnql2hgo3zlhfwkebg4.png)
+![](./logo/logo.svg)
 
 # Key Properties
 
 ## Conflict-free
 
 - Any states can be merged without conflicts.
-- Strong Eventual Consistency.
-- Merge result is independent of merge order on different peers.
-- Branch merge is semilattice.
+- Convergence (Strong Eventual Consistency).
+- Merge result is independent of merge order.
+- Merge is semilattice.
 
 ## Reinterpretable
 
-- Same state can be reinterpreted as any CROWD Storage.
-- CROWD Storage type can be changed dynamicaly without data migration.
-- Cross-merge is available between different CROWD Storages.
+- Same state can be reinterpreted as any Type.
+- Type of data can be changed dynamicaly without data migration.
+- Cross-merge between different types is available.
 
 ## Ordered
 
-- Changes from same peer are always ordered and can't be reordered.
-- Deltas from same peer aren't commutative.
-- All deltas are idempotent.
+- Every data have a stable place in the common tree.
+- Wiped data inside some Head stays tombstone to hold place.
+- Interleaving-free.
 
 ## Washed
 
-- Historical data isn't stored (except tombstones).
-- Small footprint. Metadata size ~= user data size.
-- Past state can't be reproduced.
+- Wiped data complely reoved from state.
+- Past state can't be reproduced. Snapshots/layers/changelog should be used for this.
+- Small footprint. Metadata size ~= 4x-8x user data size.
 - Garbage collection isn't required.
 
 ## Data
 
-- Closest to user data as more as possible. Just list of values and list of stamps.
-- Deltas are simple slices of full state.
+- All deltas are idempotent.
+- Closest to user data as more as possible.
+- Every word is just one chunk.
+- Delta is simply slice of full state.
 - Deltas can be merged together to reduce transmit size.
+
+## Secure
+
+- Every chunk can be crypto signed separately.
+- Every peer checks signs and rejects incorrect chunks.
+- Every chunk can be crypto encoded.
+- Conflict-free merge avaailable without decodign.
+- Merging doesn't invalidate signs.
+
+# Vocabulary
+
+- **Peer** - independent actor with its own state.
+- **Tree** - Full CROWD document which consists of real chunks and virtual branches. It's actually DAG.
+- **Branch** - A single subtree which represented by one or more chunks in different Heads.
+- **Chunk** - Minimal atomic chunk of data with metadata. It's extended LWW-Register.
+  - **Self** -
+  - **Head** -
+  - **Lead** -
+  - **Seat** -
+  - **Time** -
+  - **Data** -
+  - **Sign** -
+- **Clock** - Vector clock. Dictionary which maps Peer to Time.
+- **Token** - Minimal meaningfull part of text (single word + punctuation + one space).
+- **Point** -
+- **Range** -
+- **Offset** -
+
+# Data Types Representation
+
+![](./diagram/chunk.svg)
+
+## Atomic JSON
+
+Single value store. Just CvRDT LWW-Register.
+
+- `value( next?: unknown )` Current raw value or `null` by default.
+- `bool( next?: boolean )` Current value as `boolean` or `false` by default.
+- `numb( next?: number )` Current value as `number` or `0` by default.
+- `str( next?: string )` Current value as `string` or `""` by default.
+
+## Mergable Struct
+
+## Mergable Ordered List
+
+## Mergable Ordered Dictionary
+
+## Mergable Text
+
+## Mergable Tree
+
+## Mergable Graph
 
 # Comparison of Approaches
 
@@ -55,11 +109,6 @@
 
 | CROWD | CRDT |
 |-------|------|
-| [CROWD Register](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/reg) | Is same as CvRDT LWW-Register
-| [CROWD Unordered Set](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/set) | Is equal to dCRDT LWW-Element-Set
-| [CROWD Ordered Set](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/list) | No equal type
-| [CROWD Tagged Union](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/union) | No equal type
-| [CROWD Dictionary](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/dict) | No equal type
 | [CROWD Text](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/text) | No equal type
 | CROWD JSON | No equal type
 | CROWD Graph | No equal type
@@ -78,11 +127,20 @@
 
 # State/Delta Format
 
-```javascript
-{
-	"values": ( string | number | boolean | null )[]
-	"stamps": number[] // ints
+```typescript
+type Chunk = {
+    head: number
+    self: number
+    lead: number
+    seat: number
+    peer: number
+    time: number
+    data: unknown
+    sign: null | Uint8Array & { length: 32 }
 }
+
+type State = Chunk[]
+type Delta = readonly Chunk[]
 ```
 
 # Reinterpretations
@@ -91,14 +149,13 @@
 - ⭕ Unexpected but acceptable behaviour.
 - ❌ Unacceptable behaviour in most cases.
 
-| From \ To     | Register              | Unordered Set             | Ordered Set              | Tagged Union      | Dictionary                | Text
-|---------------|-----------------------|---------------------------|--------------------------|-------------------|---------------------------|---------
-| Register      | ✅ Same               | ✅ As key                | ✅ As key                | ⭕ As first type | ❌                        | ❌
-| Unordered Set | ⭕ Last added key     | ✅ Same                  | ✅ Accidental order      | ❌               | ❌                        | ❌
-| Ordered Set   | ⭕ Last inserted key  | ✅ Remain order          | ✅ Same                  | ❌               | ❌                        | ❌
-| Tagged Union  | ✅ Value              | ⭕ Set of type and value | ⭕ Set of type and value | ✅ Same          | ❌                        | ❌
-| Dictionary    | ⭕ Last changed value | ⭕ Set of values         | ⭕ Set of values         | ❌               | ✅ Same                   | ❌
-| Text          | ❌                    | ❌                       | ❌                       | ❌               | ⭕ With keys: flow, token | ✅ Same
+| What \ As  | Atom                        | Struct                           | List               | Dictionary               | Text
+|------------|-----------------------------|----------------------------------|--------------------|--------------------------|-------------------------------------
+| Atom       | ✅ Same                     | ⭕ Nullish fields               | ✅ As single item  | ✅ As key               | ✅ As string as single token
+| Struct     | ⭕ Last changed field value | ✅ Same                         | ⭕ Field values    | ❌ Field values as keys | ⭕ Field values as string as tokens
+| List       | ⭕ Last changed item        | ⭕ Nullish fields               | ✅ Same            | ✅ Items as keys        | ❌ Items as strings as tokens
+| Dictionary | ⭕ Last changed key         | ✅ keys values as fields values | ✅ Keys            | ✅ Same                 | ✅ Keys as tokens
+| Text       | ❌ Last changed token       | ⭕ Nullish fields               | ✅ Tokens          | ❌ Tokens as keys       | ✅ Same
 
 # Usage Example
 
