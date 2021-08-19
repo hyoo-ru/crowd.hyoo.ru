@@ -208,7 +208,7 @@ namespace $ {
 				next = String( list[ from ].data ) + next
 			}
 			
-			const words = [ ... next.matchAll( $hyoo_crowd_text_tokenizer ) ].map( token => token[0] )
+			const words = [ ... next.matchAll( $hyoo_crowd_tokenizer ) ].map( token => token[0] )
 			this.insert( words, from, to )
 			
 			return this

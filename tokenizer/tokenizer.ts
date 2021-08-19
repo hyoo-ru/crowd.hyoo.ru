@@ -2,7 +2,7 @@ namespace $ {
 	
 	const { unicode_only, line_end, repeat_greedy, optional, char_only, char_except } = $mol_regexp 
 	
-	export let $hyoo_crowd_text_tokenizer = $mol_regexp.from({
+	export let $hyoo_crowd_tokenizer = $mol_regexp.from({
 		token: {
 			
 			'line-break': line_end ,
