@@ -214,6 +214,36 @@ namespace $ {
 			return this
 		}
 
+
+		point_by_offset( offset: number ) {
+			
+			let off = offset
+			for( const chunk of this.chunks() ) {
+				
+				const len = String( chunk.data ).length
+				
+				if( off < len ) return { chunk: chunk.self, offset: off }
+				else off -= len
+				
+			}
+			
+			return { chunk: this.head, offset: offset }
+		}
+		
+		offset_by_point( point: { chunk: number, offset: number } ) {
+			
+			let offset = 0
+			
+			for( const chunk of this.chunks() ) {
+				
+				if( chunk.self === point.chunk ) return offset + point.offset
+				
+				offset += String( chunk.data ).length
+			}
+			
+			return offset
+		}
+		
 		move(
 			from: number,
 			to: number,

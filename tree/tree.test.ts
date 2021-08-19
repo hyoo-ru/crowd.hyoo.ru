@@ -585,6 +585,50 @@ namespace $ {
 			$mol_assert_like( store.root.list(), [ 'foo ', 'xxxbar' ] )
 			
 		},
-		
+
+		'Offset <=> path'() {
+			
+			const store = new $hyoo_crowd_tree( 123 )
+			store.root.text( 'foo bar' )
+			const [ first, second ] = store.root.chunks()
+			
+			$mol_assert_like(
+				store.root.point_by_offset( 0 ),
+				{ chunk: first.self, offset: 0 },
+			)
+			$mol_assert_like(
+				store.root.offset_by_point({ chunk: first.self, offset: 0 }),
+				0,
+			)
+			
+			$mol_assert_like(
+				store.root.point_by_offset( 4 ),
+				{ chunk: second.self, offset: 0 },
+			)
+			$mol_assert_like(
+				store.root.offset_by_point({ chunk: second.self, offset: 0 }),
+				4,
+			)
+			
+			$mol_assert_like(
+				store.root.point_by_offset( 6 ),
+				{ chunk: second.self, offset: 2 },
+			)
+			$mol_assert_like(
+				store.root.offset_by_point({ chunk: second.self, offset: 2 }),
+				6,
+			)
+			
+			$mol_assert_like(
+				store.root.point_by_offset( 7 ),
+				{ chunk: store.root.head, offset: 7 },
+			)
+			$mol_assert_like(
+				store.root.offset_by_point({ chunk: store.root.head, offset: 7 }),
+				7,
+			)
+			
+		},
+
 	})
 }
