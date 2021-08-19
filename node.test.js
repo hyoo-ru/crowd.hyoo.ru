@@ -5429,13 +5429,16 @@ var $;
         chunk_list(head) {
             let chunks = this._chunk_lists.get(head);
             if (!chunks)
-                this._chunk_lists.set(head, chunks = []);
+                this._chunk_lists.set(head, chunks = Object.assign([], { dirty: false }));
             return chunks;
         }
         chunk_alive(head) {
             let chunks = this._chunk_alive.get(head);
             if (!chunks) {
-                chunks = this.chunk_list(head).filter(chunk => chunk.data !== null);
+                const all = this.chunk_list(head);
+                if (all.dirty)
+                    this.resort(head);
+                chunks = all.filter(chunk => chunk.data !== null);
                 this._chunk_alive.set(head, chunks);
             }
             return chunks;
@@ -5489,10 +5492,10 @@ var $;
                 chunks.splice(index, 0, kid);
             }
             this._chunk_lists.set(head, chunks);
+            chunks.dirty = false;
             return chunks;
         }
         apply(delta) {
-            const unordered = new Set();
             for (const next of delta) {
                 this.clock.see(next.peer, next.time);
                 const chunks = this.chunk_list(next.head);
@@ -5506,11 +5509,8 @@ var $;
                     chunks.push(next);
                 }
                 this._chunk_all.set(next.guid, next);
-                unordered.add(next.head);
-            }
-            for (const head of unordered) {
-                this.resort(head);
-                this._chunk_alive.set(head, undefined);
+                chunks.dirty = true;
+                this._chunk_alive.set(next.head, undefined);
             }
             return this;
         }

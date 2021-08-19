@@ -1615,11 +1615,15 @@ declare namespace $ {
         constructor(peer?: number);
         readonly clock: $hyoo_crowd_clock;
         protected _chunk_all: Map<`${number}/${number}`, $hyoo_crowd_chunk>;
-        protected _chunk_lists: Map<number, $hyoo_crowd_chunk[]>;
+        protected _chunk_lists: Map<number, $hyoo_crowd_chunk[] & {
+            dirty: boolean;
+        }>;
         protected _chunk_alive: Map<number, $hyoo_crowd_chunk[] | undefined>;
         size(): number;
         chunk(head: $hyoo_crowd_chunk['head'], self: $hyoo_crowd_chunk['self']): $hyoo_crowd_chunk | null;
-        chunk_list(head: $hyoo_crowd_chunk['head']): $hyoo_crowd_chunk[];
+        protected chunk_list(head: $hyoo_crowd_chunk['head']): $hyoo_crowd_chunk[] & {
+            dirty: boolean;
+        };
         chunk_alive(head: $hyoo_crowd_chunk['head']): readonly $hyoo_crowd_chunk[];
         root: $hyoo_crowd_node;
         node(head: $hyoo_crowd_chunk['head']): $hyoo_crowd_node;
@@ -1627,7 +1631,9 @@ declare namespace $ {
         fork(peer: number): $hyoo_crowd_doc;
         delta(clock?: $hyoo_crowd_clock): readonly $hyoo_crowd_chunk[];
         toJSON(): readonly $hyoo_crowd_chunk[];
-        resort(head: $hyoo_crowd_chunk['head']): $hyoo_crowd_chunk[];
+        resort(head: $hyoo_crowd_chunk['head']): $hyoo_crowd_chunk[] & {
+            dirty: boolean;
+        };
         apply(delta: readonly $hyoo_crowd_chunk[]): this;
         put(head: $hyoo_crowd_chunk['head'], self: $hyoo_crowd_chunk['self'], lead: $hyoo_crowd_chunk['lead'], data: $hyoo_crowd_chunk['data']): $hyoo_crowd_chunk;
         wipe(chunk: $hyoo_crowd_chunk): $hyoo_crowd_chunk;
