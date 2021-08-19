@@ -2,7 +2,7 @@
 
 Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with additional abilities.
 
-![](./logo/logo.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/logo/logo.svg)
 
 # Key Properties
 
@@ -71,13 +71,13 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 
 ## Single Chunk structure
 
-![](./diagram/chunk.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/chunk.svg)
 
 Primary key for Chunks: `[ Head, Self ]`
 
 ## Creation and modifiction of simple Doc
 
-![](./diagram/reorder.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/reorder.svg)
 
 # Data Types Representation
 
