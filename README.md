@@ -73,7 +73,9 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 
 ![](./diagram/chunk.svg)
 
-## Creation and modifiction simple Doc
+Primary key for Chunks: `[ Head, Self ]`
+
+## Creation and modifiction of simple Doc
 
 ![](./diagram/reorder.svg)
 
@@ -90,24 +92,51 @@ Single value store. Just CvRDT LWW-Register.
 
 ## Mergeable Struct
 
+- `sub( key: string )` Returns inner Node for field name.
+
+Chunk for field isn't required. make derived Head by formula, to lookup Node:
+
+```javascript
+field_head = hash_48bit( field_name, struct_self )
+```
+
+So all Peers writes to same Node when uses the same key.
+
 ## Mergeable Ordered List
+
+- `list( next?: unknown[] )` List of raw values. Uses `insert` to replace content.
+- `insert( next?: unknown[], from?, to? )` Replaces range of items with reconciliation. Appends to the end when range isn't defined.
+
+New Chunk is created for every item.
 
 ## Mergeable Ordered Dictionary
 
+- `sub( key: string )` Returns inner Node for key.
+- `list()` Returns list of keys.
+
+It's combination of Struct and List:
+
+- As list it contains keys.
+- As struct it stores every key by derived Head.
+
+So, every key is Node for value.
+
 ## Mergeable Text
 
-## Mergeable Tree
+- `text( next?: string )` Text representations of List. Uses `insert` to replace content.
+- `write( next?: string, from?, to? )` Replaces range of text with reconciliation. Writes to the end when range isn't defined.
 
-## Mergeable Graph
+Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Chunk instead of creating new.
 
 ## Mergeable Document
 
+- `root` Returns root Node with Head = 0.
 - `delta( clock )` Returns delta between past clock and now.
 - `apply( delta )` Merges delta to current state.
 - `toJSON()` Returns full state dump.
-- `fork( peer: number )` Makes independent clone with fixed peer id for testing purposes.
+- `fork( peer: number )` Makes independent clone with another Peer for testing purposes.
 
-# State/Delta Format
+## State/Delta Format
 
 ```typescript
 type Chunk = {
