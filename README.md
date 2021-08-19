@@ -53,23 +53,31 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 - **Doc** - Full CROWD document (DAG) which consists of real Chunks and virtual Nodes over them.
 - **Node** - A single subtree which represented by few chunks with same Self in different Heads.
 - **Chunk** - Minimal atomic chunk of data with metadata. It's extended LWW-Register.
-  - **Self** -
-  - **Head** -
-  - **Lead** -
-  - **Seat** -
+  - **Self** - Node id
+  - **Head** - Parent Node id.
+  - **Lead** - Leader Node id.
+  - **Seat** - Number of position in the siblings list.
   - **Peer** - Global unique identifier of independent actor.
-  - **Time** -
-  - **Data** -
-  - **Sign** -
+  - **Time** - Monotonic version.
+  - **Data** - Any JSON data.
+  - **Sign** - Crypto sign of whole Chunk data.
 - **Clock** - Vector clock. Dictionary which maps Peer to Time.
 - **Token** - Minimal meaningfull part of text (single word + punctuation + one space).
-- **Point** -
-- **Range** -
-- **Offset** -
+- **Point** - Place inside Chunk. Usefull for caret.
+- **Range** - Range between two Points. Usefull for selection.
+- **Offset** - Count of letters from beginning.
 
-# Data Types Representation
+# Internals
+
+## Single Chunk structure
 
 ![](./diagram/chunk.svg)
+
+## Creation and modifiction simple Doc
+
+![](./diagram/reorder.svg)
+
+# Data Types Representation
 
 ## Atomic JSON
 
@@ -80,45 +88,19 @@ Single value store. Just CvRDT LWW-Register.
 - `numb( next?: number )` Current value as `number` or `0` by default.
 - `str( next?: string )` Current value as `string` or `""` by default.
 
-## Mergable Struct
+## Mergeable Struct
 
-## Mergable Ordered List
+## Mergeable Ordered List
 
-## Mergable Ordered Dictionary
+## Mergeable Ordered Dictionary
 
-## Mergable Text
+## Mergeable Text
 
-## Mergable Tree
+## Mergeable Tree
 
-## Mergable Graph
+## Mergeable Graph
 
-# Comparison of Approaches
-
-## With [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)
-
-- CRDT has stronger guarantees for events commutativity. It gives a strong restriction for deleting old data. CROWD slightly weakens the guarantees, which gives more compact data representation without garbage collection and compactification.
-- Some CROWD storages are accidentally dCRDT too.
-- Stored CROWD State can be reinterpredeted by different CROWD Storages. Different CROWD Storages may be cross merged. CRDT structures are incompatible in general.
-
-## With [OT](https://en.wikipedia.org/wiki/Operational_transformation)
-
-- OT stores full edit history which is redundant. CROWD competely erases history. For history navigation purposes periodically snapshots is better solution for both.
-- OT requires history rebase for convergence. This is too slow and complex. CROWD merge is very simple and fast.
-
-# Available Stores
-
-| CROWD | CRDT |
-|-------|------|
-| [CROWD Text](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/text) | No equal type
-| CROWD JSON | No equal type
-| CROWD Graph | No equal type
-
-# Utilites
-
-- [CROWD Store](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/store) - Base store class with common CROWD API.
-- [CROWD Clock](https://github.com/hyoo-ru/crowd.hyoo.ru/blob/master/clock) - Manages stamps for composed CROWD stores.
-
-# Common API
+## Mergeable Document
 
 - `delta( clock )` Returns delta between past clock and now.
 - `apply( delta )` Merges delta to current state.
@@ -170,18 +152,8 @@ type Delta = readonly Chunk[]
 //   $hyoo_crowd_text,
 // } from 'hyoo_crowd_lib'
 
-// Dynamic typing in custom store
-const MyStore = $hyoo_crowd_dict.of({
-  val: $hyoo_crowd_union.of({
-    bool: $hyoo_crowd_reg,
-    numb: $hyoo_crowd_reg,
-    str: $hyoo_crowd_reg,
-    seq: $hyoo_crowd_list
-  })
-});
-
-// Normal store creation
-const base = MyStore.make();
+// Create document
+const base = new $hyoo_crowd_doc();
 
 // Make independent forks for testng
 const alice = base.fork(1);
@@ -189,15 +161,15 @@ const bob = base.fork(2);
 const carol = base.fork(3);
 
 // Twice change register named "foo"
-alice.for("foo").to("str").str("A1");
-alice.for("foo").to("str").str("A2");
+alice.root.sub("foo").str("A1");
+alice.root.sub("foo").str("A2");
 
 // Change register named "foo" then converts it to sequence and insert value
-bob.for("foo").to("str").str("B1");
-bob.for("foo").to("seq").insert("B2").insert("B3");
+bob.root.sub("foo").str("B1");
+bob.root.sub("foo").insert([ "B2", "B3" ]);
 
 // Serial insert to sequence named "foo"
-carol.for("foo").to("seq").insert("C1").insert("C2");
+carol.root.sub("foo").insert([ "C1", "C2"]);
 
 // Make deltas
 const alice_delta = alice.delta(base.clock);
@@ -211,9 +183,9 @@ carol.apply(bob_delta).apply(alice_delta);
 
 // ["A2","C1","C2","B1","B2","B3"]
 console.log(
-  alice.for("foo").as("seq").items,
-  bob.for("foo").as("seq").items,
-  carol.for("foo").as("seq").items
+  alice.root.sub("foo").list(),
+  bob.root.sub("foo").list(),
+  carol.root.sub("foo").list()
 );
 ```
 
