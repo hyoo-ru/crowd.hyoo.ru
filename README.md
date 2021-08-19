@@ -193,8 +193,8 @@ alice.root.sub("foo").str("A2");
 bob.root.sub("foo").str("B1");
 bob.root.sub("foo").insert(["B2", "B3"]);
 
-// Serial insert to sequence named "foo"
-carol.root.sub("foo").insert(["C1", "C2"]);
+// Write some text at the end of sequence named "foo"
+carol.root.sub("foo").write("C1 C2");
 
 // Make deltas
 const alice_delta = alice.delta(base.clock);
@@ -206,7 +206,7 @@ alice.apply(bob_delta).apply(carol_delta);
 bob.apply(alice_delta).apply(carol_delta);
 carol.apply(bob_delta).apply(alice_delta);
 
-// ["A2","C1","C2","B1","B2","B3"]
+// ["A2","C1 ","C2","B1","B2","B3"]
 console.log(
   alice.root.sub("foo").list(),
   bob.root.sub("foo").list(),
