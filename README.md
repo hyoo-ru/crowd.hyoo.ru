@@ -66,6 +66,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 - **Point** - Place inside Chunk. Usefull for caret.
 - **Range** - Range between two Points. Usefull for selection.
 - **Offset** - Count of letters from beginning.
+- **Channel** - Geter/Setter method. `foo()` - read. `foo(123)` - write. Write returns written.
 
 # Internals
 
@@ -85,10 +86,10 @@ Primary key for Chunks: `[ Head, Self ]`
 
 Single value store. Just CvRDT LWW-Register.
 
-- `value( next?: unknown )` Current raw value or `null` by default.
-- `bool( next?: boolean )` Current value as `boolean` or `false` by default.
-- `numb( next?: number )` Current value as `number` or `0` by default.
-- `str( next?: string )` Current value as `string` or `""` by default.
+- `value( next?: unknown )` Channel for raw value. Returns `null` by default.
+- `bool( next?: boolean )` Channel for `boolean` value. Returns `false` by default.
+- `numb( next?: number )` Channel for `number` value. Returns `0` by default.
+- `str( next?: string )` Channel for `string` value. Returns `""` by default.
 
 ## Mergeable Struct
 
@@ -104,7 +105,7 @@ So all Peers writes to same Node when uses the same key.
 
 ## Mergeable Ordered List
 
-- `list( next?: unknown[] )` List of raw values. Uses `insert` to replace content.
+- `list( next?: unknown[] )` Channel for list of raw values. Uses `insert` to replace content.
 - `insert( next?: unknown[], from?, to? )` Replaces range of items with reconciliation. Appends to the end when range isn't defined.
 
 New Chunk is created for every item.
@@ -123,7 +124,7 @@ So, every key is Node for value.
 
 ## Mergeable Text
 
-- `text( next?: string )` Text representations of List. Uses `insert` to replace content.
+- `text( next?: string )` Channel for text representations of List. Uses `write` to replace content.
 - `write( next?: string, from?, to? )` Replaces range of text with reconciliation. Writes to the end when range isn't defined.
 
 Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Chunk instead of creating new.
