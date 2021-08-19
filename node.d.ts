@@ -1552,7 +1552,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    let $hyoo_crowd_text_tokenizer: $mol_regexp<{
+    let $hyoo_crowd_tokenizer: $mol_regexp<{
         readonly token: string;
         readonly emoji: string;
         readonly 'Word-punctuation-space': string;
@@ -1579,6 +1579,14 @@ declare namespace $ {
         insert(next: readonly unknown[], from?: number, to?: number): void;
         text(next?: string): string;
         write(next: string, str_from?: number, str_to?: number): this;
+        point_by_offset(offset: number): {
+            chunk: number;
+            offset: number;
+        };
+        offset_by_point(point: {
+            chunk: number;
+            offset: number;
+        }): number;
         move(from: number, to: number): $hyoo_crowd_chunk;
         cut(seat: number): $hyoo_crowd_chunk;
     }

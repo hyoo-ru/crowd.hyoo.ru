@@ -4727,9 +4727,6 @@ var $;
 //string.js.map
 ;
 "use strict";
-//text.js.map
-;
-"use strict";
 //equals.js.map
 ;
 "use strict";
@@ -5008,7 +5005,7 @@ var $;
 var $;
 (function ($) {
     const { unicode_only, line_end, repeat_greedy, optional, char_only, char_except } = $.$mol_regexp;
-    $.$hyoo_crowd_text_tokenizer = $.$mol_regexp.from({
+    $.$hyoo_crowd_tokenizer = $.$mol_regexp.from({
         token: {
             'line-break': line_end,
             'emoji': [
@@ -5171,9 +5168,29 @@ var $;
                 --from;
                 next = String(list[from].data) + next;
             }
-            const words = [...next.matchAll($.$hyoo_crowd_text_tokenizer)].map(token => token[0]);
+            const words = [...next.matchAll($.$hyoo_crowd_tokenizer)].map(token => token[0]);
             this.insert(words, from, to);
             return this;
+        }
+        point_by_offset(offset) {
+            let off = offset;
+            for (const chunk of this.chunks()) {
+                const len = String(chunk.data).length;
+                if (off < len)
+                    return { chunk: chunk.self, offset: off };
+                else
+                    off -= len;
+            }
+            return { chunk: this.head, offset: offset };
+        }
+        offset_by_point(point) {
+            let offset = 0;
+            for (const chunk of this.chunks()) {
+                if (chunk.self === point.chunk)
+                    return offset + point.offset;
+                offset += String(chunk.data).length;
+            }
+            return offset;
         }
         move(from, to) {
             const chunks = this.chunks();

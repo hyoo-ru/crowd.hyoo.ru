@@ -4928,9 +4928,6 @@ var $;
 //string.js.map
 ;
 "use strict";
-//text.js.map
-;
-"use strict";
 //equals.js.map
 ;
 "use strict";
@@ -5209,7 +5206,7 @@ var $;
 var $;
 (function ($) {
     const { unicode_only, line_end, repeat_greedy, optional, char_only, char_except } = $.$mol_regexp;
-    $.$hyoo_crowd_text_tokenizer = $.$mol_regexp.from({
+    $.$hyoo_crowd_tokenizer = $.$mol_regexp.from({
         token: {
             'line-break': line_end,
             'emoji': [
@@ -5372,9 +5369,29 @@ var $;
                 --from;
                 next = String(list[from].data) + next;
             }
-            const words = [...next.matchAll($.$hyoo_crowd_text_tokenizer)].map(token => token[0]);
+            const words = [...next.matchAll($.$hyoo_crowd_tokenizer)].map(token => token[0]);
             this.insert(words, from, to);
             return this;
+        }
+        point_by_offset(offset) {
+            let off = offset;
+            for (const chunk of this.chunks()) {
+                const len = String(chunk.data).length;
+                if (off < len)
+                    return { chunk: chunk.self, offset: off };
+                else
+                    off -= len;
+            }
+            return { chunk: this.head, offset: offset };
+        }
+        offset_by_point(point) {
+            let offset = 0;
+            for (const chunk of this.chunks()) {
+                if (chunk.self === point.chunk)
+                    return offset + point.offset;
+                offset += String(chunk.data).length;
+            }
+            return offset;
         }
         move(from, to) {
             const chunks = this.chunks();
@@ -10104,9 +10121,6 @@ var $;
 //clock.test.js.map
 ;
 "use strict";
-//text.test.js.map
-;
-"use strict";
 //equals.test.js.map
 ;
 "use strict";
@@ -10399,34 +10413,34 @@ var $;
 (function ($) {
     $.$mol_test({
         'empty string'() {
-            $.$mol_assert_like(''.match($.$hyoo_crowd_text_tokenizer), null);
+            $.$mol_assert_like(''.match($.$hyoo_crowd_tokenizer), null);
         },
         'new lines'() {
-            $.$mol_assert_like('\n\r\n'.match($.$hyoo_crowd_text_tokenizer), ['\n', '\r\n']);
+            $.$mol_assert_like('\n\r\n'.match($.$hyoo_crowd_tokenizer), ['\n', '\r\n']);
         },
         'numbers'() {
-            $.$mol_assert_like('123'.match($.$hyoo_crowd_text_tokenizer), ['123']);
+            $.$mol_assert_like('123'.match($.$hyoo_crowd_tokenizer), ['123']);
         },
         'emoji'() {
-            $.$mol_assert_like('😀😁'.match($.$hyoo_crowd_text_tokenizer), ['😀', '😁']);
+            $.$mol_assert_like('😀😁'.match($.$hyoo_crowd_tokenizer), ['😀', '😁']);
         },
         'emoji with modifier'() {
-            $.$mol_assert_like('👩🏿👩🏿'.match($.$hyoo_crowd_text_tokenizer), ['👩🏿', '👩🏿']);
+            $.$mol_assert_like('👩🏿👩🏿'.match($.$hyoo_crowd_tokenizer), ['👩🏿', '👩🏿']);
         },
         'combo emoji with modifier'() {
-            $.$mol_assert_like('👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿'.match($.$hyoo_crowd_text_tokenizer), ['👩🏿‍🤝‍🧑🏿', '👩🏿‍🤝‍🧑🏿']);
+            $.$mol_assert_like('👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿'.match($.$hyoo_crowd_tokenizer), ['👩🏿‍🤝‍🧑🏿', '👩🏿‍🤝‍🧑🏿']);
         },
         'word with spaces'() {
-            $.$mol_assert_like('foo1  bar2'.match($.$hyoo_crowd_text_tokenizer), ['foo1 ', ' ', 'bar2']);
+            $.$mol_assert_like('foo1  bar2'.match($.$hyoo_crowd_tokenizer), ['foo1 ', ' ', 'bar2']);
         },
         'word with diactric'() {
-            $.$mol_assert_like('Е́е́'.match($.$hyoo_crowd_text_tokenizer), ['Е́е́']);
+            $.$mol_assert_like('Е́е́'.match($.$hyoo_crowd_tokenizer), ['Е́е́']);
         },
         'word with punctuation'() {
-            $.$mol_assert_like('foo--bar'.match($.$hyoo_crowd_text_tokenizer), ['foo--', 'bar']);
+            $.$mol_assert_like('foo--bar'.match($.$hyoo_crowd_tokenizer), ['foo--', 'bar']);
         },
         'CamelCase'() {
-            $.$mol_assert_like('Foo1BAR2'.match($.$hyoo_crowd_text_tokenizer), ['Foo1', 'BAR2']);
+            $.$mol_assert_like('Foo1BAR2'.match($.$hyoo_crowd_tokenizer), ['Foo1', 'BAR2']);
         },
     });
 })($ || ($ = {}));
@@ -10760,6 +10774,19 @@ var $;
             store.root.text('foo bar');
             store.root.write('xxx', 4);
             $.$mol_assert_like(store.root.list(), ['foo ', 'xxxbar']);
+        },
+        'Offset <=> path'() {
+            const store = new $.$hyoo_crowd_tree(123);
+            store.root.text('foo bar');
+            const [first, second] = store.root.chunks();
+            $.$mol_assert_like(store.root.point_by_offset(0), { chunk: first.self, offset: 0 });
+            $.$mol_assert_like(store.root.offset_by_point({ chunk: first.self, offset: 0 }), 0);
+            $.$mol_assert_like(store.root.point_by_offset(4), { chunk: second.self, offset: 0 });
+            $.$mol_assert_like(store.root.offset_by_point({ chunk: second.self, offset: 0 }), 4);
+            $.$mol_assert_like(store.root.point_by_offset(6), { chunk: second.self, offset: 2 });
+            $.$mol_assert_like(store.root.offset_by_point({ chunk: second.self, offset: 2 }), 6);
+            $.$mol_assert_like(store.root.point_by_offset(7), { chunk: store.root.head, offset: 7 });
+            $.$mol_assert_like(store.root.offset_by_point({ chunk: store.root.head, offset: 7 }), 7);
         },
     });
 })($ || ($ = {}));
