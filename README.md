@@ -225,7 +225,7 @@ console.log(
 | Sequence: 500 Push + 500 Shift Perf | **17 ms** | 280 ms | 36 ms
 | Sequence: 500 Push + 500 Shift Mem | 80 KB | 2_100 KB | **12 KB**
 | Text: 500 Append + 500 Crop Perf   | **22 ms** | 370 ms | 31 µs
-| Text: 500 Append + 500 Crop Mem   | 80 KB | 3_300 KB | **13 KB*
+| Text: 500 Append + 500 Crop Mem   | 80 KB | 3_300 KB | **13 KB**
 
 ## Benchmarks
 
