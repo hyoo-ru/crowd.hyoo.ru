@@ -38,7 +38,7 @@ namespace $ {
 			return this._chunk_all.get( `${ head }/${ self }` ) ?? null
 		}
 		
-		/** Returns list of chunks for Branch. */ 
+		/** Returns list of all Chunks for Node. */ 
 		chunk_list(
 			head: $hyoo_crowd_chunk['head']
 		): $hyoo_crowd_chunk[] {
@@ -49,7 +49,7 @@ namespace $ {
 			return chunks
 		}
 		
-		/** Returns list of chunks for Branch. */ 
+		/** Returns list of alive Chunks for Node. */ 
 		chunk_alive(
 			head: $hyoo_crowd_chunk['head']
 		): readonly $hyoo_crowd_chunk[] {
@@ -63,12 +63,12 @@ namespace $ {
 			return chunks
 		}
 		
-		/** Root Branch. */
-		root = this.branch( 0 )
+		/** Root Node. */
+		root = this.node( 0 )
 		
-		/** Returns branch for Branch. */
-		branch( head: $hyoo_crowd_chunk['head'] ) {
-			return new $hyoo_crowd_branch( this, head )
+		/** Returns Node for Head. */
+		node( head: $hyoo_crowd_chunk['head'] ) {
+			return new $hyoo_crowd_node( this, head )
 		}
 		
 		/** Generates new 6B identifier. */

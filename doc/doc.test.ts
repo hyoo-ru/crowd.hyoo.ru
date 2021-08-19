@@ -135,10 +135,10 @@ namespace $ {
 			const store = new $hyoo_crowd_doc( 123 )
 			
 			store.root.insert([ 'foo' ])
-			store.root.branches()[0].insert([ 'bar' ])
+			store.root.nodes()[0].insert([ 'bar' ])
 			
 			$mol_assert_like( store.root.list(), [ 'foo' ] )
-			$mol_assert_like( store.root.branches()[0].list(), [ 'bar' ] )
+			$mol_assert_like( store.root.nodes()[0].list(), [ 'bar' ] )
 			
 		},
 		
@@ -201,10 +201,10 @@ namespace $ {
 			const store = new $hyoo_crowd_doc( 123 )
 			store.root.text( 'foo' )
 			
-			const b2 = store.root.branches()[0]
+			const b2 = store.root.nodes()[0]
 			b2.text( 'bar' )
 			
-			const b3 = b2.branches()[0]
+			const b3 = b2.nodes()[0]
 			b3.text( 'lol' )
 			
 			$mol_assert_like( store.root.value(), 'foo' )
@@ -225,7 +225,7 @@ namespace $ {
 			$mol_assert_like( store.root.list(), [] )
 			
 			store.root.list( [ 'foo', 'bar', 'foo' ] )
-			const first = store.root.branches()[0]
+			const first = store.root.nodes()[0]
 			first.list( [  'bar', 'foo', 'bar' ] )
 			
 			$mol_assert_like( store.root.list(), [ 'foo', 'bar', 'foo' ] )
@@ -463,13 +463,13 @@ namespace $ {
 		'Insert after removed out'() {
 			
 			const base = new $hyoo_crowd_doc( 123 )
-			base.branch( 111 ).text( 'foo bar|zak' )
+			base.node( 111 ).text( 'foo bar|zak' )
 			
 			const left = base.fork( 234 )
-			left.branch( 111 ).text( 'foo bar|xxx zak' )
+			left.node( 111 ).text( 'foo bar|xxx zak' )
 			
 			const right = base.fork( 345 )
-			right.insert( right.branch( 111 ).chunks()[1], 222, 0 )
+			right.insert( right.node( 111 ).chunks()[1], 222, 0 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -478,14 +478,14 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.branch( 111 ).text(),
-				right.branch( 111 ).text(),
+				left.node( 111 ).text(),
+				right.node( 111 ).text(),
 				'foo xxx zak',
 			)
 			
 			$mol_assert_like(
-				left.branch( 222 ).text(),
-				right.branch( 222 ).text(),
+				left.node( 222 ).text(),
+				right.node( 222 ).text(),
 				'bar|',
 			)
 			

@@ -1,26 +1,26 @@
 namespace $ {
 	
 	/** Stateless non-unique adapter to CROWD Tree for given Head. */
-	export class $hyoo_crowd_branch {
+	export class $hyoo_crowd_node {
 		
 		constructor(
 			readonly tree: $hyoo_crowd_doc,
 			readonly head: $hyoo_crowd_chunk['head'],
 		) {}
 		
-		/** Returns inner branch for key. */
+		/** Returns inner ode for key. */
 		sub( key: string ) {
-			return this.tree.branch( $mol_hash_string( key, this.head ) )
+			return this.tree.node( $mol_hash_string( key, this.head ) )
 		}
 		
-		/** Ordered inner alive chunks. */
+		/** Ordered inner alive Chunks. */
 		chunks() {
 			return this.tree.chunk_alive( this.head )
 		}
 		
-		/** Ordered inner alive branches. */
-		branches() {
-			return this.chunks().map( chunk => this.tree.branch( chunk.self ) )
+		/** Ordered inner alive Node. */
+		nodes() {
+			return this.chunks().map( chunk => this.tree.node( chunk.self ) )
 		}
 		
 		/** Atomic value. */
