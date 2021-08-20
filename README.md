@@ -183,6 +183,14 @@ So, every key is Node for value.
 
 Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Chunk instead of creating new.
 
+### Write Algorithm
+
+- Input: new text and range of existen text.
+- Locate Tokens which relate to the range.
+- Before and after new text appen substrings of first and last tokens which should be untouched.
+- Split new text using universal tokinizer.
+- Reconciliate list of tokens unsing list insertion algorithm.
+
 ## Mergeable Document
 
 - `root` Returns root Node with Head = 0.
