@@ -70,6 +70,24 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 
 # Internals
 
+## State/Delta Format
+
+```typescript
+type Chunk = {
+    head: number
+    self: number
+    lead: number
+    seat: number
+    peer: number
+    time: number
+    data: unknown
+    sign: null | Uint8Array & { length: 32 }
+}
+
+type State = Chunk[]
+type Delta = readonly Chunk[]
+```
+
 ## Single Chunk structure
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/chunk.svg)
@@ -137,24 +155,6 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 - `toJSON()` Returns full state dump.
 - `fork( peer: number )` Makes independent clone with another Peer for testing purposes.
 
-## State/Delta Format
-
-```typescript
-type Chunk = {
-    head: number
-    self: number
-    lead: number
-    seat: number
-    peer: number
-    time: number
-    data: unknown
-    sign: null | Uint8Array & { length: 32 }
-}
-
-type State = Chunk[]
-type Delta = readonly Chunk[]
-```
-
 # Reinterpretations
 
 - ✅ Expected behaviour.
@@ -168,6 +168,12 @@ type Delta = readonly Chunk[]
 | List       | ⭕ Last changed item        | ⭕ Nullish fields               | ✅ Same            | ✅ Items as keys        | ❌ Items as strings as tokens
 | Dictionary | ⭕ Last changed key         | ✅ keys values as fields values | ✅ Keys            | ✅ Same                 | ✅ Keys as tokens
 | Text       | ❌ Last changed token       | ⭕ Nullish fields               | ✅ Tokens          | ❌ Tokens as keys       | ✅ Same
+
+# Sign and Verify
+
+`$hyoo_crowd_chunk_pack( chunk, private_key )` - Pack Chunk to binary with crypto signing.
+`$hyoo_crowd_chunk_unpack( binary )` - Unpack Chunk from binary.
+`$hyoo_crowd_chunk_verify( binary, public_key )` - Verify crypto sign of packed Chunk.
 
 # Usage Example
 

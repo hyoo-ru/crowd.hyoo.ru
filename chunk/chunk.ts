@@ -18,15 +18,91 @@ namespace $ {
 		/** Global unique identifier of peer. 6B */
 		readonly peer: number,
 		
-		/** Monotonic version clock. 6B */
+		/** Monotonic version clock. 4B */
 		readonly time: number,
 		
-		/** Associated atomic data. */
+		/** Associated atomic data. 2+B */
 		readonly data: unknown,
 		
 		/** Sign for whole node data. 32B */
 		readonly sign?: Uint8Array & { length: 32 },
 		
+	}
+	
+	const sign_size = 32
+	const meta_size = 32
+	
+	export async function $hyoo_crowd_chunk_pack(
+		this: $,
+		raw: $hyoo_crowd_chunk,
+		key: $mol_crypto_auditor_private,
+	) {
+		
+		const data = $mol_charset_encode( JSON.stringify( raw.data ) )
+		const pack = new Uint8Array( meta_size + data.length + sign_size + ( 4 - data.length % 4 ) )
+		const pack2 = new Uint16Array( pack.buffer )
+		const pack4 = new Uint32Array( pack.buffer )
+		
+		pack4[0] = raw.head
+		pack2[2] = raw.head / 2**32
+		
+		pack2[3] = raw.self
+		pack4[2] = raw.self / 2**16
+		
+		pack4[3] = raw.lead
+		pack2[8] = raw.lead / 2**32
+		
+		pack2[9] = raw.seat
+		
+		pack4[5] = raw.peer
+		pack2[12] = raw.peer / 2**32
+		
+		pack2[13] = data.length
+		
+		pack4[7] = raw.time
+		
+		pack.set( data, 32 )
+		
+		const sign = new Uint8Array( await key.sign( pack.slice( 0, - sign_size ) ) )
+		pack.set( sign, pack.length - sign_size )
+		
+		return pack
+	}
+	
+	export function $hyoo_crowd_chunk_unpack(
+		this: $,
+		pack: Uint8Array,
+	) {
+		
+		const pack2 = new Uint16Array( pack.buffer )
+		const pack4 = new Uint32Array( pack.buffer )
+		
+		const chunk: $hyoo_crowd_chunk = { 
+			head: pack4[0] + pack2[2] * 2**32,
+			self: pack2[3] + pack4[2] * 2**16,
+			lead: pack4[3] + pack2[8] * 2**32,
+			seat: pack2[9],
+			peer: pack4[5] + pack2[12] * 2**32,
+			time: pack4[7],
+			data: JSON.parse(
+				$mol_charset_decode(
+					new Uint8Array( pack.buffer, meta_size, pack2[13] )
+				)
+			),
+		}
+		
+		return chunk
+	}
+	
+	export function $hyoo_crowd_chunk_verify(
+		this: $,
+		pack: Uint8Array,
+		key: $mol_crypto_auditor_public,
+	) {
+		return key.verify(
+			new Uint8Array( pack.buffer, 0, pack.length - sign_size ),
+			new Uint8Array( pack.buffer, pack.length - sign_size ),
+		)
 	}
 	
 	export function $hyoo_crowd_chunk_compare(
