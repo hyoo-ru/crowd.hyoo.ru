@@ -50,9 +50,9 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 
 # Vocabulary
 
-- **Doc** - Full CROWD document (DAG) which consists of real Chunks and virtual Nodes over them.
+- **Doc** - Full CROWD document (direct graph) which consists of real Chunks and virtual Nodes over them.
 - **Node** - A single subtree which represented by few chunks with same Self in different Heads.
-- **Chunk** - Minimal atomic chunk of data with metadata. It's extended LWW-Register.
+- **Chunk** - Minimal atomic chunk of data with metadata. Actually it's edge between Nodes. And it's extended CvRDT LWW-Register.
   - **Self** - Node id
   - **Head** - Parent Node id.
   - **Lead** - Leader Node id.
