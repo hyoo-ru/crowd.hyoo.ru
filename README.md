@@ -61,6 +61,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
   - **Time** - Monotonic version.
   - **Data** - Any JSON data.
   - **Sign** - Crypto sign of whole Chunk data.
+- **Delta** - Difference of two Doc state as list of Chunks.
 - **Clock** - Vector clock. Dictionary which maps Peer to Time.
 - **Token** - Minimal meaningfull part of text (single word + punctuation + one space).
 - **Point** - Place inside Chunk. Usefull for caret.
@@ -88,6 +89,21 @@ type State = Chunk[]
 type Delta = readonly Chunk[]
 ```
 
+Internally Chunks may be stored in RDBMS. Example:
+
+```sql
+CREATE TABLE chunks (
+	head uint(6),
+	self uint(6),
+	lead uint(6),
+	seat uint(2),
+	peer uint(6),
+	time uint(4),
+	data json,
+	sign byte(32),
+)
+```
+
 ## Single Chunk structure
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/chunk.svg)
@@ -111,9 +127,15 @@ Single value store. Just CvRDT LWW-Register.
 
 ## Mergeable Struct
 
+Struct is completely virtual thing. No one Chunk is stored for it. Only for field values (except it's structs too etc).
+
 - `sub( key: string )` Returns inner Node for field name.
 
-Chunk for field may be absent. To lookup It internally makes derived Head by formula:
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/struct.svg)
+
+### Lookup agorithm
+
+- Make derived Head by formula:
 
 ```javascript
 field_head = hash_48bit( field_name, struct_self )
@@ -128,12 +150,26 @@ So all Peers writes to the same Node when uses the same key.
 
 New Chunk is created for every item.
 
+### Ordering Algorithm
+
+- Input: Head value.
+- Select all Chunks with given Head.
+- Sort found Chunks by Seat asc, Time asc, Peer asc.
+- Make empty list for result.
+- Iterate over all found Chunks.
+	- If Lead of current chunk is 0, then use 0 as preferred Seat.
+	- If Lead of current chunk is not 0, then locate existen Lead in the result list.
+		- If Lead is located, then use next Seat as preferred.
+		- if Lead isn't located, then insert Chunk at the end of result list.
+	- If preferred Seat less then Seat of Chunk, then insert Chunk at the end of result list.
+	- Otherwise insert Chunk at the preferred Seat.
+
 ## Mergeable Ordered Dictionary
 
 - `sub( key: string )` Returns inner Node for key.
 - `list()` Returns list of keys.
 
-It's combination of Struct and List:
+It's both Struct and List:
 
 - As list it contains keys.
 - As struct it stores every key by derived Head.
@@ -154,6 +190,38 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 - `apply( delta )` Merges delta to current state.
 - `toJSON()` Returns full state dump.
 - `fork( peer: number )` Makes independent clone with another Peer for testing purposes.
+
+### Delta Algorithm
+
+- Input: Clock, received from Peer.
+- Iterate over all Chunk in Doc.
+	- Skip Chunks which Time less then Clock Time for same Peer.
+- Return all remainig Chunks ordered by Time.
+
+Example with SQL:
+
+```sql
+SELECT *
+FROM chunks
+WHERE
+	NOT( peer = 1 AND time <= 123 )
+	AND NOT( peer = 2 AND time <= 456 )
+	AND NOT( peer = 3 AND time <= 789 )
+	...
+ORDER BY
+	time ASC,
+	peer ASC
+```
+
+### Apply Algorithm
+
+- Input: list of Chunks.
+- Iterate over Chunks from Delta.
+	- Locate Chunk from Doc with same Head and Self.
+	- If Chunk doesn't exists, add Chunk to Doc.
+	- If Chunk exists and Time of new Chunk is greater, replace old by new.
+	- If Chunk exists and Time of new Chunk is same, but Peer is greater, replace old by new.
+	- Otherwise skip this Chunk.
 
 # Reinterpretations
 
