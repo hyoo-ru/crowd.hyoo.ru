@@ -148,7 +148,12 @@ So all Peers writes to the same Node when uses the same key.
 - `list( next?: unknown[] )` Channel for list of raw values. Uses `insert` to replace content.
 - `insert( next?: unknown[], from?, to? )` Replaces range of items with reconciliation. Appends to the end when range isn't defined.
 
-New Chunk is created for every item.
+### Properties
+
+- New Chunk is created for every item.
+- Left precedence. Seat of item relies on left item, non right.
+- No interleaving. Sequence of left-to-right inserted items will stay together after merge.
+- Removed item is remain as tombstone for ordering purposes.
 
 ### Ordering Algorithm
 
@@ -182,6 +187,17 @@ So, every key is Node for value.
 - `write( next?: string, from?, to? )` Replaces range of text with reconciliation. Writes to the end when range isn't defined.
 
 Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Chunk instead of creating new.
+
+### Properties
+
+- Can be simply bound to native `<textarea>`.
+- Merge never produces unreadable token value. Only one of valid (LWW).
+- No interleaving. The typed text will not be interrupted after merging.
+- For `3.2MB` text (320k words) of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" in CROWD Doc takes up  `40MB` (`12x`) in JSON serialization and `25MB` (`8x`) in binary with signing.
+
+### **[Online sandbox](https://crowd.hyoo.ru/)**
+
+[![](https://i.imgur.com/IF9HA2r.png)](https://crowd.hyoo.ru/)
 
 ### Write Algorithm
 
