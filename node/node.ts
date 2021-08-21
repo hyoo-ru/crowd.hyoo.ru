@@ -100,7 +100,7 @@ namespace $ {
 				from,
 				to,
 				next,
-				equal: ( prev, next )=> prev.data === next,
+				equal: ( next, prev )=> prev.data === next,
 				drop: ( prev, lead )=> this.tree.wipe( prev ),
 				insert: ( next, lead )=> this.tree.put(
 					this.head,
