@@ -188,7 +188,7 @@ var $;
     $.$mol_jsx_frag = '';
     function $mol_jsx(Elem, props, ...childNodes) {
         const id = props && props.id || '';
-        if ($.$mol_jsx_booked) {
+        if (Elem && $.$mol_jsx_booked) {
             if ($.$mol_jsx_booked.has(id)) {
                 $.$mol_fail(new Error(`JSX already has tag with id ${JSON.stringify(id)}`));
             }
@@ -1894,43 +1894,9 @@ var $;
 ;
 "use strict";
 var $;
-(function ($) {
-    $.$mol_test({
-        async 'sizes'() {
-            const pair = await $.$$.$mol_crypto_auditor_pair();
-            const key_private = await pair.private.serial();
-            $.$mol_assert_ok(key_private.byteLength > 190);
-            $.$mol_assert_ok(key_private.byteLength < 200);
-            const key_public = await pair.public.serial();
-            $.$mol_assert_equal(key_public.byteLength, 62);
-            const data = new Uint8Array([1, 2, 3]);
-            const sign = await pair.private.sign(data);
-            $.$mol_assert_equal(sign.byteLength, 32);
-        },
-        async 'verify self signed with auto generated key'() {
-            const auditor = await $.$$.$mol_crypto_auditor_pair();
-            const data = new Uint8Array([1, 2, 3]);
-            const sign = await auditor.private.sign(data);
-            $.$mol_assert_ok(await auditor.public.verify(data, sign));
-        },
-        async 'verify signed with exported auto generated key'() {
-            const pair = await $.$$.$mol_crypto_auditor_pair();
-            const data = new Uint8Array([1, 2, 3]);
-            const Alice = await $.$mol_crypto_auditor_private.from(await pair.private.serial());
-            const sign = await Alice.sign(data);
-            const Bob = await $.$mol_crypto_auditor_public.from(await pair.public.serial());
-            $.$mol_assert_ok(await Bob.verify(data, sign));
-        },
-    });
-})($ || ($ = {}));
-//auditor.test.js.map
-;
-"use strict";
-var $;
 (function ($_1) {
     $_1.$mol_test({
-        async 'pack and unpack chunk'($) {
-            const pair = await $.$mol_crypto_auditor_pair();
+        'pack and unpack chunk'($) {
             const source = {
                 head: 6618611909121,
                 self: 6618611909121,
@@ -1940,10 +1906,9 @@ var $;
                 time: 67305985,
                 data: { a: [1] },
             };
-            const packed = await $.$hyoo_crowd_chunk_pack(source, pair.private);
+            const packed = $.$hyoo_crowd_chunk_pack(source);
             const unpacked = $.$hyoo_crowd_chunk_unpack(packed);
             $_1.$mol_assert_like(source, unpacked);
-            $_1.$mol_assert_ok(await $.$hyoo_crowd_chunk_verify(packed, pair.public));
         },
     });
 })($ || ($ = {}));
@@ -2021,7 +1986,7 @@ var $;
                 from: 0,
                 to: 3,
                 next: 'abc',
-                equal: (prev, next) => prev.textContent === next,
+                equal: (next, prev) => prev.textContent === next,
                 drop: (prev, lead) => list.removeChild(prev),
                 insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
                 update: (next, prev, lead) => (prev.textContent = next, prev),
@@ -2042,7 +2007,7 @@ var $;
                 from: 1,
                 to: 3,
                 next: 'bXYc',
-                equal: (prev, next) => prev.textContent === next,
+                equal: (next, prev) => prev.textContent === next,
                 drop: (prev, lead) => list.removeChild(prev),
                 insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
                 update: (next, prev, lead) => (prev.textContent = next, prev),
@@ -2068,7 +2033,7 @@ var $;
                 from: 1,
                 to: 5,
                 next: 'BC',
-                equal: (prev, next) => prev.textContent === next,
+                equal: (next, prev) => prev.textContent === next,
                 drop: (prev, lead) => list.removeChild(prev),
                 insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
                 update: (next, prev, lead) => (prev.textContent = next, prev),
@@ -2090,7 +2055,7 @@ var $;
                 from: 1,
                 to: 3,
                 next: 'XY',
-                equal: (prev, next) => prev.textContent === next,
+                equal: (next, prev) => prev.textContent === next,
                 drop: (prev, lead) => list.removeChild(prev),
                 insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
                 update: (next, prev, lead) => (prev.textContent = next, prev),

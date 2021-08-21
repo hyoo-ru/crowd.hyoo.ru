@@ -4631,66 +4631,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    const algorithm = {
-        name: 'RSA-PSS',
-        modulusLength: 256,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: 'SHA-1',
-        saltLength: 8,
-    };
-    async function $mol_crypto_auditor_pair() {
-        const pair = await $.crypto.subtle.generateKey(algorithm, true, ['sign', 'verify']);
-        return {
-            public: new $mol_crypto_auditor_public(pair.publicKey),
-            private: new $mol_crypto_auditor_private(pair.privateKey),
-        };
-    }
-    $.$mol_crypto_auditor_pair = $mol_crypto_auditor_pair;
-    class $mol_crypto_auditor_public extends Object {
-        native;
-        constructor(native) {
-            super();
-            this.native = native;
-        }
-        static async from(serial) {
-            return new this(await crypto.subtle.importKey('spki', serial, algorithm, true, ['verify']));
-        }
-        async serial() {
-            return await crypto.subtle.exportKey('spki', this.native);
-        }
-        async verify(data, sign) {
-            return await crypto.subtle.verify(algorithm, this.native, sign, data);
-        }
-    }
-    $.$mol_crypto_auditor_public = $mol_crypto_auditor_public;
-    class $mol_crypto_auditor_private extends Object {
-        native;
-        constructor(native) {
-            super();
-            this.native = native;
-        }
-        static async from(serial) {
-            return new this(await crypto.subtle.importKey('pkcs8', serial, algorithm, true, ['sign']));
-        }
-        async serial() {
-            return await crypto.subtle.exportKey('pkcs8', this.native);
-        }
-        async sign(data) {
-            return await crypto.subtle.sign(algorithm, this.native, data);
-        }
-    }
-    $.$mol_crypto_auditor_private = $mol_crypto_auditor_private;
-})($ || ($ = {}));
-//auditor.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    const sign_size = 32;
     const meta_size = 32;
-    async function $hyoo_crowd_chunk_pack(raw, key) {
+    function $hyoo_crowd_chunk_pack(raw) {
         const data = $.$mol_charset_encode(JSON.stringify(raw.data));
-        const pack = new Uint8Array(meta_size + data.length + sign_size + (4 - data.length % 4));
+        const pack = new Uint8Array(meta_size + data.length + (4 - data.length % 4));
         const pack2 = new Uint16Array(pack.buffer);
         const pack4 = new Uint32Array(pack.buffer);
         pack4[0] = raw.head;
@@ -4705,8 +4649,6 @@ var $;
         pack2[13] = data.length;
         pack4[7] = raw.time;
         pack.set(data, 32);
-        const sign = new Uint8Array(await key.sign(pack.slice(0, -sign_size)));
-        pack.set(sign, pack.length - sign_size);
         return pack;
     }
     $.$hyoo_crowd_chunk_pack = $hyoo_crowd_chunk_pack;
@@ -4725,10 +4667,6 @@ var $;
         return chunk;
     }
     $.$hyoo_crowd_chunk_unpack = $hyoo_crowd_chunk_unpack;
-    function $hyoo_crowd_chunk_verify(pack, key) {
-        return key.verify(new Uint8Array(pack.buffer, 0, pack.length - sign_size), new Uint8Array(pack.buffer, pack.length - sign_size));
-    }
-    $.$hyoo_crowd_chunk_verify = $hyoo_crowd_chunk_verify;
     function $hyoo_crowd_chunk_compare(left, right) {
         if (left.time > right.time)
             return 1;
@@ -4812,7 +4750,7 @@ var $;
         if (from > to)
             $.$mol_fail(new RangeError(`From(${to}) greater then to(${to})`));
         while (p < to || n < next.length) {
-            if (p < to && n < next.length && equal(prev[p], next[n])) {
+            if (p < to && n < next.length && equal(next[n], prev[p])) {
                 lead = prev[p];
                 ++p;
                 ++n;
@@ -5220,7 +5158,7 @@ var $;
                 from,
                 to,
                 next,
-                equal: (prev, next) => prev.data === next,
+                equal: (next, prev) => prev.data === next,
                 drop: (prev, lead) => this.tree.wipe(prev),
                 insert: (next, lead) => this.tree.put(this.head, this.tree.id_new(), lead?.self ?? 0, next),
                 update: (next, prev, lead) => this.tree.put(prev.head, prev.self, lead?.self ?? 0, next),

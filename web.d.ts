@@ -1441,35 +1441,6 @@ declare namespace $.$$ {
 }
 
 declare namespace $ {
-    function $mol_crypto_auditor_pair(this: $): Promise<{
-        public: $mol_crypto_auditor_public;
-        private: $mol_crypto_auditor_private;
-    }>;
-    class $mol_crypto_auditor_public extends Object {
-        readonly native: CryptoKey & {
-            type: 'public';
-        };
-        constructor(native: CryptoKey & {
-            type: 'public';
-        });
-        static from(serial: DataView | ArrayBuffer): Promise<$mol_crypto_auditor_public>;
-        serial(): Promise<ArrayBuffer>;
-        verify(data: DataView | ArrayBuffer, sign: DataView | ArrayBuffer): Promise<boolean>;
-    }
-    class $mol_crypto_auditor_private extends Object {
-        readonly native: CryptoKey & {
-            type: 'private';
-        };
-        constructor(native: CryptoKey & {
-            type: 'private';
-        });
-        static from(serial: DataView | ArrayBuffer): Promise<$mol_crypto_auditor_private>;
-        serial(): Promise<ArrayBuffer>;
-        sign(data: DataView | ArrayBuffer): Promise<ArrayBuffer>;
-    }
-}
-
-declare namespace $ {
     type $hyoo_crowd_chunk = {
         readonly head: number;
         readonly self: number;
@@ -1478,13 +1449,9 @@ declare namespace $ {
         readonly peer: number;
         readonly time: number;
         readonly data: unknown;
-        readonly sign?: Uint8Array & {
-            length: 32;
-        };
     };
-    function $hyoo_crowd_chunk_pack(this: $, raw: $hyoo_crowd_chunk, key: $mol_crypto_auditor_private): Promise<Uint8Array>;
+    function $hyoo_crowd_chunk_pack(this: $, raw: $hyoo_crowd_chunk): Uint8Array;
     function $hyoo_crowd_chunk_unpack(this: $, pack: Uint8Array): $hyoo_crowd_chunk;
-    function $hyoo_crowd_chunk_verify(this: $, pack: Uint8Array, key: $mol_crypto_auditor_public): Promise<boolean>;
     function $hyoo_crowd_chunk_compare(left: $hyoo_crowd_chunk, right: $hyoo_crowd_chunk): number;
 }
 
@@ -1509,7 +1476,7 @@ declare namespace $ {
         from: number;
         to: number;
         next: ArrayLike<Next>;
-        equal: (prev: Prev, next: Next) => boolean;
+        equal: (next: Next, prev: Prev) => boolean;
         drop: (prev: Prev, lead: Prev | null) => Prev;
         insert: (next: Next, lead: Prev | null) => Prev;
         update: (next: Next, prev: Prev, lead: Prev | null) => Prev;
