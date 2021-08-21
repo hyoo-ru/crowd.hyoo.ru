@@ -263,9 +263,11 @@ ORDER BY
 
 # Sign and Verify
 
-- `$hyoo_crowd_chunk_pack( chunk, private_key )` - Pack Chunk to binary with crypto signing.
+- `$hyoo_crowd_chunk_pack( chunk )` - Pack Chunk to binary.
 - `$hyoo_crowd_chunk_unpack( binary )` - Unpack Chunk from binary.
-- `$hyoo_crowd_chunk_verify( binary, public_key )` - Verify crypto sign of packed Chunk.
+- `private_key.sign( packed )` - Sign packed Chunk.
+- `public_key.verify( binary, sign )` - Verify sign of packed Chunk.
+- `$mol_crypto_auditor_pair()` - Makes signinig key pair.
 
 # Usage Example
 

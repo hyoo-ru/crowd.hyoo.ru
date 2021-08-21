@@ -39,7 +39,7 @@ namespace $ {
 	) {
 		
 		const data = $mol_charset_encode( JSON.stringify( raw.data ) )
-		const pack = new Uint8Array( meta_size + data.length + sign_size + ( 4 - data.length % 4 ) )
+		const pack = new Uint8Array( meta_size + data.length + ( 4 - data.length % 4 ) )
 		const pack2 = new Uint16Array( pack.buffer )
 		const pack4 = new Uint32Array( pack.buffer )
 		
@@ -62,9 +62,6 @@ namespace $ {
 		pack4[7] = raw.time
 		
 		pack.set( data, 32 )
-		
-		const sign = new Uint8Array( await key.sign( pack.slice( 0, - sign_size ) ) )
-		pack.set( sign, pack.length - sign_size )
 		
 		return pack
 	}
@@ -92,17 +89,6 @@ namespace $ {
 		}
 		
 		return chunk
-	}
-	
-	export function $hyoo_crowd_chunk_verify(
-		this: $,
-		pack: Uint8Array,
-		key: $mol_crypto_auditor_public,
-	) {
-		return key.verify(
-			new Uint8Array( pack.buffer, 0, pack.length - sign_size ),
-			new Uint8Array( pack.buffer, pack.length - sign_size ),
-		)
 	}
 	
 	export function $hyoo_crowd_chunk_compare(

@@ -16,10 +16,11 @@ namespace $ {
 			}
 			
 			const packed = await $.$hyoo_crowd_chunk_pack( source, pair.private )
+			const sign = await pair.private.sign( packed )
 			const unpacked = $.$hyoo_crowd_chunk_unpack( packed )
 			
 			$mol_assert_like( source, unpacked )
-			$mol_assert_ok( await $.$hyoo_crowd_chunk_verify( packed, pair.public ) )
+			$mol_assert_ok( pair.public.verify( packed, sign ) )
 			
 		},
 		
