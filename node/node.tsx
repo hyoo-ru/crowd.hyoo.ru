@@ -223,6 +223,17 @@ namespace $ {
 					return res
 				}
 				
+				function val( el: Element | string ) {
+					return typeof el === 'string'
+						? el
+						: el.nodeName === 'span'
+							? el.textContent
+							: {
+								tag: el.nodeName,
+								attr: attr( el ),
+							}
+				}
+				
 				$mol_reconcile({
 					prev: this.chunks(),
 					from: 0,
@@ -239,21 +250,14 @@ namespace $ {
 								? this.tree.id_new()
 								: Number( ( next as Element ).id ) || this.tree.id_new(),
 							lead?.self ?? 0,
-							typeof next === 'string'
-								? next
-								: next.nodeName === 'span'
-									? next.textContent
-									: {
-										tag: next.nodeName,
-										attr: attr( next ),
-									},
+							val( next ),
 						)
 					},
 					update: ( next, prev, lead )=> this.tree.put(
 						prev.head,
 						prev.self,
 						lead?.self ?? 0,
-						next,
+						val( next ),
 					),
 				})
 				
