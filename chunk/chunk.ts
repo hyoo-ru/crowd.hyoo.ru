@@ -32,10 +32,9 @@ namespace $ {
 	const sign_size = 32
 	const meta_size = 32
 	
-	export async function $hyoo_crowd_chunk_pack(
+	export function $hyoo_crowd_chunk_pack(
 		this: $,
 		raw: $hyoo_crowd_chunk,
-		key: $mol_crypto_auditor_private,
 	) {
 		
 		const data = $mol_charset_encode( JSON.stringify( raw.data ) )
