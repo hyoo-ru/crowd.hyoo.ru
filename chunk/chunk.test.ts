@@ -1,9 +1,7 @@
 namespace $ {
 	$mol_test({
 		
-		async 'pack and unpack chunk'( $ ) {
-			
-			const pair = await $.$mol_crypto_auditor_pair()
+		'pack and unpack chunk'( $ ) {
 			
 			const source: $hyoo_crowd_chunk = {
 				head: 6618611909121,
@@ -15,12 +13,10 @@ namespace $ {
 				data: { a: [ 1 ] },
 			}
 			
-			const packed = await $.$hyoo_crowd_chunk_pack( source, pair.private )
-			const sign = await pair.private.sign( packed )
+			const packed = $.$hyoo_crowd_chunk_pack( source )
 			const unpacked = $.$hyoo_crowd_chunk_unpack( packed )
 			
 			$mol_assert_like( source, unpacked )
-			$mol_assert_ok( pair.public.verify( packed, sign ) )
 			
 		},
 		

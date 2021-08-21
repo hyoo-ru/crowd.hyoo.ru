@@ -24,12 +24,8 @@ namespace $ {
 		/** Associated atomic data. 2+B */
 		readonly data: unknown,
 		
-		/** Sign for whole node data. 32B */
-		readonly sign?: Uint8Array & { length: 32 },
-		
 	}
 	
-	const sign_size = 32
 	const meta_size = 32
 	
 	export function $hyoo_crowd_chunk_pack(
