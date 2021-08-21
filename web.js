@@ -4720,6 +4720,86 @@ var $;
 //clock.js.map
 ;
 "use strict";
+//deep.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_jsx_prefix = '';
+    $.$mol_jsx_booked = null;
+    $.$mol_jsx_document = {
+        getElementById: () => null,
+        createElement: (name) => $.$mol_dom_context.document.createElement(name),
+        createDocumentFragment: () => $.$mol_dom_context.document.createDocumentFragment(),
+    };
+    $.$mol_jsx_frag = '';
+    function $mol_jsx(Elem, props, ...childNodes) {
+        const id = props && props.id || '';
+        if (Elem && $.$mol_jsx_booked) {
+            if ($.$mol_jsx_booked.has(id)) {
+                $.$mol_fail(new Error(`JSX already has tag with id ${JSON.stringify(id)}`));
+            }
+            else {
+                $.$mol_jsx_booked.add(id);
+            }
+        }
+        const guid = $.$mol_jsx_prefix + id;
+        let node = guid ? $.$mol_jsx_document.getElementById(guid) : null;
+        if (typeof Elem !== 'string') {
+            if ('prototype' in Elem) {
+                const view = node && node[Elem] || new Elem;
+                Object.assign(view, props);
+                view[Symbol.toStringTag] = guid;
+                view.childNodes = childNodes;
+                if (!view.ownerDocument)
+                    view.ownerDocument = $.$mol_jsx_document;
+                node = view.valueOf();
+                node[Elem] = view;
+                return node;
+            }
+            else {
+                const prefix = $.$mol_jsx_prefix;
+                const booked = $.$mol_jsx_booked;
+                try {
+                    $.$mol_jsx_prefix = guid;
+                    $.$mol_jsx_booked = new Set;
+                    return Elem(props, ...childNodes);
+                }
+                finally {
+                    $.$mol_jsx_prefix = prefix;
+                    $.$mol_jsx_booked = booked;
+                }
+            }
+        }
+        if (!node)
+            node = Elem ? $.$mol_jsx_document.createElement(Elem) : $.$mol_jsx_document.createDocumentFragment();
+        $.$mol_dom_render_children(node, [].concat(...childNodes));
+        if (!Elem)
+            return node;
+        for (const key in props) {
+            if (typeof props[key] === 'string') {
+                ;
+                node.setAttribute(key, props[key]);
+            }
+            else if (props[key] &&
+                typeof props[key] === 'object' &&
+                Reflect.getPrototypeOf(props[key]) === Reflect.getPrototypeOf({})) {
+                if (typeof node[key] === 'object') {
+                    Object.assign(node[key], props[key]);
+                    continue;
+                }
+            }
+            node[key] = props[key];
+        }
+        if (guid)
+            node.id = guid;
+        return node;
+    }
+    $.$mol_jsx = $mol_jsx;
+})($ || ($ = {}));
+//jsx.js.map
+;
+"use strict";
 var $;
 (function ($) {
     function $mol_hash_string(str, seed = 0) {
@@ -5093,6 +5173,17 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_dom_serialize(node) {
+        const serializer = new $.$mol_dom_context.XMLSerializer;
+        return serializer.serializeToString(node);
+    }
+    $.$mol_dom_serialize = $mol_dom_serialize;
+})($ || ($ = {}));
+//serialize.js.map
+;
+"use strict";
+var $;
+(function ($) {
     class $hyoo_crowd_node {
         tree;
         head;
@@ -5166,7 +5257,7 @@ var $;
         }
         text(next) {
             if (next === undefined) {
-                return this.list().join('');
+                return this.list().filter(item => typeof item === 'string').join('');
             }
             else {
                 this.write(next, 0, -1);
@@ -5205,6 +5296,92 @@ var $;
             const words = [...next.matchAll($.$hyoo_crowd_tokenizer)].map(token => token[0]);
             this.insert(words, from, to);
             return this;
+        }
+        dom(next) {
+            if (next) {
+                const sample = [];
+                function collect(next) {
+                    for (const node of next.childNodes) {
+                        if (node.nodeType === node.TEXT_NODE) {
+                            for (const token of node.nodeValue.matchAll($.$hyoo_crowd_tokenizer)) {
+                                sample.push(token[0]);
+                            }
+                        }
+                        else {
+                            if (node.nodeName === 'span' && !Number(node.id)) {
+                                collect(node);
+                            }
+                            else {
+                                sample.push(node);
+                            }
+                        }
+                    }
+                }
+                collect(next);
+                function attr(el) {
+                    let res = {};
+                    for (const a of el.attributes) {
+                        if (a.name === 'id')
+                            continue;
+                        res[a.name] = a.value;
+                    }
+                    return res;
+                }
+                $.$mol_reconcile({
+                    prev: this.chunks(),
+                    from: 0,
+                    to: this.count(),
+                    next: sample,
+                    equal: (next, prev) => typeof next === 'string'
+                        ? prev.data === next
+                        : String(prev.self) === next['id'],
+                    drop: (prev, lead) => this.tree.wipe(prev),
+                    insert: (next, lead) => {
+                        return this.tree.put(this.head, typeof next === 'string'
+                            ? this.tree.id_new()
+                            : Number(next.id) || this.tree.id_new(), lead?.self ?? 0, typeof next === 'string'
+                            ? next
+                            : next.nodeName === 'span'
+                                ? next.textContent
+                                : {
+                                    tag: next.nodeName,
+                                    attr: attr(next),
+                                });
+                    },
+                    update: (next, prev, lead) => this.tree.put(prev.head, prev.self, lead?.self ?? 0, next),
+                });
+                const chunks = this.chunks();
+                for (let i = 0; i < chunks.length; ++i) {
+                    const sam = sample[i];
+                    if (typeof sam !== 'string') {
+                        this.tree.node(chunks[i].self).dom(sam);
+                    }
+                }
+                return next;
+            }
+            else {
+                return $.$mol_jsx($.$mol_jsx_frag, null, this.chunks().map(chunk => {
+                    const Tag = typeof chunk.data === 'string'
+                        ? 'span'
+                        : chunk.data.tag ?? 'span';
+                    const attr = typeof chunk.data === 'string'
+                        ? {}
+                        : chunk.data.attr ?? {};
+                    const content = typeof chunk.data === 'string'
+                        ? chunk.data
+                        : this.tree.node(chunk.self).dom();
+                    return $.$mol_jsx(Tag, { ...attr, id: String(chunk.self) }, content);
+                }));
+            }
+        }
+        html(next) {
+            if (next === undefined) {
+                return $.$mol_dom_serialize($.$mol_jsx("body", null, this.dom()));
+            }
+            else {
+                this.dom($.$mol_dom_parse(next).documentElement);
+                return next;
+            }
         }
         point_by_offset(offset) {
             let off = offset;
@@ -7995,5 +8172,40 @@ var $;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
 //app.view.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_jsx_view extends $.$mol_object2 {
+        static of(node) {
+            return node[this];
+        }
+        [Symbol.toStringTag];
+        attributes;
+        ownerDocument;
+        childNodes;
+        valueOf() {
+            const prefix = $.$mol_jsx_prefix;
+            const booked = $.$mol_jsx_booked;
+            const document = $.$mol_jsx_document;
+            try {
+                $.$mol_jsx_prefix = this[Symbol.toStringTag];
+                $.$mol_jsx_booked = new Set;
+                $.$mol_jsx_document = this.ownerDocument;
+                return this.render();
+            }
+            finally {
+                $.$mol_jsx_prefix = prefix;
+                $.$mol_jsx_booked = booked;
+                $.$mol_jsx_document = document;
+            }
+        }
+        render() {
+            return $.$mol_fail(new Error('dom_tree() not implemented'));
+        }
+    }
+    $.$mol_jsx_view = $mol_jsx_view;
+})($ || ($ = {}));
+//view.js.map
 
 //# sourceMappingURL=web.js.map

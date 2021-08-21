@@ -1,9 +1,6 @@
 "use strict";
 function require( path ){ return $node[ path ] };
 "use strict";
-//recast.test.js.map
-;
-"use strict";
 var $;
 (function ($_1) {
     function $mol_test(set) {
@@ -107,9 +104,6 @@ var $;
 //deep.test.js.map
 ;
 "use strict";
-//deep.js.map
-;
-"use strict";
 var $;
 (function ($) {
     $.$mol_test({
@@ -174,83 +168,6 @@ var $;
     });
 })($ || ($ = {}));
 //jsx.test.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_jsx_prefix = '';
-    $.$mol_jsx_booked = null;
-    $.$mol_jsx_document = {
-        getElementById: () => null,
-        createElement: (name) => $.$mol_dom_context.document.createElement(name),
-        createDocumentFragment: () => $.$mol_dom_context.document.createDocumentFragment(),
-    };
-    $.$mol_jsx_frag = '';
-    function $mol_jsx(Elem, props, ...childNodes) {
-        const id = props && props.id || '';
-        if (Elem && $.$mol_jsx_booked) {
-            if ($.$mol_jsx_booked.has(id)) {
-                $.$mol_fail(new Error(`JSX already has tag with id ${JSON.stringify(id)}`));
-            }
-            else {
-                $.$mol_jsx_booked.add(id);
-            }
-        }
-        const guid = $.$mol_jsx_prefix + id;
-        let node = guid ? $.$mol_jsx_document.getElementById(guid) : null;
-        if (typeof Elem !== 'string') {
-            if ('prototype' in Elem) {
-                const view = node && node[Elem] || new Elem;
-                Object.assign(view, props);
-                view[Symbol.toStringTag] = guid;
-                view.childNodes = childNodes;
-                if (!view.ownerDocument)
-                    view.ownerDocument = $.$mol_jsx_document;
-                node = view.valueOf();
-                node[Elem] = view;
-                return node;
-            }
-            else {
-                const prefix = $.$mol_jsx_prefix;
-                const booked = $.$mol_jsx_booked;
-                try {
-                    $.$mol_jsx_prefix = guid;
-                    $.$mol_jsx_booked = new Set;
-                    return Elem(props, ...childNodes);
-                }
-                finally {
-                    $.$mol_jsx_prefix = prefix;
-                    $.$mol_jsx_booked = booked;
-                }
-            }
-        }
-        if (!node)
-            node = Elem ? $.$mol_jsx_document.createElement(Elem) : $.$mol_jsx_document.createDocumentFragment();
-        $.$mol_dom_render_children(node, [].concat(...childNodes));
-        if (!Elem)
-            return node;
-        for (const key in props) {
-            if (typeof props[key] === 'string') {
-                ;
-                node.setAttribute(key, props[key]);
-            }
-            else if (props[key] &&
-                typeof props[key] === 'object' &&
-                Reflect.getPrototypeOf(props[key]) === Reflect.getPrototypeOf({})) {
-                if (typeof node[key] === 'object') {
-                    Object.assign(node[key], props[key]);
-                    continue;
-                }
-            }
-            node[key] = props[key];
-        }
-        if (guid)
-            node.id = guid;
-        return node;
-    }
-    $.$mol_jsx = $mol_jsx;
-})($ || ($ = {}));
-//jsx.js.map
 ;
 "use strict";
 var $;
@@ -2400,6 +2317,35 @@ var $;
 var $;
 (function ($) {
     $.$mol_test({
+        'import exported html'() {
+            const left = new $.$hyoo_crowd_doc(123);
+            left.root.list(['foo', { tag: 'i' }, 'bar']);
+            left.root.nodes()[1].text('ton');
+            const html = left.root.html();
+            const right = new $.$hyoo_crowd_doc(234);
+            right.root.html(html);
+            $.$mol_assert_equal(html, right.root.html());
+            $.$mol_assert_equal(left.root.text(), right.root.text(), 'foobar');
+        },
+        'import wild spans'() {
+            const doc = new $.$hyoo_crowd_doc(234);
+            doc.root.html('<body><span>foo bar<a href="ton"/></span></body>');
+            const dom = doc.root.dom();
+            $.$mol_assert_equal(dom.children[0].nodeName, 'SPAN');
+            $.$mol_assert_equal(dom.children[0].textContent, 'foo ');
+            $.$mol_assert_equal(dom.children[1].nodeName, 'SPAN');
+            $.$mol_assert_equal(dom.children[1].textContent, 'bar');
+            $.$mol_assert_equal(dom.children[2].nodeName, 'A');
+            $.$mol_assert_equal(dom.children[2].getAttribute('href'), 'ton');
+        },
+    });
+})($ || ($ = {}));
+//node_dom.test.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_test({
         'Default state'() {
             const store = new $.$hyoo_crowd_doc(123);
             $.$mol_assert_like(store.root.value(), null);
@@ -3757,41 +3703,6 @@ var $;
     });
 })($ || ($ = {}));
 //view.test.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_jsx_view extends $.$mol_object2 {
-        static of(node) {
-            return node[this];
-        }
-        [Symbol.toStringTag];
-        attributes;
-        ownerDocument;
-        childNodes;
-        valueOf() {
-            const prefix = $.$mol_jsx_prefix;
-            const booked = $.$mol_jsx_booked;
-            const document = $.$mol_jsx_document;
-            try {
-                $.$mol_jsx_prefix = this[Symbol.toStringTag];
-                $.$mol_jsx_booked = new Set;
-                $.$mol_jsx_document = this.ownerDocument;
-                return this.render();
-            }
-            finally {
-                $.$mol_jsx_prefix = prefix;
-                $.$mol_jsx_booked = booked;
-                $.$mol_jsx_document = document;
-            }
-        }
-        render() {
-            return $.$mol_fail(new Error('dom_tree() not implemented'));
-        }
-    }
-    $.$mol_jsx_view = $mol_jsx_view;
-})($ || ($ = {}));
-//view.js.map
 ;
 "use strict";
 var $;

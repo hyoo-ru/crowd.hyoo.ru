@@ -1450,6 +1450,44 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    type $mol_type_partial_deep<Val> = {
+        [field in keyof Val]?: $mol_type_partial_deep<Val[field]>;
+    };
+}
+
+declare namespace $ {
+    let $mol_jsx_prefix: string;
+    let $mol_jsx_booked: Set<string> | null;
+    let $mol_jsx_document: $mol_jsx.JSX.ElementClass['ownerDocument'];
+    const $mol_jsx_frag = "";
+    function $mol_jsx<Props extends {
+        id?: string;
+    }, Children extends Array<Node | string>>(Elem: string | ((props: Props, ...children: Children) => Element) | typeof $mol_jsx_view, props: Props, ...childNodes: Children): Element | DocumentFragment;
+    namespace $mol_jsx.JSX {
+        interface Element extends HTMLElement {
+            class?: string;
+        }
+        interface ElementClass {
+            attributes: {};
+            ownerDocument: Pick<Document, 'getElementById' | 'createElement' | 'createDocumentFragment'>;
+            childNodes: Array<Node | string>;
+            valueOf(): Element;
+        }
+        type IntrinsicElements = {
+            [key in keyof HTMLElementTagNameMap]?: $.$mol_type_partial_deep<Element & HTMLElementTagNameMap[key]>;
+        };
+        interface IntrinsicAttributes {
+            id?: string;
+        }
+        interface ElementAttributesProperty {
+            attributes: {};
+        }
+        interface ElementChildrenAttribute {
+        }
+    }
+}
+
+declare namespace $ {
     function $mol_hash_string(str: string, seed?: number): number;
 }
 
@@ -1575,6 +1613,14 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_dom_serialize(node: Node): string;
+}
+
+declare namespace $ {
+    function $mol_dom_parse(text: string, type?: DOMParserSupportedType): Document;
+}
+
+declare namespace $ {
     class $hyoo_crowd_node {
         readonly tree: $hyoo_crowd_doc;
         readonly head: $hyoo_crowd_chunk['head'];
@@ -1591,6 +1637,8 @@ declare namespace $ {
         insert(next: readonly unknown[], from?: number, to?: number): void;
         text(next?: string): string;
         write(next: string, str_from?: number, str_to?: number): this;
+        dom(next?: Element | DocumentFragment): Element | DocumentFragment;
+        html(next?: string): string;
         point_by_offset(offset: number): {
             chunk: number;
             offset: number;
@@ -2445,6 +2493,18 @@ declare namespace $ {
 
 declare namespace $ {
     function $mol_exec(this: $, dir: string, command: string, ...args: string[]): any;
+}
+
+declare namespace $ {
+    class $mol_jsx_view extends $mol_object2 {
+        static of<This extends typeof $mol_jsx_view>(this: This, node: Element): InstanceType<This>;
+        [Symbol.toStringTag]: string;
+        attributes: Partial<Pick<this, Exclude<keyof this, 'valueOf'>>>;
+        ownerDocument: typeof $mol_jsx_document;
+        childNodes: Array<Node | string>;
+        valueOf(): HTMLElement;
+        render(): HTMLElement;
+    }
 }
 
 export = $;

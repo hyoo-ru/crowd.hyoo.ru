@@ -181,9 +181,9 @@ It's both Struct and List:
 
 So, every key is Node for value.
 
-## Mergeable Text
+## Mergeable Plain Text
 
-- `text( next?: string )` Channel for text representations of List. Uses `write` to replace content.
+- `text( next?: string )` Channel for text representation of List. Uses `write` to replace content.
 - `write( next?: string, from?, to? )` Replaces range of text with reconciliation. Writes to the end when range isn't defined.
 
 Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Chunk instead of creating new.
@@ -206,6 +206,13 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 - Before and after new text appen substrings of first and last tokens which should be untouched.
 - Split new text using universal tokinizer.
 - Reconciliate list of tokens unsing list insertion algorithm.
+
+## Mergeable Rich Text
+
+- `dom( next?: Element | DocumentFragment )` Channel for DOM representation of subtree.
+- `html( next?: string )` Channel for XHTML serialization of DOM.
+
+Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `{ tag: 'div' }`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Chunk Self. This `is` is using to reuse existing Chunks and track Nodes moving.
 
 ## Mergeable Document
 
@@ -253,13 +260,14 @@ ORDER BY
 - ⭕ Unexpected but acceptable behaviour.
 - ❌ Unacceptable behaviour in most cases.
 
-| What \ As  | Atom                        | Struct                           | List               | Dictionary               | Text
-|------------|-----------------------------|----------------------------------|--------------------|--------------------------|-------------------------------------
-| Atom       | ✅ Same                     | ⭕ Nullish fields               | ✅ As single item  | ✅ As key               | ✅ As string as single token
-| Struct     | ⭕ Last changed field value | ✅ Same                         | ⭕ Field values    | ❌ Field values as keys | ⭕ Field values as string as tokens
-| List       | ⭕ Last changed item        | ⭕ Nullish fields               | ✅ Same            | ✅ Items as keys        | ❌ Items as strings as tokens
-| Dictionary | ⭕ Last changed key         | ✅ keys values as fields values | ✅ Keys            | ✅ Same                 | ✅ Keys as tokens
-| Text       | ❌ Last changed token       | ⭕ Nullish fields               | ✅ Tokens          | ❌ Tokens as keys       | ✅ Same
+| What \ As  | Atom                        | Struct                           | List                 | Dictionary               | Text                                | DOM
+|------------|-----------------------------|----------------------------------|----------------------|--------------------------|-------------------------------------|----
+| Atom       | ✅ Same                     | ⭕ Nullish fields               | ✅ As single item    | ✅ As key               | ✅ String as tokens, other ignored  | ✅ String as tokens, other ignored
+| Struct     | ⭕ Last changed field value | ✅ Same                         | ⭕ Field values      | ❌ Field values as keys | ⭕ Empty                            | ⭕ Empty
+| List       | ⭕ Last changed item        | ⭕ Nullish fields               | ✅ Same              | ✅ Items as keys        | ⭕ Strings as tokens, other ignored | ⭕ Items as spans 
+| Dictionary | ⭕ Last changed key         | ✅ keys values as fields values | ✅ Keys              | ✅ Same                 | ✅ Keys as tokens                   | ✅ Keys as tokens
+| Text       | ❌ Last changed token       | ⭕ Nullish fields               | ✅ Tokens            | ❌ Tokens as keys       | ✅ Same                             | ✅ Tokens as spans 
+| DOM        | ❌ Last changed token       | ⭕ Nullish fields               | ✅ Top level items   | ❌ Tokens as keys       | ⭕ Text from top level tokens       | ✅ Same
 
 # Binary Serialization
 
