@@ -261,13 +261,12 @@ ORDER BY
 | Dictionary | ⭕ Last changed key         | ✅ keys values as fields values | ✅ Keys            | ✅ Same                 | ✅ Keys as tokens
 | Text       | ❌ Last changed token       | ⭕ Nullish fields               | ✅ Tokens          | ❌ Tokens as keys       | ✅ Same
 
-# Sign and Verify
+# Binary Serialization
 
 - `$hyoo_crowd_chunk_pack( chunk )` - Pack Chunk to binary.
 - `$hyoo_crowd_chunk_unpack( binary )` - Unpack Chunk from binary.
-- `private_key.sign( packed )` - Sign packed Chunk.
-- `public_key.verify( binary, sign )` - Verify sign of packed Chunk.
-- `$mol_crypto_auditor_pair()` - Makes signinig key pair.
+
+Use [$mol_crypto](https://github.com/hyoo-ru/mam_mol/tree/master/crypto) to generate key-pair, sign packed Chunk and verify it.
 
 # Usage Example
 
