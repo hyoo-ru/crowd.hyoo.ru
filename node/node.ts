@@ -95,52 +95,26 @@ namespace $ {
 			to = from,
 		) {
 			
-			let prev = this.chunks()
-			
-			let p = from
-			let n = 0
-			let lead = p ? prev[ p - 1 ].self : 0
-			
-			while( p < to || n < next.length ) {
-				
-				if( p < to && n < next.length && prev[p].data === next[n] ) {
-					
-					lead = prev[p].self
-					
-					++ p
-					++ n
-					
-				} else if( next.length - n > to - p ) {
-					
-					lead = this.tree.put(
-						this.head,
-						this.tree.id_new(),
-						lead,
-						next[n],
-					).self
-					
-					++ n
-					
-				} else if( next.length - n < to - p ) {
-					
-					lead = this.tree.wipe( prev[p] ).self
-					++ p
-					
-				} else {
-					
-					lead = this.tree.put(
-						prev[p].head,
-						prev[p].self,
-						lead,
-						next[n],
-					).self
-					
-					++ p
-					++ n
-					
-				}
-				
-			}
+			$mol_reconcile({
+				prev: this.chunks(),
+				from,
+				to,
+				next,
+				equal: ( prev, next )=> prev.data === next,
+				drop: ( prev, lead )=> this.tree.wipe( prev ),
+				insert: ( next, lead )=> this.tree.put(
+					this.head,
+					this.tree.id_new(),
+					lead?.self ?? 0,
+					next,
+				),
+				update: ( next, prev, lead )=> this.tree.put(
+					prev.head,
+					prev.self,
+					lead?.self ?? 0,
+					next,
+				),
+			})
 			
 		}
 		
