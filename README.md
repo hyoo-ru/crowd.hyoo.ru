@@ -260,7 +260,7 @@ ORDER BY
 - ⭕ Unexpected but acceptable behaviour.
 - ❌ Unacceptable behaviour in most cases.
 
-| What \ As  | Atom                        | Struct                           | List                 | Dictionary               | Text                                | DOM
+| What\As  | Atom                        | Struct                           | List                 | Dictionary               | Text                                | DOM
 |------------|-----------------------------|----------------------------------|----------------------|--------------------------|-------------------------------------|----
 | Atom       | ✅ Same                     | ⭕ Nullish fields               | ✅ As single item    | ✅ As key               | ✅ String as tokens, other ignored  | ✅ String as tokens, other ignored
 | Struct     | ⭕ Last changed field value | ✅ Same                         | ⭕ Field values      | ❌ Field values as keys | ⭕ Empty                            | ⭕ Empty
@@ -329,7 +329,7 @@ console.log(
 |------------------------|------------|-----------|-------|-----------
 | Approach               | dCvRDT     | CRDT      | CRDT  | dCRDT
 | Garbage Collection     | Doesn't required      | Stores full history      | Enabled by default  | ❓
-| Gzipped Bundle Size    | [**6 KB**](https://bundlephobia.com/result?p=hyoo_crowd_lib)       | [60 KB](https://bundlephobia.com/result?p=automerge)     | [23 KB](https://bundlephobia.com/result?p=yjs) | [43 KB](https://bundlephobia.com/result?p=delta-crdts)
+| Gzipped Bundle Size    | [**9 KB**](https://bundlephobia.com/result?p=hyoo_crowd_lib)       | [60 KB](https://bundlephobia.com/result?p=automerge)     | [23 KB](https://bundlephobia.com/result?p=yjs) | [43 KB](https://bundlephobia.com/result?p=delta-crdts)
 | Sequence: 500 Push + 500 Shift Perf | **17 ms** | 280 ms | 36 ms
 | Sequence: 500 Push + 500 Shift Mem | 80 KB | 2_100 KB | **12 KB**
 | Text: 500 Append + 500 Crop Perf   | **22 ms** | 370 ms | 31 ms
