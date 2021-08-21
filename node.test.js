@@ -5002,6 +5002,42 @@ var $;
 //string.js.map
 ;
 "use strict";
+var $;
+(function ($) {
+    function $mol_reconcile({ prev, from, to, next, equal, drop, insert, update, }) {
+        let p = from;
+        let n = 0;
+        let lead = p ? prev[p - 1] : null;
+        if (to > prev.length)
+            $.$mol_fail(new RangeError(`To(${to}) greater then length(${prev.length})`));
+        if (from > to)
+            $.$mol_fail(new RangeError(`From(${to}) greater then to(${to})`));
+        while (p < to || n < next.length) {
+            if (p < to && n < next.length && equal(prev[p], next[n])) {
+                lead = prev[p];
+                ++p;
+                ++n;
+            }
+            else if (next.length - n > to - p) {
+                lead = insert(next[n], lead);
+                ++n;
+            }
+            else if (next.length - n < to - p) {
+                lead = drop(prev[p], lead);
+                ++p;
+            }
+            else {
+                lead = update(next[n], prev[p], lead);
+                ++p;
+                ++n;
+            }
+        }
+    }
+    $.$mol_reconcile = $mol_reconcile;
+})($ || ($ = {}));
+//reconcile.js.map
+;
+"use strict";
 //equals.js.map
 ;
 "use strict";
@@ -5380,30 +5416,16 @@ var $;
             }
         }
         insert(next, from = this.count(), to = from) {
-            let prev = this.chunks();
-            let p = from;
-            let n = 0;
-            let lead = p ? prev[p - 1].self : 0;
-            while (p < to || n < next.length) {
-                if (p < to && n < next.length && prev[p].data === next[n]) {
-                    lead = prev[p].self;
-                    ++p;
-                    ++n;
-                }
-                else if (next.length - n > to - p) {
-                    lead = this.tree.put(this.head, this.tree.id_new(), lead, next[n]).self;
-                    ++n;
-                }
-                else if (next.length - n < to - p) {
-                    lead = this.tree.wipe(prev[p]).self;
-                    ++p;
-                }
-                else {
-                    lead = this.tree.put(prev[p].head, prev[p].self, lead, next[n]).self;
-                    ++p;
-                    ++n;
-                }
-            }
+            $.$mol_reconcile({
+                prev: this.chunks(),
+                from,
+                to,
+                next,
+                equal: (prev, next) => prev.data === next,
+                drop: (prev, lead) => this.tree.wipe(prev),
+                insert: (next, lead) => this.tree.put(this.head, this.tree.id_new(), lead?.self ?? 0, next),
+                update: (next, prev, lead) => this.tree.put(prev.head, prev.self, lead?.self ?? 0, next),
+            });
         }
         text(next) {
             if (next === undefined) {
@@ -8466,8 +8488,10 @@ var $;
     $.$mol_jsx_booked = null;
     $.$mol_jsx_document = {
         getElementById: () => null,
-        createElement: (name) => $.$mol_dom_context.document.createElement(name)
+        createElement: (name) => $.$mol_dom_context.document.createElement(name),
+        createDocumentFragment: () => $.$mol_dom_context.document.createDocumentFragment(),
     };
+    $.$mol_jsx_frag = '';
     function $mol_jsx(Elem, props, ...childNodes) {
         const id = props && props.id || '';
         if ($.$mol_jsx_booked) {
@@ -8479,7 +8503,7 @@ var $;
             }
         }
         const guid = $.$mol_jsx_prefix + id;
-        let node = guid && $.$mol_jsx_document.getElementById(guid);
+        let node = guid ? $.$mol_jsx_document.getElementById(guid) : null;
         if (typeof Elem !== 'string') {
             if ('prototype' in Elem) {
                 const view = node && node[Elem] || new Elem;
@@ -8507,10 +8531,13 @@ var $;
             }
         }
         if (!node)
-            node = $.$mol_jsx_document.createElement(Elem);
+            node = Elem ? $.$mol_jsx_document.createElement(Elem) : $.$mol_jsx_document.createDocumentFragment();
         $.$mol_dom_render_children(node, [].concat(...childNodes));
+        if (!Elem)
+            return node;
         for (const key in props) {
             if (typeof props[key] === 'string') {
+                ;
                 node.setAttribute(key, props[key]);
             }
             else if (props[key] &&
@@ -10254,6 +10281,104 @@ var $;
     });
 })($ || ($ = {}));
 //clock.test.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_test({
+        'same list'() {
+            const list = $.$mol_jsx($.$mol_jsx_frag, null,
+                $.$mol_jsx("p", { "rev-old": true }, "a"),
+                $.$mol_jsx("p", { "rev-old": true }, "b"),
+                $.$mol_jsx("p", { "rev-old": true }, "c"));
+            $.$mol_reconcile({
+                prev: [...list.children],
+                from: 0,
+                to: 3,
+                next: 'abc',
+                equal: (prev, next) => prev.textContent === next,
+                drop: (prev, lead) => list.removeChild(prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
+                update: (next, prev, lead) => (prev.textContent = next, prev),
+            });
+            $.$mol_assert_like(list, $.$mol_jsx($.$mol_jsx_frag, null,
+                $.$mol_jsx("p", { "rev-old": true }, "a"),
+                $.$mol_jsx("p", { "rev-old": true }, "b"),
+                $.$mol_jsx("p", { "rev-old": true }, "c")));
+        },
+        'insert items'() {
+            const list = $.$mol_jsx($.$mol_jsx_frag, null,
+                $.$mol_jsx("p", { "rev-old": true }, "a"),
+                $.$mol_jsx("p", { "rev-old": true }, "b"),
+                $.$mol_jsx("p", { "rev-old": true }, "c"),
+                $.$mol_jsx("p", { "rev-old": true }, "d"));
+            $.$mol_reconcile({
+                prev: [...list.children],
+                from: 1,
+                to: 3,
+                next: 'bXYc',
+                equal: (prev, next) => prev.textContent === next,
+                drop: (prev, lead) => list.removeChild(prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
+                update: (next, prev, lead) => (prev.textContent = next, prev),
+            });
+            $.$mol_assert_like(list, $.$mol_jsx($.$mol_jsx_frag, null,
+                $.$mol_jsx("p", { "rev-old": true }, "a"),
+                $.$mol_jsx("p", { "rev-old": true }, "b"),
+                $.$mol_jsx("p", { "rev-new": true }, "X"),
+                $.$mol_jsx("p", { "rev-new": true }, "Y"),
+                $.$mol_jsx("p", { "rev-old": true }, "c"),
+                $.$mol_jsx("p", { "rev-old": true }, "d")));
+        },
+        'drop items'() {
+            const list = $.$mol_jsx($.$mol_jsx_frag, null,
+                $.$mol_jsx("p", { "rev-old": true }, "A"),
+                $.$mol_jsx("p", { "rev-old": true }, "B"),
+                $.$mol_jsx("p", { "rev-old": true }, "x"),
+                $.$mol_jsx("p", { "rev-old": true }, "y"),
+                $.$mol_jsx("p", { "rev-old": true }, "C"),
+                $.$mol_jsx("p", { "rev-old": true }, "D"));
+            $.$mol_reconcile({
+                prev: [...list.children],
+                from: 1,
+                to: 5,
+                next: 'BC',
+                equal: (prev, next) => prev.textContent === next,
+                drop: (prev, lead) => list.removeChild(prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
+                update: (next, prev, lead) => (prev.textContent = next, prev),
+            });
+            $.$mol_assert_like(list, $.$mol_jsx($.$mol_jsx_frag, null,
+                $.$mol_jsx("p", { "rev-old": true }, "A"),
+                $.$mol_jsx("p", { "rev-old": true }, "B"),
+                $.$mol_jsx("p", { "rev-old": true }, "C"),
+                $.$mol_jsx("p", { "rev-old": true }, "D")));
+        },
+        'update items'() {
+            const list = $.$mol_jsx($.$mol_jsx_frag, null,
+                $.$mol_jsx("p", { "rev-old": true }, "a"),
+                $.$mol_jsx("p", { "rev-old": true }, "B"),
+                $.$mol_jsx("p", { "rev-old": true }, "C"),
+                $.$mol_jsx("p", { "rev-old": true }, "d"));
+            $.$mol_reconcile({
+                prev: [...list.children],
+                from: 1,
+                to: 3,
+                next: 'XY',
+                equal: (prev, next) => prev.textContent === next,
+                drop: (prev, lead) => list.removeChild(prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
+                update: (next, prev, lead) => (prev.textContent = next, prev),
+            });
+            $.$mol_assert_like(list, $.$mol_jsx($.$mol_jsx_frag, null,
+                $.$mol_jsx("p", { "rev-old": true }, "a"),
+                $.$mol_jsx("p", { "rev-old": true }, "X"),
+                $.$mol_jsx("p", { "rev-old": true }, "Y"),
+                $.$mol_jsx("p", { "rev-old": true }, "d")));
+        },
+    });
+})($ || ($ = {}));
+//reconcile.test.js.map
 ;
 "use strict";
 //equals.test.js.map
