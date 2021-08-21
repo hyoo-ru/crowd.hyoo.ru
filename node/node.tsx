@@ -1,3 +1,5 @@
+/** @jsx $mol_jsx */
+/** @jsxFrag $mol_jsx_frag */
 namespace $ {
 	
 	/** Stateless non-unique adapter to CROWD Tree for given Head. */
@@ -100,7 +102,7 @@ namespace $ {
 				from,
 				to,
 				next,
-				equal: ( prev, next )=> prev.data === next,
+				equal: ( next, prev )=> prev.data === next,
 				drop: ( prev, lead )=> this.tree.wipe( prev ),
 				insert: ( next, lead )=> this.tree.put(
 					this.head,
@@ -123,7 +125,7 @@ namespace $ {
 			
 			if( next === undefined ) {
 				
-				return this.list().join( '' )
+				return this.list().filter( item => typeof item === 'string' ).join( '' )
 			
 			} else {
 				
@@ -188,6 +190,117 @@ namespace $ {
 			return this
 		}
 
+		dom( next?: Element | DocumentFragment ) {
+			
+			if( next ) {
+				
+				const sample = [] as ( string | Element )[]
+				function collect( next: Element | DocumentFragment ) {
+					for( const node of next.childNodes ) {
+						
+						if( node.nodeType === node.TEXT_NODE ) {
+							for( const token of node.nodeValue!.matchAll( $hyoo_crowd_tokenizer ) ) {
+								sample.push( token[0] )
+							}
+						} else {
+							if( node.nodeName === 'span' && !Number( ( node as Element ).id ) ) {
+								collect( node as Element )
+							} else {
+								sample.push( node as Element )
+							}
+						}
+						
+					}
+				}
+				collect( next )
+				
+				function attr( el: Element ) {
+					let res = {} as object
+					for( const a of el.attributes ) {
+						if( a.name === 'id' ) continue
+						res[ a.name ] = a.value
+					}
+					return res
+				}
+				
+				$mol_reconcile({
+					prev: this.chunks(),
+					from: 0,
+					to: this.count(),
+					next: sample,
+					equal: ( next, prev )=> typeof next === 'string'
+						? prev.data === next
+						: String( prev.self ) === next['id'],
+					drop: ( prev, lead )=> this.tree.wipe( prev ),
+					insert: ( next, lead )=> {
+						return this.tree.put(
+							this.head,
+							typeof next === 'string'
+								? this.tree.id_new()
+								: Number( ( next as Element ).id ) || this.tree.id_new(),
+							lead?.self ?? 0,
+							typeof next === 'string'
+								? next
+								: next.nodeName === 'span'
+									? next.textContent
+									: {
+										tag: next.nodeName,
+										attr: attr( next ),
+									},
+						)
+					},
+					update: ( next, prev, lead )=> this.tree.put(
+						prev.head,
+						prev.self,
+						lead?.self ?? 0,
+						next,
+					),
+				})
+				
+				const chunks = this.chunks()
+				for( let i = 0; i < chunks.length; ++i ) {
+					const sam = sample[i]
+					if( typeof sam !== 'string' ) {
+						this.tree.node( chunks[i].self ).dom( sam )
+					}
+				}
+				
+				return next
+				
+			} else {
+				
+				return <>{
+					this.chunks().map( chunk => {
+						
+						const Tag = typeof chunk.data === 'string'
+							? 'span'
+							: ( chunk.data as { tag: string } ).tag ?? 'span'
+							
+						const attr = typeof chunk.data === 'string'
+							? {}
+							: ( chunk.data as { attr: {} } ).attr ?? {}
+							
+						const content = typeof chunk.data === 'string'
+							? chunk.data
+							: this.tree.node( chunk.self ).dom()
+							
+						return <Tag { ... attr } id={ String( chunk.self ) } >{ content }</Tag>
+						
+					} )
+				}</>
+				
+			}
+			
+		}
+		
+		html( next?: string ) {
+			if( next === undefined ) {
+				return $mol_dom_serialize( <body>{ this.dom() }</body> )
+			} else {
+				this.dom( $mol_dom_parse( next ).documentElement )
+				return next
+			}
+		}
 
 		point_by_offset( offset: number ) {
 			
