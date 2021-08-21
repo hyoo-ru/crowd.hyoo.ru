@@ -181,6 +181,8 @@ It's both Struct and List:
 
 So, every key is Node for value.
 
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/dict.svg)
+
 ## Mergeable Plain Text
 
 - `text( next?: string )` Channel for text representation of List. Uses `write` to replace content.
