@@ -5324,6 +5324,16 @@ var $;
                     }
                     return res;
                 }
+                function val(el) {
+                    return typeof el === 'string'
+                        ? el
+                        : el.nodeName === 'span'
+                            ? el.textContent
+                            : {
+                                tag: el.nodeName,
+                                attr: attr(el),
+                            };
+                }
                 $.$mol_reconcile({
                     prev: this.chunks(),
                     from: 0,
@@ -5336,16 +5346,9 @@ var $;
                     insert: (next, lead) => {
                         return this.tree.put(this.head, typeof next === 'string'
                             ? this.tree.id_new()
-                            : Number(next.id) || this.tree.id_new(), lead?.self ?? 0, typeof next === 'string'
-                            ? next
-                            : next.nodeName === 'span'
-                                ? next.textContent
-                                : {
-                                    tag: next.nodeName,
-                                    attr: attr(next),
-                                });
+                            : Number(next.id) || this.tree.id_new(), lead?.self ?? 0, val(next));
                     },
-                    update: (next, prev, lead) => this.tree.put(prev.head, prev.self, lead?.self ?? 0, next),
+                    update: (next, prev, lead) => this.tree.put(prev.head, prev.self, lead?.self ?? 0, val(next)),
                 });
                 const chunks = this.chunks();
                 for (let i = 0; i < chunks.length; ++i) {
@@ -7134,6 +7137,9 @@ var $;
             }
             cell_content(id) {
                 return [this.record(id.row[id.row.length - 1])[id.col]];
+            }
+            cell_content_text(id) {
+                return this.cell_content(id).map(val => typeof val === 'object' ? JSON.stringify(val) : val);
             }
             records() {
                 return [];
