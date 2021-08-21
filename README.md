@@ -46,7 +46,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with add
 - Every peer checks signs and rejects incorrect chunks.
 - Every chunk can be encrypted.
 - Conflict-free merge avaailable without decrypt.
-- Merging doesn't invalidate signs.
+- Merging doesn't invalidate signs or decrypt data.
 
 # Vocabulary
 
