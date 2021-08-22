@@ -362,4 +362,5 @@ console.log(
 # Community
 
 - Leave us a feedback in [duscussions section](https://github.com/hyoo-ru/crowd.hyoo.ru/discussions).
-- Support [Hyoo Guild](https://github.com/hyoo-ru) to drive open source to the future.
+- Fund [Hyoo Guild](https://github.com/hyoo-ru) to drive open source to the future.
+- Hire [nin-jin](https://github.com/nin-jin/) as a contractor for your collaborative app.
