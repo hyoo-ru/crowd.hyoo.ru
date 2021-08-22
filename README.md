@@ -359,7 +359,7 @@ console.log(
 
 ### [crdt-benchmarks](https://github.com/dmonad/crdt-benchmarks)
 
-# Community
+# Support the Project
 
 - Leave us a feedback in [duscussions section](https://github.com/hyoo-ru/crowd.hyoo.ru/discussions).
 - Fund [Hyoo Guild](https://github.com/hyoo-ru) to drive open source to the future.
