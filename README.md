@@ -325,12 +325,14 @@ console.log(
 
 [Sandbox](https://codepen.io/nin-jin/pen/JjbqRYX?editors=0000011)
 
-# Comparison of Libraries
+# Comparison of CRDT Libraries
 
 |                        | [$hyoo_crowd](https://github.com/hyoo-ru/crowd.hyoo.ru) | [Automerge](https://github.com/automerge/automerge) | [YJS](https://github.com/yjs/yjs)   | [delta-crdt](https://github.com/peer-base/js-delta-crdts)
-|------------------------|------------|-----------|-------|-----------
-| Approach               | dCvRDT     | CRDT      | CRDT  | dCRDT
-| Garbage Collection     | Doesn't required      | Stores full history      | Enabled by default  | ❓
+|------------------------|-------------|-----------|-------|-----------
+| Approach               | delta-state | op-log    | delta-state  | delta-state
+| Garbage Collection     | Doesn't required | Stores full history | Enabled by default  | ❓
+| Changes signing        | ✅ Support | ❌       | ❌  | ❌
+| Merge without decrypt  | ✅ Support | ❌       | ❌  | ❌
 | Gzipped Bundle Size    | [**9 KB**](https://bundlephobia.com/result?p=hyoo_crowd_lib)       | [60 KB](https://bundlephobia.com/result?p=automerge)     | [23 KB](https://bundlephobia.com/result?p=yjs) | [43 KB](https://bundlephobia.com/result?p=delta-crdts)
 | Sequence: 500 Push + 500 Shift Perf | **17 ms** | 280 ms | 36 ms
 | Sequence: 500 Push + 500 Shift Mem | 80 KB | 2_100 KB | **12 KB**
