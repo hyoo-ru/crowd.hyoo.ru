@@ -298,12 +298,13 @@ const carol = base.fork(3);
 alice.root.sub("foo").str("A1");
 alice.root.sub("foo").str("A2");
 
-// Change register named "foo" then converts it to sequence and insert value
+// Change register named "foo"
+// Then converts it to sequence and insert some values
 bob.root.sub("foo").str("B1");
 bob.root.sub("foo").insert(["B2", "B3"]);
 
-// Write some text at the end of sequence named "foo"
-carol.root.sub("foo").write("C1 C2");
+// Replace text named "foo"
+carol.root.sub("foo").text("C1 C2");
 
 // Make deltas
 const alice_delta = alice.delta(base.clock);
@@ -315,8 +316,8 @@ alice.apply(bob_delta).apply(carol_delta);
 bob.apply(alice_delta).apply(carol_delta);
 carol.apply(bob_delta).apply(alice_delta);
 
-// ["A2","C1 ","C2","B1","B2","B3"]
 console.log(
+  ["A2","C1 ","C2","B1","B2","B3"],
   alice.root.sub("foo").list(),
   bob.root.sub("foo").list(),
   carol.root.sub("foo").list()
