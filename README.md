@@ -1,6 +1,6 @@
 # CROWDs
 
-Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with additional abilities.
+Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT with additional abilities.
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/logo/logo.svg)
 
