@@ -1,8 +1,8 @@
 # CROWDs
 
-Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta CRDT with additional abilities.
+Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT with additional abilities.
 
-![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/logo/logo.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/logo/logo.svg)
 
 # Key Properties
 
@@ -106,13 +106,13 @@ CREATE TABLE chunks (
 
 ## Single Chunk structure
 
-![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/chunk.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/chunk.svg)
 
 Primary key for Chunks: `[ Head, Self ]`
 
 ## Creation and modifiction of simple Doc
 
-![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/reorder.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/reorder.svg)
 
 # Data Types Representation
 
@@ -131,7 +131,7 @@ Struct is completely virtual thing. No one Chunk is stored for it. Only for fiel
 
 - `sub( key: string )` Returns inner Node for field name.
 
-![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/struct.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/struct.svg)
 
 ### Lookup agorithm
 
@@ -181,7 +181,7 @@ It's both Struct and List:
 
 So, every key is Node for value.
 
-![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/v2/diagram/dict.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/dict.svg)
 
 ## Mergeable Plain Text
 
