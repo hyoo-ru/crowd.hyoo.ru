@@ -66,8 +66,8 @@ namespace $ {
 		pack: Uint8Array,
 	) {
 		
-		const pack2 = new Uint16Array( pack.buffer )
-		const pack4 = new Uint32Array( pack.buffer )
+		const pack2 = new Uint16Array( pack.buffer, pack.byteOffset, pack.byteLength / 2 )
+		const pack4 = new Uint32Array( pack.buffer, pack.byteOffset, pack.byteLength / 4 )
 		
 		const chunk: $hyoo_crowd_chunk = { 
 			head: pack4[0] + pack2[2] * 2**32,
@@ -78,7 +78,7 @@ namespace $ {
 			time: pack4[7],
 			data: JSON.parse(
 				$mol_charset_decode(
-					new Uint8Array( pack.buffer, meta_size, pack2[13] )
+					new Uint8Array( pack.buffer, pack.byteOffset + meta_size, pack2[13] )
 				)
 			),
 		}
