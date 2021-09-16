@@ -4651,8 +4651,8 @@ var $;
     }
     $.$hyoo_crowd_chunk_pack = $hyoo_crowd_chunk_pack;
     function $hyoo_crowd_chunk_unpack(pack) {
-        const pack2 = new Uint16Array(pack.buffer);
-        const pack4 = new Uint32Array(pack.buffer);
+        const pack2 = new Uint16Array(pack.buffer, pack.byteOffset, pack.byteLength / 2);
+        const pack4 = new Uint32Array(pack.buffer, pack.byteOffset, pack.byteLength / 4);
         const chunk = {
             head: pack4[0] + pack2[2] * 2 ** 32,
             self: pack2[3] + pack4[2] * 2 ** 16,
@@ -4660,7 +4660,7 @@ var $;
             seat: pack2[9],
             peer: pack4[5] + pack2[12] * 2 ** 32,
             time: pack4[7],
-            data: JSON.parse($.$mol_charset_decode(new Uint8Array(pack.buffer, meta_size, pack2[13]))),
+            data: JSON.parse($.$mol_charset_decode(new Uint8Array(pack.buffer, pack.byteOffset + meta_size, pack2[13]))),
         };
         return chunk;
     }
