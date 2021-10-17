@@ -116,9 +116,11 @@ Primary key for Chunks: `[ Head, Self ]`
 
 # Data Types Representation
 
-## Atomic JSON
+## Atomic JSON Registry
 
 Single value store. Just CvRDT LWW-Register.
+
+### $hyoo_crowd_reg
 
 - `value( next?: unknown )` Channel for raw value. Returns `null` by default.
 - `bool( next?: boolean )` Channel for `boolean` value. Returns `false` by default.
@@ -128,8 +130,6 @@ Single value store. Just CvRDT LWW-Register.
 ## Mergeable Struct
 
 Struct is completely virtual thing. No one Chunk is stored for it. Only for field values (except it's structs too etc).
-
-- `sub( key: string )` Returns inner Node for field name.
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/struct.svg)
 
@@ -143,10 +143,11 @@ field_head = hash_48bit( field_name, struct_self )
 
 So all Peers writes to the same Node when uses the same key.
 
-## Mergeable Ordered List
+### $hyoo_crowd_struct
 
-- `list( next?: unknown[] )` Channel for list of raw values. Uses `insert` to replace content.
-- `insert( next?: unknown[], from?, to? )` Replaces range of items with reconciliation. Appends to the end when range isn't defined.
+- `sub( key: string )` Returns inner Node for field name.
+
+## Mergeable Ordered List
 
 ### Properties
 
@@ -169,6 +170,11 @@ So all Peers writes to the same Node when uses the same key.
 	- If preferred Seat less then Seat of Chunk, then insert Chunk at the end of result list.
 	- Otherwise insert Chunk at the preferred Seat.
 
+### $hyoo_crowd_list
+
+- `list( next?: unknown[] )` Channel for list of raw values. Uses `insert` to replace content.
+- `insert( next?: unknown[], from?, to? )` Replaces range of items with reconciliation. Appends to the end when range isn't defined.
+
 ## Mergeable Ordered Dictionary
 
 - `sub( key: string )` Returns inner Node for key.
@@ -184,9 +190,6 @@ So, every key is Node for value.
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/dict.svg)
 
 ## Mergeable Plain Text
-
-- `text( next?: string )` Channel for text representation of List. Uses `write` to replace content.
-- `write( next?: string, from?, to? )` Replaces range of text with reconciliation. Writes to the end when range isn't defined.
 
 Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Chunk instead of creating new.
 
@@ -209,12 +212,22 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 - Split new text using universal tokinizer.
 - Reconciliate list of tokens unsing list insertion algorithm.
 
+### $hyoo_crowd_text
+
+- `text( next?: string )` Channel for text representation of List. Uses `write` to replace content.
+- `write( next?: string, from?, to? )` Replaces range of text with reconciliation. Writes to the end when range isn't defined.
+
 ## Mergeable Rich Text
 
-- `dom( next?: Element | DocumentFragment )` Channel for DOM representation of subtree.
-- `html( next?: string )` Channel for XHTML serialization of DOM.
-
 Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `{ tag: 'div' }`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Chunk Self. This `is` is using to reuse existing Chunks and track Nodes moving.
+
+### $hyoo_crowd_dom
+
+- `dom( next?: Element | DocumentFragment )` Channel for DOM representation of subtree.
+
+### $hyoo_crowd_html
+
+- `html( next?: string )` Channel for XHTML serialization of DOM.
 
 ## Mergeable Document
 

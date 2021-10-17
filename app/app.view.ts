@@ -35,7 +35,7 @@ namespace $.$$ {
 		@ $mol_mem
 		text( next?: string ) {
 			this.sync()
-			return this.store().root.text( next )
+			return $hyoo_crowd_text.for( this.store() ).text( next )
 		}
 		
 		delta() {
@@ -64,7 +64,7 @@ namespace $.$$ {
 		
 		tokens_alive() {
 			this.text()
-			return this.store().root.list().length
+			return $hyoo_crowd_list.for( this.store() ).list().length
 		}
 		
 		tokens_total() {

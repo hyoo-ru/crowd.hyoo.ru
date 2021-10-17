@@ -66,12 +66,7 @@ namespace $ {
 		}
 		
 		/** Root Node. */
-		root = this.node( 0 )
-		
-		/** Returns Node for Head. */
-		node( head: $hyoo_crowd_chunk['head'] ) {
-			return new $hyoo_crowd_node( this, head )
-		}
+		root = new $hyoo_crowd_struct( this, 0 )
 		
 		/** Generates new 6B identifier. */
 		id_new() {

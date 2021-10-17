@@ -4,17 +4,17 @@ namespace $ {
 		'import exported html'() {
 			
 			const left = new $hyoo_crowd_doc( 123 )
-			left.root.list([ 'foo', { tag: 'i' }, 'bar' ])
-			left.root.nodes()[1].text( 'ton' )
-			const html = left.root.html()
+			$hyoo_crowd_list.for( left ).list([ 'foo', { tag: 'i' }, 'bar' ])
+			left.root.nodes( $hyoo_crowd_text )[1].text( 'ton' )
+			const html = $hyoo_crowd_html.for( left ).html()
 			
 			const right = new $hyoo_crowd_doc( 234 )
-			right.root.html( html )
+			$hyoo_crowd_html.for( right ).html( html )
 			
-			$mol_assert_equal( html, right.root.html() )
+			$mol_assert_equal( html, $hyoo_crowd_html.for( right ).html() )
 			$mol_assert_equal(
-				left.root.text(),
-				right.root.text(),
+				$hyoo_crowd_text.for( left ).text(),
+				$hyoo_crowd_text.for( right ).text(),
 				'foobar',
 			)
 			
@@ -23,9 +23,9 @@ namespace $ {
 		'import wild spans'() {
 			
 			const doc = new $hyoo_crowd_doc( 234 )
-			doc.root.html( '<body><span>foo bar<a href="ton"/></span></body>' )
+			$hyoo_crowd_html.for( doc ).html( '<body><span>foo bar<a href="ton"/></span></body>' )
 			
-			const dom = doc.root.dom()
+			const dom = $hyoo_crowd_dom.for( doc ).dom()
 			$mol_assert_equal( dom.children[0].nodeName, 'SPAN' )
 			$mol_assert_equal( dom.children[0].textContent, 'foo ' )
 			$mol_assert_equal( dom.children[1].nodeName, 'SPAN' )
