@@ -5034,6 +5034,36 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    class $hyoo_crowd_node {
+        doc;
+        head;
+        constructor(doc, head) {
+            this.doc = doc;
+            this.head = head;
+        }
+        static for(doc, head = 0) {
+            return new this(doc, head);
+        }
+        as(Node) {
+            return new Node(this.doc, this.head);
+        }
+        chunks() {
+            return this.doc.chunk_alive(this.head);
+        }
+        nodes(Node) {
+            return this.chunks().map(chunk => new Node(this.doc, chunk.self));
+        }
+        [$.$mol_dev_format_head]() {
+            return $.$mol_dev_format_span({}, $.$mol_dev_format_native(this), $.$mol_dev_format_shade('/'), $.$mol_dev_format_auto(this.as($.$hyoo_crowd_list).list()), $.$mol_dev_format_shade('/'), $.$mol_dev_format_auto(this.nodes($hyoo_crowd_node)));
+        }
+    }
+    $.$hyoo_crowd_node = $hyoo_crowd_node;
+})($ || ($ = {}));
+//node.js.map
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_hash_string(str, seed = 0) {
         let h1 = 0xdeadbeef ^ seed;
         let h2 = 0x41c6ce57 ^ seed;
@@ -5053,621 +5083,14 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_reconcile({ prev, from, to, next, equal, drop, insert, update, }) {
-        let p = from;
-        let n = 0;
-        let lead = p ? prev[p - 1] : null;
-        if (to > prev.length)
-            $.$mol_fail(new RangeError(`To(${to}) greater then length(${prev.length})`));
-        if (from > to)
-            $.$mol_fail(new RangeError(`From(${to}) greater then to(${to})`));
-        while (p < to || n < next.length) {
-            if (p < to && n < next.length && equal(next[n], prev[p])) {
-                lead = prev[p];
-                ++p;
-                ++n;
-            }
-            else if (next.length - n > to - p) {
-                lead = insert(next[n], lead);
-                ++n;
-            }
-            else if (next.length - n < to - p) {
-                lead = drop(prev[p], lead);
-                ++p;
-            }
-            else {
-                lead = update(next[n], prev[p], lead);
-                ++p;
-                ++n;
-            }
+    class $hyoo_crowd_struct extends $.$hyoo_crowd_node {
+        sub(key, Node) {
+            return new Node(this.doc, $.$mol_hash_string(key, this.head));
         }
     }
-    $.$mol_reconcile = $mol_reconcile;
+    $.$hyoo_crowd_struct = $hyoo_crowd_struct;
 })($ || ($ = {}));
-//reconcile.js.map
-;
-"use strict";
-//equals.js.map
-;
-"use strict";
-//merge.js.map
-;
-"use strict";
-//intersect.js.map
-;
-"use strict";
-//unicode.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_regexp extends RegExp {
-        groups;
-        constructor(source, flags = 'gsu', groups = []) {
-            super(source, flags);
-            this.groups = groups;
-        }
-        *[Symbol.matchAll](str) {
-            const index = this.lastIndex;
-            this.lastIndex = 0;
-            try {
-                while (this.lastIndex < str.length) {
-                    const found = this.exec(str);
-                    if (!found)
-                        break;
-                    yield found;
-                }
-            }
-            finally {
-                this.lastIndex = index;
-            }
-        }
-        [Symbol.match](str) {
-            const res = [...this[Symbol.matchAll](str)].filter(r => r.groups).map(r => r[0]);
-            if (!res.length)
-                return null;
-            return res;
-        }
-        [Symbol.split](str) {
-            const res = [];
-            let token_last = null;
-            for (let token of this[Symbol.matchAll](str)) {
-                if (token.groups && (token_last ? token_last.groups : true))
-                    res.push('');
-                res.push(token[0]);
-                token_last = token;
-            }
-            if (!res.length)
-                res.push('');
-            return res;
-        }
-        test(str) {
-            return Boolean(str.match(this));
-        }
-        exec(str) {
-            const from = this.lastIndex;
-            if (from >= str.length)
-                return null;
-            const res = super.exec(str);
-            if (res === null) {
-                this.lastIndex = str.length;
-                if (!str)
-                    return null;
-                return Object.assign([str.slice(from)], {
-                    index: from,
-                    input: str,
-                });
-            }
-            if (from === this.lastIndex) {
-                $.$mol_fail(new Error('Captured empty substring'));
-            }
-            const groups = {};
-            const skipped = str.slice(from, this.lastIndex - res[0].length);
-            if (skipped) {
-                this.lastIndex = this.lastIndex - res[0].length;
-                return Object.assign([skipped], {
-                    index: from,
-                    input: res.input,
-                });
-            }
-            for (let i = 0; i < this.groups.length; ++i) {
-                const group = this.groups[i];
-                groups[group] = groups[group] || res[i + 1] || '';
-            }
-            return Object.assign(res, { groups });
-        }
-        generate(params) {
-            return null;
-        }
-        static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
-            const regexp = $mol_regexp.from(source);
-            const upper = Number.isFinite(max) ? max : '';
-            const str = `(?:${regexp.source}){${min},${upper}}?`;
-            const regexp2 = new $mol_regexp(str, regexp.flags, regexp.groups);
-            regexp2.generate = params => {
-                const res = regexp.generate(params);
-                if (res)
-                    return res;
-                if (min > 0)
-                    return res;
-                return '';
-            };
-            return regexp2;
-        }
-        static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
-            const regexp = $mol_regexp.from(source);
-            const upper = Number.isFinite(max) ? max : '';
-            const str = `(?:${regexp.source}){${min},${upper}}`;
-            const regexp2 = new $mol_regexp(str, regexp.flags, regexp.groups);
-            regexp2.generate = params => {
-                const res = regexp.generate(params);
-                if (res)
-                    return res;
-                if (min > 0)
-                    return res;
-                return '';
-            };
-            return regexp2;
-        }
-        static optional(source) {
-            return $mol_regexp.repeat_greedy(source, 0, 1);
-        }
-        static force_after(source) {
-            const regexp = $mol_regexp.from(source);
-            return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
-        }
-        static forbid_after(source) {
-            const regexp = $mol_regexp.from(source);
-            return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
-        }
-        static from(source, { ignoreCase, multiline } = {
-            ignoreCase: false,
-            multiline: false,
-        }) {
-            let flags = 'gsu';
-            if (multiline)
-                flags += 'm';
-            if (ignoreCase)
-                flags += 'i';
-            if (typeof source === 'number') {
-                const src = `\\u{${source.toString(16)}}`;
-                const regexp = new $mol_regexp(src, flags);
-                regexp.generate = () => src;
-                return regexp;
-            }
-            if (typeof source === 'string') {
-                const src = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const regexp = new $mol_regexp(src, flags);
-                regexp.generate = () => source;
-                return regexp;
-            }
-            else if (source instanceof $mol_regexp) {
-                const regexp = new $mol_regexp(source.source, flags, source.groups);
-                regexp.generate = params => source.generate(params);
-                return regexp;
-            }
-            if (source instanceof RegExp) {
-                const test = new RegExp('|' + source.source);
-                const groups = Array.from({ length: test.exec('').length - 1 }, (_, i) => String(i + 1));
-                const regexp = new $mol_regexp(source.source, source.flags, groups);
-                regexp.generate = () => '';
-                return regexp;
-            }
-            if (Array.isArray(source)) {
-                const patterns = source.map(src => Array.isArray(src)
-                    ? $mol_regexp.optional(src)
-                    : $mol_regexp.from(src));
-                const chunks = patterns.map(pattern => pattern.source);
-                const groups = [];
-                let index = 0;
-                for (const pattern of patterns) {
-                    for (let group of pattern.groups) {
-                        if (Number(group) >= 0) {
-                            groups.push(String(index++));
-                        }
-                        else {
-                            groups.push(group);
-                        }
-                    }
-                }
-                const regexp = new $mol_regexp(chunks.join(''), flags, groups);
-                regexp.generate = params => {
-                    let res = '';
-                    for (const pattern of patterns) {
-                        let sub = pattern.generate(params);
-                        if (sub === null)
-                            return '';
-                        res += sub;
-                    }
-                    return res;
-                };
-                return regexp;
-            }
-            else {
-                const groups = [];
-                const chunks = Object.keys(source).map(name => {
-                    groups.push(name);
-                    const regexp = $mol_regexp.from(source[name]);
-                    groups.push(...regexp.groups);
-                    return `(${regexp.source})`;
-                });
-                const regexp = new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
-                const validator = new RegExp('^' + regexp.source + '$', flags);
-                regexp.generate = params => {
-                    for (let option in source) {
-                        if (option in params) {
-                            if (typeof params[option] === 'boolean') {
-                                if (!params[option])
-                                    continue;
-                            }
-                            else {
-                                const str = String(params[option]);
-                                if (str.match(validator))
-                                    return str;
-                                $.$mol_fail(new Error(`Wrong param: ${option}=${str}`));
-                            }
-                        }
-                        else {
-                            if (typeof source[option] !== 'object')
-                                continue;
-                        }
-                        const res = $mol_regexp.from(source[option]).generate(params);
-                        if (res)
-                            return res;
-                    }
-                    return null;
-                };
-                return regexp;
-            }
-        }
-        static unicode_only(...category) {
-            return new $mol_regexp(`\\p{${category.join('=')}}`);
-        }
-        static unicode_except(...category) {
-            return new $mol_regexp(`\\P{${category.join('=')}}`);
-        }
-        static char_range(from, to) {
-            return new $mol_regexp(`${$mol_regexp.from(from).source}-${$mol_regexp.from(to).source}`);
-        }
-        static char_only(...allowed) {
-            const regexp = allowed.map(f => $mol_regexp.from(f).source).join('');
-            return new $mol_regexp(`[${regexp}]`);
-        }
-        static char_except(...forbidden) {
-            const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
-            return new $mol_regexp(`[^${regexp}]`);
-        }
-        static decimal_only = $mol_regexp.from(/\d/gsu);
-        static decimal_except = $mol_regexp.from(/\D/gsu);
-        static latin_only = $mol_regexp.from(/\w/gsu);
-        static latin_except = $mol_regexp.from(/\W/gsu);
-        static space_only = $mol_regexp.from(/\s/gsu);
-        static space_except = $mol_regexp.from(/\S/gsu);
-        static word_break_only = $mol_regexp.from(/\b/gsu);
-        static word_break_except = $mol_regexp.from(/\B/gsu);
-        static tab = $mol_regexp.from(/\t/gsu);
-        static slash_back = $mol_regexp.from(/\\/gsu);
-        static nul = $mol_regexp.from(/\0/gsu);
-        static char_any = $mol_regexp.from(/./gsu);
-        static begin = $mol_regexp.from(/^/gsu);
-        static end = $mol_regexp.from(/$/gsu);
-        static or = $mol_regexp.from(/|/gsu);
-        static line_end = $mol_regexp.from({
-            win_end: [['\r'], '\n'],
-            mac_end: '\r',
-        });
-    }
-    $.$mol_regexp = $mol_regexp;
-})($ || ($ = {}));
-//regexp.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    const { unicode_only, line_end, repeat_greedy, optional, char_only, char_except } = $.$mol_regexp;
-    $.$hyoo_crowd_tokenizer = $.$mol_regexp.from({
-        token: {
-            'line-break': line_end,
-            'emoji': [
-                unicode_only('Extended_Pictographic'),
-                optional(unicode_only('Emoji_Modifier')),
-                repeat_greedy([
-                    unicode_only('Emoji_Component'),
-                    unicode_only('Extended_Pictographic'),
-                    optional(unicode_only('Emoji_Modifier')),
-                ]),
-            ],
-            'Word-punctuation-space': [
-                repeat_greedy(char_only([
-                    unicode_only('General_Category', 'Uppercase_Letter'),
-                    unicode_only('Diacritic'),
-                    unicode_only('General_Category', 'Number'),
-                ])),
-                repeat_greedy(char_only([
-                    unicode_only('General_Category', 'Lowercase_Letter'),
-                    unicode_only('Diacritic'),
-                    unicode_only('General_Category', 'Number'),
-                ])),
-                repeat_greedy(char_except([
-                    unicode_only('General_Category', 'Uppercase_Letter'),
-                    unicode_only('General_Category', 'Lowercase_Letter'),
-                    unicode_only('Diacritic'),
-                    unicode_only('General_Category', 'Number'),
-                    unicode_only('White_Space'),
-                ])),
-                optional(unicode_only('White_Space')),
-            ],
-        },
-    });
-})($ || ($ = {}));
-//tokenizer.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_dom_serialize(node) {
-        const serializer = new $.$mol_dom_context.XMLSerializer;
-        return serializer.serializeToString(node);
-    }
-    $.$mol_dom_serialize = $mol_dom_serialize;
-})($ || ($ = {}));
-//serialize.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_dom_parse(text, type = 'application/xhtml+xml') {
-        const parser = new $.$mol_dom_context.DOMParser();
-        const doc = parser.parseFromString(text, type);
-        const error = doc.getElementsByTagName('parsererror');
-        if (error.length)
-            throw new Error(error[0].textContent);
-        return doc;
-    }
-    $.$mol_dom_parse = $mol_dom_parse;
-})($ || ($ = {}));
-//parse.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_node {
-        tree;
-        head;
-        constructor(tree, head) {
-            this.tree = tree;
-            this.head = head;
-        }
-        sub(key) {
-            return this.tree.node($.$mol_hash_string(key, this.head));
-        }
-        chunks() {
-            return this.tree.chunk_alive(this.head);
-        }
-        nodes() {
-            return this.chunks().map(chunk => this.tree.node(chunk.self));
-        }
-        value(next) {
-            const chunks = this.chunks();
-            let last;
-            for (const chunk of chunks) {
-                if (!last || $.$hyoo_crowd_chunk_compare(chunk, last) > 0)
-                    last = chunk;
-            }
-            if (next === undefined) {
-                return last?.data ?? null;
-            }
-            else {
-                if (last?.data === next)
-                    return next;
-                for (const chunk of chunks) {
-                    if (chunk === last)
-                        continue;
-                    this.tree.wipe(chunk);
-                }
-                this.tree.put(this.head, last?.self ?? this.tree.id_new(), 0, next);
-                return next;
-            }
-        }
-        str(next) {
-            return String(this.value(next) ?? '');
-        }
-        numb(next) {
-            return Number(this.value(next) ?? 0);
-        }
-        bool(next) {
-            return Boolean(this.value(next) ?? false);
-        }
-        count() {
-            return this.chunks().length;
-        }
-        list(next) {
-            if (next === undefined) {
-                return this.chunks().map(chunk => chunk.data);
-            }
-            else {
-                this.insert(next, 0, this.count());
-                return next;
-            }
-        }
-        insert(next, from = this.count(), to = from) {
-            $.$mol_reconcile({
-                prev: this.chunks(),
-                from,
-                to,
-                next,
-                equal: (next, prev) => prev.data === next,
-                drop: (prev, lead) => this.tree.wipe(prev),
-                insert: (next, lead) => this.tree.put(this.head, this.tree.id_new(), lead?.self ?? 0, next),
-                update: (next, prev, lead) => this.tree.put(prev.head, prev.self, lead?.self ?? 0, next),
-            });
-        }
-        text(next) {
-            if (next === undefined) {
-                return this.list().filter(item => typeof item === 'string').join('');
-            }
-            else {
-                this.write(next, 0, -1);
-                return next;
-            }
-        }
-        write(next, str_from = -1, str_to = str_from) {
-            const list = this.chunks();
-            let from = str_from < 0 ? list.length : 0;
-            let word = '';
-            while (from < list.length) {
-                word = String(list[from].data);
-                if (str_from <= word.length) {
-                    next = word.slice(0, str_from) + next;
-                    break;
-                }
-                str_from -= word.length;
-                if (str_to > 0)
-                    str_to -= word.length;
-                from++;
-            }
-            let to = str_to < 0 ? list.length : from;
-            while (to < list.length) {
-                word = String(list[to].data);
-                to++;
-                if (str_to < word.length) {
-                    next = next + word.slice(str_to);
-                    break;
-                }
-                str_to -= word.length;
-            }
-            if (from && from === list.length) {
-                --from;
-                next = String(list[from].data) + next;
-            }
-            const words = [...next.matchAll($.$hyoo_crowd_tokenizer)].map(token => token[0]);
-            this.insert(words, from, to);
-            return this;
-        }
-        dom(next) {
-            if (next) {
-                const sample = [];
-                function collect(next) {
-                    for (const node of next.childNodes) {
-                        if (node.nodeType === node.TEXT_NODE) {
-                            for (const token of node.nodeValue.matchAll($.$hyoo_crowd_tokenizer)) {
-                                sample.push(token[0]);
-                            }
-                        }
-                        else {
-                            if (node.nodeName === 'span' && !Number(node.id)) {
-                                collect(node);
-                            }
-                            else {
-                                sample.push(node);
-                            }
-                        }
-                    }
-                }
-                collect(next);
-                function attr(el) {
-                    let res = {};
-                    for (const a of el.attributes) {
-                        if (a.name === 'id')
-                            continue;
-                        res[a.name] = a.value;
-                    }
-                    return res;
-                }
-                function val(el) {
-                    return typeof el === 'string'
-                        ? el
-                        : el.nodeName === 'span'
-                            ? el.textContent
-                            : {
-                                tag: el.nodeName,
-                                attr: attr(el),
-                            };
-                }
-                $.$mol_reconcile({
-                    prev: this.chunks(),
-                    from: 0,
-                    to: this.count(),
-                    next: sample,
-                    equal: (next, prev) => typeof next === 'string'
-                        ? prev.data === next
-                        : String(prev.self) === next['id'],
-                    drop: (prev, lead) => this.tree.wipe(prev),
-                    insert: (next, lead) => {
-                        return this.tree.put(this.head, typeof next === 'string'
-                            ? this.tree.id_new()
-                            : Number(next.id) || this.tree.id_new(), lead?.self ?? 0, val(next));
-                    },
-                    update: (next, prev, lead) => this.tree.put(prev.head, prev.self, lead?.self ?? 0, val(next)),
-                });
-                const chunks = this.chunks();
-                for (let i = 0; i < chunks.length; ++i) {
-                    const sam = sample[i];
-                    if (typeof sam !== 'string') {
-                        this.tree.node(chunks[i].self).dom(sam);
-                    }
-                }
-                return next;
-            }
-            else {
-                return $.$mol_jsx($.$mol_jsx_frag, null, this.chunks().map(chunk => {
-                    const Tag = typeof chunk.data === 'string'
-                        ? 'span'
-                        : chunk.data.tag ?? 'span';
-                    const attr = typeof chunk.data === 'string'
-                        ? {}
-                        : chunk.data.attr ?? {};
-                    const content = typeof chunk.data === 'string'
-                        ? chunk.data
-                        : this.tree.node(chunk.self).dom();
-                    return $.$mol_jsx(Tag, { ...attr, id: String(chunk.self) }, content);
-                }));
-            }
-        }
-        html(next) {
-            if (next === undefined) {
-                return $.$mol_dom_serialize($.$mol_jsx("body", null, this.dom()));
-            }
-            else {
-                this.dom($.$mol_dom_parse(next).documentElement);
-                return next;
-            }
-        }
-        point_by_offset(offset) {
-            let off = offset;
-            for (const chunk of this.chunks()) {
-                const len = String(chunk.data).length;
-                if (off < len)
-                    return { chunk: chunk.self, offset: off };
-                else
-                    off -= len;
-            }
-            return { chunk: this.head, offset: offset };
-        }
-        offset_by_point(point) {
-            let offset = 0;
-            for (const chunk of this.chunks()) {
-                if (chunk.self === point.chunk)
-                    return offset + point.offset;
-                offset += String(chunk.data).length;
-            }
-            return offset;
-        }
-        move(from, to) {
-            const chunks = this.chunks();
-            const lead = to ? chunks[to - 1].self : 0;
-            return this.tree.move(chunks[from], this.head, lead);
-        }
-        cut(seat) {
-            return this.tree.wipe(this.chunks()[seat]);
-        }
-        [$.$mol_dev_format_head]() {
-            return $.$mol_dev_format_span({}, $.$mol_dev_format_native(this), $.$mol_dev_format_shade('/'), $.$mol_dev_format_auto(this.list()), $.$mol_dev_format_shade('/'), $.$mol_dev_format_auto(this.nodes()));
-        }
-    }
-    $.$hyoo_crowd_node = $hyoo_crowd_node;
-})($ || ($ = {}));
-//node.js.map
+//struct.js.map
 ;
 "use strict";
 var $;
@@ -5706,10 +5129,7 @@ var $;
             }
             return chunks;
         }
-        root = this.node(0);
-        node(head) {
-            return new $.$hyoo_crowd_node(this, head);
-        }
+        root = new $.$hyoo_crowd_struct(this, 0);
         id_new() {
             return 1 + Math.floor(Math.random() * (2 ** (6 * 8) - 2));
         }
@@ -6400,6 +5820,281 @@ var $;
     $.$mol_dimmer = $mol_dimmer;
 })($ || ($ = {}));
 //dimmer.view.tree.js.map
+;
+"use strict";
+//equals.js.map
+;
+"use strict";
+//merge.js.map
+;
+"use strict";
+//intersect.js.map
+;
+"use strict";
+//unicode.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_regexp extends RegExp {
+        groups;
+        constructor(source, flags = 'gsu', groups = []) {
+            super(source, flags);
+            this.groups = groups;
+        }
+        *[Symbol.matchAll](str) {
+            const index = this.lastIndex;
+            this.lastIndex = 0;
+            try {
+                while (this.lastIndex < str.length) {
+                    const found = this.exec(str);
+                    if (!found)
+                        break;
+                    yield found;
+                }
+            }
+            finally {
+                this.lastIndex = index;
+            }
+        }
+        [Symbol.match](str) {
+            const res = [...this[Symbol.matchAll](str)].filter(r => r.groups).map(r => r[0]);
+            if (!res.length)
+                return null;
+            return res;
+        }
+        [Symbol.split](str) {
+            const res = [];
+            let token_last = null;
+            for (let token of this[Symbol.matchAll](str)) {
+                if (token.groups && (token_last ? token_last.groups : true))
+                    res.push('');
+                res.push(token[0]);
+                token_last = token;
+            }
+            if (!res.length)
+                res.push('');
+            return res;
+        }
+        test(str) {
+            return Boolean(str.match(this));
+        }
+        exec(str) {
+            const from = this.lastIndex;
+            if (from >= str.length)
+                return null;
+            const res = super.exec(str);
+            if (res === null) {
+                this.lastIndex = str.length;
+                if (!str)
+                    return null;
+                return Object.assign([str.slice(from)], {
+                    index: from,
+                    input: str,
+                });
+            }
+            if (from === this.lastIndex) {
+                $.$mol_fail(new Error('Captured empty substring'));
+            }
+            const groups = {};
+            const skipped = str.slice(from, this.lastIndex - res[0].length);
+            if (skipped) {
+                this.lastIndex = this.lastIndex - res[0].length;
+                return Object.assign([skipped], {
+                    index: from,
+                    input: res.input,
+                });
+            }
+            for (let i = 0; i < this.groups.length; ++i) {
+                const group = this.groups[i];
+                groups[group] = groups[group] || res[i + 1] || '';
+            }
+            return Object.assign(res, { groups });
+        }
+        generate(params) {
+            return null;
+        }
+        static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
+            const regexp = $mol_regexp.from(source);
+            const upper = Number.isFinite(max) ? max : '';
+            const str = `(?:${regexp.source}){${min},${upper}}?`;
+            const regexp2 = new $mol_regexp(str, regexp.flags, regexp.groups);
+            regexp2.generate = params => {
+                const res = regexp.generate(params);
+                if (res)
+                    return res;
+                if (min > 0)
+                    return res;
+                return '';
+            };
+            return regexp2;
+        }
+        static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
+            const regexp = $mol_regexp.from(source);
+            const upper = Number.isFinite(max) ? max : '';
+            const str = `(?:${regexp.source}){${min},${upper}}`;
+            const regexp2 = new $mol_regexp(str, regexp.flags, regexp.groups);
+            regexp2.generate = params => {
+                const res = regexp.generate(params);
+                if (res)
+                    return res;
+                if (min > 0)
+                    return res;
+                return '';
+            };
+            return regexp2;
+        }
+        static optional(source) {
+            return $mol_regexp.repeat_greedy(source, 0, 1);
+        }
+        static force_after(source) {
+            const regexp = $mol_regexp.from(source);
+            return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
+        }
+        static forbid_after(source) {
+            const regexp = $mol_regexp.from(source);
+            return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
+        }
+        static from(source, { ignoreCase, multiline } = {
+            ignoreCase: false,
+            multiline: false,
+        }) {
+            let flags = 'gsu';
+            if (multiline)
+                flags += 'm';
+            if (ignoreCase)
+                flags += 'i';
+            if (typeof source === 'number') {
+                const src = `\\u{${source.toString(16)}}`;
+                const regexp = new $mol_regexp(src, flags);
+                regexp.generate = () => src;
+                return regexp;
+            }
+            if (typeof source === 'string') {
+                const src = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regexp = new $mol_regexp(src, flags);
+                regexp.generate = () => source;
+                return regexp;
+            }
+            else if (source instanceof $mol_regexp) {
+                const regexp = new $mol_regexp(source.source, flags, source.groups);
+                regexp.generate = params => source.generate(params);
+                return regexp;
+            }
+            if (source instanceof RegExp) {
+                const test = new RegExp('|' + source.source);
+                const groups = Array.from({ length: test.exec('').length - 1 }, (_, i) => String(i + 1));
+                const regexp = new $mol_regexp(source.source, source.flags, groups);
+                regexp.generate = () => '';
+                return regexp;
+            }
+            if (Array.isArray(source)) {
+                const patterns = source.map(src => Array.isArray(src)
+                    ? $mol_regexp.optional(src)
+                    : $mol_regexp.from(src));
+                const chunks = patterns.map(pattern => pattern.source);
+                const groups = [];
+                let index = 0;
+                for (const pattern of patterns) {
+                    for (let group of pattern.groups) {
+                        if (Number(group) >= 0) {
+                            groups.push(String(index++));
+                        }
+                        else {
+                            groups.push(group);
+                        }
+                    }
+                }
+                const regexp = new $mol_regexp(chunks.join(''), flags, groups);
+                regexp.generate = params => {
+                    let res = '';
+                    for (const pattern of patterns) {
+                        let sub = pattern.generate(params);
+                        if (sub === null)
+                            return '';
+                        res += sub;
+                    }
+                    return res;
+                };
+                return regexp;
+            }
+            else {
+                const groups = [];
+                const chunks = Object.keys(source).map(name => {
+                    groups.push(name);
+                    const regexp = $mol_regexp.from(source[name]);
+                    groups.push(...regexp.groups);
+                    return `(${regexp.source})`;
+                });
+                const regexp = new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
+                const validator = new RegExp('^' + regexp.source + '$', flags);
+                regexp.generate = params => {
+                    for (let option in source) {
+                        if (option in params) {
+                            if (typeof params[option] === 'boolean') {
+                                if (!params[option])
+                                    continue;
+                            }
+                            else {
+                                const str = String(params[option]);
+                                if (str.match(validator))
+                                    return str;
+                                $.$mol_fail(new Error(`Wrong param: ${option}=${str}`));
+                            }
+                        }
+                        else {
+                            if (typeof source[option] !== 'object')
+                                continue;
+                        }
+                        const res = $mol_regexp.from(source[option]).generate(params);
+                        if (res)
+                            return res;
+                    }
+                    return null;
+                };
+                return regexp;
+            }
+        }
+        static unicode_only(...category) {
+            return new $mol_regexp(`\\p{${category.join('=')}}`);
+        }
+        static unicode_except(...category) {
+            return new $mol_regexp(`\\P{${category.join('=')}}`);
+        }
+        static char_range(from, to) {
+            return new $mol_regexp(`${$mol_regexp.from(from).source}-${$mol_regexp.from(to).source}`);
+        }
+        static char_only(...allowed) {
+            const regexp = allowed.map(f => $mol_regexp.from(f).source).join('');
+            return new $mol_regexp(`[${regexp}]`);
+        }
+        static char_except(...forbidden) {
+            const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
+            return new $mol_regexp(`[^${regexp}]`);
+        }
+        static decimal_only = $mol_regexp.from(/\d/gsu);
+        static decimal_except = $mol_regexp.from(/\D/gsu);
+        static latin_only = $mol_regexp.from(/\w/gsu);
+        static latin_except = $mol_regexp.from(/\W/gsu);
+        static space_only = $mol_regexp.from(/\s/gsu);
+        static space_except = $mol_regexp.from(/\S/gsu);
+        static word_break_only = $mol_regexp.from(/\b/gsu);
+        static word_break_except = $mol_regexp.from(/\B/gsu);
+        static tab = $mol_regexp.from(/\t/gsu);
+        static slash_back = $mol_regexp.from(/\\/gsu);
+        static nul = $mol_regexp.from(/\0/gsu);
+        static char_any = $mol_regexp.from(/./gsu);
+        static begin = $mol_regexp.from(/^/gsu);
+        static end = $mol_regexp.from(/$/gsu);
+        static or = $mol_regexp.from(/|/gsu);
+        static line_end = $mol_regexp.from({
+            win_end: [['\r'], '\n'],
+            mac_end: '\r',
+        });
+    }
+    $.$mol_regexp = $mol_regexp;
+})($ || ($ = {}));
+//regexp.js.map
 ;
 "use strict";
 var $;
@@ -8320,6 +8015,193 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_reconcile({ prev, from, to, next, equal, drop, insert, update, }) {
+        let p = from;
+        let n = 0;
+        let lead = p ? prev[p - 1] : null;
+        if (to > prev.length)
+            $.$mol_fail(new RangeError(`To(${to}) greater then length(${prev.length})`));
+        if (from > to)
+            $.$mol_fail(new RangeError(`From(${to}) greater then to(${to})`));
+        while (p < to || n < next.length) {
+            if (p < to && n < next.length && equal(next[n], prev[p])) {
+                lead = prev[p];
+                ++p;
+                ++n;
+            }
+            else if (next.length - n > to - p) {
+                lead = insert(next[n], lead);
+                ++n;
+            }
+            else if (next.length - n < to - p) {
+                lead = drop(prev[p], lead);
+                ++p;
+            }
+            else {
+                lead = update(next[n], prev[p], lead);
+                ++p;
+                ++n;
+            }
+        }
+    }
+    $.$mol_reconcile = $mol_reconcile;
+})($ || ($ = {}));
+//reconcile.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_list extends $.$hyoo_crowd_node {
+        list(next) {
+            const chunks = this.chunks();
+            if (next === undefined) {
+                return chunks.map(chunk => chunk.data);
+            }
+            else {
+                this.insert(next, 0, chunks.length);
+                return next;
+            }
+        }
+        insert(next, from = this.chunks().length, to = from) {
+            $.$mol_reconcile({
+                prev: this.chunks(),
+                from,
+                to,
+                next,
+                equal: (next, prev) => prev.data === next,
+                drop: (prev, lead) => this.doc.wipe(prev),
+                insert: (next, lead) => this.doc.put(this.head, this.doc.id_new(), lead?.self ?? 0, next),
+                update: (next, prev, lead) => this.doc.put(prev.head, prev.self, lead?.self ?? 0, next),
+            });
+        }
+        move(from, to) {
+            const chunks = this.chunks();
+            const lead = to ? chunks[to - 1].self : 0;
+            return this.doc.move(chunks[from], this.head, lead);
+        }
+        cut(seat) {
+            return this.doc.wipe(this.chunks()[seat]);
+        }
+    }
+    $.$hyoo_crowd_list = $hyoo_crowd_list;
+})($ || ($ = {}));
+//list.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    const { unicode_only, line_end, repeat_greedy, optional, char_only, char_except } = $.$mol_regexp;
+    $.$hyoo_crowd_tokenizer = $.$mol_regexp.from({
+        token: {
+            'line-break': line_end,
+            'emoji': [
+                unicode_only('Extended_Pictographic'),
+                optional(unicode_only('Emoji_Modifier')),
+                repeat_greedy([
+                    unicode_only('Emoji_Component'),
+                    unicode_only('Extended_Pictographic'),
+                    optional(unicode_only('Emoji_Modifier')),
+                ]),
+            ],
+            'Word-punctuation-space': [
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ])),
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ])),
+                repeat_greedy(char_except([
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                    unicode_only('White_Space'),
+                ])),
+                optional(unicode_only('White_Space')),
+            ],
+        },
+    });
+})($ || ($ = {}));
+//tokenizer.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_text extends $.$hyoo_crowd_node {
+        text(next) {
+            if (next === undefined) {
+                return this.as($.$hyoo_crowd_list).list().filter(item => typeof item === 'string').join('');
+            }
+            else {
+                this.write(next, 0, -1);
+                return next;
+            }
+        }
+        write(next, str_from = -1, str_to = str_from) {
+            const list = this.chunks();
+            let from = str_from < 0 ? list.length : 0;
+            let word = '';
+            while (from < list.length) {
+                word = String(list[from].data);
+                if (str_from <= word.length) {
+                    next = word.slice(0, str_from) + next;
+                    break;
+                }
+                str_from -= word.length;
+                if (str_to > 0)
+                    str_to -= word.length;
+                from++;
+            }
+            let to = str_to < 0 ? list.length : from;
+            while (to < list.length) {
+                word = String(list[to].data);
+                to++;
+                if (str_to < word.length) {
+                    next = next + word.slice(str_to);
+                    break;
+                }
+                str_to -= word.length;
+            }
+            if (from && from === list.length) {
+                --from;
+                next = String(list[from].data) + next;
+            }
+            const words = [...next.matchAll($.$hyoo_crowd_tokenizer)].map(token => token[0]);
+            this.as($.$hyoo_crowd_list).insert(words, from, to);
+            return this;
+        }
+        point_by_offset(offset) {
+            let off = offset;
+            for (const chunk of this.chunks()) {
+                const len = String(chunk.data).length;
+                if (off < len)
+                    return { chunk: chunk.self, offset: off };
+                else
+                    off -= len;
+            }
+            return { chunk: this.head, offset: offset };
+        }
+        offset_by_point(point) {
+            let offset = 0;
+            for (const chunk of this.chunks()) {
+                if (chunk.self === point.chunk)
+                    return offset + point.offset;
+                offset += String(chunk.data).length;
+            }
+            return offset;
+        }
+    }
+    $.$hyoo_crowd_text = $hyoo_crowd_text;
+})($ || ($ = {}));
+//text.js.map
+;
+"use strict";
+var $;
+(function ($) {
     var $$;
     (function ($$) {
         const { rem } = $.$mol_style_unit;
@@ -8381,7 +8263,7 @@ var $;
             }
             text(next) {
                 this.sync();
-                return this.store().root.text(next);
+                return $.$hyoo_crowd_text.for(this.store()).text(next);
             }
             delta() {
                 this.text();
@@ -8404,7 +8286,7 @@ var $;
             }
             tokens_alive() {
                 this.text();
-                return this.store().root.list().length;
+                return $.$hyoo_crowd_list.for(this.store()).list().length;
             }
             tokens_total() {
                 this.text();
