@@ -297,6 +297,9 @@ Use [$mol_crypto](https://github.com/hyoo-ru/mam_mol/tree/master/crypto) to gene
 // // Usage from NPM. Isn't required in MAM.
 // import {
 //   $hyoo_crowd_doc,
+//   $hyoo_crowd_reg,
+//   $hyoo_crowd_list,
+//   $hyoo_crowd_text,
 // } from 'hyoo_crowd_lib'
 
 // Create document
@@ -308,16 +311,16 @@ const bob = base.fork(2);
 const carol = base.fork(3);
 
 // Twice change register named "foo"
-alice.root.sub("foo").str("A1");
-alice.root.sub("foo").str("A2");
+alice.root.sub("foo", $hyoo_crowd_reg).str("A1");
+alice.root.sub("foo", $hyoo_crowd_reg).str("A2");
 
 // Change register named "foo"
 // Then converts it to sequence and insert some values
-bob.root.sub("foo").str("B1");
-bob.root.sub("foo").insert(["B2", "B3"]);
+bob.root.sub("foo", $hyoo_crowd_reg).str("B1");
+bob.root.sub("foo", $hyoo_crowd_list).insert(["B2", "B3"]);
 
 // Replace text named "foo"
-carol.root.sub("foo").text("C1 C2");
+carol.root.sub("foo", $hyoo_crowd_text).text("C1 C2");
 
 // Make deltas
 const alice_delta = alice.delta(base.clock);
@@ -330,10 +333,10 @@ bob.apply(alice_delta).apply(carol_delta);
 carol.apply(bob_delta).apply(alice_delta);
 
 console.log(
-  ["A2","C1 ","C2","B1","B2","B3"],
-  alice.root.sub("foo").list(),
-  bob.root.sub("foo").list(),
-  carol.root.sub("foo").list()
+  ["A2", "C1 ", "C2", "B1", "B2", "B3"],
+  alice.root.sub("foo", $hyoo_crowd_list).list(),
+  bob.root.sub("foo", $hyoo_crowd_list).list(),
+  carol.root.sub("foo", $hyoo_crowd_list).list()
 );
 ```
 
