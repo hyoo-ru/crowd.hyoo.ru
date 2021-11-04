@@ -430,7 +430,9 @@ $mol_text_image $mol_view
 		mol_text_type <= type?val \
 		data <= link?val \
 	sub /
-		<= title?val \
+		<= Image $mol_image
+			uri <= link
+			title <= title?val \
 
 $mol_section $mol_list rows /
 	<= Head $mol_view
