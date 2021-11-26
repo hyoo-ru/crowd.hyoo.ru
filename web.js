@@ -32,6 +32,74 @@ $node[ "../mam" ] = $node[ "../mam.js" ] = module.exports }.call( {} , {} )
 "use strict";
 var $;
 (function ($) {
+    $.$mol_report_bugsnag = '';
+    globalThis.onerror = function (msg, url, line, col, err) {
+        const el = document.activeElement;
+        const report = {
+            apiKey: $.$mol_report_bugsnag,
+            payloadVersion: 5,
+            notifier: {
+                name: '$mol_report_bugsnag',
+                version: '1',
+                url: '$mol_report_bugsnag',
+            },
+            events: [{
+                    device: {
+                        locale: navigator.language,
+                        userAgent: navigator.userAgent,
+                        time: new Date().toISOString(),
+                    },
+                    context: el && el.id,
+                    exceptions: [{
+                            message: err && err.message || err || msg,
+                            errorClass: err && err.constructor.name,
+                            stacktrace: [{
+                                    columnNumber: col,
+                                    file: url,
+                                    lineNumber: line,
+                                    method: '',
+                                }],
+                        }],
+                    metaData: {
+                        stack: err && err.stack,
+                    },
+                    request: {
+                        url: document.location.href,
+                        referer: document.referrer,
+                    },
+                }],
+        };
+        if (location.hostname === 'localhost') {
+            console.debug('Error report', report);
+        }
+        else {
+            fetch('https://notify.bugsnag.com/', {
+                method: 'post',
+                body: JSON.stringify(report),
+            });
+        }
+    };
+    globalThis.onunhandledrejection = function (event) {
+        globalThis.onerror('Unhandled Rejection', '', 0, 0, event.reason);
+    };
+    const error = console.error;
+    console.error = function (...args) {
+        error.apply(console, args);
+        globalThis.onerror('Logged Error', '', 0, 0, arguments[0]);
+    };
+})($ || ($ = {}));
+//bugsnag.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_report_bugsnag = '18acf016ed2a2a4cc4445daa9dd2dd3c';
+})($ || ($ = {}));
+//hyoo.js.map
+;
+"use strict";
+var $;
+(function ($) {
     class $mol_decor {
         value;
         constructor(value) {
@@ -2453,7 +2521,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/gap/gap.css", ":root {\n\t--mol_gap_block: .75rem;\n\t--mol_gap_text: .5rem .75rem;\n\t--mol_gap_round: .25rem;\n\t--mol_gap_space: .35rem;\n\t--mol_gap_blur: .5rem;\n}\n");
+    $.$mol_style_attach("mol/gap/gap.css", ":root {\n\t--mol_gap_block: .75rem;\n\t--mol_gap_text: .5rem .75rem;\n\t--mol_gap_round: .25rem;\n\t--mol_gap_space: .25rem;\n\t--mol_gap_blur: .5rem;\n}\n");
 })($ || ($ = {}));
 //gap.css.js.map
 ;
@@ -3346,7 +3414,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/button/button.view.css", "[mol_button] {\n\tborder: none;\n\tfont: inherit;\n\tdisplay: inline-flex;\n\tgap: var(--mol_gap_space);\n\tflex-shrink: 0;\n\ttext-decoration: inherit;\n\tcursor: inherit;\n\tposition: relative;\n\tbox-sizing: border-box;\n\tword-break: normal;\n\tcursor: default;\n\tuser-select: none;\n\tborder-radius: var(--mol_gap_round);\n}\n[mol_button]:focus {\n\toutline: none;\n}\n");
+    $.$mol_style_attach("mol/button/button.view.css", "[mol_button] {\n\tborder: none;\n\tfont: inherit;\n\tdisplay: inline-flex;\n\tflex-shrink: 0;\n\ttext-decoration: inherit;\n\tcursor: inherit;\n\tposition: relative;\n\tbox-sizing: border-box;\n\tword-break: normal;\n\tcursor: default;\n\tuser-select: none;\n\tborder-radius: var(--mol_gap_round);\n}\n[mol_button]:focus {\n\toutline: none;\n}\n");
 })($ || ($ = {}));
 //button.view.css.js.map
 ;
@@ -3422,7 +3490,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/button/typed/typed.view.css", "[mol_button_typed] {\n\talign-content: center;\n\talign-items: center;\n\tpadding: var(--mol_gap_text);\n\tborder-radius: var(--mol_gap_round);\n}\n\n[mol_button_typed][disabled] {\n\tcolor: var(--mol_theme_text);\n\tpointer-events: none;\n}\n\n[mol_button_typed]:hover ,\n[mol_button_typed]:focus {\n\tcursor: pointer;\n\tbackground-color: var(--mol_theme_hover);\n}\n");
+    $.$mol_style_attach("mol/button/typed/typed.view.css", "[mol_button_typed] {\n\talign-content: center;\n\talign-items: center;\n\tpadding: var(--mol_gap_text);\n\tborder-radius: var(--mol_gap_round);\n\tgap: var(--mol_gap_space);\n}\n\n[mol_button_typed][disabled] {\n\tcolor: var(--mol_theme_text);\n\tpointer-events: none;\n}\n\n[mol_button_typed]:hover ,\n[mol_button_typed]:focus {\n\tcursor: pointer;\n\tbackground-color: var(--mol_theme_hover);\n}\n");
 })($ || ($ = {}));
 //typed.view.css.js.map
 ;
@@ -7104,7 +7172,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/link/iconed/iconed.view.css", "[mol_link_iconed] {\n\talign-items: center;\n\tcolor: var(--mol_theme_control);\n\tdisplay: inline;\n\tpadding: var(--mol_gap_text);\n}\n\n[mol_link_iconed_icon] {\n\tbox-shadow: none;\n\theight: 1em;\n\twidth: 1em;\n\tdisplay: inline-block;\n\tmargin: .125rem 0;\n\tvertical-align: text-bottom;\n\tborder-radius: 0;\n\tobject-fit: scale-down;\n}\n\n[mol_theme=\"$mol_theme_dark\"] [mol_link_iconed_icon] {\n\tfilter: invert(1) hue-rotate(180deg);\n}\n");
+    $.$mol_style_attach("mol/link/iconed/iconed.view.css", "[mol_link_iconed] {\n\talign-items: center;\n\tcolor: var(--mol_theme_control);\n\tdisplay: inline-flex;\n\tpadding: var(--mol_gap_text);\n}\n\n[mol_link_iconed_icon] {\n\tbox-shadow: none;\n\theight: 1em;\n\twidth: 1em;\n\tdisplay: inline-block;\n\tmargin: .125rem 0;\n\tvertical-align: text-bottom;\n\tborder-radius: 0;\n\tobject-fit: scale-down;\n}\n\n[mol_theme=\"$mol_theme_dark\"] [mol_link_iconed_icon] {\n\tfilter: invert(1) hue-rotate(180deg);\n}\n");
 })($ || ($ = {}));
 //iconed.view.css.js.map
 ;
