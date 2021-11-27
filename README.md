@@ -82,7 +82,7 @@ type Chunk = {
     peer: number
     time: number
     data: unknown
-    sign: null | Uint8Array & { length: 32 }
+    sign: null | Uint8Array & { length: 64 }
 }
 
 type State = Chunk[]
@@ -100,7 +100,7 @@ CREATE TABLE chunks (
 	peer uint(6),
 	time uint(4),
 	data json,
-	sign byte(32),
+	sign byte(64),
 )
 ```
 
@@ -198,7 +198,7 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 - Can be simply bound to native `<textarea>`.
 - Merge never produces unreadable token value. Only one of valid (LWW).
 - No interleaving. The typed text will not be interrupted after merging.
-- For `3.2MB` text (320k words) of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" in CROWD Doc takes up  `40MB` (`12x`) in JSON serialization and `25MB` (`8x`) in binary with signing.
+- For `3.2MB` text (320k words) of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" in CROWD Doc takes up  `40MB` (`12x`) in JSON serialization and `25MB` (`8x`) in binary with signing (obsoleted data, sign was 32B but now 64B).
 
 ### **[Online sandbox](https://crowd.hyoo.ru/)**
 
