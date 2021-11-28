@@ -41,18 +41,16 @@ namespace $ {
 			clock.see( 111, 1 )
 			clock.see( 222, 2 )
 			
-			const version = clock.tick( 111 )
+			const now = Date.now()
 			
-			$mol_assert_equal( version, 3 )
-			$mol_assert_equal( clock.now, 3 )
+			const time1 = clock.tick( 111 )
+			$mol_assert_ok( time1 >= now )
+			$mol_assert_ok( clock.now >= now )
 			
-			$mol_assert_like(
-				[ ... clock ],
-				[
-					[ 111, 3 ],
-					[ 222, 2 ],
-				],
-			)
+			clock.see( 222, now + 1000 )
+			const time2 = clock.tick( 222 )
+			$mol_assert_ok( time2 > now + 1000 )
+			$mol_assert_ok( clock.now > now + 1000 )
 			
 		},
 		

@@ -86,12 +86,14 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_doc( 123 )
 			$hyoo_crowd_reg.for( store ).str( 'foo' )
+			const time = store.clock.now
+			
 			$hyoo_crowd_reg.for( store ).str( 'foo' )
 			$hyoo_crowd_list.for( store ).list( [ 'foo' ] )
 			
 			$mol_assert_like(
 				store.delta().map( chunk => chunk.time ),
-				[ 1 ]
+				[ time ]
 			)
 			
 		},
@@ -166,30 +168,32 @@ namespace $ {
 				[ 'foo', 'bar', 'lol' ],
 			)
 			
+			const time = store.clock.now
+			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
-					[ 123, 0 ],
+					[ 123, time - 3 ],
 				]) ).map( chunk => chunk.data ),
 				[ 'foo', 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
-					[ 123, 1 ],
+					[ 123, time - 2 ],
 				]) ).map( chunk => chunk.data ),
 				[ 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
-					[ 123, 2 ],
+					[ 123, time - 1 ],
 				]) ).map( chunk => chunk.data ),
 				[ 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
-					[ 123, 3 ],
+					[ 123, time ],
 				]) ),
 				[],
 			)

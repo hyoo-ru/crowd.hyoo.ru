@@ -1,12 +1,12 @@
 namespace $ {
 	
-	/** Vector version clock. */
+	/** Vector clock. Stores real timestamps. */
 	export class $hyoo_crowd_clock extends Map<
 		$hyoo_crowd_chunk['peer'],
 		$hyoo_crowd_chunk['time']
 	> {
 		
-		/** Maximum version for all peers. */
+		/** Maximum time for all peers. */
 		now = 0
 		
 		constructor( entries?: Iterable< readonly [ number, number ] > ) {
@@ -21,20 +21,20 @@ namespace $ {
 			
 		}
 		
-		/** Add new `version` for `peer` and increase `now`. */
+		/** Add new `time` for `peer` and increase `now`. */
 		see( peer: number, time: number ) {
 			
 			if( this.now < time ) this.now = time
 			
-			const peer_version = this.get( peer )
-			if( !peer_version || peer_version < time ) {
+			const peer_time = this.get( peer )
+			if( !peer_time || peer_time < time ) {
 				this.set( peer, time )
 			}
 			
 			return time
 		}
 		
-		/** Checks if version from future. */
+		/** Checks if time from future. */
 		fresh( peer: number, time: number ) {
 			return time > ( this.get( peer ) ?? 0 )
 		}
@@ -49,9 +49,9 @@ namespace $ {
 			return false
 		}
 		
-		/** Gererates new version for peer that greated then other seen. */
+		/** Gererates new time for peer that greater then other seen. */
 		tick( peer: number ) {
-			return this.see( peer, this.now + 1 )
+			return this.see( peer, Math.max( Date.now(), this.now + 1 ) )
 		}
 			
 	}

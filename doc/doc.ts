@@ -1,5 +1,8 @@
 namespace $ {
 	
+	/** Maximum clock desynchronization in ms. Chunks from far future are ignored. */
+	const desync = 60 * 60 * 1000
+	
 	/** Conflict-free Reinterpretable Ordered Washed Data Tree */
 	export class $hyoo_crowd_doc {
 		
@@ -136,7 +139,14 @@ namespace $ {
 		/** Applies Delta to current state. */
 		apply( delta: readonly $hyoo_crowd_chunk[] ) {
 			
+			const deadline = Date.now() + desync
+			
 			for( const next of delta ) {
+				
+				if( next.time > deadline ) {
+					console.warn( 'Ignored chunk from far future', next )
+					continue
+				}
 				
 				this.clock.see( next.peer, next.time )
 				const chunks = this.chunk_list( next.head )
