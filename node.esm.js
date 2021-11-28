@@ -5035,8 +5035,8 @@ var $;
         see(peer, time) {
             if (this.now < time)
                 this.now = time;
-            const peer_version = this.get(peer);
-            if (!peer_version || peer_version < time) {
+            const peer_time = this.get(peer);
+            if (!peer_time || peer_time < time) {
                 this.set(peer, time);
             }
             return time;
@@ -5052,7 +5052,7 @@ var $;
             return false;
         }
         tick(peer) {
-            return this.see(peer, this.now + 1);
+            return this.see(peer, Math.max(Date.now(), this.now + 1));
         }
     }
     $.$hyoo_crowd_clock = $hyoo_crowd_clock;
@@ -5208,6 +5208,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    const desync = 60 * 60 * 1000;
     class $hyoo_crowd_doc {
         peer;
         constructor(peer = 0) {
@@ -5287,7 +5288,12 @@ var $;
             return chunks;
         }
         apply(delta) {
+            const deadline = Date.now() + desync;
             for (const next of delta) {
+                if (next.time > deadline) {
+                    console.warn('Ignored chunk from far future', next);
+                    continue;
+                }
                 this.clock.see(next.peer, next.time);
                 const chunks = this.chunk_list(next.head);
                 const guid = `${next.head}/${next.self}`;

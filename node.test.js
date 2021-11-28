@@ -5027,8 +5027,8 @@ var $;
         see(peer, time) {
             if (this.now < time)
                 this.now = time;
-            const peer_version = this.get(peer);
-            if (!peer_version || peer_version < time) {
+            const peer_time = this.get(peer);
+            if (!peer_time || peer_time < time) {
                 this.set(peer, time);
             }
             return time;
@@ -5044,7 +5044,7 @@ var $;
             return false;
         }
         tick(peer) {
-            return this.see(peer, this.now + 1);
+            return this.see(peer, Math.max(Date.now(), this.now + 1));
         }
     }
     $.$hyoo_crowd_clock = $hyoo_crowd_clock;
@@ -5200,6 +5200,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    const desync = 60 * 60 * 1000;
     class $hyoo_crowd_doc {
         peer;
         constructor(peer = 0) {
@@ -5279,7 +5280,12 @@ var $;
             return chunks;
         }
         apply(delta) {
+            const deadline = Date.now() + desync;
             for (const next of delta) {
+                if (next.time > deadline) {
+                    console.warn('Ignored chunk from far future', next);
+                    continue;
+                }
                 this.clock.see(next.peer, next.time);
                 const chunks = this.chunk_list(next.head);
                 const guid = `${next.head}/${next.self}`;
@@ -10526,13 +10532,14 @@ var $;
             const clock = new $.$hyoo_crowd_clock;
             clock.see(111, 1);
             clock.see(222, 2);
-            const version = clock.tick(111);
-            $.$mol_assert_equal(version, 3);
-            $.$mol_assert_equal(clock.now, 3);
-            $.$mol_assert_like([...clock], [
-                [111, 3],
-                [222, 2],
-            ]);
+            const now = Date.now();
+            const time1 = clock.tick(111);
+            $.$mol_assert_ok(time1 >= now);
+            $.$mol_assert_ok(clock.now >= now);
+            clock.see(222, now + 1000);
+            const time2 = clock.tick(222);
+            $.$mol_assert_ok(time2 > now + 1000);
+            $.$mol_assert_ok(clock.now > now + 1000);
         },
         'ahead'() {
             const clock1 = new $.$hyoo_crowd_clock;
@@ -10613,9 +10620,10 @@ var $;
         'Ignore same changes'() {
             const store = new $.$hyoo_crowd_doc(123);
             $.$hyoo_crowd_reg.for(store).str('foo');
+            const time = store.clock.now;
             $.$hyoo_crowd_reg.for(store).str('foo');
             $.$hyoo_crowd_list.for(store).list(['foo']);
-            $.$mol_assert_like(store.delta().map(chunk => chunk.time), [1]);
+            $.$mol_assert_like(store.delta().map(chunk => chunk.time), [time]);
         },
         'Serial insert values'() {
             const store = new $.$hyoo_crowd_doc(123);
@@ -10655,17 +10663,18 @@ var $;
             $.$mol_assert_like(store.delta(new $.$hyoo_crowd_clock([
                 [321, 2],
             ])).map(chunk => chunk.data), ['foo', 'bar', 'lol']);
+            const time = store.clock.now;
             $.$mol_assert_like(store.delta(new $.$hyoo_crowd_clock([
-                [123, 0],
+                [123, time - 3],
             ])).map(chunk => chunk.data), ['foo', 'bar', 'lol']);
             $.$mol_assert_like(store.delta(new $.$hyoo_crowd_clock([
-                [123, 1],
+                [123, time - 2],
             ])).map(chunk => chunk.data), ['bar', 'lol']);
             $.$mol_assert_like(store.delta(new $.$hyoo_crowd_clock([
-                [123, 2],
+                [123, time - 1],
             ])).map(chunk => chunk.data), ['lol']);
             $.$mol_assert_like(store.delta(new $.$hyoo_crowd_clock([
-                [123, 3],
+                [123, time],
             ])), []);
         },
         'Delete with subtree and ignore inserted into deleted'() {
