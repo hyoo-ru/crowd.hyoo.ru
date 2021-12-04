@@ -32,9 +32,22 @@ $node[ "../mam" ] = $node[ "../mam.js" ] = module.exports }.call( {} , {} )
 "use strict";
 var $;
 (function ($) {
+})($ || ($ = {}));
+//context.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_dom_context = self;
+})($ || ($ = {}));
+//context.web.js.map
+;
+"use strict";
+var $;
+(function ($) {
     $.$mol_report_bugsnag = '';
     globalThis.onerror = function (msg, url, line, col, err) {
-        const el = document.activeElement;
+        const doc = $.$mol_dom_context.document;
         const report = {
             apiKey: $.$mol_report_bugsnag,
             payloadVersion: 5,
@@ -49,10 +62,10 @@ var $;
                         userAgent: navigator.userAgent,
                         time: new Date().toISOString(),
                     },
-                    context: el && el.id,
+                    context: doc?.activeElement?.id,
                     exceptions: [{
-                            message: err && err.message || err || msg,
-                            errorClass: err && err.constructor.name,
+                            message: err?.message || err || msg,
+                            errorClass: err?.constructor.name,
                             stacktrace: [{
                                     columnNumber: col,
                                     file: url,
@@ -64,8 +77,8 @@ var $;
                         stack: err && err.stack,
                     },
                     request: {
-                        url: document.location.href,
-                        referer: document.referrer,
+                        url: doc?.location.href,
+                        referer: doc?.referrer,
                     },
                 }],
         };
@@ -357,19 +370,6 @@ var $;
     $.$mol_after_tick = $mol_after_tick;
 })($ || ($ = {}));
 //tick.js.map
-;
-"use strict";
-var $;
-(function ($) {
-})($ || ($ = {}));
-//context.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_dom_context = self;
-})($ || ($ = {}));
-//context.web.js.map
 ;
 "use strict";
 var $;
@@ -1624,16 +1624,50 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_guid(length = 8, exists = () => false) {
+        for (;;) {
+            let id = Math.random().toString(36).substring(2, length + 2).toUpperCase();
+            if (exists(id))
+                continue;
+            return id;
+        }
+    }
+    $.$mol_guid = $mol_guid;
+})($ || ($ = {}));
+//guid.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    const keys = new WeakMap();
     function $mol_key(value) {
         if (!value)
             return JSON.stringify(value);
         if (typeof value !== 'object' && typeof value !== 'function')
             return JSON.stringify(value);
-        if (Array.isArray(value))
-            return JSON.stringify(value);
-        if (Object.getPrototypeOf(Object.getPrototypeOf(value)) === null)
-            return JSON.stringify(value);
-        return value;
+        return JSON.stringify(value, (field, value) => {
+            if (!value)
+                return value;
+            if (typeof value !== 'object' && typeof value !== 'function')
+                return value;
+            if (Array.isArray(value))
+                return value;
+            const proto = Reflect.getPrototypeOf(value);
+            if (!proto)
+                return value;
+            if (Reflect.getPrototypeOf(proto) === null)
+                return value;
+            if ('toJSON' in value)
+                return value;
+            if (value instanceof RegExp)
+                return value.toString();
+            let key = keys.get(value);
+            if (key)
+                return key;
+            key = $.$mol_guid();
+            keys.set(value, key);
+            return key;
+        });
     }
     $.$mol_key = $mol_key;
 })($ || ($ = {}));
