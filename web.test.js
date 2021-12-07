@@ -261,6 +261,17 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_dom_serialize(node) {
+        const serializer = new $.$mol_dom_context.XMLSerializer;
+        return serializer.serializeToString(node);
+    }
+    $.$mol_dom_serialize = $mol_dom_serialize;
+})($ || ($ = {}));
+//serialize.js.map
+;
+"use strict";
+var $;
+(function ($) {
     $.$mol_test({
         'must be false'() {
             $.$mol_assert_not(0);
@@ -377,6 +388,10 @@ var $;
         }
     }
     $.$mol_assert_like = $mol_assert_like;
+    function $mol_assert_dom(left, right) {
+        $mol_assert_equal($.$mol_dom_serialize(left), $.$mol_dom_serialize(right));
+    }
+    $.$mol_assert_dom = $mol_assert_dom;
 })($ || ($ = {}));
 //assert.js.map
 ;
@@ -1680,10 +1695,10 @@ var $;
 (function ($) {
     $.$mol_test({
         'same list'() {
-            const list = $.$mol_jsx($.$mol_jsx_frag, null,
-                $.$mol_jsx("p", { "rev-old": true }, "a"),
-                $.$mol_jsx("p", { "rev-old": true }, "b"),
-                $.$mol_jsx("p", { "rev-old": true }, "c"));
+            const list = $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "a"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "b"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "c"));
             $.$mol_reconcile({
                 prev: [...list.children],
                 from: 0,
@@ -1691,20 +1706,24 @@ var $;
                 next: 'abc',
                 equal: (next, prev) => prev.textContent === next,
                 drop: (prev, lead) => list.removeChild(prev),
-                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
-                update: (next, prev, lead) => (prev.textContent = next, prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "data-rev": "new" }, next), lead ? lead.nextSibling : list.firstChild),
+                update: (next, prev, lead) => {
+                    prev.textContent = next;
+                    prev.setAttribute('data-rev', 'up');
+                    return prev;
+                },
             });
-            $.$mol_assert_like(list.outerHTML, ($.$mol_jsx($.$mol_jsx_frag, null,
-                $.$mol_jsx("p", { "rev-old": true }, "a"),
-                $.$mol_jsx("p", { "rev-old": true }, "b"),
-                $.$mol_jsx("p", { "rev-old": true }, "c"))).outerHTML);
+            $.$mol_assert_dom(list, $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "a"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "b"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "c")));
         },
         'insert items'() {
-            const list = $.$mol_jsx($.$mol_jsx_frag, null,
-                $.$mol_jsx("p", { "rev-old": true }, "a"),
-                $.$mol_jsx("p", { "rev-old": true }, "b"),
-                $.$mol_jsx("p", { "rev-old": true }, "c"),
-                $.$mol_jsx("p", { "rev-old": true }, "d"));
+            const list = $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "a"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "b"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "c"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "d"));
             $.$mol_reconcile({
                 prev: [...list.children],
                 from: 1,
@@ -1712,25 +1731,54 @@ var $;
                 next: 'bXYc',
                 equal: (next, prev) => prev.textContent === next,
                 drop: (prev, lead) => list.removeChild(prev),
-                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
-                update: (next, prev, lead) => (prev.textContent = next, prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "data-rev": "new" }, next), lead ? lead.nextSibling : list.firstChild),
+                update: (next, prev, lead) => {
+                    prev.textContent = next;
+                    prev.setAttribute('data-rev', 'up');
+                    return prev;
+                },
             });
-            $.$mol_assert_like(list.outerHTML, ($.$mol_jsx($.$mol_jsx_frag, null,
-                $.$mol_jsx("p", { "rev-old": true }, "a"),
-                $.$mol_jsx("p", { "rev-old": true }, "b"),
-                $.$mol_jsx("p", { "rev-new": true }, "X"),
-                $.$mol_jsx("p", { "rev-new": true }, "Y"),
-                $.$mol_jsx("p", { "rev-old": true }, "c"),
-                $.$mol_jsx("p", { "rev-old": true }, "d"))).outerHTML);
+            $.$mol_assert_dom(list, $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "a"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "b"),
+                $.$mol_jsx("p", { "data-rev": "new" }, "X"),
+                $.$mol_jsx("p", { "data-rev": "new" }, "Y"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "c"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "d")));
+        },
+        'split item'() {
+            const list = $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "a"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "bc"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "d"));
+            $.$mol_reconcile({
+                prev: [...list.children],
+                from: 0,
+                to: 3,
+                next: 'abcd',
+                equal: (next, prev) => prev.textContent === next,
+                drop: (prev, lead) => list.removeChild(prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "data-rev": "new" }, next), lead ? lead.nextSibling : list.firstChild),
+                update: (next, prev, lead) => {
+                    prev.textContent = next;
+                    prev.setAttribute('data-rev', 'up');
+                    return prev;
+                },
+            });
+            $.$mol_assert_dom(list, $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "a"),
+                $.$mol_jsx("p", { "data-rev": "new" }, "b"),
+                $.$mol_jsx("p", { "data-rev": "up" }, "c"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "d")));
         },
         'drop items'() {
-            const list = $.$mol_jsx($.$mol_jsx_frag, null,
-                $.$mol_jsx("p", { "rev-old": true }, "A"),
-                $.$mol_jsx("p", { "rev-old": true }, "B"),
-                $.$mol_jsx("p", { "rev-old": true }, "x"),
-                $.$mol_jsx("p", { "rev-old": true }, "y"),
-                $.$mol_jsx("p", { "rev-old": true }, "C"),
-                $.$mol_jsx("p", { "rev-old": true }, "D"));
+            const list = $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "A"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "B"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "x"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "y"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "C"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "D"));
             $.$mol_reconcile({
                 prev: [...list.children],
                 from: 1,
@@ -1738,21 +1786,25 @@ var $;
                 next: 'BC',
                 equal: (next, prev) => prev.textContent === next,
                 drop: (prev, lead) => list.removeChild(prev),
-                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
-                update: (next, prev, lead) => (prev.textContent = next, prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "data-rev": "new" }, next), lead ? lead.nextSibling : list.firstChild),
+                update: (next, prev, lead) => {
+                    prev.textContent = next;
+                    prev.setAttribute('data-rev', 'up');
+                    return prev;
+                },
             });
-            $.$mol_assert_like(list.outerHTML, ($.$mol_jsx($.$mol_jsx_frag, null,
-                $.$mol_jsx("p", { "rev-old": true }, "A"),
-                $.$mol_jsx("p", { "rev-old": true }, "B"),
-                $.$mol_jsx("p", { "rev-old": true }, "C"),
-                $.$mol_jsx("p", { "rev-old": true }, "D"))).outerHTML);
+            $.$mol_assert_dom(list, $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "A"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "B"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "C"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "D")));
         },
         'update items'() {
-            const list = $.$mol_jsx($.$mol_jsx_frag, null,
-                $.$mol_jsx("p", { "rev-old": true }, "a"),
-                $.$mol_jsx("p", { "rev-old": true }, "B"),
-                $.$mol_jsx("p", { "rev-old": true }, "C"),
-                $.$mol_jsx("p", { "rev-old": true }, "d"));
+            const list = $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "a"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "B"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "C"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "d"));
             $.$mol_reconcile({
                 prev: [...list.children],
                 from: 1,
@@ -1760,14 +1812,18 @@ var $;
                 next: 'XY',
                 equal: (next, prev) => prev.textContent === next,
                 drop: (prev, lead) => list.removeChild(prev),
-                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "rev-new": true }, next), lead?.nextSibling ?? list.firstChild),
-                update: (next, prev, lead) => (prev.textContent = next, prev),
+                insert: (next, lead) => list.insertBefore($.$mol_jsx("p", { "data-rev": "new" }, next), lead ? lead.nextSibling : list.firstChild),
+                update: (next, prev, lead) => {
+                    prev.textContent = next;
+                    prev.setAttribute('data-rev', 'up');
+                    return prev;
+                },
             });
-            $.$mol_assert_like(list.outerHTML, ($.$mol_jsx($.$mol_jsx_frag, null,
-                $.$mol_jsx("p", { "rev-old": true }, "a"),
-                $.$mol_jsx("p", { "rev-old": true }, "X"),
-                $.$mol_jsx("p", { "rev-old": true }, "Y"),
-                $.$mol_jsx("p", { "rev-old": true }, "d"))).outerHTML);
+            $.$mol_assert_dom(list, $.$mol_jsx("body", null,
+                $.$mol_jsx("p", { "data-rev": "old" }, "a"),
+                $.$mol_jsx("p", { "data-rev": "up" }, "X"),
+                $.$mol_jsx("p", { "data-rev": "up" }, "Y"),
+                $.$mol_jsx("p", { "data-rev": "old" }, "d")));
         },
     });
 })($ || ($ = {}));
