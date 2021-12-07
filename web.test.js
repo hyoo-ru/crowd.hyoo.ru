@@ -1636,8 +1636,8 @@ var $;
             const source = {
                 head: 6618611909121,
                 self: 6618611909121,
-                lead: 6618611909121,
-                seat: 400,
+                prev: 6618611909121,
+                next: 6618611909121,
                 peer: 6618611909121,
                 time: 67305985,
                 data: { a: [1] },
@@ -2435,7 +2435,7 @@ var $;
             const right_delta = right.delta(base.clock);
             left.apply(right_delta);
             right.apply(left_delta);
-            $.$mol_assert_like($.$hyoo_crowd_text.for(left).text(), $.$hyoo_crowd_text.for(right).text(), 'bar foo xxx zak');
+            $.$mol_assert_like($.$hyoo_crowd_text.for(left).text(), $.$hyoo_crowd_text.for(right).text(), 'xxx bar foo zak');
         },
         'Insert before moved left'() {
             const base = new $.$hyoo_crowd_doc(123);
@@ -2489,6 +2489,33 @@ var $;
             right.apply(left_delta);
             $.$mol_assert_like($.$hyoo_crowd_text.for(left, 111).text(), $.$hyoo_crowd_text.for(right, 111).text(), 'foo xxx zak');
             $.$mol_assert_like($.$hyoo_crowd_text.for(left, 222).text(), $.$hyoo_crowd_text.for(right, 222).text(), 'bar|');
+        },
+        'Insert before changed'() {
+            const base = new $.$hyoo_crowd_doc(123);
+            $.$hyoo_crowd_text.for(base).text('xxx yyy zzz');
+            const left = base.fork(234);
+            $.$hyoo_crowd_text.for(left).text('xxx foo yyy zzz');
+            const right = base.fork(345);
+            $.$hyoo_crowd_text.for(right).text('xxx bar zzz');
+            const left_delta = left.delta(base.clock);
+            const right_delta = right.delta(base.clock);
+            left.apply(right_delta);
+            right.apply(left_delta);
+            $.$mol_assert_like($.$hyoo_crowd_text.for(left).text(), $.$hyoo_crowd_text.for(right).text(), 'xxx bar foo zzz');
+        },
+        'Insert between moved'() {
+            const base = new $.$hyoo_crowd_doc(123);
+            $.$hyoo_crowd_text.for(base).text('111 222 333 444 555 666');
+            const left = base.fork(234);
+            $.$hyoo_crowd_text.for(left).text('111 222 xxx 333 444 555 666');
+            const right = base.fork(345);
+            right.insert(right.root.chunks()[1], 0, 5);
+            right.insert(right.root.chunks()[1], 0, 5);
+            const left_delta = left.delta(base.clock);
+            const right_delta = right.delta(base.clock);
+            left.apply(right_delta);
+            right.apply(left_delta);
+            $.$mol_assert_like($.$hyoo_crowd_text.for(left).text(), $.$hyoo_crowd_text.for(right).text(), '111 444 555 222 333 xxx 666');
         },
         'Merge text changes'() {
             const base = new $.$hyoo_crowd_doc(123);

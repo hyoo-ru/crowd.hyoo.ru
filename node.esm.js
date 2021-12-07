@@ -5005,7 +5005,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    const meta_size = 32;
+    const meta_size = 36;
     function $hyoo_crowd_chunk_pack(raw) {
         const data = $.$mol_charset_encode(JSON.stringify(raw.data));
         const pack = new Uint8Array(meta_size + data.length + (4 - data.length % 4));
@@ -5015,14 +5015,15 @@ var $;
         pack2[2] = raw.head / 2 ** 32;
         pack2[3] = raw.self;
         pack4[2] = raw.self / 2 ** 16;
-        pack4[3] = raw.lead;
-        pack2[8] = raw.lead / 2 ** 32;
-        pack2[9] = raw.seat;
-        pack4[5] = raw.peer;
-        pack2[12] = raw.peer / 2 ** 32;
-        pack2[13] = data.length;
-        pack4[7] = raw.time;
-        pack.set(data, 32);
+        pack4[3] = raw.prev;
+        pack2[8] = raw.prev / 2 ** 32;
+        pack2[9] = raw.next;
+        pack4[5] = raw.next / 2 ** 16;
+        pack4[6] = raw.peer;
+        pack2[14] = raw.peer / 2 ** 32;
+        pack2[15] = data.length;
+        pack4[8] = raw.time;
+        pack.set(data, meta_size);
         return pack;
     }
     $.$hyoo_crowd_chunk_pack = $hyoo_crowd_chunk_pack;
@@ -5032,11 +5033,11 @@ var $;
         const chunk = {
             head: pack4[0] + pack2[2] * 2 ** 32,
             self: pack2[3] + pack4[2] * 2 ** 16,
-            lead: pack4[3] + pack2[8] * 2 ** 32,
-            seat: pack2[9],
-            peer: pack4[5] + pack2[12] * 2 ** 32,
-            time: pack4[7],
-            data: JSON.parse($.$mol_charset_decode(new Uint8Array(pack.buffer, pack.byteOffset + meta_size, pack2[13]))),
+            prev: pack4[3] + pack2[8] * 2 ** 32,
+            next: pack2[9] + pack4[5] * 2 ** 16,
+            peer: pack4[6] + pack2[14] * 2 ** 32,
+            time: pack4[8],
+            data: JSON.parse($.$mol_charset_decode(new Uint8Array(pack.buffer, pack.byteOffset + meta_size, pack2[15]))),
         };
         return chunk;
     }
@@ -5301,21 +5302,27 @@ var $;
         resort(head) {
             const chunks = this._chunk_lists.get(head);
             const queue = chunks.splice(0).sort((left, right) => {
-                if (left.seat > right.seat)
-                    return +1;
-                if (left.seat < right.seat)
-                    return -1;
-                return $.$hyoo_crowd_chunk_compare(left, right);
+                return -$.$hyoo_crowd_chunk_compare(left, right);
             });
-            for (const kid of queue) {
-                let leader = kid.lead ? this.chunk(head, kid.lead) : null;
-                let index = leader ? chunks.indexOf(leader) + 1 : 0;
-                if (index === 0 && leader)
-                    index = chunks.length;
-                if (index < kid.seat) {
-                    index = chunks.length;
+            for (let cursor = queue.length - 1; cursor >= 0; --cursor) {
+                const kid = queue[cursor];
+                let index = 0;
+                if (kid.prev) {
+                    let prev = this.chunk(head, kid.prev);
+                    index = chunks.indexOf(prev) + 1;
+                    if (!index) {
+                        index = chunks.length;
+                        if (kid.next) {
+                            const next = this.chunk(head, kid.next);
+                            index = chunks.indexOf(next);
+                            if (index === -1)
+                                continue;
+                        }
+                    }
                 }
                 chunks.splice(index, 0, kid);
+                queue.splice(cursor, 1);
+                cursor = queue.length;
             }
             this._chunk_lists.set(head, chunks);
             chunks.dirty = false;
@@ -5346,19 +5353,20 @@ var $;
             }
             return this;
         }
-        put(head, self, lead, data) {
+        put(head, self, prev, data) {
             let chunk_old = this.chunk(head, self);
-            let chunk_lead = lead ? this.chunk(head, lead) : null;
+            let chunk_prev = prev ? this.chunk(head, prev) : null;
             const chunk_list = this.chunk_list(head);
             if (chunk_old) {
                 chunk_list.splice(chunk_list.indexOf(chunk_old), 1);
             }
-            let seat = chunk_lead ? chunk_list.indexOf(chunk_lead) + 1 : 0;
+            const seat = chunk_prev ? chunk_list.indexOf(chunk_prev) + 1 : 0;
+            const next = chunk_list[seat]?.self ?? 0;
             const chunk_new = {
                 head,
                 self,
-                lead,
-                seat,
+                prev: prev,
+                next,
                 peer: this.peer,
                 time: this.clock.tick(this.peer),
                 data,
@@ -5374,15 +5382,15 @@ var $;
             for (const kid of this.chunk_list(chunk.self)) {
                 this.wipe(kid);
             }
-            return this.put(chunk.head, chunk.self, chunk.lead, null);
+            return this.put(chunk.head, chunk.self, chunk.prev, null);
         }
-        move(chunk, head, lead) {
+        move(chunk, head, prev) {
             this.wipe(chunk);
-            return this.put(head, chunk.self, lead, chunk.data);
+            return this.put(head, chunk.self, prev, chunk.data);
         }
         insert(chunk, head, seat) {
-            const lead = seat ? this.chunk_list(head)[seat - 1].self : 0;
-            return this.move(chunk, head, lead);
+            const prev = seat ? this.chunk_list(head)[seat - 1].self : 0;
+            return this.move(chunk, head, prev);
         }
     }
     $.$hyoo_crowd_doc = $hyoo_crowd_doc;

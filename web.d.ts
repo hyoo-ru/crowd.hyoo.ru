@@ -1454,8 +1454,8 @@ declare namespace $ {
     type $hyoo_crowd_chunk = {
         readonly head: number;
         readonly self: number;
-        readonly lead: number;
-        readonly seat: number;
+        readonly prev: number;
+        readonly next: number;
         readonly peer: number;
         readonly time: number;
         readonly data: unknown;
@@ -1563,10 +1563,10 @@ declare namespace $ {
             dirty: boolean;
         };
         apply(delta: readonly $hyoo_crowd_chunk[]): this;
-        put(head: $hyoo_crowd_chunk['head'], self: $hyoo_crowd_chunk['self'], lead: $hyoo_crowd_chunk['lead'], data: $hyoo_crowd_chunk['data']): $hyoo_crowd_chunk;
+        put(head: $hyoo_crowd_chunk['head'], self: $hyoo_crowd_chunk['self'], prev: $hyoo_crowd_chunk['prev'], data: $hyoo_crowd_chunk['data']): $hyoo_crowd_chunk;
         wipe(chunk: $hyoo_crowd_chunk): $hyoo_crowd_chunk;
-        move(chunk: $hyoo_crowd_chunk, head: $hyoo_crowd_chunk['head'], lead: $hyoo_crowd_chunk['lead']): $hyoo_crowd_chunk;
-        insert(chunk: $hyoo_crowd_chunk, head: $hyoo_crowd_chunk['head'], seat: $hyoo_crowd_chunk['seat']): $hyoo_crowd_chunk;
+        move(chunk: $hyoo_crowd_chunk, head: $hyoo_crowd_chunk['head'], prev: $hyoo_crowd_chunk['prev']): $hyoo_crowd_chunk;
+        insert(chunk: $hyoo_crowd_chunk, head: $hyoo_crowd_chunk['head'], seat: number): $hyoo_crowd_chunk;
     }
 }
 
