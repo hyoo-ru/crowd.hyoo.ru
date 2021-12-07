@@ -116,6 +116,8 @@ Primary key for Chunks: `[ Head, Self ]`
 
 Single value store. Just CvRDT LWW-Register.
 
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/register.svg)
+
 ### $hyoo_crowd_reg
 
 - `value( next?: unknown )` Channel for raw value. Returns `null` by default.
