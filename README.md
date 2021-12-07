@@ -205,7 +205,7 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 
 ### **[Online sandbox](https://crowd.hyoo.ru/)**
 
-[![](https://i.imgur.com/IF9HA2r.png)](https://crowd.hyoo.ru/)
+[![](https://i.imgur.com/xPodKWy.png)](https://crowd.hyoo.ru/)
 
 ### Write Algorithm
 
@@ -336,14 +336,14 @@ bob.apply(alice_delta).apply(carol_delta);
 carol.apply(bob_delta).apply(alice_delta);
 
 console.log(
-  ["A2", "C1 ", "C2", "B1", "B2", "B3"],
+  ["C1 ", "C2", "B1", "B2", "B3", "A2"],
   alice.root.sub("foo", $hyoo_crowd_list).list(),
   bob.root.sub("foo", $hyoo_crowd_list).list(),
   carol.root.sub("foo", $hyoo_crowd_list).list()
 );
 ```
 
-[Sandbox](https://codepen.io/nin-jin/pen/JjbqRYX?editors=0000011)
+[Sandbox](https://codepen.io/nin-jin-the-typescripter/pen/QWqNOOv?editors=0000011)
 
 # Comparison of CRDT Libraries
 
