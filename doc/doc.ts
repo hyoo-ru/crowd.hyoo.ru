@@ -112,22 +112,40 @@ namespace $ {
 			const chunks = this._chunk_lists.get( head )!
 			
 			const queue = chunks.splice(0).sort( ( left, right )=> {
-				if( left.seat > right.seat ) return +1
-				if( left.seat < right.seat ) return -1
-				return $hyoo_crowd_chunk_compare( left, right )
+				return - $hyoo_crowd_chunk_compare( left, right )
 			} )
 			
-			for( const kid of queue ) {
+			for( let cursor = queue.length - 1; cursor >= 0; --cursor ) {
 				
-				let leader = kid.lead ? this.chunk( head, kid.lead )! : null
-				let index = leader ? chunks.indexOf( leader ) + 1 : 0
-				if( index === 0 && leader ) index = chunks.length
-				if( index < kid.seat ) {
-					index = chunks.length
+				const kid = queue[cursor]
+				let index = 0
+
+				if( kid.prev ) {
+
+					let prev = this.chunk( head, kid.prev )!
+					index = chunks.indexOf( prev ) + 1
+					
+					if( !index ) {
+
+						index = chunks.length
+						
+						if( kid.next ) {
+							
+							const next = this.chunk( head, kid.next )!
+							index = chunks.indexOf( next )
+							
+							if( index === -1 ) continue
+
+						}
+
+					}
+
 				}
 				
 				chunks.splice( index, 0, kid )
-				
+				queue.splice( cursor, 1 )
+				cursor = queue.length
+
 			}
 			
 			this._chunk_lists.set( head, chunks )
@@ -164,31 +182,6 @@ namespace $ {
 				chunks.dirty = true
 				this._chunk_alive.set( next.head, undefined )
 				
-				// const list = this._chunk_lists.get( next.head )
-				// if( list ) {
-					
-				// 	if( prev ) {
-				// 		list.splice( list.indexOf( prev ), 1 )
-				// 	}
-					
-				// 	let seat = next.lead ? list.indexOf( this.chunk( next.head, next.lead )! ) + 1 : 0
-					
-				// 	while( seat < list.length ) {
-						
-				// 		if( list[ seat ].lead === next.lead && list[ seat ].prefer( next ) )  {
-				// 			++ seat
-				// 			continue
-				// 		}
-						
-				// 		break
-				// 	}
-					
-				// 	list.splice( seat, 0, next )
-					
-				// } else {
-				// 	this._chunk_lists.set( next.head, [ next ] )
-				// }
-				
 			}
 			
 			return this
@@ -198,12 +191,12 @@ namespace $ {
 		put(
 			head: $hyoo_crowd_chunk['head'],
 			self: $hyoo_crowd_chunk['self'],
-			lead: $hyoo_crowd_chunk['lead'],
+			prev: $hyoo_crowd_chunk['prev'],
 			data: $hyoo_crowd_chunk['data'],
 		) {
 			
 			let chunk_old = this.chunk( head, self )
-			let chunk_lead = lead ? this.chunk( head, lead )! : null
+			let chunk_prev = prev ? this.chunk( head, prev )! : null
 			
 			const chunk_list = this.chunk_list( head ) as $hyoo_crowd_chunk[]
 			
@@ -211,13 +204,14 @@ namespace $ {
 				chunk_list.splice( chunk_list.indexOf( chunk_old ), 1 )
 			}
 			
-			let seat = chunk_lead ? chunk_list.indexOf( chunk_lead ) + 1 : 0
+			const seat = chunk_prev ? chunk_list.indexOf( chunk_prev ) + 1 : 0
+			const next = chunk_list[ seat ]?.self ?? 0
 			
 			const chunk_new: $hyoo_crowd_chunk = {
 				head,
 				self,
-				lead,
-				seat,
+				prev: prev,
+				next,
 				peer: this.peer,
 				time: this.clock.tick( this.peer ),
 				data,
@@ -244,17 +238,17 @@ namespace $ {
 			return this.put(
 				chunk.head,
 				chunk.self,
-				chunk.lead,
+				chunk.prev,
 				null,
 			)
 			
 		}
 		
-		/** Moves chunk after another Lead inside some Head. */
+		/** Moves chunk after another Prev inside some Head. */
 		move(
 			chunk: $hyoo_crowd_chunk,
 			head: $hyoo_crowd_chunk['head'],
-			lead: $hyoo_crowd_chunk['lead'],
+			prev: $hyoo_crowd_chunk['prev'],
 		) {
 			
 			this.wipe( chunk )
@@ -262,7 +256,7 @@ namespace $ {
 			return this.put(
 				head,
 				chunk.self,
-				lead,
+				prev,
 				chunk.data
 			)
 			
@@ -272,10 +266,10 @@ namespace $ {
 		insert(
 			chunk: $hyoo_crowd_chunk,
 			head: $hyoo_crowd_chunk['head'],
-			seat: $hyoo_crowd_chunk['seat'],
+			seat: number,
 		) {
-			const lead = seat ? this.chunk_list( head )[ seat - 1 ].self : 0
-			return this.move( chunk, head, lead )
+			const prev = seat ? this.chunk_list( head )[ seat - 1 ].self : 0
+			return this.move( chunk, head, prev )
 		}
 		
 	}

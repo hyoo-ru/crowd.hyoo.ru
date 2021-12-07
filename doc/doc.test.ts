@@ -384,7 +384,7 @@ namespace $ {
 			$mol_assert_like(
 				$hyoo_crowd_text.for( left ).text(),
 				$hyoo_crowd_text.for( right ).text(),
-				'bar foo xxx zak',
+				'xxx bar foo zak',
 			)
 			
 		},
@@ -491,6 +491,57 @@ namespace $ {
 				$hyoo_crowd_text.for( left, 222 ).text(),
 				$hyoo_crowd_text.for( right, 222 ).text(),
 				'bar|',
+			)
+			
+		},
+		
+		'Insert before changed'() {
+			
+			const base = new $hyoo_crowd_doc( 123 )
+			$hyoo_crowd_text.for( base).text( 'xxx yyy zzz' )
+			
+			const left = base.fork( 234 )
+			$hyoo_crowd_text.for( left ).text( 'xxx foo yyy zzz' )
+			
+			const right = base.fork( 345 )
+			$hyoo_crowd_text.for( right ).text( 'xxx bar zzz' )
+			
+			const left_delta = left.delta( base.clock )
+			const right_delta = right.delta( base.clock )
+			
+			left.apply( right_delta )
+			right.apply( left_delta )
+	
+			$mol_assert_like(
+				$hyoo_crowd_text.for( left ).text(),
+				$hyoo_crowd_text.for( right ).text(),
+				'xxx bar foo zzz',
+			)
+			
+		},
+		
+		'Insert between moved'() {
+			
+			const base = new $hyoo_crowd_doc( 123 )
+			$hyoo_crowd_text.for( base).text( '111 222 333 444 555 666' )
+			
+			const left = base.fork( 234 )
+			$hyoo_crowd_text.for( left ).text( '111 222 xxx 333 444 555 666' )
+			
+			const right = base.fork( 345 )
+			right.insert( right.root.chunks()[1], 0, 5 )
+			right.insert( right.root.chunks()[1], 0, 5 )
+			
+			const left_delta = left.delta( base.clock )
+			const right_delta = right.delta( base.clock )
+			
+			left.apply( right_delta )
+			right.apply( left_delta )
+	
+			$mol_assert_like(
+				$hyoo_crowd_text.for( left ).text(),
+				$hyoo_crowd_text.for( right ).text(),
+				'111 444 555 222 333 xxx 666',
 			)
 			
 		},

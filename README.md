@@ -55,8 +55,8 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 - **Chunk** - Minimal atomic chunk of data with metadata. Actually it's edge between Nodes. And it's extended CvRDT LWW-Register.
   - **Self** - Node id
   - **Head** - Parent Node id.
-  - **Lead** - Leader Node id.
-  - **Seat** - Number of position in the siblings list.
+  - **Prev** - Previous Node id in the siblings list.
+  - **Next** - Next Node id in the siblings list.
   - **Peer** - Global unique identifier of independent actor.
   - **Time** - Monotonic version.
   - **Data** - Any JSON data.
@@ -77,8 +77,8 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 type Chunk = {
     head: number
     self: number
-    lead: number
-    seat: number
+    prev: number
+    next: number
     peer: number
     time: number
     data: unknown
@@ -95,8 +95,8 @@ Internally Chunks may be stored in RDBMS. Example:
 CREATE TABLE chunks (
 	head uint(6),
 	self uint(6),
-	lead uint(6),
-	seat uint(2),
+	prev uint(6),
+	next uint(6),
 	peer uint(6),
 	time uint(4),
 	data json,
@@ -152,7 +152,7 @@ So all Peers writes to the same Node when uses the same key.
 ### Properties
 
 - New Chunk is created for every item.
-- Left precedence. Seat of item relies on left item, non right.
+- Left precedence. Position of item relies on left item, then right.
 - No interleaving. Sequence of left-to-right inserted items will stay together after merge.
 - Removed item is remain as tombstone for ordering purposes.
 
@@ -160,15 +160,18 @@ So all Peers writes to the same Node when uses the same key.
 
 - Input: Head value.
 - Select all Chunks with given Head.
-- Sort found Chunks by Seat asc, Time asc, Peer asc.
+- Make queue as sorted found Chunks by Time asc, Peer asc.
 - Make empty list for result.
-- Iterate over all found Chunks.
-	- If Lead of current chunk is 0, then use 0 as preferred Seat.
-	- If Lead of current chunk is not 0, then locate existen Lead in the result list.
-		- If Lead is located, then use next Seat as preferred.
-		- if Lead isn't located, then insert Chunk at the end of result list.
-	- If preferred Seat less then Seat of Chunk, then insert Chunk at the end of result list.
-	- Otherwise insert Chunk at the preferred Seat.
+- Iterate over all queue while it isn't empty.
+	- If Prev == 0, then place it at the begin.
+	- If Prev != 0, then locate existen Prev in the result list.
+		- If Prev is located, place after that.
+		- if Prev isn't located, then check Next:
+			- If Next == 0, then place it at the end.
+			- If Next != 0, then locate existen Prev in the result list.
+				- If Next is located, place before that.
+				- if Next isn't located, then skip chunk and proceed followed.
+	- If chunk is placed remove it from queue and start from begin of queue.
 
 ### $hyoo_crowd_list
 

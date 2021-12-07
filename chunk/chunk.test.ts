@@ -6,8 +6,8 @@ namespace $ {
 			const source: $hyoo_crowd_chunk = {
 				head: 6618611909121,
 				self: 6618611909121,
-				lead: 6618611909121,
-				seat: 400,
+				prev: 6618611909121,
+				next: 6618611909121,
 				peer: 6618611909121,
 				time: 67305985,
 				data: { a: [ 1 ] },
