@@ -110,10 +110,6 @@ CREATE TABLE chunks (
 
 Primary key for Chunks: `[ Head, Self ]`
 
-## Creation and modifiction of simple Doc
-
-![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/reorder.svg)
-
 # Data Types Representation
 
 ## Atomic JSON Registry
@@ -148,6 +144,8 @@ So all Peers writes to the same Node when uses the same key.
 - `sub( key: string )` Returns inner Node for field name.
 
 ## Mergeable Ordered List
+
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/reorder.svg)
 
 ### Properties
 
