@@ -21,6 +21,13 @@ namespace $ {
 			
 		}
 		
+		/** Synchronize this cloc with another. */
+		sync( right: $hyoo_crowd_clock ) {
+			for( const [ peer, time ] of right ) {
+				this.see( peer, time )
+			}
+		}
+		
 		/** Add new `time` for `peer` and increase `now`. */
 		see( peer: number, time: number ) {
 			
@@ -39,7 +46,7 @@ namespace $ {
 			return time > ( this.get( peer ) ?? 0 )
 		}
 		
-		/** Checks if clock from future. */
+		/** Checks if this clock from future of another. */
 		ahead( clock: $hyoo_crowd_clock ) {
 			
 			for( const [ peer, time ] of this.entries() ) {
@@ -52,6 +59,11 @@ namespace $ {
 		/** Gererates new time for peer that greater then other seen. */
 		tick( peer: number ) {
 			return this.see( peer, Math.max( Date.now(), this.now + 1 ) )
+		}
+		
+		clear() {
+			super.clear()
+			this.now = 0
 		}
 			
 	}

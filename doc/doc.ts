@@ -12,7 +12,16 @@ namespace $ {
 			if( !peer ) this.peer = this.id_new()
 		}
 		
-		readonly clock = new $hyoo_crowd_clock
+		destructor() {}
+		
+		readonly _clock = new $hyoo_crowd_clock
+		
+		get clock() {
+			this.pub.track_promote()
+			return this._clock
+		}
+		
+		readonly pub = new $mol_wire_pub
 		
 		protected _chunk_all = new Map<
 			`${ number }/${ number }`,
@@ -57,6 +66,8 @@ namespace $ {
 			head: $hyoo_crowd_chunk['head']
 		): readonly $hyoo_crowd_chunk[] {
 			
+			this.pub.track_promote()
+			
 			let chunks = this._chunk_alive.get( head )
 			if( !chunks ) {
 				const all = this.chunk_list( head )
@@ -85,6 +96,8 @@ namespace $ {
 		delta(
 			clock = new $hyoo_crowd_clock,
 		) {
+			
+			this.pub.track_promote()
 			
 			const delta = [] as $hyoo_crowd_chunk[]
 			
@@ -166,7 +179,7 @@ namespace $ {
 					continue
 				}
 				
-				this.clock.see( next.peer, next.time )
+				this._clock.see( next.peer, next.time )
 				const chunks = this.chunk_list( next.head )
 				const guid = `${ next.head }/${ next.self }` as const
 				
@@ -183,6 +196,8 @@ namespace $ {
 				this._chunk_alive.set( next.head, undefined )
 				
 			}
+			
+			this.pub.emit()
 			
 			return this
 		}
@@ -213,7 +228,7 @@ namespace $ {
 				prev: prev,
 				next,
 				peer: this.peer,
-				time: this.clock.tick( this.peer ),
+				time: this._clock.tick( this.peer ),
 				data,
 			}
 			this._chunk_all.set( `${ chunk_new.head }/${ chunk_new.self }`, chunk_new )
@@ -222,6 +237,8 @@ namespace $ {
 			this._chunk_alive.set( head, undefined )
 			
 			// this.apply([ chunk ])
+			
+			this.pub.emit()
 			
 			return chunk_new
 		}
