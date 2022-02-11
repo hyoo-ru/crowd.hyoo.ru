@@ -17,7 +17,7 @@ namespace $ {
 		readonly _clock = new $hyoo_crowd_clock
 		
 		get clock() {
-			this.pub.track_promote()
+			this.pub.promote()
 			return this._clock
 		}
 		
@@ -66,7 +66,7 @@ namespace $ {
 			head: $hyoo_crowd_chunk['head']
 		): readonly $hyoo_crowd_chunk[] {
 			
-			this.pub.track_promote()
+			this.pub.promote()
 			
 			let chunks = this._chunk_alive.get( head )
 			if( !chunks ) {
@@ -97,7 +97,7 @@ namespace $ {
 			clock = new $hyoo_crowd_clock,
 		) {
 			
-			this.pub.track_promote()
+			this.pub.promote()
 			
 			const delta = [] as $hyoo_crowd_chunk[]
 			
