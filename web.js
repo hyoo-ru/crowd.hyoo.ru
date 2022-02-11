@@ -542,7 +542,7 @@ var $;
                 this.reap();
         }
         reap() { }
-        track_promote() {
+        promote() {
             $mol_wire_auto?.track_next(this);
         }
         up() { }
@@ -703,7 +703,8 @@ var $;
         cursor = $mol_wire_cursor.stale;
         get pub_list() {
             const res = [];
-            for (let i = this.pub_from; i < this.sub_from; i += 2) {
+            const max = this.cursor >= 0 ? this.cursor : this.sub_from;
+            for (let i = this.pub_from; i < max; i += 2) {
                 res.push(this[i]);
             }
             return res;
@@ -714,11 +715,11 @@ var $;
             $mol_wire_auto = this;
             return sub;
         }
-        track_promote() {
+        promote() {
             if (this.cursor >= this.pub_from) {
                 $mol_fail(new Error('Circular subscription'));
             }
-            super.track_promote();
+            super.promote();
         }
         track_next(pub) {
             if (this.cursor < 0)
@@ -1166,9 +1167,10 @@ var $;
             return this.task.name + '()';
         }
         constructor(host, task, id, ...args) {
-            super(...args, undefined);
+            super(...args, undefined, undefined);
             this.host = host;
             this.task = task;
+            this.pop();
             this.pop();
             this.pub_from = this.sub_from = args.length;
             this[Symbol.toStringTag] = id;
@@ -1199,6 +1201,9 @@ var $;
             $mol_wire_fiber.plan();
         }
         toString() {
+            return this[Symbol.toStringTag];
+        }
+        toJSON() {
             return this[Symbol.toStringTag];
         }
         [$mol_dev_format_head]() {
@@ -1311,7 +1316,7 @@ var $;
             if (!$mol_wire_fiber.warm) {
                 return this.result;
             }
-            this.track_promote();
+            this.promote();
             this.up();
             if (this.cache instanceof Error) {
                 return $mol_fail_hidden(this.cache);
@@ -4693,7 +4698,7 @@ var $;
         destructor() { }
         _clock = new $hyoo_crowd_clock;
         get clock() {
-            this.pub.track_promote();
+            this.pub.promote();
             return this._clock;
         }
         pub = new $mol_wire_pub;
@@ -4713,7 +4718,7 @@ var $;
             return chunks;
         }
         chunk_alive(head) {
-            this.pub.track_promote();
+            this.pub.promote();
             let chunks = this._chunk_alive.get(head);
             if (!chunks) {
                 const all = this.chunk_list(head);
@@ -4732,7 +4737,7 @@ var $;
             return new $hyoo_crowd_doc(peer).apply(this.delta());
         }
         delta(clock = new $hyoo_crowd_clock) {
-            this.pub.track_promote();
+            this.pub.promote();
             const delta = [];
             for (const chunk of this._chunk_all.values()) {
                 const time = clock.get(chunk.peer);

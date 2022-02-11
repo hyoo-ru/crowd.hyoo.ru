@@ -591,7 +591,7 @@ var $;
                 this.reap();
         }
         reap() { }
-        track_promote() {
+        promote() {
             $mol_wire_auto?.track_next(this);
         }
         up() { }
@@ -752,7 +752,8 @@ var $;
         cursor = $mol_wire_cursor.stale;
         get pub_list() {
             const res = [];
-            for (let i = this.pub_from; i < this.sub_from; i += 2) {
+            const max = this.cursor >= 0 ? this.cursor : this.sub_from;
+            for (let i = this.pub_from; i < max; i += 2) {
                 res.push(this[i]);
             }
             return res;
@@ -763,11 +764,11 @@ var $;
             $mol_wire_auto = this;
             return sub;
         }
-        track_promote() {
+        promote() {
             if (this.cursor >= this.pub_from) {
                 $mol_fail(new Error('Circular subscription'));
             }
-            super.track_promote();
+            super.promote();
         }
         track_next(pub) {
             if (this.cursor < 0)
@@ -1211,9 +1212,10 @@ var $;
             return this.task.name + '()';
         }
         constructor(host, task, id, ...args) {
-            super(...args, undefined);
+            super(...args, undefined, undefined);
             this.host = host;
             this.task = task;
+            this.pop();
             this.pop();
             this.pub_from = this.sub_from = args.length;
             this[Symbol.toStringTag] = id;
@@ -1244,6 +1246,9 @@ var $;
             $mol_wire_fiber.plan();
         }
         toString() {
+            return this[Symbol.toStringTag];
+        }
+        toJSON() {
             return this[Symbol.toStringTag];
         }
         [$mol_dev_format_head]() {
@@ -1356,7 +1361,7 @@ var $;
             if (!$mol_wire_fiber.warm) {
                 return this.result;
             }
-            this.track_promote();
+            this.promote();
             this.up();
             if (this.cache instanceof Error) {
                 return $mol_fail_hidden(this.cache);
@@ -4967,7 +4972,7 @@ var $;
         destructor() { }
         _clock = new $hyoo_crowd_clock;
         get clock() {
-            this.pub.track_promote();
+            this.pub.promote();
             return this._clock;
         }
         pub = new $mol_wire_pub;
@@ -4987,7 +4992,7 @@ var $;
             return chunks;
         }
         chunk_alive(head) {
-            this.pub.track_promote();
+            this.pub.promote();
             let chunks = this._chunk_alive.get(head);
             if (!chunks) {
                 const all = this.chunk_list(head);
@@ -5006,7 +5011,7 @@ var $;
             return new $hyoo_crowd_doc(peer).apply(this.delta());
         }
         delta(clock = new $hyoo_crowd_clock) {
-            this.pub.track_promote();
+            this.pub.promote();
             const delta = [];
             for (const chunk of this._chunk_all.values()) {
                 const time = clock.get(chunk.peer);
@@ -8856,6 +8861,72 @@ var $;
 ;
 "use strict";
 var $;
+(function ($) {
+    function $mol_wire_sync(obj) {
+        return new Proxy(obj, {
+            get(obj, field) {
+                const val = obj[field];
+                if (typeof val !== 'function')
+                    return val;
+                return function $mol_wire_sync(...args) {
+                    const fiber = $mol_wire_fiber.temp(obj, val, ...args);
+                    return fiber.sync();
+                };
+            }
+        });
+    }
+    $.$mol_wire_sync = $mol_wire_sync;
+})($ || ($ = {}));
+//mol/wire/sync/sync.ts
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_promise() {
+        let done;
+        let fail;
+        const promise = new Promise((d, f) => {
+            done = d;
+            fail = f;
+        });
+        return Object.assign(promise, {
+            done,
+            fail,
+        });
+    }
+    $.$mol_promise = $mol_promise;
+})($ || ($ = {}));
+//mol/promise/promise.ts
+;
+"use strict";
+var $;
+(function ($_1) {
+    $mol_test_mocks.push($ => {
+        $.$mol_after_timeout = $mol_after_mock_timeout;
+    });
+})($ || ($ = {}));
+//mol/after/timeout/timeout.test.ts
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_wait_timeout_async(timeout) {
+        const promise = $mol_promise();
+        const task = new this.$mol_after_timeout(timeout, () => promise.done());
+        return Object.assign(promise, {
+            destructor: () => task.destructor()
+        });
+    }
+    $.$mol_wait_timeout_async = $mol_wait_timeout_async;
+    function $mol_wait_timeout(timeout) {
+        return this.$mol_wire_sync(this).$mol_wait_timeout_async(timeout);
+    }
+    $.$mol_wait_timeout = $mol_wait_timeout;
+})($ || ($ = {}));
+//mol/wait/timeout/timeout.ts
+;
+"use strict";
+var $;
 (function ($_1) {
     $mol_test({
         async 'Latest Calls Wins on Concurrency'($) {
@@ -8891,9 +8962,9 @@ var $;
             const sub = new $mol_wire_pub_sub;
             const bu1 = sub.track_on();
             try {
-                pub1.track_promote();
-                pub2.track_promote();
-                pub2.track_promote();
+                pub1.promote();
+                pub2.promote();
+                pub2.promote();
             }
             finally {
                 sub.track_cut();
@@ -8904,9 +8975,9 @@ var $;
             $mol_assert_like(sub.pub_list, [pub1, pub2, pub2]);
             const bu2 = sub.track_on();
             try {
-                pub1.track_promote();
-                pub1.track_promote();
-                pub2.track_promote();
+                pub1.promote();
+                pub1.promote();
+                pub2.promote();
             }
             finally {
                 sub.track_cut();
@@ -8923,7 +8994,7 @@ var $;
             try {
                 const bu2 = sub2.track_on();
                 try {
-                    $mol_assert_fail(() => sub1.track_promote(), 'Circular subscription');
+                    $mol_assert_fail(() => sub1.promote(), 'Circular subscription');
                 }
                 finally {
                     sub2.track_cut();
@@ -8993,15 +9064,6 @@ var $;
     });
 })($ || ($ = {}));
 //mol/key/key.test.tsx
-;
-"use strict";
-var $;
-(function ($_1) {
-    $mol_test_mocks.push($ => {
-        $.$mol_after_timeout = $mol_after_mock_timeout;
-    });
-})($ || ($ = {}));
-//mol/after/timeout/timeout.test.ts
 ;
 "use strict";
 var $;
@@ -9093,26 +9155,6 @@ var $;
     });
 })($ || ($ = {}));
 //mol/wire/fiber/fiber.test.ts
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_wire_sync(obj) {
-        return new Proxy(obj, {
-            get(obj, field) {
-                const val = obj[field];
-                if (typeof val !== 'function')
-                    return val;
-                return function $mol_wire_sync(...args) {
-                    const fiber = $mol_wire_fiber.temp(obj, val, ...args);
-                    return fiber.sync();
-                };
-            }
-        });
-    }
-    $.$mol_wire_sync = $mol_wire_sync;
-})($ || ($ = {}));
-//mol/wire/sync/sync.ts
 ;
 "use strict";
 var $;
@@ -12001,38 +12043,62 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_promise() {
-        let done;
-        let fail;
-        const promise = new Promise((d, f) => {
-            done = d;
-            fail = f;
-        });
-        return Object.assign(promise, {
-            done,
-            fail,
-        });
+    class $mol_wire_log extends $mol_object2 {
+        static watch(task) {
+            return task;
+        }
+        static track(fiber) {
+            const prev = $mol_wire_probe(() => this.track(fiber));
+            let next;
+            try {
+                next = fiber.sync();
+            }
+            finally {
+                for (const pub of fiber.pub_list) {
+                    if (pub instanceof $mol_wire_fiber) {
+                        this.track(pub);
+                    }
+                }
+            }
+            if (prev !== undefined && !$mol_compare_deep(prev, next)) {
+                this.$.$mol_log3_rise({
+                    message: 'Changed',
+                    place: fiber,
+                });
+            }
+            return next;
+        }
+        static active() {
+            try {
+                this.watch()?.();
+            }
+            finally {
+                for (const pub of $mol_wire_auto.pub_list) {
+                    if (pub instanceof $mol_wire_fiber) {
+                        this.track(pub);
+                    }
+                }
+            }
+        }
     }
-    $.$mol_promise = $mol_promise;
+    __decorate([
+        $mol_mem
+    ], $mol_wire_log, "watch", null);
+    __decorate([
+        $mol_mem_key
+    ], $mol_wire_log, "track", null);
+    __decorate([
+        $mol_mem
+    ], $mol_wire_log, "active", null);
+    $.$mol_wire_log = $mol_wire_log;
 })($ || ($ = {}));
-//mol/promise/promise.ts
+//mol/wire/log/log.ts
 ;
 "use strict";
 var $;
 (function ($) {
-    function $mol_wait_timeout_async(timeout) {
-        const promise = $mol_promise();
-        const task = new this.$mol_after_timeout(timeout, () => promise.done());
-        return Object.assign(promise, {
-            destructor: () => task.destructor()
-        });
-    }
-    $.$mol_wait_timeout_async = $mol_wait_timeout_async;
-    function $mol_wait_timeout(timeout) {
-        return this.$mol_wire_sync(this).$mol_wait_timeout_async(timeout);
-    }
-    $.$mol_wait_timeout = $mol_wait_timeout;
+    $mol_wire_log.active();
 })($ || ($ = {}));
-//mol/wait/timeout/timeout.ts
+//mol/wire/wire.test.ts
 
 //# sourceMappingURL=node.test.js.map
