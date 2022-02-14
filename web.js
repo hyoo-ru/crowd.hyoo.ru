@@ -489,18 +489,10 @@ var $;
 (function ($) {
     let $mol_wire_cursor;
     (function ($mol_wire_cursor) {
-        $mol_wire_cursor[$mol_wire_cursor["stale"] = new (class stale extends Number {
-            toString() { return '🔴'; }
-        })(-1)] = "stale";
-        $mol_wire_cursor[$mol_wire_cursor["doubt"] = new (class doubt extends Number {
-            toString() { return '🟡'; }
-        })(-2)] = "doubt";
-        $mol_wire_cursor[$mol_wire_cursor["fresh"] = new (class fresh extends Number {
-            toString() { return '🟢'; }
-        })(-3)] = "fresh";
-        $mol_wire_cursor[$mol_wire_cursor["final"] = new (class solid extends Number {
-            toString() { return '🔵'; }
-        })(-4)] = "final";
+        $mol_wire_cursor[$mol_wire_cursor["stale"] = -1] = "stale";
+        $mol_wire_cursor[$mol_wire_cursor["doubt"] = -2] = "doubt";
+        $mol_wire_cursor[$mol_wire_cursor["fresh"] = -3] = "fresh";
+        $mol_wire_cursor[$mol_wire_cursor["final"] = -4] = "final";
     })($mol_wire_cursor = $.$mol_wire_cursor || ($.$mol_wire_cursor = {}));
 })($ || ($ = {}));
 //mol/wire/cursor/cursor.ts
@@ -547,26 +539,14 @@ var $;
         }
         up() { }
         down() { }
-        emit() {
+        emit(quant = $mol_wire_cursor.stale) {
             for (let i = this.sub_from; i < this.length; i += 2) {
                 ;
-                this[i].stale();
+                this[i].absorb(quant);
             }
         }
-        stale() {
-            if (!this.affect($mol_wire_cursor.stale))
-                return false;
-            while ($mol_wire_affected.length) {
-                const next = $mol_wire_affected.pop();
-                next.affect($mol_wire_cursor.doubt);
-            }
-            return true;
-        }
-        affect(quant) {
-            for (let i = this.sub_from; i < this.length; i += 2) {
-                const sub = this[i];
-                $mol_wire_affected.push(sub);
-            }
+        absorb(quant = $mol_wire_cursor.stale) {
+            this.emit($mol_wire_cursor.doubt);
             return true;
         }
         peer_move(from_pos, to_pos) {
@@ -803,13 +783,13 @@ var $;
             }
             this.sub_from = this.cursor;
         }
-        affect(quant) {
+        absorb(quant = $mol_wire_cursor.stale) {
             if (this.cursor === $mol_wire_cursor.final)
                 return false;
             if (this.cursor >= quant)
                 return false;
             this.cursor = quant;
-            return super.affect(quant);
+            return super.absorb(quant);
         }
         [$mol_dev_format_head]() {
             return $mol_dev_format_native(this);
@@ -1085,36 +1065,37 @@ var $;
             }
             return new this(host, task, `${host?.[Symbol.toStringTag] ?? host}.${task.name}(#)`, ...args);
         }
-        static persist(host, task, ...args) {
+        static persist(task, keys) {
             const field = task.name + '()';
-            let dict, key, existen, fiber;
-            if (args.length) {
-                key = `${host?.[Symbol.toStringTag] ?? host}.${task.name}(${args.map(v => $mol_key(v)).join(',')})`;
-                dict = Object.getOwnPropertyDescriptor(host ?? task, field)?.value;
-                if (dict)
-                    existen = dict.get(key);
-                else
-                    dict = (host ?? task)[field] = new Map();
+            if (keys) {
+                return function $mol_wire_fiber_persist(host, args) {
+                    let dict, key, fiber;
+                    key = `${host?.[Symbol.toStringTag] ?? host}.${task.name}(${args.map(v => $mol_key(v)).join(',')})`;
+                    dict = Object.getOwnPropertyDescriptor(host ?? task, field)?.value;
+                    if (dict) {
+                        const existen = dict.get(key);
+                        if (existen)
+                            return existen;
+                    }
+                    else {
+                        dict = (host ?? task)[field] = new Map();
+                    }
+                    fiber = new $mol_wire_fiber(host, task, key, ...args);
+                    dict.set(key, fiber);
+                    return fiber;
+                };
             }
             else {
-                key = `${host?.[Symbol.toStringTag] ?? host}.${field}`;
-                existen = Object.getOwnPropertyDescriptor(host ?? task, field)?.value;
+                return function $mol_wire_fiber_persist(host, args) {
+                    const existen = Object.getOwnPropertyDescriptor(host ?? task, field)?.value;
+                    if (existen)
+                        return existen;
+                    const key = `${host?.[Symbol.toStringTag] ?? host}.${field}`;
+                    const fiber = new $mol_wire_fiber(host, task, key, ...args);
+                    (host ?? task)[field] = fiber;
+                    return fiber;
+                };
             }
-            reuse: if (existen) {
-                if (!(existen instanceof $mol_wire_fiber))
-                    break reuse;
-                if (existen.host !== host)
-                    break reuse;
-                if (existen.task !== task)
-                    break reuse;
-                return existen;
-            }
-            fiber = new this(host, task, key, ...args);
-            if (args.length)
-                dict.set(key, fiber);
-            else
-                (host ?? task)[field] = fiber;
-            return fiber;
         }
         static warm = true;
         static planning = [];
@@ -1207,13 +1188,19 @@ var $;
             return this[Symbol.toStringTag];
         }
         [$mol_dev_format_head]() {
-            return $mol_dev_format_div({}, $mol_dev_format_native(this), $mol_dev_format_shade(this.cursor.toString() + ' '), $mol_dev_format_auto(this.cache));
+            const cursor = {
+                [-1]: '🔴',
+                [-2]: '🟡',
+                [-3]: '🟢',
+                [-4]: '🔵',
+            }[this.cursor] ?? this.cursor.toString();
+            return $mol_dev_format_div({}, $mol_dev_format_native(this), $mol_dev_format_shade(cursor + ' '), $mol_dev_format_auto(this.cache));
         }
         get $() {
             return (this.host ?? this.task)['$'];
         }
-        affect(quant) {
-            if (!super.affect(quant))
+        absorb(quant = $mol_wire_cursor.stale) {
+            if (!super.absorb(quant))
                 return false;
             if (this.sub_from === this.length) {
                 this.plan();
@@ -1261,7 +1248,7 @@ var $;
                 if (result instanceof Promise && !handled.has(result)) {
                     result = Object.assign(result.finally(() => {
                         if (this.cache === result)
-                            this.stale();
+                            this.absorb();
                     }), {
                         destructor: result['destructor']
                     });
@@ -1403,8 +1390,9 @@ var $;
     $.$mol_wire_mem = $mol_wire_mem;
     function $mol_wire_mem_func(keys) {
         return (func) => {
+            const persist = $mol_wire_fiber.persist(func, keys);
             const wrapper = function (...args) {
-                let atom = $mol_wire_fiber.persist(this, func, ...args.slice(0, keys));
+                let atom = persist(this, args.slice(0, keys));
                 if (args.length <= keys || args[keys] === undefined)
                     return atom.sync();
                 try {
