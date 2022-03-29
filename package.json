@@ -244,8 +244,8 @@
     "$hyoo_crowd_tokenizer"
   ],
   "dependencies": {
-    "jsdom": "*",
     "colorette": "*",
+    "jsdom": "*",
     "chokidar": "*"
   }
 }
