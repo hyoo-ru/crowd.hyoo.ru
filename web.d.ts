@@ -2489,7 +2489,7 @@ declare namespace $ {
         Text(): $$.$mol_textarea;
         stats(): string;
         Stats(): $$.$mol_text;
-        delta(): {};
+        delta_view(): {};
         Delta(): $$.$mol_grid;
         Delta_section(): $mol_section;
     }
@@ -2533,6 +2533,15 @@ declare namespace $.$$ {
         sync_clock(next?: $hyoo_crowd_clock): $hyoo_crowd_clock;
         text(next?: string): string;
         delta(): readonly $hyoo_crowd_chunk[];
+        delta_view(): {
+            head: string;
+            self: string;
+            prev: string;
+            next: string;
+            peer: string;
+            time: string;
+            data: string;
+        }[];
         changes(): number;
         size_state(): number;
         size_delta(): number;
@@ -2540,6 +2549,8 @@ declare namespace $.$$ {
         tokens_alive(): number;
         tokens_total(): number;
         tokens_dead(): number;
+        size_state_bin(): number;
+        size_delta_bin(): number;
         stats(): string;
     }
 }

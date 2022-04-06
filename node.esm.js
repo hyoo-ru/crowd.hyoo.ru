@@ -2270,7 +2270,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/view/view/view.css", "[mol_view] {\n\ttransition-property: height, width, min-height, min-width, max-width, max-height, transform;\n\ttransition-duration: .2s;\n\ttransition-timing-function: ease-out;\n\ttransform-origin: center;\n\t-webkit-appearance: none;\n\tword-break: break-word;\n\tbox-sizing: border-box;\n\tdisplay: flex;\n\tflex-shrink: 0;\n\tmax-width: 100%;\n\tcontain: style;\n\ttab-size: 4;\n}\n\n[mol_view]::selection {\n\tbackground: var(--mol_theme_current);\n}\n\n[mol_view] > * {\n\tword-break: inherit;\n}\n\n[mol_view_root] {\n\tmargin: 0;\n\tpadding: 0;\n\twidth: 100%;\n\theight: 100%;\n\tbox-sizing: border-box;\n\tfont: var(--mol_skin_font);\n\tbackground: var(--mol_theme_back);\n\tcolor: var(--mol_theme_text);\n\tcontain: unset; /** Fixes bg ignoring when applied to body on Chrome */\n}\n\n[mol_view][mol_view_error]:not([mol_view_error=\"Promise\"]) {\n\tbackground-image: repeating-linear-gradient(\n\t\t-45deg,\n\t\t#f92323,\n\t\t#f92323 10px,\n\t\t#ff3d3d 10px,\n\t\t#ff3d3d 30px\n\t);\n\tcolor: black;\n}\n\n@keyframes mol_view_wait_move {\n\tfrom {\n\t\tbackground-position: 0 0;\n\t}\n\tto {\n\t\tbackground-position: 200vmax 0;\n\t}\n}\n\n@keyframes mol_view_wait_show {\n\tto {\n\t\tbackground-image: repeating-linear-gradient(\n\t\t\t45deg,\n\t\t\thsla( 0 , 0% , 50% , .25 ) 0% ,\n\t\t\thsla( 0 , 0% , 50% , 0 ) 5% ,\n\t\t\thsla( 0 , 0% , 50% , 0 ) 45% ,\n\t\t\thsla( 0 , 0% , 50% , .25 ) 50% ,\n\t\t\thsla( 0 , 0% , 50% , 0 ) 55% ,\n\t\t\thsla( 0 , 0% , 50% , 0 ) 95% ,\n\t\t\thsla( 0 , 0% , 50% , .25 ) 100%\n\t\t);\n\t\tbackground-size: 200vmax 200vmax;\n\t}\n}\n\n[mol_view][mol_view_error=\"Promise\"] {\n\tanimation: mol_view_wait_show .5s .5s linear forwards , mol_view_wait_move 1s linear infinite;\n\topacity: .75;\n}\n");
+    $mol_style_attach("mol/view/view/view.css", "[mol_view] {\n\ttransition-property: height, width, min-height, min-width, max-width, max-height, transform;\n\ttransition-duration: .2s;\n\ttransition-timing-function: ease-out;\n\t-webkit-appearance: none;\n\tword-break: break-word;\n\tbox-sizing: border-box;\n\tdisplay: flex;\n\tflex-shrink: 0;\n\tmax-width: 100%;\n\tcontain: style;\n\ttab-size: 4;\n}\n\n[mol_view]::selection {\n\tbackground: var(--mol_theme_current);\n}\n\n[mol_view] > * {\n\tword-break: inherit;\n}\n\n[mol_view_root] {\n\tmargin: 0;\n\tpadding: 0;\n\twidth: 100%;\n\theight: 100%;\n\tbox-sizing: border-box;\n\tfont: var(--mol_skin_font);\n\tbackground: var(--mol_theme_back);\n\tcolor: var(--mol_theme_text);\n\tcontain: unset; /** Fixes bg ignoring when applied to body on Chrome */\n}\n\n[mol_view][mol_view_error]:not([mol_view_error=\"Promise\"]) {\n\tbackground-image: repeating-linear-gradient(\n\t\t-45deg,\n\t\t#f92323,\n\t\t#f92323 10px,\n\t\t#ff3d3d 10px,\n\t\t#ff3d3d 30px\n\t);\n\tcolor: black;\n}\n\n@keyframes mol_view_wait_move {\n\tfrom {\n\t\tbackground-position: 0 0;\n\t}\n\tto {\n\t\tbackground-position: 200vmax 0;\n\t}\n}\n\n@keyframes mol_view_wait_show {\n\tto {\n\t\tbackground-image: repeating-linear-gradient(\n\t\t\t45deg,\n\t\t\thsla( 0 , 0% , 50% , .25 ) 0% ,\n\t\t\thsla( 0 , 0% , 50% , 0 ) 5% ,\n\t\t\thsla( 0 , 0% , 50% , 0 ) 45% ,\n\t\t\thsla( 0 , 0% , 50% , .25 ) 50% ,\n\t\t\thsla( 0 , 0% , 50% , 0 ) 55% ,\n\t\t\thsla( 0 , 0% , 50% , 0 ) 95% ,\n\t\t\thsla( 0 , 0% , 50% , .25 ) 100%\n\t\t);\n\t\tbackground-size: 200vmax 200vmax;\n\t}\n}\n\n[mol_view][mol_view_error=\"Promise\"] {\n\tanimation: mol_view_wait_show .5s .5s linear forwards , mol_view_wait_move 1s linear infinite;\n\topacity: .75;\n}\n");
 })($ || ($ = {}));
 //mol/view/view/-css/view.css.ts
 ;
@@ -3815,7 +3815,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/icon/icon.view.css", "[mol_icon] {\n\tfill: currentColor;\n\tstroke: none;\n\twidth: 1em;\n\theight: 1em;\n\tflex: 0 0 auto;\n\tvertical-align: top;\n\tmargin: .25em 0;\n\tdisplay: inline-block;\n\tfilter: drop-shadow(0px 1px 1px var(--mol_theme_back));\n}\n");
+    $mol_style_attach("mol/icon/icon.view.css", "[mol_icon] {\n\tfill: currentColor;\n\tstroke: none;\n\twidth: 1em;\n\theight: 1em;\n\tflex: 0 0 auto;\n\tvertical-align: top;\n\tmargin: .25em 0;\n\tdisplay: inline-block;\n\tfilter: drop-shadow(0px 1px 1px var(--mol_theme_back));\n\ttransform-origin: center;\n}\n");
 })($ || ($ = {}));
 //mol/icon/-css/icon.view.css.ts
 ;
@@ -8149,19 +8149,19 @@ var $;
             return obj;
         }
         stats() {
-            return "# Stats\n\nPeer: **{peer}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Time | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State (JSON) | Delta (JSON)\n|--|--|--|--\n| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**\n";
+            return "# Stats\n\nPeer: **{peer}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Time | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State | Delta\n|--|--|--|--\n| JSON Size | **{size:text}** | **{size:state}** | **{size:delta}**\n| Bin Size | **{size:text:bin}** | **{size:state:bin}** | **{size:delta:bin}**\n";
         }
         Stats() {
             const obj = new this.$.$mol_text();
             obj.text = () => this.stats();
             return obj;
         }
-        delta() {
+        delta_view() {
             return {};
         }
         Delta() {
             const obj = new this.$.$mol_grid();
-            obj.records = () => this.delta();
+            obj.records = () => this.delta_view();
             return obj;
         }
         Delta_section() {
@@ -8375,13 +8375,21 @@ var $;
                 this.text();
                 return this.store().delta(this.sync_clock());
             }
+            delta_view() {
+                return this.delta().map(chunk => ({
+                    head: chunk.head.toString(36).toUpperCase(),
+                    self: chunk.self.toString(36).toUpperCase(),
+                    prev: chunk.prev.toString(36).toUpperCase(),
+                    next: chunk.next.toString(36).toUpperCase(),
+                    peer: chunk.peer.toString(36).toUpperCase(),
+                    time: chunk.time.toString(36).toUpperCase(),
+                    data: JSON.stringify(chunk.data),
+                }));
+            }
             changes() {
-                this.text();
-                const clock = this.store().clock;
-                return clock.now - this.sync_clock().now;
+                return this.delta().length;
             }
             size_state() {
-                this.text();
                 return $mol_charset_encode(JSON.stringify(this.store())).length;
             }
             size_delta() {
@@ -8401,19 +8409,28 @@ var $;
             tokens_dead() {
                 return this.tokens_total() - this.tokens_alive();
             }
+            size_state_bin() {
+                return this.store().delta().reduce((res, chunk) => res + this.$.$hyoo_crowd_chunk_pack(chunk).length, 0);
+            }
+            size_delta_bin() {
+                return this.delta().reduce((res, chunk) => res + this.$.$hyoo_crowd_chunk_pack(chunk).length, 0);
+            }
             stats() {
                 this.text();
                 return super.stats()
-                    .replace('{peer}', this.store().peer.toLocaleString())
+                    .replace('{peer}', this.store().peer.toString(36).toUpperCase())
                     .replace('{changes}', this.changes().toLocaleString())
                     .replace('{tokens:alive}', this.tokens_alive().toLocaleString())
                     .replace('{tokens:dead}', this.tokens_dead().toLocaleString())
                     .replace('{tokens:total}', this.tokens_total().toLocaleString())
-                    .replace('{stamp:now}', this.store().clock.now.toLocaleString())
-                    .replace('{stamp:sync}', this.sync_clock().now.toLocaleString())
+                    .replace('{stamp:now}', this.store().clock.now.toString(36).toUpperCase())
+                    .replace('{stamp:sync}', this.sync_clock().now.toString(36).toUpperCase())
                     .replace('{size:text}', this.size_text().toLocaleString())
                     .replace('{size:state}', this.size_state().toLocaleString())
-                    .replace('{size:delta}', this.size_delta().toLocaleString());
+                    .replace('{size:delta}', this.size_delta().toLocaleString())
+                    .replace('{size:text:bin}', this.size_text().toLocaleString())
+                    .replace('{size:state:bin}', this.size_state_bin().toLocaleString())
+                    .replace('{size:delta:bin}', this.size_delta_bin().toLocaleString());
             }
         }
         __decorate([
@@ -8422,6 +8439,18 @@ var $;
         __decorate([
             $mol_mem
         ], $hyoo_crowd_app_peer.prototype, "text", null);
+        __decorate([
+            $mol_mem
+        ], $hyoo_crowd_app_peer.prototype, "delta", null);
+        __decorate([
+            $mol_mem
+        ], $hyoo_crowd_app_peer.prototype, "delta_view", null);
+        __decorate([
+            $mol_mem
+        ], $hyoo_crowd_app_peer.prototype, "size_state_bin", null);
+        __decorate([
+            $mol_mem
+        ], $hyoo_crowd_app_peer.prototype, "size_delta_bin", null);
         $$.$hyoo_crowd_app_peer = $hyoo_crowd_app_peer;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));

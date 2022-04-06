@@ -495,11 +495,12 @@ $hyoo_crowd_app_peer $mol_page
 				\|--|--|--
 				\| Time | **{stamp:now}** | **{stamp:sync}**
 				\
-				\| | Text | State (JSON) | Delta (JSON)
+				\| | Text | State | Delta
 				\|--|--|--|--
-				\| Size (B) | **{size:text}** | **{size:state}** | **{size:delta}**
+				\| JSON Size | **{size:text}** | **{size:state}** | **{size:delta}**
+				\| Bin Size | **{size:text:bin}** | **{size:state:bin}** | **{size:delta:bin}**
 				\
 		<= Delta_section $mol_section
 			title \Delta
 			Content <= Delta $mol_grid
-				records <= delta *
+				records <= delta_view *
