@@ -1,11 +1,16 @@
 namespace $ {
 	
-	const { unicode_only, line_end, repeat_greedy, optional, forbid_after, char_only, char_except } = $mol_regexp 
+	const { unicode_only, line_end, tab, repeat_greedy, optional, forbid_after, char_only, char_except } = $mol_regexp 
 	
 	export let $hyoo_crowd_tokenizer = $mol_regexp.from({
 		token: {
 			
 			'line-break': line_end ,
+			
+			'indents': {
+				tab,
+				spaces: '  ',
+			},
 			
 			'spaces': repeat_greedy([
 				forbid_after( line_end ),
