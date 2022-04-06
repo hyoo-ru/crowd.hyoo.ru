@@ -148,10 +148,10 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_doc( 123 )
 			
-			$hyoo_crowd_text.for( store ).text( 'foo.bar.lol.' )
+			$hyoo_crowd_text.for( store ).text( 'FooBarLol' )
 			$hyoo_crowd_list.for( store ).move( 0, 2 )
 			
-			$mol_assert_like( $hyoo_crowd_text.for( store ).text(), 'bar.foo.lol.' )
+			$mol_assert_like( $hyoo_crowd_text.for( store ).text(), 'BarFooLol' )
 			
 		},
 		
@@ -243,12 +243,12 @@ namespace $ {
 			
 			$hyoo_crowd_text.for( store1 ).text( 'foo bar foo' )
 			$mol_assert_like( $hyoo_crowd_text.for( store1 ).text(), 'foo bar foo' )
-			$mol_assert_like( $hyoo_crowd_list.for( store1 ).list(), [ 'foo ', 'bar ', 'foo' ] )
+			$mol_assert_like( $hyoo_crowd_list.for( store1 ).list(), [ 'foo', ' ', 'bar', ' ', 'foo' ] )
 			
 			const store2 = store1.fork( 234 )
 			$hyoo_crowd_text.for( store2 ).text( 'barFFFoo  bar' )
 			$mol_assert_like( $hyoo_crowd_text.for( store2 ).text(), 'barFFFoo  bar' )
-			$mol_assert_like( $hyoo_crowd_list.for( store2 ).list(), [ 'bar', 'FFFoo ', ' ', 'bar' ] )
+			$mol_assert_like( $hyoo_crowd_list.for( store2 ).list(), [ 'bar', 'FFFoo', '  ', 'bar' ] )
 			
 		},
 		
@@ -261,17 +261,18 @@ namespace $ {
 			$hyoo_crowd_text.for( store2 ).text( 'foo  bar' )
 			$mol_assert_like(
 				store1.root.chunks().map( chunk => chunk.self ),
-				[
-					store2.root.chunks()[0].self,
-					store2.root.chunks()[2].self,
-				],
+				store2.root.chunks().map( chunk => chunk.self ),
 			)
 			
 			const store3 = store2.fork( 345 )
 			$hyoo_crowd_text.for( store3 ).text( 'foo ton bar' )
 			$mol_assert_like(
 				store2.root.chunks().map( chunk => chunk.self ),
-				store3.root.chunks().map( chunk => chunk.self ),
+				[
+					store3.root.chunks()[0].self,
+					store3.root.chunks()[3].self,
+					store3.root.chunks()[4].self,
+				],
 			)
 			
 			const store4 = store3.fork( 456 )
@@ -279,7 +280,8 @@ namespace $ {
 			$mol_assert_like(
 				[
 					store3.root.chunks()[0].self,
-					store3.root.chunks()[2].self,
+					store3.root.chunks()[1].self,
+					store3.root.chunks()[4].self,
 				],
 				store4.root.chunks().map( chunk => chunk.self ),
 			)
@@ -289,6 +291,7 @@ namespace $ {
 			$mol_assert_like(
 				[
 					store4.root.chunks()[0].self,
+					store4.root.chunks()[1].self,
 				],
 				store5.root.chunks().map( chunk => chunk.self ),
 			)
@@ -367,10 +370,10 @@ namespace $ {
 		'Insert after moved'() {
 			
 			const base = new $hyoo_crowd_doc( 123 )
-			$hyoo_crowd_text.for( base).text( 'foo bar zak' )
+			$hyoo_crowd_text.for( base).text( 'FooBarZak' )
 			
 			const left = base.fork( 234 )
-			$hyoo_crowd_text.for( left ).text( 'foo xxx bar zak' )
+			$hyoo_crowd_text.for( left ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( 345 )
 			right.insert( right.root.chunks()[0], 0, 2 )
@@ -384,7 +387,7 @@ namespace $ {
 			$mol_assert_like(
 				$hyoo_crowd_text.for( left ).text(),
 				$hyoo_crowd_text.for( right ).text(),
-				'xxx bar foo zak',
+				'XxxBarFooZak',
 			)
 			
 		},
@@ -392,10 +395,10 @@ namespace $ {
 		'Insert before moved left'() {
 			
 			const base = new $hyoo_crowd_doc( 123 )
-			$hyoo_crowd_text.for( base).text( 'foo bar zak' )
+			$hyoo_crowd_text.for( base).text( 'fooBarZak' )
 			
 			const left = base.fork( 234 )
-			$hyoo_crowd_text.for( left ).text( 'foo xxx bar zak' )
+			$hyoo_crowd_text.for( left ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( 345 )
 			right.insert( right.root.chunks()[1], 0, 0 )
@@ -409,7 +412,7 @@ namespace $ {
 			$mol_assert_like(
 				$hyoo_crowd_text.for( left ).text(),
 				$hyoo_crowd_text.for( right ).text(),
-				'bar foo xxx zak',
+				'BarFooXxxZak',
 			)
 			
 		},
@@ -417,10 +420,10 @@ namespace $ {
 		'Insert before moved right'() {
 			
 			const base = new $hyoo_crowd_doc( 123 )
-			$hyoo_crowd_text.for( base).text( 'foo bar.zak.' )
+			$hyoo_crowd_text.for( base).text( 'FooBarZak' )
 			
 			const left = base.fork( 234 )
-			$hyoo_crowd_text.for( left ).text( 'foo xxx bar.zak.' )
+			$hyoo_crowd_text.for( left ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( 345 )
 			right.insert( right.root.chunks()[1], 0, 3 )
@@ -434,7 +437,7 @@ namespace $ {
 			$mol_assert_like(
 				$hyoo_crowd_text.for( left ).text(),
 				$hyoo_crowd_text.for( right ).text(),
-				'foo xxx zak.bar.',
+				'FooXxxZakBar',
 			)
 			
 		},
@@ -442,13 +445,13 @@ namespace $ {
 		'Insert after removed'() {
 			
 			const base = new $hyoo_crowd_doc( 123 )
-			$hyoo_crowd_text.for( base).text( 'foo bar' )
+			$hyoo_crowd_text.for( base).text( 'FooBar' )
 			
 			const left = base.fork( 234 )
-			$hyoo_crowd_text.for( left ).text( 'foo xxx bar' )
+			$hyoo_crowd_text.for( left ).text( 'FooXxxBar' )
 			
 			const right = base.fork( 345 )
-			$hyoo_crowd_text.for( right ).text( 'bar' )
+			$hyoo_crowd_text.for( right ).text( 'Bar' )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -459,7 +462,7 @@ namespace $ {
 			$mol_assert_like(
 				$hyoo_crowd_text.for( left ).text(),
 				$hyoo_crowd_text.for( right ).text(),
-				'xxx bar',
+				'XxxBar',
 			)
 			
 		},
@@ -467,10 +470,10 @@ namespace $ {
 		'Insert after removed out'() {
 			
 			const base = new $hyoo_crowd_doc( 123 )
-			$hyoo_crowd_text.for( base, 111 ).text( 'foo bar|zak' )
+			$hyoo_crowd_text.for( base, 111 ).text( 'FooBarZak' )
 			
 			const left = base.fork( 234 )
-			$hyoo_crowd_text.for( left, 111 ).text( 'foo bar|xxx zak' )
+			$hyoo_crowd_text.for( left, 111 ).text( 'FooBarXxxZak' )
 			
 			const right = base.fork( 345 )
 			right.insert( $hyoo_crowd_node.for( right, 111 ).chunks()[1], 222, 0 )
@@ -484,13 +487,13 @@ namespace $ {
 			$mol_assert_like(
 				$hyoo_crowd_text.for( left, 111 ).text(),
 				$hyoo_crowd_text.for( right, 111 ).text(),
-				'foo xxx zak',
+				'FooXxxZak',
 			)
 			
 			$mol_assert_like(
 				$hyoo_crowd_text.for( left, 222 ).text(),
 				$hyoo_crowd_text.for( right, 222 ).text(),
-				'bar|',
+				'Bar',
 			)
 			
 		},
@@ -498,13 +501,13 @@ namespace $ {
 		'Insert before changed'() {
 			
 			const base = new $hyoo_crowd_doc( 123 )
-			$hyoo_crowd_text.for( base).text( 'xxx yyy zzz' )
+			$hyoo_crowd_text.for( base).text( 'XxxYyyZzz' )
 			
 			const left = base.fork( 234 )
-			$hyoo_crowd_text.for( left ).text( 'xxx foo yyy zzz' )
+			$hyoo_crowd_text.for( left ).text( 'XxxFooYyyZzz' )
 			
 			const right = base.fork( 345 )
-			$hyoo_crowd_text.for( right ).text( 'xxx bar zzz' )
+			$hyoo_crowd_text.for( right ).text( 'XxxBarZzz' )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -515,7 +518,7 @@ namespace $ {
 			$mol_assert_like(
 				$hyoo_crowd_text.for( left ).text(),
 				$hyoo_crowd_text.for( right ).text(),
-				'xxx bar foo zzz',
+				'XxxBarFooZzz',
 			)
 			
 		},
@@ -529,8 +532,10 @@ namespace $ {
 			$hyoo_crowd_text.for( left ).text( '111 222 xxx 333 444 555 666' )
 			
 			const right = base.fork( 345 )
-			right.insert( right.root.chunks()[1], 0, 5 )
-			right.insert( right.root.chunks()[1], 0, 5 )
+			right.insert( right.root.chunks()[2], 0, 10 )
+			right.insert( right.root.chunks()[2], 0, 10 )
+			right.insert( right.root.chunks()[2], 0, 10 )
+			right.insert( right.root.chunks()[2], 0, 10 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -597,7 +602,7 @@ namespace $ {
 			$hyoo_crowd_text.for( store ).text( 'xxx foo bar yyy' )
 			$hyoo_crowd_text.for( store ).write( 'X Y Z', 6, 9 )
 			
-			$mol_assert_like( $hyoo_crowd_list.for( store ).list(), [ 'xxx ', 'fo', 'X ', 'Y ', 'Zar ', 'yyy' ] )
+			$mol_assert_like( $hyoo_crowd_list.for( store ).list(), [ 'xxx', ' ', 'fo', 'X', ' ', 'Y', ' ', 'Zar', ' ', 'yyy' ] )
 			
 		},
 		
@@ -637,14 +642,14 @@ namespace $ {
 			$hyoo_crowd_text.for( store ).text( 'foo bar' )
 			$hyoo_crowd_text.for( store ).write( 'xxx', 4 )
 			
-			$mol_assert_like( $hyoo_crowd_list.for( store ).list(), [ 'foo ', 'xxxbar' ] )
+			$mol_assert_like( $hyoo_crowd_list.for( store ).list(), [ 'foo', ' ', 'xxxbar' ] )
 			
 		},
 
-		'Offset <=> path'() {
+		'Offset <=> Point'() {
 			
 			const store = new $hyoo_crowd_doc( 123 )
-			$hyoo_crowd_text.for( store ).text( 'foo bar' )
+			$hyoo_crowd_text.for( store ).text( 'fooBar' )
 			const [ first, second ] = store.root.chunks()
 			
 			$mol_assert_like(
@@ -657,30 +662,30 @@ namespace $ {
 			)
 			
 			$mol_assert_like(
-				$hyoo_crowd_text.for( store ).point_by_offset( 4 ),
+				$hyoo_crowd_text.for( store ).point_by_offset( 3 ),
 				{ chunk: second.self, offset: 0 },
 			)
 			$mol_assert_like(
 				$hyoo_crowd_text.for( store ).offset_by_point({ chunk: second.self, offset: 0 }),
-				4,
+				3,
 			)
 			
 			$mol_assert_like(
-				$hyoo_crowd_text.for( store ).point_by_offset( 6 ),
+				$hyoo_crowd_text.for( store ).point_by_offset( 5 ),
 				{ chunk: second.self, offset: 2 },
 			)
 			$mol_assert_like(
 				$hyoo_crowd_text.for( store ).offset_by_point({ chunk: second.self, offset: 2 }),
-				6,
+				5,
 			)
 			
 			$mol_assert_like(
-				$hyoo_crowd_text.for( store ).point_by_offset( 7 ),
-				{ chunk: store.root.head, offset: 7 },
+				$hyoo_crowd_text.for( store ).point_by_offset( 6 ),
+				{ chunk: store.root.head, offset: 6 },
 			)
 			$mol_assert_like(
-				$hyoo_crowd_text.for( store ).offset_by_point({ chunk: store.root.head, offset: 7 }),
-				7,
+				$hyoo_crowd_text.for( store ).offset_by_point({ chunk: store.root.head, offset: 6 }),
+				6,
 			)
 			
 		},

@@ -46,7 +46,7 @@ namespace $ {
 		'word with spaces'() {
 			$mol_assert_like(
 				'foo1  bar2'.match( $hyoo_crowd_tokenizer ),
-				[ 'foo1 ', ' ', 'bar2' ],
+				[ 'foo1', '  ', 'bar2' ],
 			)
 		},
 		
@@ -60,7 +60,7 @@ namespace $ {
 		'word with punctuation'() {
 			$mol_assert_like(
 				'foo--bar'.match( $hyoo_crowd_tokenizer ),
-				[ 'foo--', 'bar' ],
+				[ 'foo', '--', 'bar' ],
 			)
 		},
 		
