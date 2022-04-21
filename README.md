@@ -386,3 +386,7 @@ console.log(
 - Leave us a feedback in [duscussions section](https://github.com/hyoo-ru/crowd.hyoo.ru/discussions).
 - [Fund $hyoo_guild](https://patreon.com/hyoo) to drive open source to the future.
 - Hire [nin-jin](https://github.com/nin-jin/) as a contractor for your collaborative app.
+
+# Related Projects
+
+- [BenZen](https://github.com/hyoo-ru/benzen) - Conflict-Free Version Control System
