@@ -371,7 +371,7 @@ $mol_text $mol_list
 		cells <= table_cells!id /
 	Table_cell!id $mol_grid_cell
 		sub <= table_cell_content!id /
-	Table_cell_head!id $mol_float
+	Table_cell_head!id $mol_grid_cell
 		sub <= table_cell_content!id /
 
 $mol_text_row $mol_paragraph
@@ -486,21 +486,21 @@ $hyoo_crowd_app_peer $mol_page
 			text <= stats \
 				\# Stats
 				\
-				\Peer: **{peer}**
-				\Changes: **{changes}**
+				\~~Peer:~~ {peer}
+				\~~Changes:~~ {changes}
 				\
 				\| | Alive | Dead | Total
 				\|--|--|--
-				\| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**
+				\| ~~Tokens~~ | {tokens:alive} | {tokens:dead} | {tokens:total}
 				\
 				\| | Now | Sync
 				\|--|--|--
-				\| Time | **{stamp:now}** | **{stamp:sync}**
+				\| ~~Time~~ | {stamp:now} | {stamp:sync}
 				\
 				\| | Text | State | Delta
 				\|--|--|--|--
-				\| JSON Size | **{size:text}** | **{size:state}** | **{size:delta}**
-				\| Bin Size | **{size:text:bin}** | **{size:state:bin}** | **{size:delta:bin}**
+				\| ~~JSON Size~~ | {size:text} | {size:state} | {size:delta}
+				\| ~~Bin Size~~ | {size:text:bin} | {size:state:bin} | {size:delta:bin}
 				\
 		<= Delta_section $mol_section
 			title \Delta

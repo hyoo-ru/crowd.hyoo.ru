@@ -6723,7 +6723,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/float/float.view.css", "[mol_float] {\n\tposition: sticky;\n\ttop: 0;\n\tleft: 0;\n\tz-index: 1;\n\topacity: 1;\n\ttransition: opacity .25s ease-in;\n\tdisplay: block;\n\tbox-shadow: 0 0 .5rem hsla(0,0%,0%,.25);\n\tbackdrop-filter: blur(0.25rem);\n}\n\n");
+    $mol_style_attach("mol/float/float.view.css", "[mol_float] {\n\tposition: sticky;\n\ttop: 0;\n\tleft: 0;\n\tz-index: 1;\n\topacity: 1;\n\ttransition: opacity .25s ease-in;\n\tdisplay: block;\n\tbackground: var(--mol_theme_back);\n\tbox-shadow: 0 0 .5rem hsla(0,0%,0%,.25);\n}\n\n");
 })($ || ($ = {}));
 //mol/float/-css/float.view.css.ts
 ;
@@ -7062,7 +7062,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/grid/grid.view.css", "[mol_grid] {\n\tdisplay: block;\n\tflex: 1 1 auto;\n\tposition: relative;\n}\n\n[mol_grid_gap] {\n\tposition: absolute;\n\tpadding: .1px;\n\ttop: 0;\n\ttransform: translateZ(0);\n}\n\n[mol_grid_table] {\n\tborder-spacing: 0;\n\tdisplay: table-row-group;\n\tposition: relative;\n}\n\n[mol_grid_table] > * {\n\tdisplay: table-row;\n\ttransition: none;\n}\n\n[mol_grid_head] > * ,\n[mol_grid_table] > * > * {\n\tdisplay: table-cell;\n\tpadding: var(--mol_gap_text);\n\twhite-space: nowrap;\n\tvertical-align: middle;\n\tbox-shadow: none;\n}\n\n[mol_grid_head] {\n\tdisplay: table-row;\n\ttransform: none !important;\n}\n\n[mol_grid_head] > * {\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_grid_cell_number] {\n\ttext-align: right;\n}\n\n[mol_grid_col_head] {\n\tfont-weight: inherit;\n\ttext-align: inherit;\n\tdisplay: table-cell;\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_grid_cell_dimmer] {\n\tdisplay: inline-block;\n\tvertical-align: inherit;\n}\n");
+    $mol_style_attach("mol/grid/grid.view.css", "[mol_grid] {\n\tdisplay: block;\n\tflex: 1 1 auto;\n\tposition: relative;\n}\n\n[mol_grid_gap] {\n\tposition: absolute;\n\tpadding: .1px;\n\ttop: 0;\n\ttransform: translateZ(0);\n}\n\n[mol_grid_table] {\n\tborder-spacing: 0;\n\tdisplay: table-row-group;\n\tposition: relative;\n}\n\n[mol_grid_table] > * {\n\tdisplay: table-row;\n\ttransition: none;\n\tbox-shadow: inset 0 1px 0 0 var(--mol_theme_line);\n}\n\n[mol_grid_head] > * ,\n[mol_grid_table] > * > * {\n\tdisplay: table-cell;\n\tpadding: var(--mol_gap_text);\n\twhite-space: nowrap;\n\tvertical-align: middle;\n\tbox-shadow: none;\n}\n\n[mol_grid_head] > * + * ,\n[mol_grid_table] > * > * + * {\n\tbox-shadow: inset 1px 0 0 0 var(--mol_theme_line);\n}\n\n[mol_grid_head] {\n\tdisplay: table-row;\n\ttransform: none !important;\n}\n\n[mol_grid_head] > * {\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_grid_cell_number] {\n\ttext-align: right;\n}\n\n[mol_grid_col_head] {\n\tfont-weight: inherit;\n\ttext-align: inherit;\n\tdisplay: table-cell;\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_grid_cell_dimmer] {\n\tdisplay: inline-block;\n\tvertical-align: inherit;\n}\n");
 })($ || ($ = {}));
 //mol/grid/-css/grid.view.css.ts
 ;
@@ -7383,7 +7383,7 @@ var $;
             return obj;
         }
         Table_cell_head(id) {
-            const obj = new this.$.$mol_float();
+            const obj = new this.$.$mol_grid_cell();
             obj.sub = () => this.table_cell_content(id);
             return obj;
         }
@@ -8162,7 +8162,7 @@ var $;
             return obj;
         }
         stats() {
-            return "# Stats\n\nPeer: **{peer}**\nChanges: **{changes}**\n\n| | Alive | Dead | Total\n|--|--|--\n| Tokens | **{tokens:alive}** | **{tokens:dead}** | **{tokens:total}**\n\n| | Now | Sync\n|--|--|--\n| Time | **{stamp:now}** | **{stamp:sync}**\n\n| | Text | State | Delta\n|--|--|--|--\n| JSON Size | **{size:text}** | **{size:state}** | **{size:delta}**\n| Bin Size | **{size:text:bin}** | **{size:state:bin}** | **{size:delta:bin}**\n";
+            return "# Stats\n\n~~Peer:~~ {peer}\n~~Changes:~~ {changes}\n\n| | Alive | Dead | Total\n|--|--|--\n| ~~Tokens~~ | {tokens:alive} | {tokens:dead} | {tokens:total}\n\n| | Now | Sync\n|--|--|--\n| ~~Time~~ | {stamp:now} | {stamp:sync}\n\n| | Text | State | Delta\n|--|--|--|--\n| ~~JSON Size~~ | {size:text} | {size:state} | {size:delta}\n| ~~Bin Size~~ | {size:text:bin} | {size:state:bin} | {size:delta:bin}\n";
         }
         Stats() {
             const obj = new this.$.$mol_text();
