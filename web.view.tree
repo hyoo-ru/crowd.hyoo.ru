@@ -448,7 +448,8 @@ $mol_section $mol_list rows /
 	<= Head $mol_view
 		sub <= head /
 			<= title
-	<= Content null
+	<= Content $mol_list
+		rows <= content /
 
 $hyoo_crowd_app $mol_book2
 	Placeholder null
@@ -503,5 +504,5 @@ $hyoo_crowd_app_peer $mol_page
 				\
 		<= Delta_section $mol_section
 			title \Delta
-			Content <= Delta $mol_grid
+			content / <= Delta $mol_grid
 				records <= delta_view *

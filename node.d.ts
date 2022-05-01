@@ -250,6 +250,7 @@ declare namespace $ {
     const $mol_theme: {
         back: $mol_style_func<"var", "--mol_theme_back">;
         hover: $mol_style_func<"var", "--mol_theme_hover">;
+        card: $mol_style_func<"var", "--mol_theme_card">;
         current: $mol_style_func<"var", "--mol_theme_current">;
         text: $mol_style_func<"var", "--mol_theme_text">;
         control: $mol_style_func<"var", "--mol_theme_control">;
@@ -259,9 +260,6 @@ declare namespace $ {
         field: $mol_style_func<"var", "--mol_theme_field">;
         image: $mol_style_func<"var", "--mol_theme_image">;
     };
-}
-
-declare namespace $ {
 }
 
 declare namespace $ {
@@ -726,7 +724,8 @@ declare namespace $ {
         whiteSpace?: 'normal' | 'nowrap' | 'break-spaces' | 'pre' | 'pre-wrap' | 'pre-line' | Common;
         webkitOverflowScrolling?: 'auto' | 'touch';
         scrollbar?: {
-            color?: readonly [Color, Color] | 'dark' | 'light' | 'auto' | Common;
+            color?: readonly [Color, Color] | 'auto' | Common;
+            width?: 'auto' | 'thin' | 'none' | Common;
         };
         scroll?: {
             snap?: {
@@ -2476,7 +2475,8 @@ declare namespace $ {
         rows(): readonly any[];
         head(): readonly any[];
         Head(): $mol_view;
-        Content(): any;
+        content(): readonly any[];
+        Content(): $$.$mol_list;
     }
 }
 
