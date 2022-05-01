@@ -51,5 +51,5 @@ $hyoo_crowd_app_peer $mol_page
 				\
 		<= Delta_section $mol_section
 			title \Delta
-			Content <= Delta $mol_grid
+			content / <= Delta $mol_grid
 				records <= delta_view *
