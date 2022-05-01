@@ -1,0 +1,8 @@
+$hyoo_crowd_demo $mol_example_large
+	title \CROWD Text Merge
+	sub /
+		<= Sandbox $hyoo_crowd_app
+	tags /
+		\CROWD
+		\text
+		\merge
