@@ -1847,8 +1847,11 @@ declare namespace $ {
         code3: RegExp;
         code: RegExp;
         strike: RegExp;
-        'text-link': RegExp;
+        remark: RegExp;
+        quote: RegExp;
         'image-link': RegExp;
+        'text-link': RegExp;
+        'text-link-http': RegExp;
     }>;
     const $mol_syntax2_md_code: $mol_syntax2<{
         'code-docs': RegExp;
