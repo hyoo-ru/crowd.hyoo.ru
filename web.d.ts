@@ -171,6 +171,7 @@ declare namespace $ {
         hover: $mol_style_func<"var", "--mol_theme_hover">;
         card: $mol_style_func<"var", "--mol_theme_card">;
         current: $mol_style_func<"var", "--mol_theme_current">;
+        special: $mol_style_func<"var", "--mol_theme_special">;
         text: $mol_style_func<"var", "--mol_theme_text">;
         control: $mol_style_func<"var", "--mol_theme_control">;
         shade: $mol_style_func<"var", "--mol_theme_shade">;
@@ -2291,6 +2292,7 @@ declare namespace $ {
         uri(val?: any): string;
         mime(): string;
         title(val?: any): string;
+        Fallback(): $$.$mol_link;
     }
 }
 
