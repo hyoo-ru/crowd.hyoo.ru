@@ -6156,9 +6156,9 @@ var $;
     $.$mol_syntax2_md_code = new $mol_syntax2({
         'code-docs': /\/\/\/.*?$/,
         'code-comment-block': /(?:\/\*[^]*?\*\/|\/\+[^]*?\+\/|<![^]*?>)/,
-        'code-link': /(?:\w+:\/\/|#|\?)\S+?(?=\s|\\\\|""|$)/,
+        'code-link': /(?:\w+:\/\/|#)\S+?(?=\s|\\\\|""|$)/,
         'code-comment-inline': /\/\/.*?$/,
-        'code-string': /(?:".*?"|'.*?'|`.*?`|\/.+?\/[gmi]*\b|(?:^|[ \t])\\[^\n]*\n)/,
+        'code-string': /(?:".*?"|'.*?'|`.*?`|(?<!\w)\/.+?\/[dygimsu]*(?!\w)|(?:^|[ \t])\\[^\n]*\n)/,
         'code-number': /[+-]?(?:\d*\.)?\d+\w*/,
         'code-call': /\.?\w+ *(?=\()/,
         'code-field': /(?:\.\w+|[\w-]+\??\s*:(?!\/\/))/,
@@ -6258,7 +6258,7 @@ var $;
             }
             find_token_pos([offset, ...path]) {
                 for (const [index, token] of this.tokens(path).entries()) {
-                    if (token.found.length > offset) {
+                    if (token.found.length >= offset) {
                         const token = this.Token([...path, index]);
                         return { token, offset };
                     }
@@ -7506,11 +7506,13 @@ var $;
         }
         Quote(id) {
             const obj = new this.$.$mol_text();
+            obj.uri_resolve = (id) => this.uri_resolve(id);
             obj.text = () => this.quote_text(id);
             return obj;
         }
         List(id) {
             const obj = new this.$.$mol_text();
+            obj.uri_resolve = (id) => this.uri_resolve(id);
             obj.text = () => this.list_text(id);
             return obj;
         }
@@ -7540,6 +7542,7 @@ var $;
         }
         Table_cell(id) {
             const obj = new this.$.$mol_text();
+            obj.uri_resolve = (id) => this.uri_resolve(id);
             obj.text = () => this.table_cell_text(id);
             return obj;
         }
@@ -7586,6 +7589,9 @@ var $;
         }
         block_content(id) {
             return [];
+        }
+        uri_resolve(id) {
+            return null;
         }
         quote_text(id) {
             return "";
