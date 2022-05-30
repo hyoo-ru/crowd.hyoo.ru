@@ -796,6 +796,19 @@ var $;
             App.value(2);
             $mol_assert_equal(App.value(), 3);
         },
+        'Read Pushed'($) {
+            class App extends $mol_object2 {
+                static $ = $;
+                static value(next = 0) {
+                    return next;
+                }
+            }
+            __decorate([
+                $mol_wire_mem(0)
+            ], App, "value", null);
+            $mol_assert_equal(App.value(1), 1);
+            $mol_assert_equal(App.value(), 1);
+        },
         'Mem overrides mem'($) {
             class Base extends $mol_object2 {
                 static $ = $;
@@ -965,6 +978,33 @@ var $;
                 $mol_wire_method
             ], App, "test", null);
             App.test();
+        },
+        'Update deps on push'($) {
+            class App extends $mol_object2 {
+                static $ = $;
+                static left(next = false) {
+                    return next;
+                }
+                static right(next = false) {
+                    return next;
+                }
+                static res(next) {
+                    return this.left(next) && this.right();
+                }
+            }
+            __decorate([
+                $mol_wire_mem(0)
+            ], App, "left", null);
+            __decorate([
+                $mol_wire_mem(0)
+            ], App, "right", null);
+            __decorate([
+                $mol_wire_mem(0)
+            ], App, "res", null);
+            $mol_assert_equal(App.res(), false);
+            $mol_assert_equal(App.res(true), false);
+            $mol_assert_equal(App.right(true), true);
+            $mol_assert_equal(App.res(), true);
         },
         'Different order of pull and push'($) {
             class App extends $mol_object2 {
@@ -1919,7 +1959,7 @@ var $;
                     },
                 },
             });
-            $mol_assert_equal(sheet, '[mol_style_sheet_test][mol_theme="$mol_theme_dark"] {\n\tcolor: red;\n\tdisplay: block;\n}\n');
+            $mol_assert_equal(sheet, '[mol_style_sheet_test]:where([mol_theme="$mol_theme_dark"]) {\n\tcolor: red;\n\tdisplay: block;\n}\n');
         },
         'component element styles'() {
             class $mol_style_sheet_test extends $mol_view {
@@ -1964,7 +2004,7 @@ var $;
                     },
                 },
             });
-            $mol_assert_equal(sheet, '[mol_style_sheet_test][mol_theme="$mol_theme_dark"] [mol_style_sheet_test_item] {\n\tcolor: red;\n}\n');
+            $mol_assert_equal(sheet, '[mol_style_sheet_test]:where([mol_theme="$mol_theme_dark"]) :where([mol_style_sheet_test_item]) {\n\tcolor: red;\n}\n');
         },
         'inner component styles by class'() {
             const sheet = $mol_style_sheet($mol_style_sheet_test2, {
@@ -1973,7 +2013,7 @@ var $;
                     display: 'block',
                 },
             });
-            $mol_assert_equal(sheet, '[mol_style_sheet_test2] [mol_style_sheet_test1] {\n\tcolor: red;\n\tdisplay: block;\n}\n');
+            $mol_assert_equal(sheet, '[mol_style_sheet_test2] :where([mol_style_sheet_test1]) {\n\tcolor: red;\n\tdisplay: block;\n}\n');
         },
         'child component styles by class'() {
             const sheet = $mol_style_sheet($mol_style_sheet_test2, {
@@ -1984,7 +2024,7 @@ var $;
                     },
                 },
             });
-            $mol_assert_equal(sheet, '[mol_style_sheet_test2] > [mol_style_sheet_test1] {\n\tcolor: red;\n\tdisplay: block;\n}\n');
+            $mol_assert_equal(sheet, '[mol_style_sheet_test2] > :where([mol_style_sheet_test1]) {\n\tcolor: red;\n\tdisplay: block;\n}\n');
         },
     });
 })($ || ($ = {}));
@@ -3009,7 +3049,7 @@ var $;
                 });
                 const event = $mol_dom_context.document.createEvent('mouseevent');
                 $mol_assert_fail(() => clicker.event_activate(event), 'Test error');
-                $mol_assert_fail(() => clicker.status(), 'Test error');
+                $mol_assert_equal(clicker.status()[0].message, 'Test error');
             },
         });
     })($$ = $_1.$$ || ($_1.$$ = {}));
