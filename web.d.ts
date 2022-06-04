@@ -205,7 +205,7 @@ declare namespace $ {
         sub_off(sub_pos: number): void;
         reap(): void;
         promote(): void;
-        refresh(): void;
+        fresh(): void;
         complete(): void;
         emit(quant?: $mol_wire_cursor): void;
         peer_move(from_pos: number, to_pos: number): void;
@@ -281,7 +281,6 @@ declare namespace $ {
     class $mol_after_frame extends $mol_object2 {
         task: () => void;
         static _promise: Promise<void> | null;
-        static _timeout: any;
         static get promise(): Promise<void>;
         cancelled: boolean;
         promise: Promise<void>;
@@ -311,6 +310,7 @@ declare namespace $ {
         toJSON(): any;
         get $(): any;
         emit(quant?: $mol_wire_cursor): void;
+        fresh(): void;
         refresh(): void;
         abstract put(next: Result | Error | Promise<Result | Error>): Result | Error | Promise<Result | Error>;
         sync(): Awaited<Result>;
@@ -354,6 +354,9 @@ declare namespace $ {
 declare namespace $ {
     class $mol_wire_atom<Host, Args extends readonly unknown[], Result> extends $mol_wire_fiber<Host, Args, Result> {
         static getter<Host, Args extends readonly unknown[], Result>(task: (this: Host, ...args: Args) => Result, keys: number): (host: Host, args: Args) => $mol_wire_atom<Host, [...Args], Result>;
+        static watching: Set<$mol_wire_atom<any, any, any>>;
+        static watch(): void;
+        watch(): void;
         resync(args: Args): Error | Result | Promise<Error | Result>;
         once(): Awaited<Result>;
         destructor(): void;
@@ -461,6 +464,10 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_wire_watch(): void;
+}
+
+declare namespace $ {
     function $mol_const<Value>(value: Value): {
         (): Value;
         '()': Value;
@@ -474,7 +481,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_wire_async<Host extends object>(obj: Host): { [key in keyof Host]: Host[key] extends (...args: infer Args) => infer Res ? Res extends Promise<any> ? Host[key] : (...args: Args) => Promise<Res> : Host[key]; };
+    function $mol_wire_async<Host extends object>(obj: Host): (Host extends (...args: infer Args) => infer Res ? Res extends Promise<any> ? Host : (...args: Args) => Promise<Res> : {}) & { [key in keyof Host]: Host[key] extends (...args: infer Args_1) => infer Res_1 ? Res_1 extends Promise<any> ? Host[key] : (...args: Args_1) => Promise<Res_1> : Host[key]; };
 }
 
 declare namespace $ {
@@ -528,10 +535,13 @@ declare namespace $ {
         maximal_width(): number;
         minimal_height(): number;
         static watchers: Set<$mol_view>;
-        view_rect(): DOMRectReadOnly | null;
-        view_rect_cache(next?: DOMRectReadOnly | null): DOMRectReadOnly | null;
-        view_rect_watcher(): {
-            destructor: () => boolean;
+        view_rect(): {
+            width: number;
+            height: number;
+            left: number;
+            right: number;
+            top: number;
+            bottom: number;
         };
         dom_id(): any;
         dom_node(next?: Element): Element;
@@ -1213,12 +1223,12 @@ declare namespace $ {
 declare namespace $ {
 }
 
-declare var $node: any;
-
 declare namespace $ {
     type $mol_charset_encoding = 'utf8' | 'ibm866' | 'iso-8859-2' | 'iso-8859-3' | 'iso-8859-4' | 'iso-8859-5' | 'iso-8859-6' | 'iso-8859-7' | 'iso-8859-8' | 'iso-8859-8i' | 'iso-8859-10' | 'iso-8859-13' | 'iso-8859-14' | 'iso-8859-15' | 'iso-8859-16' | 'koi8-r' | 'koi8-u' | 'koi8-r' | 'macintosh' | 'windows-874' | 'windows-1250' | 'windows-1251' | 'windows-1252' | 'windows-1253' | 'windows-1254' | 'windows-1255' | 'windows-1256' | 'windows-1257' | 'windows-1258' | 'x-mac-cyrillic' | 'gbk' | 'gb18030' | 'hz-gb-2312' | 'big5' | 'euc-jp' | 'iso-2022-jp' | 'shift-jis' | 'euc-kr' | 'iso-2022-kr';
     function $mol_charset_decode(value: Uint8Array, code?: $mol_charset_encoding): string;
 }
+
+declare var $node: any;
 
 declare namespace $ {
     function $mol_charset_encode(value: string): Uint8Array;
@@ -1268,7 +1278,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_wire_sync<Host extends object>(obj: Host): { [key in keyof Host]: Host[key] extends (...args: infer Args) => Promise<infer Res> ? (...args: Args) => Res : Host[key]; };
+    function $mol_wire_sync<Host extends object>(obj: Host): (Host extends (...args: infer Args) => infer Res ? Res extends Promise<infer Res2> ? (...args: Args) => Res2 : Host : {}) & { [key in keyof Host]: Host[key] extends (...args: infer Args_1) => Promise<infer Res_1> ? (...args: Args_1) => Res_1 : Host[key]; };
 }
 
 declare namespace $ {

@@ -596,6 +596,15 @@ var $;
 "use strict";
 var $;
 (function ($_1) {
+    $mol_test_mocks.push($ => {
+        $.$mol_after_timeout = $mol_after_mock_timeout;
+    });
+})($ || ($ = {}));
+//mol/after/timeout/timeout.test.ts
+;
+"use strict";
+var $;
+(function ($_1) {
     $mol_test({
         async 'Latest Calls Wins on Concurrency'($) {
             class NameLogger extends $mol_object2 {
@@ -615,6 +624,15 @@ var $;
             await promise;
             $mol_assert_like(NameLogger.first, ['john', 'jin']);
             $mol_assert_like(NameLogger.last, ['jin']);
+        },
+        async 'Wrap function'($) {
+            const name = $mol_wire_async(function (name) {
+                $.$mol_wait_timeout(0);
+                return name;
+            });
+            const promise = name('jin');
+            $.$mol_after_mock_warp();
+            $mol_assert_like(await promise, 'jin');
         },
     });
 })($ || ($ = {}));
@@ -768,15 +786,6 @@ var $;
     });
 })($ || ($ = {}));
 //mol/wire/fiber/fiber.test.ts
-;
-"use strict";
-var $;
-(function ($_1) {
-    $mol_test_mocks.push($ => {
-        $.$mol_after_timeout = $mol_after_mock_timeout;
-    });
-})($ || ($ = {}));
-//mol/after/timeout/timeout.test.ts
 ;
 "use strict";
 var $;
@@ -1529,33 +1538,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_test({
-        'const returns stored value'() {
-            const foo = { bar: $mol_const(Math.random()) };
-            $mol_assert_equal(foo.bar(), foo.bar());
-            $mol_assert_equal(foo.bar(), foo.bar['()']);
-        },
-    });
-})($ || ($ = {}));
-//mol/const/const.test.ts
-;
-"use strict";
-var $;
-(function ($_1) {
-    $mol_test({
-        'FQN of anon function'($) {
-            const $$ = Object.assign($, { $mol_func_name_test: (() => () => { })() });
-            $mol_assert_equal($$.$mol_func_name_test.name, '');
-            $mol_assert_equal($$.$mol_func_name($$.$mol_func_name_test), '$mol_func_name_test');
-            $mol_assert_equal($$.$mol_func_name_test.name, '$mol_func_name_test');
-        },
-    });
-})($ || ($ = {}));
-//mol/func/name/name.test.ts
-;
-"use strict";
-var $;
-(function ($) {
     class $mol_wire_log extends $mol_object2 {
         static watch(task) {
             return task;
@@ -1668,6 +1650,33 @@ var $;
     $mol_wire_log.active();
 })($ || ($ = {}));
 //mol/wire/atom/atom.test.ts
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'const returns stored value'() {
+            const foo = { bar: $mol_const(Math.random()) };
+            $mol_assert_equal(foo.bar(), foo.bar());
+            $mol_assert_equal(foo.bar(), foo.bar['()']);
+        },
+    });
+})($ || ($ = {}));
+//mol/const/const.test.ts
+;
+"use strict";
+var $;
+(function ($_1) {
+    $mol_test({
+        'FQN of anon function'($) {
+            const $$ = Object.assign($, { $mol_func_name_test: (() => () => { })() });
+            $mol_assert_equal($$.$mol_func_name_test.name, '');
+            $mol_assert_equal($$.$mol_func_name($$.$mol_func_name_test), '$mol_func_name_test');
+            $mol_assert_equal($$.$mol_func_name_test.name, '$mol_func_name_test');
+        },
+    });
+})($ || ($ = {}));
+//mol/func/name/name.test.ts
 ;
 "use strict";
 var $;
