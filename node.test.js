@@ -4945,6 +4945,7 @@ var $;
 var $;
 (function ($) {
     $.$mol_jsx_prefix = '';
+    $.$mol_jsx_crumbs = '';
     $.$mol_jsx_booked = null;
     $.$mol_jsx_document = {
         getElementById: () => null,
@@ -4954,16 +4955,45 @@ var $;
     $.$mol_jsx_frag = '';
     function $mol_jsx(Elem, props, ...childNodes) {
         const id = props && props.id || '';
+        const guid = id ? $.$mol_jsx_prefix ? $.$mol_jsx_prefix + '/' + id : id : $.$mol_jsx_prefix;
+        const crumbs_self = id ? $.$mol_jsx_crumbs.replace(/(\S+)/g, `$1_${id}`) : $.$mol_jsx_crumbs;
         if (Elem && $.$mol_jsx_booked) {
             if ($.$mol_jsx_booked.has(id)) {
-                $mol_fail(new Error(`JSX already has tag with id ${JSON.stringify(id)}`));
+                $mol_fail(new Error(`JSX already has tag with id ${JSON.stringify(guid)}`));
             }
             else {
                 $.$mol_jsx_booked.add(id);
             }
         }
-        const guid = $.$mol_jsx_prefix + id;
         let node = guid ? $.$mol_jsx_document.getElementById(guid) : null;
+        if ($.$mol_jsx_prefix) {
+            const prefix_ext = $.$mol_jsx_prefix;
+            const booked_ext = $.$mol_jsx_booked;
+            const crumbs_ext = $.$mol_jsx_crumbs;
+            for (const field in props) {
+                const func = props[field];
+                if (typeof func !== 'function')
+                    continue;
+                const wrapper = function (...args) {
+                    const prefix = $.$mol_jsx_prefix;
+                    const booked = $.$mol_jsx_booked;
+                    const crumbs = $.$mol_jsx_crumbs;
+                    try {
+                        $.$mol_jsx_prefix = prefix_ext;
+                        $.$mol_jsx_booked = booked_ext;
+                        $.$mol_jsx_crumbs = crumbs_ext;
+                        return func.call(this, ...args);
+                    }
+                    finally {
+                        $.$mol_jsx_prefix = prefix;
+                        $.$mol_jsx_booked = booked;
+                        $.$mol_jsx_crumbs = crumbs;
+                    }
+                };
+                $mol_func_name_from(wrapper, func);
+                props[field] = wrapper;
+            }
+        }
         if (typeof Elem !== 'string') {
             if ('prototype' in Elem) {
                 const view = node && node[Elem] || new Elem;
@@ -4972,6 +5002,7 @@ var $;
                 view.childNodes = childNodes;
                 if (!view.ownerDocument)
                     view.ownerDocument = $.$mol_jsx_document;
+                view.className = (crumbs_self ? crumbs_self + ' ' : '') + (Elem['name'] || Elem);
                 node = view.valueOf();
                 node[Elem] = view;
                 return node;
@@ -4979,14 +5010,17 @@ var $;
             else {
                 const prefix = $.$mol_jsx_prefix;
                 const booked = $.$mol_jsx_booked;
+                const crumbs = $.$mol_jsx_crumbs;
                 try {
                     $.$mol_jsx_prefix = guid;
                     $.$mol_jsx_booked = new Set;
+                    $.$mol_jsx_crumbs = (crumbs_self ? crumbs_self + ' ' : '') + (Elem['name'] || Elem);
                     return Elem(props, ...childNodes);
                 }
                 finally {
                     $.$mol_jsx_prefix = prefix;
                     $.$mol_jsx_booked = booked;
+                    $.$mol_jsx_crumbs = crumbs;
                 }
             }
         }
@@ -5017,6 +5051,8 @@ var $;
         }
         if (guid)
             node.id = guid;
+        if ($.$mol_jsx_crumbs)
+            node.className = (props?.['class'] ? props['class'] + ' ' : '') + crumbs_self;
         return node;
     }
     $.$mol_jsx = $mol_jsx;
@@ -8991,28 +9027,52 @@ var $;
             const Button = (props, target) => {
                 return $mol_jsx("button", { title: props.hint }, target());
             };
-            const dom = $mol_jsx(Button, { id: "/foo", hint: "click me" }, () => 'hey!');
-            $mol_assert_equal(dom.outerHTML, '<button title="click me" id="/foo">hey!</button>');
+            const dom = $mol_jsx(Button, { id: "foo", hint: "click me" }, () => 'hey!');
+            $mol_assert_equal(dom.outerHTML, '<button title="click me" id="foo" class="Button">hey!</button>');
         },
         'Nested guid generation'() {
             const Foo = () => {
                 return $mol_jsx("div", null,
-                    $mol_jsx(Bar, { id: "/bar" },
-                        $mol_jsx("img", { id: "/icon" })));
+                    $mol_jsx(Bar, { id: "bar" },
+                        $mol_jsx("img", { id: "icon" })));
             };
             const Bar = (props, icon) => {
-                return $mol_jsx("span", null, icon);
+                return $mol_jsx("span", null,
+                    icon,
+                    $mol_jsx("i", { id: "label" }));
             };
-            const dom = $mol_jsx(Foo, { id: "/foo" });
-            $mol_assert_equal(dom.outerHTML, '<div id="/foo"><span id="/foo/bar"><img id="/foo/icon"></span></div>');
+            const dom = $mol_jsx(Foo, { id: "foo" });
+            $mol_assert_equal(dom.outerHTML, '<div id="foo" class="Foo"><span id="foo/bar" class="Foo_bar Bar"><img id="foo/icon" class="Foo_icon"><i id="foo/bar/label" class="Foo_bar_label Bar_label"></i></span></div>');
         },
         'Fail on non unique ids'() {
             const App = () => {
                 return $mol_jsx("div", null,
-                    $mol_jsx("span", { id: "/bar" }),
-                    $mol_jsx("span", { id: "/bar" }));
+                    $mol_jsx("span", { id: "bar" }),
+                    $mol_jsx("span", { id: "bar" }));
             };
-            $mol_assert_fail(() => $mol_jsx(App, { id: "/foo" }), 'JSX already has tag with id "/bar"');
+            $mol_assert_fail(() => $mol_jsx(App, { id: "foo" }), 'JSX already has tag with id "foo/bar"');
+        },
+        'Owner based guid generationn'() {
+            const Foo = () => {
+                return $mol_jsx("div", null,
+                    $mol_jsx(Bar, { id: "middle", icon: () => $mol_jsx("img", { id: "icon" }) }));
+            };
+            const Bar = (props) => {
+                return $mol_jsx("span", null, props.icon());
+            };
+            const dom = $mol_jsx(Foo, { id: "app" });
+            $mol_assert_equal(dom.outerHTML, '<div id="app" class="Foo"><span id="app/middle" class="Foo_middle Bar"><img id="app/icon" class="Foo_icon"></span></div>');
+        },
+        'Fail on same ids from different caller'() {
+            const Foo = () => {
+                return $mol_jsx("div", null,
+                    $mol_jsx("img", { id: "icon" }),
+                    $mol_jsx(Bar, { id: "bar", icon: () => $mol_jsx("img", { id: "icon" }) }));
+            };
+            const Bar = (props) => {
+                return $mol_jsx("span", null, props.icon());
+            };
+            $mol_assert_fail(() => $mol_jsx(Foo, { id: "foo" }), 'JSX already has tag with id "foo/icon"');
         },
     });
 })($ || ($ = {}));
@@ -9249,6 +9309,20 @@ var $;
     $.$mol_assert_dom = $mol_assert_dom;
 })($ || ($ = {}));
 //mol/assert/assert.ts
+;
+"use strict";
+var $;
+(function ($_1) {
+    $mol_test({
+        'FQN of anon function'($) {
+            const $$ = Object.assign($, { $mol_func_name_test: (() => () => { })() });
+            $mol_assert_equal($$.$mol_func_name_test.name, '');
+            $mol_assert_equal($$.$mol_func_name($$.$mol_func_name_test), '$mol_func_name_test');
+            $mol_assert_equal($$.$mol_func_name_test.name, '$mol_func_name_test');
+        },
+    });
+})($ || ($ = {}));
+//mol/func/name/name.test.ts
 ;
 "use strict";
 var $;
@@ -10484,20 +10558,6 @@ var $;
     });
 })($ || ($ = {}));
 //mol/const/const.test.ts
-;
-"use strict";
-var $;
-(function ($_1) {
-    $mol_test({
-        'FQN of anon function'($) {
-            const $$ = Object.assign($, { $mol_func_name_test: (() => () => { })() });
-            $mol_assert_equal($$.$mol_func_name_test.name, '');
-            $mol_assert_equal($$.$mol_func_name($$.$mol_func_name_test), '$mol_func_name_test');
-            $mol_assert_equal($$.$mol_func_name_test.name, '$mol_func_name_test');
-        },
-    });
-})($ || ($ = {}));
-//mol/func/name/name.test.ts
 ;
 "use strict";
 //mol/type/keys/extract/extract.test.ts
