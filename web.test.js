@@ -152,7 +152,7 @@ var $;
                 return $mol_jsx("button", { title: props.hint }, target());
             };
             const dom = $mol_jsx(Button, { id: "foo", hint: "click me" }, () => 'hey!');
-            $mol_assert_equal(dom.outerHTML, '<button title="click me" id="foo" class="Button">hey!</button>');
+            $mol_assert_equal(dom.outerHTML, '<button id="foo" title="click me" class="Button">hey!</button>');
         },
         'Nested guid generation'() {
             const Foo = () => {
@@ -1371,6 +1371,33 @@ var $;
             Fib.value(1, 2);
             $mol_assert_equal(Fib.value(4), 8);
             $mol_assert_equal(Fib.sums, 6);
+        },
+        'Unsubscribe from temp pubs on complete'($) {
+            class Random extends $mol_object2 {
+                static $ = $;
+                static seed() {
+                    return Math.random();
+                }
+                static resets(next) {
+                    return Math.random();
+                }
+                static value() {
+                    this.resets();
+                    return this.seed();
+                }
+            }
+            __decorate([
+                $mol_wire_method
+            ], Random, "seed", null);
+            __decorate([
+                $mol_wire_mem(0)
+            ], Random, "resets", null);
+            __decorate([
+                $mol_wire_mem(0)
+            ], Random, "value", null);
+            const first = Random.value();
+            Random.resets(null);
+            $mol_assert_unique(Random.value(), first);
         },
     });
 })($ || ($ = {}));
