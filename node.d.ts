@@ -2379,6 +2379,7 @@ declare namespace $.$$ {
 
 declare namespace $ {
     class $mol_embed_native extends $mol_scroll {
+        uri(val?: any): string;
         dom_name(): string;
         window(): any;
         attr(): {
@@ -2386,8 +2387,10 @@ declare namespace $ {
             type: string;
         };
         sub(): readonly any[];
-        uri(val?: any): string;
+        uri_object(): string;
         mime(): string;
+        uri_link(): string;
+        uri_image(): string;
         title(val?: any): string;
         Fallback_image(): $mol_image;
         Fallback_link(): $$.$mol_link;
@@ -2426,6 +2429,7 @@ declare namespace $.$$ {
         uri_listener(): $mol_dom_listener;
         uri_change(event?: MessageEvent<[string, string]>): void;
         auto(): (Window | $mol_dom_listener)[];
+        uri_object(): string;
     }
 }
 
@@ -2449,6 +2453,7 @@ declare namespace $ {
         Code_line(id: any): $$.$mol_text_code_row;
         Link(id: any): $$.$mol_link_iconed;
         Link_http(id: any): $$.$mol_link_iconed;
+        Image_fallback(id: any): $mol_image;
         Image(id: any): $$.$mol_embed_native;
         auto_scroll(): any;
         block_content(id: any): readonly any[];
