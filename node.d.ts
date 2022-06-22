@@ -486,7 +486,8 @@ declare namespace $ {
 
 declare namespace $ {
     class $mol_wire_atom<Host, Args extends readonly unknown[], Result> extends $mol_wire_fiber<Host, Args, Result> {
-        static getter<Host, Args extends readonly unknown[], Result>(task: (this: Host, ...args: Args) => Result, keys: number): (host: Host, args: Args) => $mol_wire_atom<Host, [...Args], Result>;
+        static solo<Host, Args extends readonly unknown[], Result>(host: Host, task: (this: Host, ...args: Args) => Result): $mol_wire_atom<Host, Args, Result>;
+        static plex<Host, Args extends readonly unknown[], Result>(host: Host, task: (this: Host, ...args: Args) => Result, key: Args[0]): $mol_wire_atom<Host, Args, Result>;
         static watching: Set<$mol_wire_atom<any, any, any>>;
         static watch(): void;
         watch(): void;
@@ -498,50 +499,30 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_wire_mem<Keys extends number>(keys: Keys): <Host extends object, Field extends keyof Host, Prop extends Extract<Host[Field], (...args: any[]) => any>>(host: Host, field: string | Field, descr?: TypedPropertyDescriptor<Prop> | undefined) => {
-        value: NonNullable<Prop>;
-        enumerable?: boolean | undefined;
-        configurable?: boolean | undefined;
-        writable?: boolean | undefined;
-        get?: (() => Prop) | undefined;
-        set?: ((value: Prop) => void) | undefined;
-    };
-    function $mol_wire_mem_func<Keys extends number>(keys: Keys): <Result, Host, Args extends unknown[], Func extends (this: Host, ...args: Args) => Result>(func: Func) => Func;
+    type $mol_type_tail<Tuple extends readonly any[]> = ((...tail: Tuple) => any) extends ((head: any, ...tail: infer Tail) => any) ? Tail : never;
 }
 
 declare namespace $ {
-    let $mol_mem: <Host extends object, Field extends keyof Host, Prop extends Extract<Host[Field], (...args: any[]) => any>>(host: Host, field: string | Field, descr?: TypedPropertyDescriptor<Prop> | undefined) => {
-        value: NonNullable<Prop>;
-        enumerable?: boolean | undefined;
-        configurable?: boolean | undefined;
-        writable?: boolean | undefined;
-        get?: (() => Prop) | undefined;
-        set?: ((value: Prop) => void) | undefined;
+    export function $mol_wire_solo<Args extends any[]>(host: object, field: string, descr?: TypedPropertyDescriptor<(...args: Args) => any>): TypedPropertyDescriptor<(...args: First_optional<Args>) => any>;
+    type First_optional<Args extends any[]> = Args extends [] ? [] : [Args[0] | undefined, ...$mol_type_tail<Args>];
+    export {};
+}
+
+declare namespace $ {
+    type $mol_type_error<Message, Info = {}> = Message & {
+        $mol_type_error: Info;
     };
-    let $mol_mem_key: <Host extends object, Field extends keyof Host, Prop extends Extract<Host[Field], (...args: any[]) => any>>(host: Host, field: string | Field, descr?: TypedPropertyDescriptor<Prop> | undefined) => {
-        value: NonNullable<Prop>;
-        enumerable?: boolean | undefined;
-        configurable?: boolean | undefined;
-        writable?: boolean | undefined;
-        get?: (() => Prop) | undefined;
-        set?: ((value: Prop) => void) | undefined;
-    };
-    let $mol_mem_key2: <Host extends object, Field extends keyof Host, Prop extends Extract<Host[Field], (...args: any[]) => any>>(host: Host, field: string | Field, descr?: TypedPropertyDescriptor<Prop> | undefined) => {
-        value: NonNullable<Prop>;
-        enumerable?: boolean | undefined;
-        configurable?: boolean | undefined;
-        writable?: boolean | undefined;
-        get?: (() => Prop) | undefined;
-        set?: ((value: Prop) => void) | undefined;
-    };
-    let $mol_mem_key3: <Host extends object, Field extends keyof Host, Prop extends Extract<Host[Field], (...args: any[]) => any>>(host: Host, field: string | Field, descr?: TypedPropertyDescriptor<Prop> | undefined) => {
-        value: NonNullable<Prop>;
-        enumerable?: boolean | undefined;
-        configurable?: boolean | undefined;
-        writable?: boolean | undefined;
-        get?: (() => Prop) | undefined;
-        set?: ((value: Prop) => void) | undefined;
-    };
+}
+
+declare namespace $ {
+    export function $mol_wire_plex<Args extends any[]>(host: object, field: string, descr?: TypedPropertyDescriptor<(...args: Args) => any>): Guard<Args, TypedPropertyDescriptor<(...args: Args) => any> | undefined>;
+    type Guard<Args extends any[], Val> = unknown extends Args[0] ? Val : undefined extends Args[0] ? $mol_type_error<"Key can't be optional. Make it required or use solo channel.", Args> : Val;
+    export {};
+}
+
+declare namespace $ {
+    let $mol_mem: typeof $mol_wire_solo;
+    let $mol_mem_key: typeof $mol_wire_plex;
 }
 
 declare namespace $ {
@@ -702,12 +683,6 @@ declare namespace $ {
 
 declare namespace $ {
     type $mol_type_result<Func> = Func extends (...params: any) => infer Result ? Result : Func extends new (...params: any) => infer Result ? Result : never;
-}
-
-declare namespace $ {
-    type $mol_type_error<Message, Info = {}> = Message & {
-        $mol_type_error: Info;
-    };
 }
 
 declare namespace $ {
