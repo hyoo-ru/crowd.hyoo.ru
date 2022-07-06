@@ -78,21 +78,21 @@ namespace $ {
 				
 				const len = String( chunk.data ).length
 				
-				if( off < len ) return { chunk: chunk.self, offset: off }
+				if( off < len ) return { self_hi: chunk.self_hi, self_lo: chunk.self_lo, offset: off }
 				else off -= len
 				
 			}
 			
-			return { chunk: this.head, offset: offset }
+			return { self_hi: this.head_hi, self_lo: this.head_lo, offset: offset }
 		}
 		
-		offset_by_point( point: { chunk: number, offset: number } ) {
+		offset_by_point( point: { self_hi: number, self_lo: number, offset: number } ) {
 			
 			let offset = 0
 			
 			for( const chunk of this.chunks() ) {
 				
-				if( chunk.self === point.chunk ) return offset + point.offset
+				if( chunk.self_hi === point.self_hi && chunk.self_lo === point.self_lo ) return offset + point.offset
 				
 				offset += String( chunk.data ).length
 			}

@@ -35,7 +35,7 @@ namespace $.$$ {
 		@ $mol_mem
 		text( next?: string ) {
 			this.sync()
-			return $hyoo_crowd_text.for( this.store() ).text( next )
+			return $hyoo_crowd_text.for( this.store(), 0, 0 ).text( next )
 		}
 		
 		@ $mol_mem
@@ -46,27 +46,20 @@ namespace $.$$ {
 		
 		@ $mol_mem
 		delta_view() {
-			return this.delta().map( chunk => ({
-				head: chunk.head.toString(36).toUpperCase(),
-				self: chunk.self.toString(36).toUpperCase(),
-				prev: chunk.prev.toString(36).toUpperCase(),
-				next: chunk.next.toString(36).toUpperCase(),
-				peer: chunk.peer.toString(36).toUpperCase(),
-				time: chunk.time.toString(36).toUpperCase(),
-				data: JSON.stringify( chunk.data ),
+			return this.delta().slice().reverse().map( chunk => ({
+				'Nest': $mol_int62_dump( chunk.nest_hi, chunk.nest_lo ),
+				'Head': $mol_int62_dump( chunk.head_hi, chunk.head_lo ),
+				'Prev': $mol_int62_dump( chunk.prev_hi, chunk.prev_lo ),
+				'Next': $mol_int62_dump( chunk.next_hi, chunk.next_lo ),
+				'Self': $mol_int62_dump( chunk.self_hi, chunk.self_lo ),
+				'Peer': $mol_int62_dump( chunk.peer_hi, chunk.peer_lo ),
+				'Time': $mol_int62_dump( chunk.time_hi, chunk.time_lo ),
+				'Data': JSON.stringify( chunk.data ),
 			}) )
 		}
 		
 		changes() {
 			return this.delta().length
-		}
-		
-		size_state() {
-			return $mol_charset_encode( JSON.stringify( this.store() ) ).length
-		}
-		
-		size_delta() {
-			return $mol_charset_encode( JSON.stringify( this.delta() ) ).length
 		}
 		
 		size_text() {
@@ -75,7 +68,7 @@ namespace $.$$ {
 		
 		tokens_alive() {
 			this.text()
-			return $hyoo_crowd_list.for( this.store() ).list().length
+			return $hyoo_crowd_list.for( this.store(), 0, 0 ).list().length
 		}
 		
 		tokens_total() {
@@ -89,30 +82,27 @@ namespace $.$$ {
 		
 		@ $mol_mem
 		size_state_bin() {
-			return this.store().delta().reduce( ( res, chunk )=> res + this.$.$hyoo_crowd_chunk_pack( chunk ).length, 0 )
+			return this.store().delta().reduce( ( res, chunk )=> res + this.$.$hyoo_crowd_chunk_bin.from( chunk ).byteLength, 0 )
 		}
 		
 		@ $mol_mem
 		size_delta_bin() {
-			return this.delta().reduce( ( res, chunk )=> res + this.$.$hyoo_crowd_chunk_pack( chunk ).length, 0 )
+			return this.delta().reduce( ( res, chunk )=> res + this.$.$hyoo_crowd_chunk_bin.from( chunk ).byteLength, 0 )
 		}
 		
 		stats() {
 			this.text()
 			return super.stats()
-			.replace( '{peer}', this.store().peer.toString(36).toUpperCase() )
+			.replace( '{peer}', $mol_int62_dump( this.store().peer.hi, this.store().peer.lo ) )
 			.replace( '{changes}', this.changes().toLocaleString() )
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
 			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
-			.replace( '{stamp:now}', this.store().clock.now.toString(36).toUpperCase() )
-			.replace( '{stamp:sync}', this.sync_clock().now.toString(36).toUpperCase() )
+			.replace( '{stamp:now}', $mol_int62_dump( this.store().clock.last_hi, this.store().clock.last_lo ) )
+			.replace( '{stamp:sync}', $mol_int62_dump( this.sync_clock().last_hi, this.sync_clock().last_lo ) )
 			.replace( '{size:text}', this.size_text().toLocaleString() )
-			.replace( '{size:state}', this.size_state().toLocaleString() )
-			.replace( '{size:delta}', this.size_delta().toLocaleString() )
-			.replace( '{size:text:bin}', this.size_text().toLocaleString() )
-			.replace( '{size:state:bin}', this.size_state_bin().toLocaleString() )
-			.replace( '{size:delta:bin}', this.size_delta_bin().toLocaleString() )
+			.replace( '{size:state}', this.size_state_bin().toLocaleString() )
+			.replace( '{size:delta}', this.size_delta_bin().toLocaleString() )
 		}
 		
 	}
