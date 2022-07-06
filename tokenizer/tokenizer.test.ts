@@ -46,7 +46,7 @@ namespace $ {
 		'word with spaces'() {
 			$mol_assert_like(
 				'foo1  bar2'.match( $hyoo_crowd_tokenizer ),
-				[ 'foo1', '  ', 'bar2' ],
+				[ 'foo1', ' ', ' bar2' ],
 			)
 		},
 		
