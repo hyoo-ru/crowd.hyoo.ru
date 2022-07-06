@@ -8922,7 +8922,6 @@ var $;
                 margin: $mol_gap.block,
             },
             Delta_section: {
-                margin: $mol_gap.block,
                 padding: $mol_gap.block,
             },
         });
