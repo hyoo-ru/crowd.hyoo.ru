@@ -182,6 +182,8 @@
     "$mol_wait_timeout",
     "$mol_wait",
     "$mol_promise",
+    "$mol_embed_youtube",
+    "$mol_frame",
     "$mol_section",
     "$hyoo_crowd_text",
     "$hyoo_crowd_tokenizer"
