@@ -534,7 +534,7 @@ declare namespace $ {
 
 declare namespace $ {
     class $mol_view_selection extends $mol_object {
-        static focused(next?: Element[]): Element[];
+        static focused(next?: Element[], notify?: 'notify'): Element[];
     }
 }
 
@@ -603,6 +603,16 @@ declare namespace $ {
 declare namespace $ {
     function $mol_func_name(this: $, func: Function): string;
     function $mol_func_name_from<Target extends Function>(target: Target, source: Function): Target;
+}
+
+declare namespace $ {
+    class $mol_after_work extends $mol_object2 {
+        delay: number;
+        task: () => void;
+        id: any;
+        constructor(delay: number, task: () => void);
+        destructor(): void;
+    }
 }
 
 declare namespace $ {
@@ -676,6 +686,7 @@ declare namespace $ {
         view_find(check: (path: $mol_view, text?: string) => boolean, path?: $mol_view[]): Generator<$mol_view[]>;
         force_render(path: Set<$mol_view>): void;
         ensure_visible(view: $mol_view, align?: ScrollLogicalPosition): Promise<void>;
+        bring(): void;
     }
     type $mol_view_all = $mol_type_pick<$, typeof $mol_view>;
 }
@@ -915,6 +926,7 @@ declare namespace $.$$ {
     class $mol_book2 extends $.$mol_book2 {
         title(): string;
         sub(): readonly $mol_view[];
+        bring(): void;
     }
 }
 
