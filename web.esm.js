@@ -888,10 +888,10 @@ var $;
         }
         [$mol_dev_format_head]() {
             const cursor = {
-                [-1]: '🔴',
-                [-2]: '🟡',
-                [-3]: '🟢',
-                [-4]: '🔵',
+                [$mol_wire_cursor.stale]: '🔴',
+                [$mol_wire_cursor.doubt]: '🟡',
+                [$mol_wire_cursor.fresh]: '🟢',
+                [$mol_wire_cursor.final]: '🔵',
             }[this.cursor] ?? this.cursor.toString();
             return $mol_dev_format_div({}, $mol_dev_format_native(this), $mol_dev_format_shade(cursor + ' '), $mol_dev_format_auto(this.cache));
         }
@@ -5098,7 +5098,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/stack/stack.view.css", "[mol_stack] {\n\tdisplay: grid;\n\t/* width: max-content; */\n\t/* height: max-content; */\n}\n\n[mol_stack] > * {\n\tgrid-area: 1/1;\n}\n");
+    $mol_style_attach("mol/stack/stack.view.css", "[mol_stack] {\n\tdisplay: grid;\n\t/* width: max-content; */\n\t/* height: max-content; */\n\talign-items: flex-start;\n\tjustify-items: flex-start;\n}\n\n[mol_stack] > * {\n\tgrid-area: 1/1;\n}\n");
 })($ || ($ = {}));
 //mol/stack/-css/stack.view.css.ts
 ;
@@ -6124,7 +6124,7 @@ var $;
                 if (index >= 0) {
                     const win = this.view_window();
                     if (index < win[0] || index >= win[1]) {
-                        this.view_window([index, index + 1]);
+                        this.view_window([this.render_visible_only() ? index : 0, index + 1]);
                     }
                     kids[index].force_render(path);
                 }
@@ -6596,7 +6596,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/string/string.view.css", "[mol_string] {\n\tbox-sizing: border-box;\n\toutline-offset: 0;\n\tborder: none;\n\tborder-radius: var(--mol_gap_round);\n\twhite-space: nowrap;\n\toverflow: hidden;\n\ttext-overflow: ellipsis;\n\tpadding: var(--mol_gap_text);\n\ttext-align: left;\n\tposition: relative;\n\tz-index: 0;\n\tfont: inherit;\n\tflex: 1 1 auto;\n\tbackground: transparent;\n\tmin-width: 0;\n\tcolor: inherit;\n\tbackground: var(--mol_theme_card);\n}\n\n[mol_string]:disabled:not(:placeholder-shown) {\n\tbackground-color: transparent;\n\tcolor: var(--mol_theme_text);\n}\n\n[mol_string]:hover:where(:not(:disabled)) {\n\tbackground: var(--mol_theme_hover);\n}\n\n[mol_string]:focus {\n\toutline: none;\n\tz-index: 1;\n\tbackground: var(--mol_theme_field);\n\tcolor: var(--mol_theme_text);\n\tbox-shadow: inset 0 0 0 1px var(--mol_theme_focus);\n}\n\n[mol_string]::-ms-clear {\n\tdisplay: none;\n}\n");
+    $mol_style_attach("mol/string/string.view.css", "[mol_string] {\n\tbox-sizing: border-box;\n\toutline-offset: 0;\n\tborder: none;\n\tborder-radius: var(--mol_gap_round);\n\twhite-space: pre-line;\n\toverflow: hidden;\n\ttext-overflow: ellipsis;\n\tpadding: var(--mol_gap_text);\n\ttext-align: left;\n\tposition: relative;\n\tz-index: 0;\n\tfont: inherit;\n\tflex: 1 1 auto;\n\tbackground: transparent;\n\tmin-width: 0;\n\tcolor: inherit;\n\tbackground: var(--mol_theme_card);\n}\n\n[mol_string]:disabled:not(:placeholder-shown) {\n\tbackground-color: transparent;\n\tcolor: var(--mol_theme_text);\n}\n\n[mol_string]:hover:where(:not(:disabled)) {\n\tbackground: var(--mol_theme_hover);\n}\n\n[mol_string]:focus {\n\toutline: none;\n\tz-index: 1;\n\tbackground: var(--mol_theme_field);\n\tcolor: var(--mol_theme_text);\n\tbox-shadow: inset 0 0 0 1px var(--mol_theme_focus);\n}\n\n[mol_string]::-ms-clear {\n\tdisplay: none;\n}\n");
 })($ || ($ = {}));
 //mol/string/-css/string.view.css.ts
 ;
@@ -7381,7 +7381,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/link/iconed/iconed.view.css", "[mol_link_iconed] {\n\talign-items: baseline;\n\tcolor: var(--mol_theme_control);\n\tdisplay: inline-flex;\n\tpadding: var(--mol_gap_text);\n}\n\n[mol_link_iconed_icon] {\n\tbox-shadow: none;\n\theight: 1rem;\n\twidth: 1rem;\n\tflex: 0 0 auto;\n\tdisplay: inline-block;\n\tmargin: .25rem 0;\n\talign-self: normal;\n\tvertical-align: top;\n\tborder-radius: 0;\n\tobject-fit: scale-down;\n}\n\n[mol_theme=\"$mol_theme_dark\"] [mol_link_iconed_icon] {\n\tfilter: var(--mol_theme_image);\n}\n");
+    $mol_style_attach("mol/link/iconed/iconed.view.css", "[mol_link_iconed] {\n\talign-items: baseline;\n\tdisplay: inline-flex;\n\tpadding: var(--mol_gap_text);\n}\n\n[mol_link_iconed_icon] {\n\tbox-shadow: none;\n\theight: 1rem;\n\twidth: 1rem;\n\tflex: 0 0 auto;\n\tdisplay: inline-block;\n\tmargin: .25rem 0;\n\talign-self: normal;\n\tvertical-align: top;\n\tborder-radius: 0;\n\tobject-fit: scale-down;\n}\n\n[mol_theme=\"$mol_theme_dark\"] [mol_link_iconed_icon] {\n\tfilter: var(--mol_theme_image);\n}\n");
 })($ || ($ = {}));
 //mol/link/iconed/-css/iconed.view.css.ts
 ;
