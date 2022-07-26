@@ -66,25 +66,16 @@ namespace $ {
 				next,
 				equal: ( next, prev )=> prev.data === next,
 				drop: ( prev, lead )=> this.doc.wipe( prev ),
-				insert: ( next, lead )=> {
-					const [ self_hi, self_lo ] = this.doc.id_new()
-					return this.doc.put(
-						this.head_hi,
-						this.head_lo,
-						self_hi,
-						self_lo,
-						lead?.self_hi ?? 0,
-						lead?.self_lo ?? 0,
-						next,
-					)
-				},
+				insert: ( next, lead )=> this.doc.put(
+					this.head,
+					this.doc.id_new(),
+					lead?.self() ?? { lo: 0, hi: 0 },
+					next,
+				),
 				update: ( next, prev, lead )=> this.doc.put(
-					prev.head_hi,
-					prev.head_lo,
-					prev.self_hi,
-					prev.self_lo,
-					lead?.self_hi ?? 0,
-					lead?.self_lo ?? 0,
+					prev.head(),
+					prev.self(),
+					lead?.self() ?? { lo: 0, hi: 0 },
 					next,
 				),
 			})
@@ -99,7 +90,7 @@ namespace $ {
 			const chunks = this.chunks()
 			const lead = to ? chunks[ to - 1 ] : null
 			
-			return this.doc.move( chunks[ from ], this.head_hi, this.head_lo, lead?.self_hi ?? 0, lead?.self_lo ?? 0 )
+			return this.doc.move( chunks[ from ], this.head, lead?.self() ?? { lo: 0, hi: 0 } )
 			
 		}
 		

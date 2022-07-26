@@ -1,98 +1,120 @@
 namespace $ {
 	
-	const min = [ $mol_int62_min, 1 - 2**16 ]
-	
 	/** Vector clock. Stores real timestamps. */
-	export class $hyoo_crowd_clock extends Map<
-		`${string}_${string}`,
+	export class $hyoo_crowd_clock extends $mol_dict<
+		$mol_int62_pair,
 		[ number, number ]
 	> {
 		
 		/** Maximum time for all peers. */
-		last_hi = min[0]
-		last_lo = min[1]
+		last_spin = 0
+		last_time = 0
 		
-		constructor( entries?: Iterable< readonly [ `${string}_${string}`, [ number, number ] ] > ) {
+		constructor(
+			entries?: Iterable<
+				readonly [
+					$mol_int62_pair,
+					[ number, number ]
+				]
+			>
+		) {
 			
 			super( entries )
 			if( !entries ) return
 			
-			for( const [ peer, [ time_hi, time_lo ] ] of entries ) {
-				this.see_time( time_hi, time_lo )
+			for( const [ peer, [ spin, time ] ] of entries ) {
+				this.see_time( spin, time )
 			}
 			
 		}
 		
 		/** Synchronize this cloc with another. */
 		sync( right: $hyoo_crowd_clock ) {
-			for( const [ peer, [ time_hi, time_lo ] ] of right ) {
-				this.see_peer( peer, time_hi, time_lo )
+			for( const [ peer, [ spin, time ] ] of right ) {
+				this.see_peer( peer, spin, time )
 			}
 		}
 		
-		/** Increase `now` to latest. */
-		see_time( time_hi: number, time_lo: number ) {
+		/** Increase `last` to latest. */
+		see_time(
+			spin: number,
+			time: number,
+		) {
 			
-			if( $mol_int62_compare( this.last_hi, this.last_lo, time_hi, time_lo ) <= 0 ) return
+			if( time < this.last_time ) return
+			if( time === this.last_time && spin < this.last_spin ) return
 			
-			this.last_hi = time_hi
-			this.last_lo = time_lo
+			this.last_time = time
+			this.last_spin = spin
 			
 		}
 		
-		/** Add new `time` for `peer` and increase `now`. */
-		see_peer( peer: `${string}_${string}`, time_hi: number, time_lo: number ) {
+		/** Add new `time` for `peer` and increase `last`. */
+		see_peer(
+			peer: $mol_int62_pair,
+			spin: number,
+			time: number,
+		) {
 			
-			if( !this.fresh( peer, time_hi, time_lo ) ) return
+			if( !this.fresh( peer, spin, time ) ) return
 			
-			this.set( peer, [ time_hi, time_lo ] )
-			this.see_time( time_hi, time_lo )
+			this.set( peer, [ spin, time ] )
+			this.see_time( spin, time )
 			
 		}
 		
 		/** Checks if time from future. */
-		fresh( peer: `${string}_${string}`, time_hi: number, time_lo: number ) {
-			const [ peer_hi, peer_lo ] = this.get( peer ) ?? min
-			return $mol_int62_compare( peer_hi, peer_lo, time_hi, time_lo ) > 0
+		fresh(
+			peer: $mol_int62_pair,
+			spin: number,
+			time: number,
+		) {
+			
+			const [ peer_spin, peer_time ] = this.time( peer )
+			
+			if( time > peer_time ) return true
+			if( time === peer_time && spin > peer_spin ) return true
+			
+			return false
 		}
 		
 		/** Checks if this clock from future of another. */
 		ahead( clock: $hyoo_crowd_clock ) {
 			
-			for( const [ peer, [ time_hi, time_lo ] ] of this.entries() ) {
-				if( clock.fresh( peer, time_hi, time_lo ) ) return true
+			for( const [ peer, [ spin, time ] ] of this ) {
+				if( clock.fresh( peer, spin, time ) ) return true
 			}
 			
 			return false
 		}
 		
-		time( peer: `${string}_${string}` ) {
-			return this.get( peer ) ?? min
+		time( peer: $mol_int62_pair ) {
+			return this.get( peer ) ?? [ 0, 0 ]
 		}
 		
 		now() {
-			
-			const now = Date.now()
-			
-			let next_lo = now % 1000
-			let next_hi = ( now - next_lo ) / 1000 - 2**31
-			next_lo = next_lo * 60 - 30_000
-			
-			return [ next_hi, next_lo ]
+			return Math.floor( ( Date.now() - 1.657e12 ) / 1000 )
 		}
 		
 		/** Gererates new time for peer that greater then other seen. */
-		tick( peer: `${string}_${string}` ) {
+		tick( peer: $mol_int62_pair ) {
 			
-			let [ next_hi, next_lo ] = this.now()
+			let time = this.now()
+			let spin = 0
 			
-			if( $mol_int62_compare( this.last_hi, this.last_lo, next_hi, next_lo ) <= 0 ) {
-				[ next_hi, next_lo ] = $mol_int62_inc( this.last_hi, this.last_lo, 30_000 )
+			if( time <= this.last_time ) {
+				if( this.last_spin < 2**16 - 1 ) {
+					time = this.last_time
+					spin = Number( this.last_spin ) + 1
+				} else {
+					time = Number( this.last_time ) + 1
+					spin = 0
+				}
 			}
 			
-			this.see_peer( peer, next_hi, next_lo )
+			this.see_peer( peer, spin, time )
 			
-			return [ next_hi, next_lo ]
+			return [ spin, time ] as const
 		}
 		
 	}

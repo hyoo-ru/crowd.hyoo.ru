@@ -35,7 +35,7 @@ namespace $.$$ {
 		@ $mol_mem
 		text( next?: string ) {
 			this.sync()
-			return $hyoo_crowd_text.for( this.store(), 0, 0 ).text( next )
+			return this.store().root.as( $hyoo_crowd_text ).text( next )
 		}
 		
 		@ $mol_mem
@@ -47,14 +47,19 @@ namespace $.$$ {
 		@ $mol_mem
 		delta_view() {
 			return this.delta().slice().reverse().map( chunk => ({
-				'Nest': $mol_int62_dump( chunk.nest_hi, chunk.nest_lo ),
-				'Head': $mol_int62_dump( chunk.head_hi, chunk.head_lo ),
-				'Prev': $mol_int62_dump( chunk.prev_hi, chunk.prev_lo ),
-				'Next': $mol_int62_dump( chunk.next_hi, chunk.next_lo ),
-				'Self': $mol_int62_dump( chunk.self_hi, chunk.self_lo ),
-				'Peer': $mol_int62_dump( chunk.peer_hi, chunk.peer_lo ),
-				'Time': $mol_int62_dump( chunk.time_hi, chunk.time_lo ),
+				
+				'Time': chunk.time + '_' + chunk.spin,
+				'Land': $mol_int62_to_string( chunk.land() ),
+				
+				'Auth': $mol_int62_to_string( chunk.auth() ),
+				'Head': $mol_int62_to_string( chunk.head() ),
+				
+				'Next': $mol_int62_to_string( chunk.next() ),
+				'Prev': $mol_int62_to_string( chunk.prev() ),
+				
+				'Self': $mol_int62_to_string( chunk.self() ),
 				'Data': JSON.stringify( chunk.data ),
+				
 			}) )
 		}
 		
@@ -68,7 +73,7 @@ namespace $.$$ {
 		
 		tokens_alive() {
 			this.text()
-			return $hyoo_crowd_list.for( this.store(), 0, 0 ).list().length
+			return this.store().root.as( $hyoo_crowd_list ).list().length
 		}
 		
 		tokens_total() {
@@ -93,13 +98,13 @@ namespace $.$$ {
 		stats() {
 			this.text()
 			return super.stats()
-			.replace( '{peer}', $mol_int62_dump( this.store().peer.hi, this.store().peer.lo ) )
+			.replace( '{peer}', $mol_int62_to_string( this.store().auth.id ) )
 			.replace( '{changes}', this.changes().toLocaleString() )
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
 			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
-			.replace( '{stamp:now}', $mol_int62_dump( this.store().clock.last_hi, this.store().clock.last_lo ) )
-			.replace( '{stamp:sync}', $mol_int62_dump( this.sync_clock().last_hi, this.sync_clock().last_lo ) )
+			.replace( '{stamp:now}', this.store().clock.last_time + '_' + this.store().clock.last_spin )
+			.replace( '{stamp:sync}', this.sync_clock().last_time + '_' + this.sync_clock().last_spin )
 			.replace( '{size:text}', this.size_text().toLocaleString() )
 			.replace( '{size:state}', this.size_state_bin().toLocaleString() )
 			.replace( '{size:delta}', this.size_delta_bin().toLocaleString() )

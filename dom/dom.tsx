@@ -63,15 +63,16 @@ namespace $ {
 							this.head,
 							typeof next === 'string'
 								? this.doc.id_new()
-								: Number( ( next as Element ).id ) || this.doc.id_new(),
-							lead?.self ?? 0,
+								: $mol_int62_from_string( ( next as Element ).id )
+									|| this.doc.id_new(),
+							lead?.self() ?? { lo: 0, hi: 0 },
 							val( next ),
 						)
 					},
 					update: ( next, prev, lead )=> this.doc.put(
-						prev.head,
-						prev.self,
-						lead?.self ?? 0,
+						prev.head(),
+						prev.self(),
+						lead?.self() ?? { lo: 0, hi: 0 },
 						val( next ),
 					),
 				})
@@ -80,7 +81,7 @@ namespace $ {
 				for( let i = 0; i < chunks.length; ++i ) {
 					const sam = sample[i]
 					if( typeof sam !== 'string' ) {
-						$hyoo_crowd_dom.for( this.doc, chunks[i].self ).dom( sam )
+						$hyoo_crowd_dom.for( this.doc, chunks[i].self() ).dom( sam )
 					}
 				}
 				
@@ -101,9 +102,9 @@ namespace $ {
 							
 						const content = typeof chunk.data === 'string'
 							? chunk.data
-							: $hyoo_crowd_dom.for( this.doc, chunk.self ).dom()
+							: $hyoo_crowd_dom.for( this.doc, chunk.self() ).dom()
 							
-						return <Tag { ... attr } id={ String( chunk.self ) } >{ content }</Tag>
+						return <Tag { ... attr } id={ $mol_int62_to_string( chunk.self() ) } >{ content }</Tag>
 						
 					} )
 				}</>

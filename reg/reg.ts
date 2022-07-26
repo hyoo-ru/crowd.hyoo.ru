@@ -24,15 +24,12 @@ namespace $ {
 					this.doc.wipe( chunk )
 				}
 				
-				const [ self_hi, self_lo ] = last ? [ last.self_hi, last.self_lo ] : this.doc.id_new()
+				const self = last?.self() ?? this.doc.id_new()
 				
 				this.doc.put(
-					this.head_hi,
-					this.head_lo,
-					self_hi,
-					self_lo,
-					0,
-					0,
+					this.head,
+					self,
+					{ lo: 0, hi: 0 },
 					next,
 				)
 			

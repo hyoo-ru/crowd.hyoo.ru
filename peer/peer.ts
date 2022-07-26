@@ -1,38 +1,51 @@
 namespace $ {
 	
-	export type $hyoo_crowd_peer = {
-		readonly hi: number,
-		readonly lo: number,
-		readonly public_serial?: Uint8Array,
-		readonly public?: $mol_crypto_auditor_public,
-		readonly private?: $mol_crypto_auditor_private,
+	export enum $hyoo_crowd_peer_level {
+		get = 0,
+		add = 1,
+		mod = 2,
+		law = 3,
 	}
 	
-	export async function $hyoo_crowd_peer_new() {
+	export class $hyoo_crowd_peer extends Object {
 		
-		const pair = await $$.$mol_crypto_auditor_pair()
+		id: $mol_int62_pair
 		
-		const public_serial = new Uint8Array( await pair.public.serial() )
-		const [ hi, lo ] = $mol_int62_hash_buffer( public_serial )
-		
-		return { hi, lo, public_serial, ... pair } as $hyoo_crowd_peer
-
-	}
-	
-	export async function $hyoo_crowd_peer_restore(
-		public_serial: Uint8Array,
-		private_serial: Uint8Array,
-	) {
-		
-		const pair = {
-			public: await $$.$mol_crypto_auditor_public.from( public_serial ),
-			private: await $$.$mol_crypto_auditor_private.from( private_serial ),
+		constructor(
+			readonly key_public: $mol_crypto_auditor_public,
+			readonly key_public_serial: Uint8Array,
+			readonly key_private: $mol_crypto_auditor_private,
+			readonly key_private_serial: Uint8Array,
+		) {
+			super()
+			this.id = $mol_int62_hash_buffer( this.key_public_serial )
 		}
 		
-		const [ hi, lo ] = $mol_int62_hash_buffer( public_serial )
+		static async generate() {
+			
+			const pair = await $$.$mol_crypto_auditor_pair()
+			
+			const public_serial = new Uint8Array( await pair.public.serial() )
+			const private_serial = new Uint8Array( await pair.private.serial() )
+			
+			return new this( pair.public, public_serial, pair.private, private_serial )
+			
+		}
 		
-		return { hi, lo, public_serial, ... pair } as $hyoo_crowd_peer
-
+		static async restore(
+			public_serial: Uint8Array,
+			private_serial: Uint8Array,
+		) {
+			
+			const pair = {
+				public: await $$.$mol_crypto_auditor_public.from( public_serial ),
+				private: await $$.$mol_crypto_auditor_private.from( private_serial ),
+			}
+			
+			return new this( pair.public, public_serial, pair.private, private_serial )
+	
+		}
+		
 	}
 	
 }

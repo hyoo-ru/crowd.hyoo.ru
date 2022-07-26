@@ -112,7 +112,7 @@ Primary key for Chunks: `[ Head, Self ]`
 
 # Data Types Representation
 
-## Atomic JSON Registry
+## Atomic JSON Register
 
 Single value store. Just CvRDT LWW-Register.
 
@@ -278,7 +278,7 @@ ORDER BY
 - ⭕ Unexpected but acceptable behaviour.
 - ❌ Unacceptable behaviour in most cases.
 
-| What\As  | Atom                        | Struct                           | List                 | Dictionary               | Text                                | DOM
+| What\As    | Atom                        | Struct                           | List                 | Dictionary               | Text                                | DOM
 |------------|-----------------------------|----------------------------------|----------------------|--------------------------|-------------------------------------|----
 | Atom       | ✅ Same                     | ⭕ Nullish fields               | ✅ As single item    | ✅ As key               | ✅ String as tokens, other ignored  | ✅ String as tokens, other ignored
 | Struct     | ⭕ Last changed field value | ✅ Same                         | ⭕ Field values      | ❌ Field values as keys | ⭕ Empty                            | ⭕ Empty

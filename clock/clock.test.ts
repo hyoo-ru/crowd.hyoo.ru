@@ -4,32 +4,32 @@ namespace $ {
 		'fresh'() {
 			
 			const clock = new $hyoo_crowd_clock
-			clock.see_peer( `1_11`, 1, 1 )
-			clock.see_peer( `2_22`, 2, 2 )
+			clock.see_peer( { lo: 11, hi: 111 }, 1, 1 )
+			clock.see_peer( { lo: 22, hi: 222 }, 2, 2 )
 			
-			$mol_assert_ok( clock.fresh( `2_22`, 3, 3 ) )
-			$mol_assert_ok( clock.fresh( `3_33`, 1, 1 ) )
+			$mol_assert_ok( clock.fresh( { lo: 22, hi: 222 }, 3, 3 ) )
+			$mol_assert_ok( clock.fresh( { lo: 33, hi: 333 }, 1, 1 ) )
 			
-			$mol_assert_not( clock.fresh( `2_22`, 1, 1 ) )
+			$mol_assert_not( clock.fresh( { lo: 22, hi: 222 }, 1, 1 ) )
 			
 		},
 		
 		'fork'() {
 			
 			const left = new $hyoo_crowd_clock
-			left.see_peer( `1_11`, 1, 1 )
-			left.see_peer( `2_22`, 2, 2 )
+			left.see_peer( { lo: 11, hi: 111 }, 1, 1 )
+			left.see_peer( { lo: 22, hi: 222 }, 2, 2 )
 			
 			const right = new $hyoo_crowd_clock( left )
 			
-			$mol_assert_equal( right.last_hi, 2 )
-			$mol_assert_equal( right.last_lo, 2 )
+			$mol_assert_equal( right.last_time, 2 )
+			$mol_assert_equal( right.last_spin, 2 )
 			
 			$mol_assert_like(
 				[ ... right ],
 				[
-					[ `1_11`, [ 1, 1 ] ],
-					[ `2_22`, [ 2, 2 ] ],
+					[ { lo: 11, hi: 111 }, [ 1, 1 ] ],
+					[ { lo: 22, hi: 222 }, [ 2, 2 ] ],
 				],
 			)
 			
@@ -38,38 +38,37 @@ namespace $ {
 		'generate'() {
 			
 			const clock = new $hyoo_crowd_clock
-			clock.see_peer( `1_11`, $mol_int62_min + 1, 1 )
-			clock.see_peer( `2_22`, $mol_int62_min + 2, 2 )
+			clock.see_peer( { lo: 11, hi: 111 }, 1, $mol_int62_min + 1 )
+			clock.see_peer( { lo: 22, hi: 222 }, 2, $mol_int62_min + 2 )
 			
-			const [ now_hi, now_lo ] = clock.now()
+			const now = clock.now() as number
 			
-			const [ time1_hi, time1_lo ] = clock.tick( `1_11` )
-			$mol_assert_ok( $mol_int62_compare( now_hi, now_lo, time1_hi, time1_lo ) >= 0 )
-			$mol_assert_ok( $mol_int62_compare( now_hi, now_lo, clock.last_hi, clock.last_lo ) >= 0 )
+			const [ spin1, time1 ] = clock.tick( { lo: 11, hi: 111 } )
+			$mol_assert_like( [ spin1, time1 ], [ 0, now ] )
+			$mol_assert_like( [ clock.last_spin, clock.last_time ], [0, now ] )
 			
-			clock.see_peer( `2_22`, now_hi + 10, 123 )
-			const [ time2_hi, time2_lo ] = clock.tick( `2_22` )
+			clock.see_peer( { lo: 22, hi: 222 }, 123, now + 10 )
 			
-			$mol_assert_equal( time2_hi, now_hi + 10 )
-			$mol_assert_equal( clock.last_hi, now_hi + 10 )
-			$mol_assert_equal( time2_lo, 124 )
+			const [ spin2, time2 ] = clock.tick( { lo: 22, hi: 222 } )
+			$mol_assert_like( [ spin2, time2 ], [ 124, now + 10 ] )
+			$mol_assert_like( [ clock.last_spin, clock.last_time ], [ 124, now + 10 ] )
 			
 		},
 		
 		'ahead'() {
 			
 			const clock1 = new $hyoo_crowd_clock
-			clock1.see_peer( `1_11`, 1, 0 )
-			clock1.see_peer( `2_22`, 2, 0 )
+			clock1.see_peer( { lo: 11, hi: 111 }, 0, 1 )
+			clock1.see_peer( { lo: 22, hi: 222 }, 0, 2 )
 			
 			const clock2 = new $hyoo_crowd_clock
-			clock2.see_peer( `1_11`, 1, 0 )
-			clock2.see_peer( `3_33`, 2, 0 )
+			clock2.see_peer( { lo: 11, hi: 111 }, 0, 1 )
+			clock2.see_peer( { lo: 33, hi: 333 }, 0, 2 )
 			
 			const clock3 = new $hyoo_crowd_clock
-			clock3.see_peer( `1_11`, 1, 0 )
-			clock3.see_peer( `2_22`, 2, 0 )
-			clock3.see_peer( `3_33`, 2, 0 )
+			clock3.see_peer( { lo: 11, hi: 111 }, 0, 1 )
+			clock3.see_peer( { lo: 22, hi: 222 }, 0, 2 )
+			clock3.see_peer( { lo: 33, hi: 333 }, 0, 2 )
 			
 			$mol_assert_ok( clock1.ahead( clock2 ) )
 			$mol_assert_ok( clock2.ahead( clock1 ) )
