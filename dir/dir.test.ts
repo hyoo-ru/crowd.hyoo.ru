@@ -45,7 +45,7 @@ namespace $ {
 			land.root.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 2 ignored units
-			const broken = [] as [ $hyoo_crowd_chunk, string ][]
+			const broken = [] as [ $hyoo_crowd_unit, string ][]
 			for await( const delta of dir1.delta() ) {
 				broken.push( ... await dir2.apply( delta ) )
 			}
@@ -69,7 +69,7 @@ namespace $ {
 			land.root.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 2 ignored units
-			const broken = [] as [ $hyoo_crowd_chunk, string ][]
+			const broken = [] as [ $hyoo_crowd_unit, string ][]
 			for await( const delta of dir1.delta() ) {
 				broken.push( ... await dir2.apply( delta ) )
 			}
@@ -93,7 +93,7 @@ namespace $ {
 			dir1.land({ lo: 1, hi: 1 }).root.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 2 ignored units
-			const broken = [] as [ $hyoo_crowd_chunk, string ][]
+			const broken = [] as [ $hyoo_crowd_unit, string ][]
 			for await( const delta of dir1.delta() ) {
 				broken.push( ... await dir2.apply( delta ) )
 			}
@@ -114,7 +114,7 @@ namespace $ {
 			const land = await dir1.grab()
 			
 			// 2 ignored units
-			const broken = [] as [ $hyoo_crowd_chunk, string ][]
+			const broken = [] as [ $hyoo_crowd_unit, string ][]
 			for await( const delta of dir1.delta() ) {
 				delta[ 16 ] = ~ delta[ 16 ] // break sign
 				broken.push( ... await dir2.apply( delta ) )
@@ -141,7 +141,7 @@ namespace $ {
 			dir2.land( land.id ).root.as( $hyoo_crowd_reg ).numb( 234 )
 			
 			// 1 ignored unit
-			const broken = [] as [ $hyoo_crowd_chunk, string ][]
+			const broken = [] as [ $hyoo_crowd_unit, string ][]
 			for await( const delta of dir1.delta() ) {
 				broken.push( ... await dir2.apply( delta ) )
 			}
@@ -179,7 +179,7 @@ namespace $ {
 			
 			level_get: {
 				
-				const broken = [] as [ $hyoo_crowd_chunk, string ][]
+				const broken = [] as [ $hyoo_crowd_unit, string ][]
 				
 				for await( const delta of dir2.delta() ) {
 					broken.push( ... await dir1.apply( delta ) )
@@ -201,7 +201,7 @@ namespace $ {
 				
 				land1.level( land2.auth.id, $hyoo_crowd_peer_level.add )
 				
-				const broken = [] as [ $hyoo_crowd_chunk, string ][]
+				const broken = [] as [ $hyoo_crowd_unit, string ][]
 				
 				for await( const delta of dir2.delta() ) {
 					broken.push( ... await dir1.apply( delta ) )
@@ -223,7 +223,7 @@ namespace $ {
 				
 				land1.level( land2.auth.id, $hyoo_crowd_peer_level.mod )
 				
-				const broken = [] as [ $hyoo_crowd_chunk, string ][]
+				const broken = [] as [ $hyoo_crowd_unit, string ][]
 				
 				for await( const delta of dir2.delta() ) {
 					broken.push( ... await dir1.apply( delta ) )
@@ -245,7 +245,7 @@ namespace $ {
 				
 				land1.level( land2.auth.id, $hyoo_crowd_peer_level.law )
 				
-				const broken = [] as [ $hyoo_crowd_chunk, string ][]
+				const broken = [] as [ $hyoo_crowd_unit, string ][]
 				
 				for await( const delta of dir2.delta() ) {
 					broken.push( ... await dir1.apply( delta ) )

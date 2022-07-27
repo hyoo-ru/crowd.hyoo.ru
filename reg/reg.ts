@@ -4,11 +4,11 @@ namespace $ {
 		/** Atomic value. */
 		value( next?: unknown ) {
 			
-			const chunks = this.chunks()
+			const units = this.units()
 			let last
 			
-			for( const chunk of chunks ) {
-				if( !last || $hyoo_crowd_chunk_compare( chunk, last ) > 0 ) last = chunk
+			for( const unit of units ) {
+				if( !last || $hyoo_crowd_unit_compare( unit, last ) > 0 ) last = unit
 			}
 			
 			if( next === undefined ) {
@@ -19,9 +19,9 @@ namespace $ {
 				
 				if( last?.data === next ) return next
 				
-				for( const chunk of chunks ) {
-					if( chunk === last ) continue
-					this.doc.wipe( chunk )
+				for( const unit of units ) {
+					if( unit === last ) continue
+					this.doc.wipe( unit )
 				}
 				
 				const self = last?.self() ?? this.doc.id_new()

@@ -36,23 +36,23 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 
 - All deltas are idempotent.
 - Closest to user data as more as possible.
-- Every word is just one chunk.
+- Every word is just one unit.
 - Delta is simply slice of full state.
 - Deltas can be merged together to reduce transmit size.
 
 ## Secure
 
-- Every chunk can be crypto signed separately.
-- Every peer checks signs and rejects incorrect chunks.
-- Every chunk can be encrypted.
+- Every unit can be crypto signed separately.
+- Every peer checks signs and rejects incorrect units.
+- Every unit can be encrypted.
 - Conflict-free merge avaailable without decrypt.
 - Merging doesn't invalidate signs or decrypt data.
 
 # Vocabulary
 
-- **Doc** - Full CROWD document (direct graph) which consists of real Chunks and virtual Nodes over them.
-- **Node** - A single subtree which represented by few chunks with same Self in different Heads.
-- **Chunk** - Minimal atomic chunk of data with metadata. Actually it's edge between Nodes. And it's extended CvRDT LWW-Register.
+- **Doc** - Full CROWD document (direct graph) which consists of real Units and virtual Nodes over them.
+- **Node** - A single subtree which represented by few units with same Self in different Heads.
+- **Unit** - Minimal atomic unit of data with metadata. Actually it's edge between Nodes. And it's extended CvRDT LWW-Register.
   - **Self** - Node id
   - **Head** - Parent Node id.
   - **Prev** - Previous Node id in the siblings list.
@@ -60,11 +60,11 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
   - **Peer** - Global unique identifier of independent actor.
   - **Time** - Monotonic version.
   - **Data** - Any JSON data.
-  - **Sign** - Crypto sign of whole Chunk data.
-- **Delta** - Difference of two Doc state as list of Chunks.
+  - **Sign** - Crypto sign of whole Unit data.
+- **Delta** - Difference of two Doc state as list of Units.
 - **Clock** - Vector clock. Dictionary which maps Peer to Time.
 - **Token** - Minimal meaningfull part of text (single word + punctuation + one space).
-- **Point** - Place inside Chunk. Usefull for caret.
+- **Point** - Place inside Unit. Usefull for caret.
 - **Range** - Range between two Points. Usefull for selection.
 - **Offset** - Count of letters from beginning.
 - **Channel** - Geter/Setter method. `foo()` - read. `foo(123)` - write. Write returns written.
@@ -74,7 +74,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 ## State/Delta Format
 
 ```typescript
-type Chunk = {
+type Unit = {
     head: number
     self: number
     prev: number
@@ -85,14 +85,14 @@ type Chunk = {
     sign: null | Uint8Array & { length: 64 }
 }
 
-type State = Chunk[]
-type Delta = readonly Chunk[]
+type State = Unit[]
+type Delta = readonly Unit[]
 ```
 
-Internally Chunks may be stored in RDBMS. Example:
+Internally Units may be stored in RDBMS. Example:
 
 ```sql
-CREATE TABLE chunks (
+CREATE TABLE units (
 	head uint(6),
 	self uint(6),
 	prev uint(6),
@@ -104,11 +104,11 @@ CREATE TABLE chunks (
 )
 ```
 
-## Single Chunk structure
+## Single Unit structure
 
-![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/chunk.svg)
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/unit.svg)
 
-Primary key for Chunks: `[ Head, Self ]`
+Primary key for Units: `[ Head, Self ]`
 
 # Data Types Representation
 
@@ -127,7 +127,7 @@ Single value store. Just CvRDT LWW-Register.
 
 ## Mergeable Struct
 
-Struct is completely virtual thing. No one Chunk is stored for it. Only for field values (except it's structs too etc).
+Struct is completely virtual thing. No one Unit is stored for it. Only for field values (except it's structs too etc).
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/struct.svg)
 
@@ -151,7 +151,7 @@ So all Peers writes to the same Node when uses the same key.
 
 ### Properties
 
-- New Chunk is created for every item.
+- New Unit is created for every item.
 - Left precedence. Position of item relies on left item, then right.
 - No interleaving. Sequence of left-to-right inserted items will stay together after merge.
 - Removed item is remain as tombstone for ordering purposes.
@@ -159,8 +159,8 @@ So all Peers writes to the same Node when uses the same key.
 ### Ordering Algorithm
 
 - Input: Head value.
-- Select all Chunks with given Head.
-- Make queue as sorted found Chunks by Time asc, Peer asc.
+- Select all Units with given Head.
+- Make queue as sorted found Units by Time asc, Peer asc.
 - Make empty list for result.
 - Iterate over all queue while it isn't empty.
 	- If Prev == 0, then place it at the begin.
@@ -170,8 +170,8 @@ So all Peers writes to the same Node when uses the same key.
 			- If Next == 0, then place it at the end.
 			- If Next != 0, then locate existen Prev in the result list.
 				- If Next is located, place before that.
-				- if Next isn't located, then skip chunk and proceed followed.
-	- If chunk is placed remove it from queue and start from begin of queue.
+				- if Next isn't located, then skip unit and proceed followed.
+	- If unit is placed remove it from queue and start from begin of queue.
 
 ### $hyoo_crowd_list
 
@@ -194,7 +194,7 @@ So, every key is Node for value.
 
 ## Mergeable Plain Text
 
-Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Chunk instead of creating new.
+Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Unit instead of creating new.
 
 ### Properties
 
@@ -222,7 +222,7 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 
 ## Mergeable Rich Text
 
-Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `{ tag: 'div' }`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Chunk Self. This `is` is using to reuse existing Chunks and track Nodes moving.
+Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `{ tag: 'div' }`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Unit Self. This `is` is using to reuse existing Units and track Nodes moving.
 
 ### $hyoo_crowd_dom
 
@@ -243,15 +243,15 @@ Under the hood, tokens are stored in the same form as in plain text. There may b
 ### Delta Algorithm
 
 - Input: Clock, received from Peer.
-- Iterate over all Chunk in Doc.
-	- Skip Chunks which Time less then Clock Time for same Peer.
-- Return all remainig Chunks ordered by Time.
+- Iterate over all Unit in Doc.
+	- Skip Units which Time less then Clock Time for same Peer.
+- Return all remainig Units ordered by Time.
 
 Example with SQL:
 
 ```sql
 SELECT *
-FROM chunks
+FROM units
 WHERE
 	NOT( peer = 1 AND time <= 123 )
 	AND NOT( peer = 2 AND time <= 456 )
@@ -264,13 +264,13 @@ ORDER BY
 
 ### Apply Algorithm
 
-- Input: list of Chunks.
-- Iterate over Chunks from Delta.
-	- Locate Chunk from Doc with same Head and Self.
-	- If Chunk doesn't exists, add Chunk to Doc.
-	- If Chunk exists and Time of new Chunk is greater, replace old by new.
-	- If Chunk exists and Time of new Chunk is same, but Peer is greater, replace old by new.
-	- Otherwise skip this Chunk.
+- Input: list of Units.
+- Iterate over Units from Delta.
+	- Locate Unit from Doc with same Head and Self.
+	- If Unit doesn't exists, add Unit to Doc.
+	- If Unit exists and Time of new Unit is greater, replace old by new.
+	- If Unit exists and Time of new Unit is same, but Peer is greater, replace old by new.
+	- Otherwise skip this Unit.
 
 # Reinterpretations
 
@@ -289,10 +289,10 @@ ORDER BY
 
 # Binary Serialization
 
-- `$hyoo_crowd_chunk_pack( chunk )` - Pack Chunk to binary.
-- `$hyoo_crowd_chunk_unpack( binary )` - Unpack Chunk from binary.
+- `$hyoo_crowd_unit_pack( unit )` - Pack Unit to binary.
+- `$hyoo_crowd_unit_unpack( binary )` - Unpack Unit from binary.
 
-Use [$mol_crypto](https://github.com/hyoo-ru/mam_mol/tree/master/crypto) to generate key-pair, sign packed Chunk and verify it.
+Use [$mol_crypto](https://github.com/hyoo-ru/mam_mol/tree/master/crypto) to generate key-pair, sign packed Unit and verify it.
 
 # Usage Example
 

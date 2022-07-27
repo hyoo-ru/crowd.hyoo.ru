@@ -21,65 +21,65 @@ namespace $ {
 		
 		readonly pub = new $mol_wire_pub
 		
-		/** chunk by head + self */
-		protected _chunk_all = new $mol_dict<
-			$hyoo_crowd_chunk_id,
-			$hyoo_crowd_chunk
+		/** unit by head + self */
+		protected _unit_all = new $mol_dict<
+			$hyoo_crowd_unit_id,
+			$hyoo_crowd_unit
 		>()
 		
-		chunk(
+		unit(
 			head: $mol_int62_pair,
 			self: $mol_int62_pair,
 		) {
-			return this._chunk_all.get({ head, self })
+			return this._unit_all.get({ head, self })
 		}
 		
-		/** chunks by head */
-		protected _chunk_lists = new $mol_dict<
+		/** units by head */
+		protected _unit_lists = new $mol_dict<
 			$mol_int62_pair,
-			undefined | $hyoo_crowd_chunk[] & { dirty: boolean }
+			undefined | $hyoo_crowd_unit[] & { dirty: boolean }
 		>()
 		
-		/** chunks by head without tombstones */
-		protected _chunk_alive = new $mol_dict<
+		/** Units by Head without tombstones */
+		protected _unit_alives = new $mol_dict<
 			$mol_int62_pair,
-			undefined | $hyoo_crowd_chunk[]
+			undefined | $hyoo_crowd_unit[]
 		>()
 		
 		size() {
-			return this._chunk_all.size
+			return this._unit_all.size
 		}
 		
-		/** Returns list of all Chunks for Node. */ 
-		protected chunk_list(
+		/** Returns list of all Units for Node. */ 
+		protected unit_list(
 			head: $mol_int62_pair,
 		) {
 			
-			let chunks = this._chunk_lists.get( head )
-			if( !chunks ) this._chunk_lists.set( head, chunks = Object.assign( [], { dirty: false } ) )
+			let kids = this._unit_lists.get( head )
+			if( !kids ) this._unit_lists.set( head, kids = Object.assign( [], { dirty: false } ) )
 			
-			return chunks
+			return kids
 		}
 		
-		/** Returns list of alive Chunks for Node. */ 
-		chunk_alive(
+		/** Returns list of alive Units for Node. */ 
+		unit_alives(
 			head: $mol_int62_pair,
-		): readonly $hyoo_crowd_chunk[] {
+		): readonly $hyoo_crowd_unit[] {
 			
 			this.pub.promote()
 			
-			let chunks = this._chunk_alive.get( head )
-			if( !chunks ) {
+			let kids = this._unit_alives.get( head )
+			if( !kids ) {
 				
-				const all = this.chunk_list( head )
+				const all = this.unit_list( head )
 				if( all.dirty ) this.resort( head )
 				
-				chunks = all.filter( chunk => chunk.data !== null )
-				this._chunk_alive.set( head, chunks )
+				kids = all.filter( kid => kid.data !== null )
+				this._unit_alives.set( head, kids )
 				
 			}
 			
-			return chunks
+			return kids
 		}
 		
 		/** Root Node. */
@@ -94,7 +94,7 @@ namespace $ {
 				
 				if( id.lo === 0 && id.hi === 0 ) continue // zero reserved for empty
 				if( id.lo === this.id.lo && id.hi === this.id.hi ) continue // reserved for rights
-				if( this._chunk_lists.has( id ) ) continue // skip already exists
+				if( this._unit_lists.has( id ) ) continue // skip already exists
 				
 				return id
 			}
@@ -116,21 +116,21 @@ namespace $ {
 			
 			this.pub.promote()
 			
-			const delta = [] as $hyoo_crowd_chunk[]
+			const delta = [] as $hyoo_crowd_unit[]
 			
-			for( const chunk of this._chunk_all.values() ) {
+			for( const unit of this._unit_all.values() ) {
 				
-				const [ spin, time ] = clock.time( chunk.auth() )
+				const [ spin, time ] = clock.time( unit.auth() )
 				
-				if( chunk.time < time ) continue
-				if( chunk.time === time && chunk.spin <= spin ) continue
+				if( unit.time < time ) continue
+				if( unit.time === time && unit.spin <= spin ) continue
 				
-				delta.push( chunk! )
+				delta.push( unit! )
 			}
 			
-			delta.sort( $hyoo_crowd_chunk_compare )
+			delta.sort( $hyoo_crowd_unit_compare )
 			
-			return delta as readonly $hyoo_crowd_chunk[]
+			return delta as readonly $hyoo_crowd_unit[]
 		}
 		
 		toJSON() {
@@ -141,10 +141,10 @@ namespace $ {
 			head: $mol_int62_pair,
 		) {
 			
-			const chunks = this._chunk_lists.get( head )!
+			const kids = this._unit_lists.get( head )!
 			
-			const queue = chunks.splice(0).sort(
-				( left, right )=> - $hyoo_crowd_chunk_compare( left, right )
+			const queue = kids.splice(0).sort(
+				( left, right )=> - $hyoo_crowd_unit_compare( left, right )
 			)
 			
 			for( let cursor = queue.length - 1; cursor >= 0; --cursor ) {
@@ -154,17 +154,17 @@ namespace $ {
 
 				if( kid.prev_lo || kid.prev_hi ) {
 
-					let prev = this._chunk_all.get({ head, self: kid.prev() })!
-					index = chunks.indexOf( prev ) + 1
+					let prev = this._unit_all.get({ head, self: kid.prev() })!
+					index = kids.indexOf( prev ) + 1
 					
 					if( !index ) {
 
-						index = chunks.length
+						index = kids.length
 						
 						if( kid.next_lo || kid.next_hi ) {
 							
-							const next = this._chunk_all.get({ head, self: kid.next() })!
-							index = chunks.indexOf( next )
+							const next = this._unit_all.get({ head, self: kid.next() })!
+							index = kids.indexOf( next )
 							
 							if( index === -1 ) continue
 
@@ -174,37 +174,37 @@ namespace $ {
 
 				}
 				
-				chunks.splice( index, 0, kid )
+				kids.splice( index, 0, kid )
 				queue.splice( cursor, 1 )
 				cursor = queue.length
 
 			}
 			
-			this._chunk_lists.set( head, chunks )
-			chunks.dirty = false
+			this._unit_lists.set( head, kids )
+			kids.dirty = false
 			
-			return chunks
+			return kids
 		}
 		
 		/** Applies Delta to current state. */
-		apply( delta: readonly $hyoo_crowd_chunk[] ) {
+		apply( delta: readonly $hyoo_crowd_unit[] ) {
 			
 			for( const next of delta ) {
 				
 				this._clock.see_peer( next.auth(), next.spin, next.time )
-				const chunks = this.chunk_list( next.head() )
+				const kids = this.unit_list( next.head() )
 				
-				let prev = this._chunk_all.get( next.id() )
+				let prev = this._unit_all.get( next.id() )
 				if( prev ) {
-					if( $hyoo_crowd_chunk_compare( prev, next ) > 0 ) continue
-					chunks.splice( chunks.indexOf( prev ), 1, next )
+					if( $hyoo_crowd_unit_compare( prev, next ) > 0 ) continue
+					kids.splice( kids.indexOf( prev ), 1, next )
 				} else {
-					chunks.push( next )
+					kids.push( next )
 				}
 				
-				this._chunk_all.set( next.id(), next )
-				chunks.dirty = true
-				this._chunk_alive.set( next.head(), undefined )
+				this._unit_all.set( next.id(), next )
+				kids.dirty = true
+				this._unit_alives.set( next.head(), undefined )
 				
 			}
 			
@@ -223,12 +223,12 @@ namespace $ {
 			const { id: peer, key_public_serial } = this.auth
 			if( !key_public_serial ) return
 			
-			const auth = this._chunk_all.get({ head: peer, self: peer })
+			const auth = this._unit_all.get({ head: peer, self: peer })
 			if( auth ) return
 			
 			const [ spin, time ] = this._clock.tick( peer )
 			
-			const chunk = new $hyoo_crowd_chunk(
+			const join_unit = new $hyoo_crowd_unit(
 				
 				spin,
 				time,
@@ -252,7 +252,7 @@ namespace $ {
 				
 			)
 			
-			this._chunk_all.set( { head: peer, self: peer }, chunk )
+			this._unit_all.set( { head: peer, self: peer }, join_unit )
 			
 			this._joined = true
 			
@@ -260,7 +260,7 @@ namespace $ {
 		
 		level( peer: $mol_int62_pair, next?: $hyoo_crowd_peer_level ) {
 			
-			const exists = this._chunk_all.get({ head: this.id, self: peer })
+			const exists = this._unit_all.get({ head: this.id, self: peer })
 			const prev = exists?.level() ?? $hyoo_crowd_peer_level.get
 			
 			if( next === undefined ) return prev
@@ -290,20 +290,20 @@ namespace $ {
 			
 			this.join()
 			
-			let chunk_old = this._chunk_all.get({ head, self })
-			let chunk_prev = prev ? this._chunk_all.get({ head, self: prev })! : null
+			let unit_old = this._unit_all.get({ head, self })
+			let unit_prev = prev ? this._unit_all.get({ head, self: prev })! : null
 			
-			const chunk_list = this.chunk_list( head ) as $hyoo_crowd_chunk[]
-			if( chunk_old ) chunk_list.splice( chunk_list.indexOf( chunk_old ), 1 )
+			const unit_list = this.unit_list( head ) as $hyoo_crowd_unit[]
+			if( unit_old ) unit_list.splice( unit_list.indexOf( unit_old ), 1 )
 			
-			const seat = chunk_prev ? chunk_list.indexOf( chunk_prev ) + 1 : 0
-			const lead = chunk_list[ seat ]
+			const seat = unit_prev ? unit_list.indexOf( unit_prev ) + 1 : 0
+			const lead = unit_list[ seat ]
 			
 			const next = lead?.self() ?? { lo: 0, hi: 0 }
 			
 			const [ spin, time ] = this._clock.tick( this.auth.id )
 			
-			const chunk_new = new $hyoo_crowd_chunk(
+			const unit_new = new $hyoo_crowd_unit(
 				
 				spin,
 				time,
@@ -327,68 +327,68 @@ namespace $ {
 				
 			)
 			
-			this._chunk_all.set( { head, self }, chunk_new )
+			this._unit_all.set( { head, self }, unit_new )
 			
-			chunk_list.splice( seat, 0, chunk_new )
-			this._chunk_alive.set( head, undefined )
+			unit_list.splice( seat, 0, unit_new )
+			this._unit_alives.set( head, undefined )
 			
-			// this.apply([ chunk ])
+			// this.apply([ unit ])
 			
 			this.pub.emit()
 			
-			return chunk_new
+			return unit_new
 		}
 		
-		/** Recursively marks chunk with its subtree as deleted and wipes data. */
-		wipe( chunk: $hyoo_crowd_chunk ) {
+		/** Recursively marks unit with its subtree as deleted and wipes data. */
+		wipe( unit: $hyoo_crowd_unit ) {
 			
-			if( chunk.data === null ) return chunk
+			if( unit.data === null ) return unit
 			
-			for( const kid of this.chunk_list( chunk.self() ) ) {
+			for( const kid of this.unit_list( unit.self() ) ) {
 				this.wipe( kid )
 			}
 			
-			const chunk_list = this.chunk_list( chunk.head() )
-			const seat = chunk_list.indexOf( chunk )
+			const unit_list = this.unit_list( unit.head() )
+			const seat = unit_list.indexOf( unit )
 			
-			const prev = seat > 0 ? chunk_list[ seat - 1 ].self() : seat < 0 ? chunk.prev() : { lo: 0, hi: 0 }
+			const prev = seat > 0 ? unit_list[ seat - 1 ].self() : seat < 0 ? unit.prev() : { lo: 0, hi: 0 }
 			
 			return this.put(
-				chunk.head(),
-				chunk.self(),
+				unit.head(),
+				unit.self(),
 				prev,
 				null,
 			)
 			
 		}
 		
-		/** Moves chunk after another Prev inside some Head. */
+		/** Moves Unit after another Prev inside some Head. */
 		move(
-			chunk: $hyoo_crowd_chunk,
+			unit: $hyoo_crowd_unit,
 			head: $mol_int62_pair,
 			prev: $mol_int62_pair,
 		) {
 			
-			this.wipe( chunk )
+			this.wipe( unit )
 			
 			return this.put(
 				head,
-				chunk.self(),
+				unit.self(),
 				prev,
-				chunk.data
+				unit.data
 			)
 			
 		}
 		
-		/** Moves Chunk at given Seat inside given Head. */
+		/** Moves Unit at given Seat inside given Head. */
 		insert(
-			chunk: $hyoo_crowd_chunk,
+			unit: $hyoo_crowd_unit,
 			head: $mol_int62_pair,
 			seat: number,
 		) {
-			const list = this.chunk_list( head )
+			const list = this.unit_list( head )
 			const prev = seat ? list[ seat - 1 ].self() : { lo: 0, hi: 0 }
-			return this.move( chunk, head, prev )
+			return this.move( unit, head, prev )
 		}
 		
 	}

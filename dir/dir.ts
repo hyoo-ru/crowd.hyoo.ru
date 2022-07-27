@@ -35,7 +35,7 @@ namespace $ {
 			$hyoo_crowd_peer
 		>()
 		
-		_signs = new WeakMap< $hyoo_crowd_chunk, Uint8Array >()
+		_signs = new WeakMap< $hyoo_crowd_unit, Uint8Array >()
 		
 		async grab() {
 			
@@ -55,24 +55,24 @@ namespace $ {
 			
 			for( const doc of this._lands.values() ) {
 				
-				const chunks = doc.delta( clock )
-				if( !chunks.length ) continue
+				const units = doc.delta( clock )
+				if( !units.length ) continue
 				
 				let size = 0
-				// const bins = [] as $hyoo_crowd_chunk_bin[]
+				// const bins = [] as $hyoo_crowd_unit_bin[]
 				
-				for( const chunk of chunks ) {
+				for( const unit of units ) {
 					
-					const bin = $hyoo_crowd_chunk_bin.from( chunk )
+					const bin = $hyoo_crowd_unit_bin.from( unit )
 					
-					let sign = this._signs.get( chunk )
+					let sign = this._signs.get( unit )
 					if( !sign ) {
-						const knight = this._knights.get( chunk.auth() )!
+						const knight = this._knights.get( unit.auth() )!
 						sign = new Uint8Array( await knight.key_private.sign( bin.sens() ) )
 					}
 					
 					bin.sign( sign )
-					this._signs.set( chunk, sign )
+					this._signs.set( unit, sign )
 					
 					// bins.push( bin )
 					yield new Uint8Array( bin.buffer )
@@ -98,25 +98,25 @@ namespace $ {
 			delta: Uint8Array,
 		) {
 			
-			const broken = [] as [ $hyoo_crowd_chunk, string ][]
+			const broken = [] as [ $hyoo_crowd_unit, string ][]
 			
 			let bin_offset = 0
 			while( bin_offset < delta.byteLength ) {
 				
-				const bin = new $hyoo_crowd_chunk_bin( delta.buffer, bin_offset )
-				const chunk = bin.chunk()
-				const land = this.land( chunk.land() )
+				const bin = new $hyoo_crowd_unit_bin( delta.buffer, bin_offset )
+				const unit = bin.unit()
+				const land = this.land( unit.land() )
 				
 				apply: {
 					
 					try {
-						await this.audit( land, chunk, bin )
+						await this.audit( land, unit, bin )
 					} catch( error: any ) {
-						broken.push([ chunk, error.message ])
+						broken.push([ unit, error.message ])
 						break apply
 					}
 				
-					land.apply([ chunk ])
+					land.apply([ unit ])
 					
 				}
 				
@@ -130,36 +130,36 @@ namespace $ {
 		
 		async audit(
 			land: $hyoo_crowd_doc,
-			chunk: $hyoo_crowd_chunk,
-			bin: $hyoo_crowd_chunk_bin,
+			unit: $hyoo_crowd_unit,
+			bin: $hyoo_crowd_unit_bin,
 		) {
 				
 			const desync = 60 * 60 // 1 hour
 			const deadline = land.clock.now() + desync
 			
-			if( chunk.time > deadline ) {
+			if( unit.time > deadline ) {
 				$mol_fail( new Error( 'Far future' ) )
 			}
 			
-			const auth_chunk = land.chunk( chunk.auth(), chunk.auth() )
-			const kind = chunk.kind()
+			const auth_unit = land.unit( unit.auth(), unit.auth() )
+			const kind = unit.kind()
 			
 			switch( kind ) {
 				
 				case 'join': {
 				
-					if( auth_chunk ) {
+					if( auth_unit ) {
 						$mol_fail( new Error( 'Already join' ) )
 					}
 					
-					if(!( chunk.data instanceof Uint8Array )) {
+					if(!( unit.data instanceof Uint8Array )) {
 						$mol_fail( new Error( 'No join key' ) )
 					}
 					
-					const key_buf = chunk.data
+					const key_buf = unit.data
 					const self = $mol_int62_hash_buffer( key_buf )
 					
-					if( chunk.self_lo !== self.lo || chunk.self_hi !== self.hi ) {
+					if( unit.self_lo !== self.lo || unit.self_hi !== self.hi ) {
 						$mol_fail( new Error( 'Alien join key' ) )
 					}
 					
@@ -171,30 +171,30 @@ namespace $ {
 						$mol_fail( new Error( 'Wrong join sign' ) )
 					}
 					
-					this._signs.set( chunk, sign )
+					this._signs.set( unit, sign )
 
 					return
 				}
 				
 				case 'give': {
 					
-					const king_chunk = land.chunk( land.id, land.id )
+					const king_unit = land.unit( land.id, land.id )
 					
-					if( !king_chunk ) {
+					if( !king_unit ) {
 						$mol_fail( new Error( 'No king' ) )
 					}
 					
-					const give_chunk = land.chunk( land.id, chunk.self() )
+					const give_unit = land.unit( land.id, unit.self() )
 					
-					if( give_chunk?.level() as number > chunk.level() ) {
+					if( give_unit?.level() as number > unit.level() ) {
 						$mol_fail( new Error( `Revoke unsupported` ) )
 					}
 					
-					if( chunk.auth_lo === king_chunk.auth_lo && chunk.auth_hi === king_chunk.auth_hi ) break
+					if( unit.auth_lo === king_unit.auth_lo && unit.auth_hi === king_unit.auth_hi ) break
 					
-					const lord_chunk = land.chunk( land.id, chunk.auth() )
+					const lord_unit = land.unit( land.id, unit.auth() )
 					
-					if( lord_chunk?.level() !== $hyoo_crowd_peer_level.law ) {
+					if( lord_unit?.level() !== $hyoo_crowd_peer_level.law ) {
 						$mol_fail( new Error( `Need law level` ) )
 					}
 					
@@ -203,25 +203,25 @@ namespace $ {
 				
 				case 'data': {
 				
-					const king_chunk = land.chunk( land.id, land.id )
+					const king_unit = land.unit( land.id, land.id )
 					
-					if( !king_chunk ) {
+					if( !king_unit ) {
 						$mol_fail( new Error( 'No king' ) )
 					}
 					
-					if( chunk.auth_lo === king_chunk.auth_lo && chunk.auth_hi === king_chunk.auth_hi ) break
+					if( unit.auth_lo === king_unit.auth_lo && unit.auth_hi === king_unit.auth_hi ) break
 					
-					const give_chunk = land.chunk( land.id, chunk.auth() )
-					const level = give_chunk?.level() ?? $hyoo_crowd_peer_level.get
+					const give_unit = land.unit( land.id, unit.auth() )
+					const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
 					
 					if( level >= $hyoo_crowd_peer_level.mod ) break
 					
 					if( level === $hyoo_crowd_peer_level.add ) {
 						
-						const exists = land.chunk( chunk.head(), chunk.self() )
+						const exists = land.unit( unit.head(), unit.self() )
 						if( !exists ) break
 						
-						if( exists.auth_lo === chunk.auth_lo && exists.auth_hi === chunk.auth_hi ) break
+						if( exists.auth_lo === unit.auth_lo && exists.auth_hi === unit.auth_hi ) break
 						
 					}
 					
@@ -230,11 +230,11 @@ namespace $ {
 				
 			}
 			
-			if( !auth_chunk ) {
+			if( !auth_unit ) {
 				$mol_fail( new Error( 'No auth key' ) )
 			}
 			
-			const key_buf = auth_chunk.data as Uint8Array
+			const key_buf = auth_unit.data as Uint8Array
 			const key = await $mol_crypto_auditor_public.from( key_buf )
 			const sign = bin.sign()
 			const valid = await key.verify( bin.sens(), sign )
@@ -243,7 +243,7 @@ namespace $ {
 				$mol_fail( new Error( 'Wrong auth sign' ) )
 			}
 			
-			this._signs.set( chunk, sign )
+			this._signs.set( unit, sign )
 			
 		}
 		

@@ -1,6 +1,6 @@
 namespace $ {
 	
-	export type $hyoo_crowd_chunk_id = {
+	export type $hyoo_crowd_unit_id = {
 		readonly head: $mol_int62_pair,
 		readonly self: $mol_int62_pair,
 	}
@@ -8,7 +8,7 @@ namespace $ {
 	const level = $mol_data_enum( 'level', $hyoo_crowd_peer_level )
 	
 	/** Independent part of data. mem >= 80B / bin >= 32B + 48B */
-	export class $hyoo_crowd_chunk extends Object {
+	export class $hyoo_crowd_unit extends Object {
 		
 		constructor(
 	
@@ -53,7 +53,7 @@ namespace $ {
 			super()
 		}
 		
-		id(): $hyoo_crowd_chunk_id { return { head: this.head(), self: this.self() } }
+		id(): $hyoo_crowd_unit_id { return { head: this.head(), self: this.self() } }
 		
 		land(): $mol_int62_pair { return { lo: this.land_lo, hi: this.land_hi } }
 		auth(): $mol_int62_pair { return { lo: this.auth_lo, hi: this.auth_hi } }
@@ -118,19 +118,19 @@ namespace $ {
 		
 	} as const
 	
-	export class $hyoo_crowd_chunk_bin extends DataView {
+	export class $hyoo_crowd_unit_bin extends DataView {
 		
-		static from( chunk: $hyoo_crowd_chunk ) {
+		static from( unit: $hyoo_crowd_unit ) {
 			
-			const type = chunk.data === null
+			const type = unit.data === null
 				? 0
-				: chunk.data instanceof Uint8Array
+				: unit.data instanceof Uint8Array
 					? -1
 					: 1
 			
 			const buff = type === 0 ? null
-				: type > 0 ? $mol_charset_encode( JSON.stringify( chunk.data ) )
-				: chunk.data as Uint8Array
+				: type > 0 ? $mol_charset_encode( JSON.stringify( unit.data ) )
+				: unit.data as Uint8Array
 			
 			const size = buff?.byteLength ?? 0
 			if( type > 0 && size > 2**15 - 1 ) throw new Error( `Too large json data: ${size} > ${ 2**15 - 1 }` )
@@ -139,26 +139,26 @@ namespace $ {
 			const total = offset.data + Math.ceil( size / 8 ) * 8
 			
 			const mem = new Uint8Array( total )
-			const bin = new $hyoo_crowd_chunk_bin( mem.buffer )
+			const bin = new $hyoo_crowd_unit_bin( mem.buffer )
 			
 			bin.setInt16( offset.size, type * size, true )
-			bin.setUint16( offset.spin, chunk.spin, true )
-			bin.setUint32( offset.time, chunk.time, true )
-			bin.setInt32( offset.land_lo, chunk.land_lo, true )
-			bin.setInt32( offset.land_hi, chunk.land_hi, true )
+			bin.setUint16( offset.spin, unit.spin, true )
+			bin.setUint32( offset.time, unit.time, true )
+			bin.setInt32( offset.land_lo, unit.land_lo, true )
+			bin.setInt32( offset.land_hi, unit.land_hi, true )
 			
-			bin.setInt32( offset.auth_lo, chunk.auth_lo, true )
-			bin.setInt32( offset.auth_hi, chunk.auth_hi, true )
-			bin.setInt32( offset.head_lo, chunk.head_lo, true )
-			bin.setInt32( offset.head_hi, chunk.head_hi, true )
+			bin.setInt32( offset.auth_lo, unit.auth_lo, true )
+			bin.setInt32( offset.auth_hi, unit.auth_hi, true )
+			bin.setInt32( offset.head_lo, unit.head_lo, true )
+			bin.setInt32( offset.head_hi, unit.head_hi, true )
 			
-			bin.setInt32( offset.next_lo, chunk.next_lo, true )
-			bin.setInt32( offset.next_hi, chunk.next_hi, true )
-			bin.setInt32( offset.prev_lo, chunk.prev_lo, true )
-			bin.setInt32( offset.prev_hi, chunk.prev_hi, true )
+			bin.setInt32( offset.next_lo, unit.next_lo, true )
+			bin.setInt32( offset.next_hi, unit.next_hi, true )
+			bin.setInt32( offset.prev_lo, unit.prev_lo, true )
+			bin.setInt32( offset.prev_hi, unit.prev_hi, true )
 			
-			bin.setInt32( offset.self_lo, chunk.self_lo, true )
-			bin.setInt32( offset.self_hi, chunk.self_hi, true )
+			bin.setInt32( offset.self_lo, unit.self_lo, true )
+			bin.setInt32( offset.self_hi, unit.self_hi, true )
 			
 			if( buff ) mem.set( buff, offset.data )
 			
@@ -215,7 +215,7 @@ namespace $ {
 			)
 		}
 		
-		chunk(): $hyoo_crowd_chunk {
+		unit(): $hyoo_crowd_unit {
 			
 			const type_size = this.getInt16( this.byteOffset + offset.size, true )
 			const spin = this.getUint16( this.byteOffset + offset.spin, true )
@@ -247,7 +247,7 @@ namespace $ {
 				
 			}
 			
-			return new $hyoo_crowd_chunk(
+			return new $hyoo_crowd_unit(
 				
 				spin,
 				time,
@@ -275,9 +275,9 @@ namespace $ {
 		
 	}
 	
-	export function $hyoo_crowd_chunk_compare(
-		left: $hyoo_crowd_chunk,
-		right: $hyoo_crowd_chunk,
+	export function $hyoo_crowd_unit_compare(
+		left: $hyoo_crowd_unit,
+		right: $hyoo_crowd_unit,
 	) {
 		return ( left.time - right.time )
 			|| ( left.spin - right.spin )

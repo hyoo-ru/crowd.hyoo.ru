@@ -4,12 +4,12 @@ namespace $ {
 		/** Data list representation. */
 		list( next?: readonly unknown[] ) {
 			
-			const chunks = this.chunks()
+			const units = this.units()
 			
 			if( next === undefined ) {
-				return chunks.map( chunk => chunk.data )
+				return units.map( unit => unit.data )
 			} else {
-				this.insert( next, 0, chunks.length )
+				this.insert( next, 0, units.length )
 				return next
 			}
 			
@@ -17,12 +17,12 @@ namespace $ {
 		
 		// set( next?: ReadonlySet< string | number | boolean | null > ) {
 			
-		// 	const dict = new Map< unknown, $hyoo_crowd_chunk >()
+		// 	const dict = new Map< unknown, $hyoo_crowd_unit >()
 			
-		// 	for( const chunk of this.chunks() ) {
-		// 		const p = dict.get( chunk.data )
-		// 		if( p && $hyoo_crowd_chunk_compare( p, chunk ) > 0 ) continue
-		// 		dict.set( chunk.data, chunk )
+		// 	for( const uint of this.uints() ) {
+		// 		const p = dict.get( unit.data )
+		// 		if( p && $hyoo_crowd_unit_compare( p, unit ) > 0 ) continue
+		// 		dict.set( unit.data, unit )
 		// 	}
 			
 		// 	const prev = new Set( dict.keys() ) as ReadonlySet< string | number | boolean | null >
@@ -55,12 +55,12 @@ namespace $ {
 		
 		insert(
 			next: readonly unknown[],
-			from = this.chunks().length,
+			from = this.units().length,
 			to = from,
 		) {
 			
 			$mol_reconcile({
-				prev: this.chunks(),
+				prev: this.units(),
 				from,
 				to,
 				next,
@@ -87,15 +87,15 @@ namespace $ {
 			to: number,
 		) {
 			
-			const chunks = this.chunks()
-			const lead = to ? chunks[ to - 1 ] : null
+			const units = this.units()
+			const lead = to ? units[ to - 1 ] : null
 			
-			return this.doc.move( chunks[ from ], this.head, lead?.self() ?? { lo: 0, hi: 0 } )
+			return this.doc.move( units[ from ], this.head, lead?.self() ?? { lo: 0, hi: 0 } )
 			
 		}
 		
 		cut( seat: number ) {
-			return this.doc.wipe( this.chunks()[ seat ] )
+			return this.doc.wipe( this.units()[ seat ] )
 		}
 		
 	}

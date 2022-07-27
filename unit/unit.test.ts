@@ -24,43 +24,43 @@ namespace $ {
 	
 	$mol_test({
 		
-		'pack and unpack chunk with null'( $ ) {
+		'pack and unpack unit with null'( $ ) {
 			
-			const source = new $hyoo_crowd_chunk(
+			const source = new $hyoo_crowd_unit(
 				... common,
 				null,
 			)
 			
-			const packed = $hyoo_crowd_chunk_bin.from( source )
-			const unpacked = packed.chunk()
+			const packed = $hyoo_crowd_unit_bin.from( source )
+			const unpacked = packed.unit()
 			
 			$mol_assert_like( source, unpacked )
 			
 		},
 		
-		'pack and unpack chunk with json'( $ ) {
+		'pack and unpack unit with json'( $ ) {
 			
-			const source = new $hyoo_crowd_chunk(
+			const source = new $hyoo_crowd_unit(
 				... common,
 				{ a: [ 1 ] },
 			)
 			
-			const packed = $hyoo_crowd_chunk_bin.from( source )
-			const unpacked = packed.chunk()
+			const packed = $hyoo_crowd_unit_bin.from( source )
+			const unpacked = packed.unit()
 			
 			$mol_assert_like( source, unpacked )
 			
 		},
 		
-		'pack and unpack chunk with bin'( $ ) {
+		'pack and unpack unit with bin'( $ ) {
 			
-			const source = new $hyoo_crowd_chunk(
+			const source = new $hyoo_crowd_unit(
 				... common,
 				new Uint8Array([ 1, 2, 3, 4, 5, 6, 7, 8 ]),
 			)
 			
-			const packed = $hyoo_crowd_chunk_bin.from( source )
-			const unpacked = packed.chunk()
+			const packed = $hyoo_crowd_unit_bin.from( source )
+			const unpacked = packed.unit()
 			
 			$mol_assert_like( source, unpacked )
 			
@@ -68,12 +68,12 @@ namespace $ {
 		
 		async 'sign / verify'( $ ) {
 			
-			const source = new $hyoo_crowd_chunk(
+			const source = new $hyoo_crowd_unit(
 				... common,
 				{ a: [ 1 ] },
 			)
 			
-			const packed = $hyoo_crowd_chunk_bin.from( source )
+			const packed = $hyoo_crowd_unit_bin.from( source )
 			
 			const key = await $.$mol_crypto_auditor_pair()
 			packed.sign( new Uint8Array( await key.private.sign( packed.sens() ) ) )

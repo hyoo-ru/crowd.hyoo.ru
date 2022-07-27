@@ -46,19 +46,19 @@ namespace $.$$ {
 		
 		@ $mol_mem
 		delta_view() {
-			return this.delta().slice().reverse().map( chunk => ({
+			return this.delta().slice().reverse().map( unit => ({
 				
-				'Time': chunk.time + '_' + chunk.spin,
-				'Land': $mol_int62_to_string( chunk.land() ),
+				'Time': unit.time + '_' + unit.spin,
+				'Land': $mol_int62_to_string( unit.land() ),
 				
-				'Auth': $mol_int62_to_string( chunk.auth() ),
-				'Head': $mol_int62_to_string( chunk.head() ),
+				'Auth': $mol_int62_to_string( unit.auth() ),
+				'Head': $mol_int62_to_string( unit.head() ),
 				
-				'Next': $mol_int62_to_string( chunk.next() ),
-				'Prev': $mol_int62_to_string( chunk.prev() ),
+				'Next': $mol_int62_to_string( unit.next() ),
+				'Prev': $mol_int62_to_string( unit.prev() ),
 				
-				'Self': $mol_int62_to_string( chunk.self() ),
-				'Data': JSON.stringify( chunk.data ),
+				'Self': $mol_int62_to_string( unit.self() ),
+				'Data': JSON.stringify( unit.data ),
 				
 			}) )
 		}
@@ -87,12 +87,12 @@ namespace $.$$ {
 		
 		@ $mol_mem
 		size_state_bin() {
-			return this.store().delta().reduce( ( res, chunk )=> res + this.$.$hyoo_crowd_chunk_bin.from( chunk ).byteLength, 0 )
+			return this.store().delta().reduce( ( res, unit )=> res + this.$.$hyoo_crowd_unit_bin.from( unit ).byteLength, 0 )
 		}
 		
 		@ $mol_mem
 		size_delta_bin() {
-			return this.delta().reduce( ( res, chunk )=> res + this.$.$hyoo_crowd_chunk_bin.from( chunk ).byteLength, 0 )
+			return this.delta().reduce( ( res, unit )=> res + this.$.$hyoo_crowd_unit_bin.from( unit ).byteLength, 0 )
 		}
 		
 		stats() {

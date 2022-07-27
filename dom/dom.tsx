@@ -47,12 +47,12 @@ namespace $ {
 							}
 				}
 				
-				let chunks = this.chunks()
+				let units = this.units()
 				
 				$mol_reconcile({
-					prev: chunks,
+					prev: units,
 					from: 0,
-					to: chunks.length,
+					to: units.length,
 					next: sample,
 					equal: ( next, prev )=> typeof next === 'string'
 						? prev.data === next
@@ -77,11 +77,11 @@ namespace $ {
 					),
 				})
 				
-				chunks = this.chunks()
-				for( let i = 0; i < chunks.length; ++i ) {
+				units = this.units()
+				for( let i = 0; i < units.length; ++i ) {
 					const sam = sample[i]
 					if( typeof sam !== 'string' ) {
-						$hyoo_crowd_dom.for( this.doc, chunks[i].self() ).dom( sam )
+						$hyoo_crowd_dom.for( this.doc, units[i].self() ).dom( sam )
 					}
 				}
 				
@@ -90,21 +90,21 @@ namespace $ {
 			} else {
 				
 				return <>{
-					this.chunks().map( chunk => {
+					this.units().map( unit => {
 						
-						const Tag = typeof chunk.data === 'string'
+						const Tag = typeof unit.data === 'string'
 							? 'span'
-							: ( chunk.data as { tag: string } ).tag ?? 'span'
+							: ( unit.data as { tag: string } ).tag ?? 'span'
 							
-						const attr = typeof chunk.data === 'string'
+						const attr = typeof unit.data === 'string'
 							? {}
-							: ( chunk.data as { attr: {} } ).attr ?? {}
+							: ( unit.data as { attr: {} } ).attr ?? {}
 							
-						const content = typeof chunk.data === 'string'
-							? chunk.data
-							: $hyoo_crowd_dom.for( this.doc, chunk.self() ).dom()
+						const content = typeof unit.data === 'string'
+							? unit.data
+							: $hyoo_crowd_dom.for( this.doc, unit.self() ).dom()
 							
-						return <Tag { ... attr } id={ $mol_int62_to_string( chunk.self() ) } >{ content }</Tag>
+						return <Tag { ... attr } id={ $mol_int62_to_string( unit.self() ) } >{ content }</Tag>
 						
 					} )
 				}</>

@@ -41,7 +41,7 @@ namespace $ {
 			$mol_assert_like( store.root.as( $hyoo_crowd_list ).list(), [] )
 			
 			$mol_assert_like(
-				store.delta().map( chunk => chunk.data ),
+				store.delta().map( unit => unit.data ),
 				[ null ]
 			)
 			
@@ -94,7 +94,7 @@ namespace $ {
 			store.root.as( $hyoo_crowd_list ).list( [ 'foo' ] )
 			
 			$mol_assert_like(
-				store.delta().map( chunk => [ chunk.spin, chunk.time ] ),
+				store.delta().map( unit => [ unit.spin, unit.time ] ),
 				[ [ spin - 1, time ], [ spin, time ] ],
 			)
 			
@@ -159,7 +159,7 @@ namespace $ {
 			
 		},
 		
-		async 'Move existen Chunk'() {
+		async 'Move existen Unit'() {
 			
 			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
@@ -180,28 +180,28 @@ namespace $ {
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ { lo: 2, hi: 22 }, [2, 22] ],
-				]) ).map( chunk => chunk.data ),
+				]) ).map( unit => unit.data ),
 				[ 'foo', 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ store.auth.id, [ store.clock.last_spin - 3, store.clock.last_time ] ],
-				]) ).map( chunk => chunk.data ),
+				]) ).map( unit => unit.data ),
 				[ 'foo', 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ store.auth.id, [ store.clock.last_spin - 2, store.clock.last_time ] ],
-				]) ).map( chunk => chunk.data ),
+				]) ).map( unit => unit.data ),
 				[ 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
 				store.delta( new $hyoo_crowd_clock([
 					[ store.auth.id, [ store.clock.last_spin - 1, store.clock.last_time ] ],
-				]) ).map( chunk => chunk.data ),
+				]) ).map( unit => unit.data ),
 				[ 'lol' ],
 			)
 			
@@ -274,21 +274,21 @@ namespace $ {
 			const store2 = store1.fork( await $hyoo_crowd_peer.generate() )
 			store2.root.as( $hyoo_crowd_text ).text( 'foo  bar' )
 			$mol_assert_like(
-				store1.root.chunks().map( chunk => chunk.self ),
+				store1.root.units().map( unit => unit.self ),
 				[
-					store2.root.chunks()[0].self,
-					store2.root.chunks()[2].self,
+					store2.root.units()[0].self,
+					store2.root.units()[2].self,
 				],
 			)
 			
 			const store3 = store2.fork( await $hyoo_crowd_peer.generate() )
 			store3.root.as( $hyoo_crowd_text ).text( 'foo ton bar' )
 			$mol_assert_like(
-				store2.root.chunks().map( chunk => chunk.self ),
+				store2.root.units().map( unit => unit.self ),
 				[
-					store3.root.chunks()[0].self,
-					store3.root.chunks()[1].self,
-					store3.root.chunks()[2].self,
+					store3.root.units()[0].self,
+					store3.root.units()[1].self,
+					store3.root.units()[2].self,
 				],
 			)
 			
@@ -296,20 +296,20 @@ namespace $ {
 			store4.root.as( $hyoo_crowd_text ).text( 'foo bar' )
 			$mol_assert_like(
 				[
-					store3.root.chunks()[0].self,
-					store3.root.chunks()[2].self,
+					store3.root.units()[0].self,
+					store3.root.units()[2].self,
 				],
-				store4.root.chunks().map( chunk => chunk.self ),
+				store4.root.units().map( unit => unit.self ),
 			)
 			
 			const store5 = store3.fork( await $hyoo_crowd_peer.generate() )
 			store5.root.as( $hyoo_crowd_text ).text( 'foo ' )
 			$mol_assert_like(
 				[
-					store4.root.chunks()[0].self,
-					store4.root.chunks()[1].self,
+					store4.root.units()[0].self,
+					store4.root.units()[1].self,
 				],
-				store5.root.chunks().map( chunk => chunk.self ),
+				store5.root.units().map( unit => unit.self ),
 			)
 			
 		},
@@ -395,7 +395,7 @@ namespace $ {
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock.tick( right.auth.id )
-			right.insert( right.root.chunks()[0], { lo: 0, hi: 0 }, 2 )
+			right.insert( right.root.units()[0], { lo: 0, hi: 0 }, 2 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -421,7 +421,7 @@ namespace $ {
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock.tick( right.auth.id )
-			right.insert( right.root.chunks()[1], { lo: 0, hi: 0 }, 0 )
+			right.insert( right.root.units()[1], { lo: 0, hi: 0 }, 0 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -447,7 +447,7 @@ namespace $ {
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock.tick( right.auth.id )
-			right.insert( right.root.chunks()[1], { lo: 0, hi: 0 }, 3 )
+			right.insert( right.root.units()[1], { lo: 0, hi: 0 }, 3 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -499,7 +499,7 @@ namespace $ {
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock.tick( right.auth.id )
-			right.insert( $hyoo_crowd_node.for( right, { lo: 1, hi: 11 } ).chunks()[1], { lo: 2, hi: 22 }, 0 )
+			right.insert( $hyoo_crowd_node.for( right, { lo: 1, hi: 11 } ).units()[1], { lo: 2, hi: 22 }, 0 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -557,8 +557,8 @@ namespace $ {
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock.tick( right.auth.id )
-			right.insert( right.root.chunks()[1], { lo: 0, hi: 0 }, 5 )
-			right.insert( right.root.chunks()[1], { lo: 0, hi: 0 }, 5 )
+			right.insert( right.root.units()[1], { lo: 0, hi: 0 }, 5 )
+			right.insert( right.root.units()[1], { lo: 0, hi: 0 }, 5 )
 			
 			const left_delta = left.delta( base.clock )
 			const right_delta = right.delta( base.clock )
@@ -674,7 +674,7 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'fooBar' )
-			const [ first, second ] = store.root.chunks()
+			const [ first, second ] = store.root.units()
 			
 			$mol_assert_like(
 				store.root.as( $hyoo_crowd_text ).point_by_offset( 0 ),

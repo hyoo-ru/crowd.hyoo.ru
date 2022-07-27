@@ -23,14 +23,14 @@ namespace $ {
 			return new Node( this.doc, this.head ) as InstanceType< Node >
 		}
 		
-		/** Ordered inner alive Chunks. */
-		chunks() {
-			return this.doc.chunk_alive( this.head )
+		/** Ordered inner alive Units. */
+		units() {
+			return this.doc.unit_alives( this.head )
 		}
 		
 		/** Ordered inner alive Node. */
 		nodes< Node extends typeof $hyoo_crowd_node >( Node: Node ) {
-			return this.chunks().map( chunk => new Node( this.doc, chunk.self() ) as InstanceType< Node > )
+			return this.units().map( unit => new Node( this.doc, unit.self() ) as InstanceType< Node > )
 		}
 		
 		[ $mol_dev_format_head ]() {

@@ -23,7 +23,7 @@ namespace $ {
 			str_to = str_from,
 		) {
 			
-			const list = this.chunks()
+			const list = this.units()
 			
 			let from = str_from < 0 ? list.length : 0
 			let word = ''
@@ -74,11 +74,11 @@ namespace $ {
 		point_by_offset( offset: number ) {
 			
 			let off = offset
-			for( const chunk of this.chunks() ) {
+			for( const unit of this.units() ) {
 				
-				const len = String( chunk.data ).length
+				const len = String( unit.data ).length
 				
-				if( off < len ) return { self: chunk.self(), offset: off }
+				if( off < len ) return { self: unit.self(), offset: off }
 				else off -= len
 				
 			}
@@ -90,12 +90,12 @@ namespace $ {
 			
 			let offset = 0
 			
-			for( const chunk of this.chunks() ) {
+			for( const unit of this.units() ) {
 				
-				if( chunk.self_lo === point.self.lo && chunk.self_hi === point.self.hi ) {
+				if( unit.self_lo === point.self.lo && unit.self_hi === point.self.hi ) {
 					return offset + point.offset
 				} else {
-					offset += String( chunk.data ).length
+					offset += String( unit.data ).length
 				}
 				
 			}
