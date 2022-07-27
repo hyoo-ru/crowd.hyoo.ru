@@ -4,28 +4,28 @@ namespace $ {
 		
 		async 'delta & apply'() {
 			
-			const dir1 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
-			const dir2 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
+			const world1 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
 			
-			const land1 = await dir1.grab()
-			const land2 = await dir1.grab()
+			const land1 = await world1.grab()
+			const land2 = await world1.grab()
 			
 			// do changes
 			land1.root.as( $hyoo_crowd_list ).list([ 123, 456 ])
 			land2.root.as( $hyoo_crowd_list ).list([ 456, 789 ])
 			
 			// apply changes
-			for await( const delta of dir1.delta() ) {
-				$mol_assert_like( await dir2.apply( delta ), [] )
+			for await( const delta of world1.delta() ) {
+				$mol_assert_like( await world2.apply( delta ), [] )
 			}
 			
 			$mol_assert_like(
-				dir2.land( land1.id ).root.as( $hyoo_crowd_list ).list(),
+				world2.land( land1.id ).root.as( $hyoo_crowd_list ).list(),
 				[ 123, 456 ],
 			)
 			
 			$mol_assert_like(
-				dir2.land( land2.id ).root.as( $hyoo_crowd_list ).list(),
+				world2.land( land2.id ).root.as( $hyoo_crowd_list ).list(),
 				[ 456, 789 ],
 			)
 			
@@ -33,9 +33,9 @@ namespace $ {
 		
 		async 'ignore changes from far future'() {
 			
-			const dir1 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
-			const dir2 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
-			const land = await dir1.grab()
+			const world1 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const land = await world1.grab()
 			
 			// go to future
 			const clock = land.clock
@@ -46,8 +46,8 @@ namespace $ {
 			
 			// 2 ignored units
 			const broken = [] as [ $hyoo_crowd_unit, string ][]
-			for await( const delta of dir1.delta() ) {
-				broken.push( ... await dir2.apply( delta ) )
+			for await( const delta of world1.delta() ) {
+				broken.push( ... await world2.apply( delta ) )
 			}
 			$mol_assert_like(
 				broken.map( ([_, error ])=> error ),
@@ -55,23 +55,23 @@ namespace $ {
 			)
 			
 			// only 2 grab units
-			$mol_assert_like( dir2.land( land.id ).delta().length, 2 )
+			$mol_assert_like( world2.land( land.id ).delta().length, 2 )
 			
 		},
 		
 		async 'ignore auth as another peer'() {
 			
-			const dir1 = new $hyoo_crowd_dir( { ... await $hyoo_crowd_peer.generate(), id: { lo: 1, hi: 11 } } )
-			const dir2 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
-			const land = await dir1.grab()
+			const world1 = new $hyoo_crowd_world( { ... await $hyoo_crowd_peer.generate(), id: { lo: 1, hi: 11 } } )
+			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const land = await world1.grab()
 			
 			// do changes
 			land.root.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 2 ignored units
 			const broken = [] as [ $hyoo_crowd_unit, string ][]
-			for await( const delta of dir1.delta() ) {
-				broken.push( ... await dir2.apply( delta ) )
+			for await( const delta of world1.delta() ) {
+				broken.push( ... await world2.apply( delta ) )
 			}
 			$mol_assert_like(
 				broken.map( ([_, error ])=> error ),
@@ -79,23 +79,23 @@ namespace $ {
 			)
 			
 			// only 2 grab units
-			$mol_assert_like( dir2.land( land.id ).delta().length, 2 )
+			$mol_assert_like( world2.land( land.id ).delta().length, 2 )
 			
 		},
 		
 		async 'ignore auth without key'() {
 			
-			const dir1 = new $hyoo_crowd_dir( { ... await $hyoo_crowd_peer.generate(), key_public_serial: [] as any } )
-			const dir2 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
-			const land = await dir1.grab()
+			const world1 = new $hyoo_crowd_world( { ... await $hyoo_crowd_peer.generate(), key_public_serial: [] as any } )
+			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const land = await world1.grab()
 			
 			// do changes
-			dir1.land({ lo: 1, hi: 1 }).root.as( $hyoo_crowd_reg ).numb( 123 )
+			world1.land({ lo: 1, hi: 1 }).root.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 2 ignored units
 			const broken = [] as [ $hyoo_crowd_unit, string ][]
-			for await( const delta of dir1.delta() ) {
-				broken.push( ... await dir2.apply( delta ) )
+			for await( const delta of world1.delta() ) {
+				broken.push( ... await world2.apply( delta ) )
 			}
 			$mol_assert_like(
 				broken.map( ([_, error ])=> error ),
@@ -103,21 +103,21 @@ namespace $ {
 			)
 			
 			// only 2 grab units
-			$mol_assert_like( dir2.land( land.id ).delta().length, 2 )
+			$mol_assert_like( world2.land( land.id ).delta().length, 2 )
 			
 		},
 		
 		async 'ignore changes with wrong signs'() {
 			
-			const dir1 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
-			const dir2 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
-			const land = await dir1.grab()
+			const world1 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const land = await world1.grab()
 			
 			// 2 ignored units
 			const broken = [] as [ $hyoo_crowd_unit, string ][]
-			for await( const delta of dir1.delta() ) {
+			for await( const delta of world1.delta() ) {
 				delta[ 16 ] = ~ delta[ 16 ] // break sign
-				broken.push( ... await dir2.apply( delta ) )
+				broken.push( ... await world2.apply( delta ) )
 			}
 			$mol_assert_like(
 				broken.map( ([_, error ])=> error ),
@@ -125,25 +125,25 @@ namespace $ {
 			)
 			
 			// no applied units 
-			$mol_assert_like( dir2.land( land.id ).delta().length, 0 )
+			$mol_assert_like( world2.land( land.id ).delta().length, 0 )
 			
 		},
 		
 		async 'ignore update auth'() {
 			
 			const peer = await $hyoo_crowd_peer.generate()
-			const dir1 = new $hyoo_crowd_dir( peer )
-			const dir2 = new $hyoo_crowd_dir( peer )
-			const land = await dir1.grab()
+			const world1 = new $hyoo_crowd_world( peer )
+			const world2 = new $hyoo_crowd_world( peer )
+			const land = await world1.grab()
 			
 			// do changes
 			land.root.as( $hyoo_crowd_reg ).numb( 123 )
-			dir2.land( land.id ).root.as( $hyoo_crowd_reg ).numb( 234 )
+			world2.land( land.id ).root.as( $hyoo_crowd_reg ).numb( 234 )
 			
 			// 1 ignored unit
 			const broken = [] as [ $hyoo_crowd_unit, string ][]
-			for await( const delta of dir1.delta() ) {
-				broken.push( ... await dir2.apply( delta ) )
+			for await( const delta of world1.delta() ) {
+				broken.push( ... await world2.apply( delta ) )
 			}
 			$mol_assert_like(
 				broken.map( ([_, error ])=> error ),
@@ -151,25 +151,25 @@ namespace $ {
 			)
 			
 			// 5 units applied
-			$mol_assert_like( dir2.land( land.id ).delta().length, 5 )
+			$mol_assert_like( world2.land( land.id ).delta().length, 5 )
 			
 		},
 		
 		async 'levels'() {
 			
-			const dir1 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
-			const dir2 = new $hyoo_crowd_dir( await $hyoo_crowd_peer.generate() )
+			const world1 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
 			
 			const peer = await $hyoo_crowd_peer.generate()
 			
-			const land1 = await dir1.grab()
-			const land2 = dir2.land( land1.id )
+			const land1 = await world1.grab()
+			const land2 = world2.land( land1.id )
 			
 			// do changes
 			land1.root.sub( 'foo', $hyoo_crowd_reg ).numb( 123 )
 			
-			for await( const delta of dir1.delta() ) {
-				await dir2.apply( delta )
+			for await( const delta of world1.delta() ) {
+				await world2.apply( delta )
 			}
 			land2.root.sub( 'foo', $hyoo_crowd_reg ).numb( 234 )
 			land2.root.sub( 'bar', $hyoo_crowd_reg ).numb( 234 )
@@ -181,8 +181,8 @@ namespace $ {
 				
 				const broken = [] as [ $hyoo_crowd_unit, string ][]
 				
-				for await( const delta of dir2.delta() ) {
-					broken.push( ... await dir1.apply( delta ) )
+				for await( const delta of world2.delta() ) {
+					broken.push( ... await world1.apply( delta ) )
 				}
 				
 				$mol_assert_like(
@@ -203,8 +203,8 @@ namespace $ {
 				
 				const broken = [] as [ $hyoo_crowd_unit, string ][]
 				
-				for await( const delta of dir2.delta() ) {
-					broken.push( ... await dir1.apply( delta ) )
+				for await( const delta of world2.delta() ) {
+					broken.push( ... await world1.apply( delta ) )
 				}
 				
 				$mol_assert_like(
@@ -225,8 +225,8 @@ namespace $ {
 				
 				const broken = [] as [ $hyoo_crowd_unit, string ][]
 				
-				for await( const delta of dir2.delta() ) {
-					broken.push( ... await dir1.apply( delta ) )
+				for await( const delta of world2.delta() ) {
+					broken.push( ... await world1.apply( delta ) )
 				}
 				
 				$mol_assert_like(
@@ -247,8 +247,8 @@ namespace $ {
 				
 				const broken = [] as [ $hyoo_crowd_unit, string ][]
 				
-				for await( const delta of dir2.delta() ) {
-					broken.push( ... await dir1.apply( delta ) )
+				for await( const delta of world2.delta() ) {
+					broken.push( ... await world1.apply( delta ) )
 				}
 				
 				$mol_assert_like(

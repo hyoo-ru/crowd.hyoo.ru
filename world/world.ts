@@ -1,5 +1,5 @@
 namespace $ {
-	export class $hyoo_crowd_dir extends Object {
+	export class $hyoo_crowd_world extends Object {
 		
 		constructor(
 			readonly peer: $hyoo_crowd_peer
@@ -24,10 +24,6 @@ namespace $ {
 			this._lands.set( id, land )
 			
 			return land
-		}
-		
-		file( lord: $mol_int62_pair, path: string ) {
-			return this.land( $mol_int62_hash_string( path ) )		
 		}
 		
 		_knights = new $mol_dict<
