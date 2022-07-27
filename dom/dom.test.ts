@@ -3,12 +3,12 @@ namespace $ {
 		
 		async 'import exported html'() {
 			
-			const left = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const left = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			left.root.as( $hyoo_crowd_list ).list([ 'foo', { tag: 'i' }, 'bar' ])
 			left.root.nodes( $hyoo_crowd_text )[1].text( 'ton' )
 			const html = left.root.as( $hyoo_crowd_html ).html()
 			
-			const right = new $hyoo_crowd_doc( { lo: -2, hi: -22 }, await $hyoo_crowd_peer.generate() )
+			const right = new $hyoo_crowd_land( { lo: -2, hi: -22 }, await $hyoo_crowd_peer.generate() )
 			right.root.as( $hyoo_crowd_html ).html( html )
 			
 			$mol_assert_equal( html, left.root.as( $hyoo_crowd_html ).html() )
@@ -22,7 +22,7 @@ namespace $ {
 		
 		async 'import wild spans'() {
 			
-			const land = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const land = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			land.root.as( $hyoo_crowd_html ).html( '<body><span>foo bar<a href="ton"/></span></body>' )
 			
 			const dom = land.root.as( $hyoo_crowd_dom ).dom()

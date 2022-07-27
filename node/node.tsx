@@ -6,31 +6,31 @@ namespace $ {
 	export class $hyoo_crowd_node {
 		
 		constructor(
-			readonly doc: $hyoo_crowd_doc,
+			readonly land: $hyoo_crowd_land,
 			readonly head: $mol_int62_pair,
 		) {}
 		
 		static for< Node extends typeof $hyoo_crowd_node >(
 			this: Node,
-			doc: $hyoo_crowd_doc,
+			land: $hyoo_crowd_land,
 			head: $mol_int62_pair,
 		) {
-			return new this( doc, head ) as InstanceType< Node >
+			return new this( land, head ) as InstanceType< Node >
 		}
 		
 		/** Returns another representation of this node. */
 		as< Node extends typeof $hyoo_crowd_node >( Node: Node ) {
-			return new Node( this.doc, this.head ) as InstanceType< Node >
+			return new Node( this.land, this.head ) as InstanceType< Node >
 		}
 		
 		/** Ordered inner alive Units. */
 		units() {
-			return this.doc.unit_alives( this.head )
+			return this.land.unit_alives( this.head )
 		}
 		
 		/** Ordered inner alive Node. */
 		nodes< Node extends typeof $hyoo_crowd_node >( Node: Node ) {
-			return this.units().map( unit => new Node( this.doc, unit.self() ) as InstanceType< Node > )
+			return this.units().map( unit => new Node( this.land, unit.self() ) as InstanceType< Node > )
 		}
 		
 		[ $mol_dev_format_head ]() {

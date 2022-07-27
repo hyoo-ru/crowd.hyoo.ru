@@ -4,7 +4,7 @@ namespace $ {
 		
 		async 'Default state'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
 			$mol_assert_like( store.root.as( $hyoo_crowd_reg ).value(), null )
 			$mol_assert_like( store.root.as( $hyoo_crowd_reg ).bool(), false )
@@ -17,7 +17,7 @@ namespace $ {
 		
 		async 'Serial changes'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, { ... await $hyoo_crowd_peer.generate(), key_public_serial: null as any } )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, { ... await $hyoo_crowd_peer.generate(), key_public_serial: null as any } )
 			$mol_assert_like( store.root.as( $hyoo_crowd_reg ).value(), null )
 			$mol_assert_like( store.root.as( $hyoo_crowd_list ).list(), [] )
 			
@@ -49,7 +49,7 @@ namespace $ {
 		
 		async 'Name spaces'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
 			store.root.sub( 'foo', $hyoo_crowd_struct ).sub( 'bar', $hyoo_crowd_reg ).numb( 111 )
 			store.root.sub( 'foo', $hyoo_crowd_struct ).sub( 'ton', $hyoo_crowd_reg ).numb( 222 )
@@ -63,10 +63,10 @@ namespace $ {
 		
 		async 'Name spaces merging'() {
 			
-			const left = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const left = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			left.root.sub( 'foo', $hyoo_crowd_list ).list([ 111 ])
 			
-			const right = new $hyoo_crowd_doc( { lo: 2, hi: 22 }, await $hyoo_crowd_peer.generate() )
+			const right = new $hyoo_crowd_land( { lo: 2, hi: 22 }, await $hyoo_crowd_peer.generate() )
 			right.clock.tick( right.auth.id )
 			right.root.sub( 'foo', $hyoo_crowd_list ).list([ 222 ])
 			
@@ -86,7 +86,7 @@ namespace $ {
 		
 		async 'Ignore same changes'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_reg ).str( 'foo' )
 			const [ spin, time ] = [ store.clock.last_spin, store.clock.last_time ]
 			
@@ -102,7 +102,7 @@ namespace $ {
 		
 		async 'Serial insert values'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
 			store.root.as( $hyoo_crowd_list ).insert([ 'foo' ])
 			store.root.as( $hyoo_crowd_list ).insert([ 'bar' ])
@@ -113,7 +113,7 @@ namespace $ {
 		
 		async 'Concurent insert values'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
 			store.root.as( $hyoo_crowd_list ).insert( [ 'foo' ], 0 )
 			store.root.as( $hyoo_crowd_list ).insert( [ 'bar' ], 0 )
@@ -124,7 +124,7 @@ namespace $ {
 		
 		async 'Insert value between others'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
 			store.root.as( $hyoo_crowd_list ).insert([ 'foo' ])
 			store.root.as( $hyoo_crowd_list ).insert([ 'bar' ])
@@ -136,7 +136,7 @@ namespace $ {
 		
 		async 'Insert value inside other'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
 			store.root.as( $hyoo_crowd_list ).insert([ 'foo' ])
 			store.root.nodes( $hyoo_crowd_list )[0].insert([ 'bar' ])
@@ -148,7 +148,7 @@ namespace $ {
 		
 		async 'Insert before removed before changed'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			const node = store.root.as( $hyoo_crowd_list )
 			
 			node.list([ 'foo', 'bar' ])
@@ -161,7 +161,7 @@ namespace $ {
 		
 		async 'Move existen Unit'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
 			store.root.as( $hyoo_crowd_text ).text( 'FooBarLol' )
 			store.root.as( $hyoo_crowd_list ).move( 0, 2 )
@@ -172,7 +172,7 @@ namespace $ {
 		
 		async 'Deltas for different versions'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, { ... await $hyoo_crowd_peer.generate(), key_public_serial: null as any } )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, { ... await $hyoo_crowd_peer.generate(), key_public_serial: null as any } )
 			store.clock.see_time( 0, store.clock.now()[0] + 60 )
 			
 			store.root.as( $hyoo_crowd_list ).list( [ 'foo', 'bar', 'lol' ] )
@@ -216,7 +216,7 @@ namespace $ {
 		
 		async 'Delete with subtree and ignore inserted into deleted'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'foo' )
 			
 			const b2 = store.root.nodes( $hyoo_crowd_text )[0]
@@ -239,7 +239,7 @@ namespace $ {
 		
 		async 'Put/get list'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			$mol_assert_like( store.root.as( $hyoo_crowd_list ).list(), [] )
 			
 			store.root.as( $hyoo_crowd_list ).list( [ 'foo', 'bar', 'foo' ] )
@@ -253,7 +253,7 @@ namespace $ {
 		
 		async 'Put/get text'() {
 			
-			const store1 = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store1 = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			
 			store1.root.as( $hyoo_crowd_text ).text( 'foo bar foo' )
 			$mol_assert_like( store1.root.as( $hyoo_crowd_text ).text(), 'foo bar foo' )
@@ -268,7 +268,7 @@ namespace $ {
 		
 		async 'Text modifications'() {
 			
-			const store1 = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store1 = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store1.root.as( $hyoo_crowd_text ).text( 'foo bar' )
 			
 			const store2 = store1.fork( await $hyoo_crowd_peer.generate() )
@@ -316,7 +316,7 @@ namespace $ {
 		
 		async 'Change sequences'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			$mol_assert_like( store.root.as( $hyoo_crowd_text ).text(), '' )
 			
 			store.root.as( $hyoo_crowd_text ).text( 'foo' )
@@ -338,10 +338,10 @@ namespace $ {
 		
 		async 'Merge different sequences'() {
 			
-			const left = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const left = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			left.root.as( $hyoo_crowd_text ).text( 'foo bar.' )
 			
-			const right = new $hyoo_crowd_doc( { lo: 2, hi: 22 }, await $hyoo_crowd_peer.generate() )
+			const right = new $hyoo_crowd_land( { lo: 2, hi: 22 }, await $hyoo_crowd_peer.generate() )
 			right.clock.tick( right.auth.id )
 			right.root.as( $hyoo_crowd_text ).text( 'xxx yyy.' )
 			
@@ -361,7 +361,7 @@ namespace $ {
 		
 		async 'Merge different insertions to same place of same sequence'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			base.root.as( $hyoo_crowd_text ).text( 'foo bar' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -387,7 +387,7 @@ namespace $ {
 		
 		async 'Insert after moved'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			base.root.as( $hyoo_crowd_text ).text( 'FooBarZak' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -413,7 +413,7 @@ namespace $ {
 		
 		async 'Insert before moved left'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			base.root.as( $hyoo_crowd_text ).text( 'fooBarZak' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -439,7 +439,7 @@ namespace $ {
 		
 		async 'Insert before moved right'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			base.root.as( $hyoo_crowd_text ).text( 'FooBarZak' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -465,7 +465,7 @@ namespace $ {
 		
 		async 'Insert after removed'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			base.root.as( $hyoo_crowd_text ).text( 'FooBar' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -491,7 +491,7 @@ namespace $ {
 		
 		async 'Insert after removed out'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			$hyoo_crowd_text.for( base, { lo: 1, hi: 11 } ).text( 'FooBarZak' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -523,7 +523,7 @@ namespace $ {
 		
 		async 'Insert before changed'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			base.root.as( $hyoo_crowd_text ).text( 'XxxYyyZzz' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -549,7 +549,7 @@ namespace $ {
 		
 		async 'Insert between moved'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			base.root.as( $hyoo_crowd_list ).list([ 111, 222, 333, 444, 555, 666 ])
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -576,7 +576,7 @@ namespace $ {
 		
 		async 'Merge text changes'() {
 			
-			const base = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const base = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			base.root.as( $hyoo_crowd_text ).text( 'Hello World and fun!' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
@@ -602,7 +602,7 @@ namespace $ {
 		
 		async 'Write into token'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'foobar' )
 			store.root.as( $hyoo_crowd_text ).write( 'xyz', 3 )
 			
@@ -612,7 +612,7 @@ namespace $ {
 		
 		async 'Write into token with split'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'foobar' )
 			store.root.as( $hyoo_crowd_text ).write( 'XYZ', 2, 4 )
 			
@@ -622,7 +622,7 @@ namespace $ {
 		
 		async 'Write over few tokens'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'xxx foo bar yyy' )
 			store.root.as( $hyoo_crowd_text ).write( 'X Y Z', 6, 9 )
 			
@@ -632,7 +632,7 @@ namespace $ {
 		
 		async 'Write whole token'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'xxxFoo yyy' )
 			store.root.as( $hyoo_crowd_text ).write( 'bar', 3, 7 )
 			
@@ -642,7 +642,7 @@ namespace $ {
 		
 		async 'Write whole text'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'foo bar' )
 			store.root.as( $hyoo_crowd_text ).write( 'xxx', 0, 7 )
 			
@@ -652,7 +652,7 @@ namespace $ {
 		
 		async 'Write at the end'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'foo' )
 			store.root.as( $hyoo_crowd_text ).write( 'bar' )
 			
@@ -662,7 +662,7 @@ namespace $ {
 		
 		async 'Write between tokens'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'foo bar' )
 			store.root.as( $hyoo_crowd_text ).write( 'xxx', 4 )
 			
@@ -672,7 +672,7 @@ namespace $ {
 
 		async 'Offset <=> Point'() {
 			
-			const store = new $hyoo_crowd_doc( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_text ).text( 'fooBar' )
 			const [ first, second ] = store.root.units()
 			

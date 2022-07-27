@@ -35,14 +35,14 @@ namespace $ {
 		// 		prev.size,
 		// 		[ ... next ],
 		// 		equal: ( next, prev )=> prev.data === next,
-		// 		drop: ( prev, lead )=> this.doc.wipe( prev ),
-		// 		insert: ( next, lead )=> this.doc.put(
+		// 		drop: ( prev, lead )=> this.land.wipe( prev ),
+		// 		insert: ( next, lead )=> this.land.put(
 		// 			this.head,
 		// 			$mol_hash_string( next, this.head ),
 		// 			lead?.self ?? 0,
 		// 			next,
 		// 		),
-		// 		update: ( next, prev, lead )=> this.doc.put(
+		// 		update: ( next, prev, lead )=> this.land.put(
 		// 			prev.head,
 		// 			prev.self,
 		// 			lead?.self ?? 0,
@@ -65,14 +65,14 @@ namespace $ {
 				to,
 				next,
 				equal: ( next, prev )=> prev.data === next,
-				drop: ( prev, lead )=> this.doc.wipe( prev ),
-				insert: ( next, lead )=> this.doc.put(
+				drop: ( prev, lead )=> this.land.wipe( prev ),
+				insert: ( next, lead )=> this.land.put(
 					this.head,
-					this.doc.id_new(),
+					this.land.id_new(),
 					lead?.self() ?? { lo: 0, hi: 0 },
 					next,
 				),
-				update: ( next, prev, lead )=> this.doc.put(
+				update: ( next, prev, lead )=> this.land.put(
 					prev.head(),
 					prev.self(),
 					lead?.self() ?? { lo: 0, hi: 0 },
@@ -90,12 +90,12 @@ namespace $ {
 			const units = this.units()
 			const lead = to ? units[ to - 1 ] : null
 			
-			return this.doc.move( units[ from ], this.head, lead?.self() ?? { lo: 0, hi: 0 } )
+			return this.land.move( units[ from ], this.head, lead?.self() ?? { lo: 0, hi: 0 } )
 			
 		}
 		
 		cut( seat: number ) {
-			return this.doc.wipe( this.units()[ seat ] )
+			return this.land.wipe( this.units()[ seat ] )
 		}
 		
 	}

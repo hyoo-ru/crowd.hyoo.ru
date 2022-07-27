@@ -50,7 +50,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 
 # Vocabulary
 
-- **Doc** - Full CROWD document (direct graph) which consists of real Units and virtual Nodes over them.
+- **Land** - Full CROWD document (direct graph) which consists of real Units and virtual Nodes over them.
 - **Node** - A single subtree which represented by few units with same Self in different Heads.
 - **Unit** - Minimal atomic unit of data with metadata. Actually it's edge between Nodes. And it's extended CvRDT LWW-Register.
   - **Self** - Node id
@@ -61,7 +61,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
   - **Time** - Monotonic version.
   - **Data** - Any JSON data.
   - **Sign** - Crypto sign of whole Unit data.
-- **Delta** - Difference of two Doc state as list of Units.
+- **Delta** - Difference of two Land state as list of Units.
 - **Clock** - Vector clock. Dictionary which maps Peer to Time.
 - **Token** - Minimal meaningfull part of text (single word + punctuation + one space).
 - **Point** - Place inside Unit. Usefull for caret.
@@ -201,7 +201,7 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 - Can be simply bound to native `<textarea>`.
 - Merge never produces unreadable token value. Only one of valid (LWW).
 - No interleaving. The typed text will not be interrupted after merging.
-- For `3.2MB` text (320k words) of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" in CROWD Doc takes up  `40MB` (`12x`) in JSON serialization and `25MB` (`8x`) in binary with signing (obsoleted data, sign was 32B but now 64B).
+- For `3.2MB` text (320k words) of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" in CROWD Land takes up  `40MB` (`12x`) in JSON serialization and `25MB` (`8x`) in binary with signing (obsoleted data, sign was 32B but now 64B).
 
 ### **[Online sandbox](https://crowd.hyoo.ru/)**
 
@@ -243,7 +243,7 @@ Under the hood, tokens are stored in the same form as in plain text. There may b
 ### Delta Algorithm
 
 - Input: Clock, received from Peer.
-- Iterate over all Unit in Doc.
+- Iterate over all Unit in Land.
 	- Skip Units which Time less then Clock Time for same Peer.
 - Return all remainig Units ordered by Time.
 
@@ -266,8 +266,8 @@ ORDER BY
 
 - Input: list of Units.
 - Iterate over Units from Delta.
-	- Locate Unit from Doc with same Head and Self.
-	- If Unit doesn't exists, add Unit to Doc.
+	- Locate Unit from Land with same Head and Self.
+	- If Unit doesn't exists, add Unit to Land.
 	- If Unit exists and Time of new Unit is greater, replace old by new.
 	- If Unit exists and Time of new Unit is same, but Peer is greater, replace old by new.
 	- Otherwise skip this Unit.
@@ -299,14 +299,14 @@ Use [$mol_crypto](https://github.com/hyoo-ru/mam_mol/tree/master/crypto) to gene
 ```typescript
 // // Usage from NPM. Isn't required in MAM.
 // import {
-//   $hyoo_crowd_doc,
+//   $hyoo_crowd_land,
 //   $hyoo_crowd_reg,
 //   $hyoo_crowd_list,
 //   $hyoo_crowd_text,
 // } from 'hyoo_crowd_lib'
 
 // Create document
-const base = new $hyoo_crowd_doc();
+const base = new $hyoo_crowd_land();
 
 // Make independent forks for testng
 const alice = base.fork(1);
@@ -361,7 +361,7 @@ console.log(
 
 ## Benchmarks
 
-### [Sequence: Push + Shift](https://perf.js.hyoo.ru/#!prefixes=%5B%22const%20%7B%20%24hyoo_crowd_doc%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%2Fweb.esm.js'%5Cn%29.default%22%2C%22%24mol_import.script%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fautomerge%400%2Fdist%2Fautomerge.js'%5Cn%29%22%2C%22const%20%7B%20Doc%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%5Cn%29%22%5D/sources=%5B%22let%20doc%7B%23%7D%20%3D%20new%20%24hyoo_crowd_doc%28%29%5Cnlet%20list%7B%23%7D%20%3D%20doc%7B%23%7D.root.sub%28%20'list'%2C%20%24hyoo_crowd_list%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.insert%28%5B%20i%20%5D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.cut%28%200%20%29%5Cn%22%2C%22let%20doc%7B%23%7D%20%3D%20Automerge.from%28%7B%20list%3A%20%5B%5D%20%7D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.list.push%28%20i%20%29%5Cn%5Ct%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.list.shift%28%29%5Cn%5Ct%29%22%2C%22const%20doc%7B%23%7D%20%3D%20new%20Doc%5Cnconst%20list%7B%23%7D%20%3D%20doc%7B%23%7D.getArray%28%20'list'%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.push%28%5B%20i%20%5D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.delete%280%2C1%29%22%5D/prefix=const%20total%20%3D%20500)
+### [Sequence: Push + Shift](https://perf.js.hyoo.ru/#!prefixes=%5B%22const%20%7B%20%24hyoo_crowd_land%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%2Fweb.esm.js'%5Cn%29.default%22%2C%22%24mol_import.script%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fautomerge%400%2Fdist%2Fautomerge.js'%5Cn%29%22%2C%22const%20%7B%20Doc%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%5Cn%29%22%5D/sources=%5B%22let%20doc%7B%23%7D%20%3D%20new%20%24hyoo_crowd_land%28%29%5Cnlet%20list%7B%23%7D%20%3D%20doc%7B%23%7D.root.sub%28%20'list'%2C%20%24hyoo_crowd_list%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.insert%28%5B%20i%20%5D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.cut%28%200%20%29%5Cn%22%2C%22let%20doc%7B%23%7D%20%3D%20Automerge.from%28%7B%20list%3A%20%5B%5D%20%7D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.list.push%28%20i%20%29%5Cn%5Ct%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.list.shift%28%29%5Cn%5Ct%29%22%2C%22const%20doc%7B%23%7D%20%3D%20new%20Doc%5Cnconst%20list%7B%23%7D%20%3D%20doc%7B%23%7D.getArray%28%20'list'%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.push%28%5B%20i%20%5D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.delete%280%2C1%29%22%5D/prefix=const%20total%20%3D%20500)
 
 ### Chrome 92
 ![](https://i.imgur.com/ZpwnDS0.png)
@@ -369,7 +369,7 @@ console.log(
 ### FireFox 91
 ![](https://i.imgur.com/ARB3cRJ.png)
 
-### [Text: Append + Crop](https://perf.js.hyoo.ru/#!prefixes=%5B%22const%20%7B%20%24hyoo_crowd_doc%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%2Fweb.esm.js'%5Cn%29.default%22%2C%22%24mol_import.script%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fautomerge%400%2Fdist%2Fautomerge.js'%5Cn%29%22%2C%22const%20%7B%20Doc%2C%20Text%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%5Cn%29%22%5D/sources=%5B%22let%20doc%7B%23%7D%20%3D%20new%20%24hyoo_crowd_doc%28%29%5Cnlet%20text%7B%23%7D%20%3D%20doc%7B%23%7D.root.sub%28%20'text'%2C%20%24hyoo_crowd_text%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%20%7B%5Cn%5Cttext%7B%23%7D.write%28%20i%20%2B%20'%20'%20%29%5Cn%7D%5Cnfor%28%20let%20i%20%3D%20total-1%3B%20i%20%3E%3D%200%3B%20--i%20%29%20%7B%5Cn%5Cttext%7B%23%7D.write%28%20''%2C%200%2C%20String%28i%29.length%20%2B%201%20%29%5Cn%7D%22%2C%22let%20doc%7B%23%7D%20%3D%20Automerge.from%28%7B%7D%29%5Cndoc%7B%23%7D%20%3D%20Automerge.change%28doc%7B%23%7D%2C%20doc%20%3D%3E%20%7B%5Cn%5Ctdoc.text%20%3D%20new%20Automerge.Text%28%29%5Cn%7D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.text.insertAt%28%5Cn%5Ct%5Ct%5Ctdoc.text.length%2C%5Cn%5Ct%5Ct%5Ct...%20%28%20i%20%2B%20'%20'%20%29%2C%5Cn%5Ct%5Ct%29%5Cn%5Ct%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%20doc%20%3D%3E%20%7B%5Cn%5Ct%5Ctconst%20len%20%3D%20String%28i%29.length%20%2B%201%5Cn%5Ct%5Ctfor%28%20let%20j%20%3D%200%3B%20j%20%3C%20len%3B%20%2B%2Bj%20%29%5Cn%5Ct%5Ct%5Ctdoc.text.deleteAt%280%29%5Cn%5Ct%7D%20%29%22%2C%22const%20doc%7B%23%7D%20%3D%20new%20Doc%5Cnconst%20text%7B%23%7D%20%3D%20doc%7B%23%7D.get%28%20'text'%2C%20Text%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Cttext%7B%23%7D.insert%28%20text%7B%23%7D.length%2C%20i%20%2B%20'%20'%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Cttext%7B%23%7D.delete%28%200%2C%20String%28i%29.length%20%2B%201%20%29%22%5D/prefix=const%20total%20%3D%20500)
+### [Text: Append + Crop](https://perf.js.hyoo.ru/#!prefixes=%5B%22const%20%7B%20%24hyoo_crowd_land%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%2Fweb.esm.js'%5Cn%29.default%22%2C%22%24mol_import.script%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fautomerge%400%2Fdist%2Fautomerge.js'%5Cn%29%22%2C%22const%20%7B%20Doc%2C%20Text%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%5Cn%29%22%5D/sources=%5B%22let%20doc%7B%23%7D%20%3D%20new%20%24hyoo_crowd_land%28%29%5Cnlet%20text%7B%23%7D%20%3D%20doc%7B%23%7D.root.sub%28%20'text'%2C%20%24hyoo_crowd_text%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%20%7B%5Cn%5Cttext%7B%23%7D.write%28%20i%20%2B%20'%20'%20%29%5Cn%7D%5Cnfor%28%20let%20i%20%3D%20total-1%3B%20i%20%3E%3D%200%3B%20--i%20%29%20%7B%5Cn%5Cttext%7B%23%7D.write%28%20''%2C%200%2C%20String%28i%29.length%20%2B%201%20%29%5Cn%7D%22%2C%22let%20doc%7B%23%7D%20%3D%20Automerge.from%28%7B%7D%29%5Cndoc%7B%23%7D%20%3D%20Automerge.change%28doc%7B%23%7D%2C%20doc%20%3D%3E%20%7B%5Cn%5Ctdoc.text%20%3D%20new%20Automerge.Text%28%29%5Cn%7D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.text.insertAt%28%5Cn%5Ct%5Ct%5Ctdoc.text.length%2C%5Cn%5Ct%5Ct%5Ct...%20%28%20i%20%2B%20'%20'%20%29%2C%5Cn%5Ct%5Ct%29%5Cn%5Ct%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%20doc%20%3D%3E%20%7B%5Cn%5Ct%5Ctconst%20len%20%3D%20String%28i%29.length%20%2B%201%5Cn%5Ct%5Ctfor%28%20let%20j%20%3D%200%3B%20j%20%3C%20len%3B%20%2B%2Bj%20%29%5Cn%5Ct%5Ct%5Ctdoc.text.deleteAt%280%29%5Cn%5Ct%7D%20%29%22%2C%22const%20doc%7B%23%7D%20%3D%20new%20Doc%5Cnconst%20text%7B%23%7D%20%3D%20doc%7B%23%7D.get%28%20'text'%2C%20Text%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Cttext%7B%23%7D.insert%28%20text%7B%23%7D.length%2C%20i%20%2B%20'%20'%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Cttext%7B%23%7D.delete%28%200%2C%20String%28i%29.length%20%2B%201%20%29%22%5D/prefix=const%20total%20%3D%20500)
 
 ### Chrome 89
 

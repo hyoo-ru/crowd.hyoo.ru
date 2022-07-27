@@ -12,7 +12,7 @@ $hyoo_crowd_app $mol_book2
 					title \Sync
 					enabled <= sync_enabled false
 					click?event <=> sync?event null
-			store <= left_store $hyoo_crowd_doc /
+			store <= left_store $hyoo_crowd_land /
 				*
 					lo 11
 					hi 1
@@ -27,7 +27,7 @@ $hyoo_crowd_app $mol_book2
 				<= Lights $mol_lights_toggle
 				<= Source $mol_link_source
 					uri \https://github.com/hyoo-ru/crowd.hyoo.ru/
-			store <= right_store $hyoo_crowd_doc /
+			store <= right_store $hyoo_crowd_land /
 				*
 					lo 11
 					hi 1
@@ -36,7 +36,7 @@ $hyoo_crowd_app $mol_book2
 					hi 3
 
 $hyoo_crowd_app_peer $mol_page
-	store $hyoo_crowd_doc /
+	store $hyoo_crowd_land /
 		*
 			lo 0
 			hi 0

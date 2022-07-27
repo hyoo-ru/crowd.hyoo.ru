@@ -10,7 +10,7 @@ namespace $ {
 		
 		_lands = new $mol_dict<
 			$mol_int62_pair,
-			$hyoo_crowd_doc
+			$hyoo_crowd_land
 		>()
 		
 		land(
@@ -20,7 +20,7 @@ namespace $ {
 			const exists = this._lands.get( id )
 			if( exists ) return exists
 			
-			const land = new $hyoo_crowd_doc( id, this.peer )
+			const land = new $hyoo_crowd_land( id, this.peer )
 			this._lands.set( id, land )
 			
 			return land
@@ -42,7 +42,7 @@ namespace $ {
 			const knight = await $hyoo_crowd_peer.generate()
 			this._knights.set( knight.id, knight )
 			
-			const land_outer = new $hyoo_crowd_doc( knight.id, knight )
+			const land_outer = new $hyoo_crowd_land( knight.id, knight )
 			land_outer.level( this.peer.id, $hyoo_crowd_peer_level.law )
 			
 			const land_inner = this.land( land_outer.id )
@@ -53,9 +53,9 @@ namespace $ {
 		
 		async *delta( clock = new $hyoo_crowd_clock ) {
 			
-			for( const doc of this._lands.values() ) {
+			for( const land of this._lands.values() ) {
 				
-				const units = doc.delta( clock )
+				const units = land.delta( clock )
 				if( !units.length ) continue
 				
 				let size = 0
@@ -129,7 +129,7 @@ namespace $ {
 		}
 		
 		async audit(
-			land: $hyoo_crowd_doc,
+			land: $hyoo_crowd_land,
 			unit: $hyoo_crowd_unit,
 			bin: $hyoo_crowd_unit_bin,
 		) {

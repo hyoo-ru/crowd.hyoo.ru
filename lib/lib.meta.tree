@@ -1,4 +1,5 @@
-include \/hyoo/crowd/doc
+include \/hyoo/crowd/dir
+include \/hyoo/crowd/land
 include \/hyoo/crowd/reg
 include \/hyoo/crowd/dict
 include \/hyoo/crowd/list

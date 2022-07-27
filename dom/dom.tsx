@@ -57,19 +57,19 @@ namespace $ {
 					equal: ( next, prev )=> typeof next === 'string'
 						? prev.data === next
 						: String( prev.self ) === next['id'],
-					drop: ( prev, lead )=> this.doc.wipe( prev ),
+					drop: ( prev, lead )=> this.land.wipe( prev ),
 					insert: ( next, lead )=> {
-						return this.doc.put(
+						return this.land.put(
 							this.head,
 							typeof next === 'string'
-								? this.doc.id_new()
+								? this.land.id_new()
 								: $mol_int62_from_string( ( next as Element ).id )
-									|| this.doc.id_new(),
+									|| this.land.id_new(),
 							lead?.self() ?? { lo: 0, hi: 0 },
 							val( next ),
 						)
 					},
-					update: ( next, prev, lead )=> this.doc.put(
+					update: ( next, prev, lead )=> this.land.put(
 						prev.head(),
 						prev.self(),
 						lead?.self() ?? { lo: 0, hi: 0 },
@@ -81,7 +81,7 @@ namespace $ {
 				for( let i = 0; i < units.length; ++i ) {
 					const sam = sample[i]
 					if( typeof sam !== 'string' ) {
-						$hyoo_crowd_dom.for( this.doc, units[i].self() ).dom( sam )
+						$hyoo_crowd_dom.for( this.land, units[i].self() ).dom( sam )
 					}
 				}
 				
@@ -102,7 +102,7 @@ namespace $ {
 							
 						const content = typeof unit.data === 'string'
 							? unit.data
-							: $hyoo_crowd_dom.for( this.doc, unit.self() ).dom()
+							: $hyoo_crowd_dom.for( this.land, unit.self() ).dom()
 							
 						return <Tag { ... attr } id={ $mol_int62_to_string( unit.self() ) } >{ content }</Tag>
 						

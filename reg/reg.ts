@@ -21,12 +21,12 @@ namespace $ {
 				
 				for( const unit of units ) {
 					if( unit === last ) continue
-					this.doc.wipe( unit )
+					this.land.wipe( unit )
 				}
 				
-				const self = last?.self() ?? this.doc.id_new()
+				const self = last?.self() ?? this.land.id_new()
 				
-				this.doc.put(
+				this.land.put(
 					this.head,
 					self,
 					{ lo: 0, hi: 0 },

@@ -1,7 +1,7 @@
 namespace $ {
 	
 	/** Conflict-free Reinterpretable Ordered Washed Data Tree */
-	export class $hyoo_crowd_doc extends Object {
+	export class $hyoo_crowd_land extends Object {
 		
 		constructor(
 			readonly id: $mol_int62_pair,
@@ -105,7 +105,7 @@ namespace $ {
 		
 		/** Makes independent clone with defined peer. */
 		fork( auth: $hyoo_crowd_peer ) {
-			const fork = new $hyoo_crowd_doc( this.id, auth )
+			const fork = new $hyoo_crowd_land( this.id, auth )
 			return fork.apply( this.delta() )
 		}
 		
