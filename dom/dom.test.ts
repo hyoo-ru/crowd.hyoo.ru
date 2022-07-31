@@ -27,9 +27,9 @@ namespace $ {
 			
 			const dom = $hyoo_crowd_dom.for( doc ).dom()
 			$mol_assert_equal( dom.children[0].nodeName, 'SPAN' )
-			$mol_assert_equal( dom.children[0].textContent, 'foo ' )
+			$mol_assert_equal( dom.children[0].textContent, 'foo' )
 			$mol_assert_equal( dom.children[1].nodeName, 'SPAN' )
-			$mol_assert_equal( dom.children[1].textContent, 'bar' )
+			$mol_assert_equal( dom.children[1].textContent, ' bar' )
 			$mol_assert_equal( dom.children[2].nodeName, 'A' )
 			$mol_assert_equal( dom.children[2].getAttribute( 'href' ), 'ton' )
 			
