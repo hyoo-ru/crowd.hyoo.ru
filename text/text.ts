@@ -103,5 +103,20 @@ namespace $ {
 			return offset
 		}
 		
+		selection( peer: $mol_int62_pair, next?: number[] ) {
+			
+			const node = this.as( $hyoo_crowd_struct )
+				.sub( 'selection:' + $mol_int62_to_string( peer ), $hyoo_crowd_reg )
+			
+			if( next ) {
+				node.value( next.map( offset => this.point_by_offset( offset ) ) )
+				return next
+			} else {
+				return ( node.value() as { self: $mol_int62_pair, offset: number }[] )
+					?.map( point => this.offset_by_point( point ) ) ?? [ 0, 0 ]
+			}
+			
+		}
+		
 	}
 }
