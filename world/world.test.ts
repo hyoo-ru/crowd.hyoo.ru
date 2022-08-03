@@ -265,5 +265,96 @@ namespace $ {
 			
 		},
 		
+		async 'default level'() {
+			
+			const world1 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			
+			const peer = await $hyoo_crowd_peer.generate()
+			
+			const land1 = await world1.grab()
+			const land2 = world2.land( land1.id )
+			
+			// do changes
+			land1.root.sub( 'foo', $hyoo_crowd_reg ).numb( 123 )
+			
+			for await( const delta of world1.delta() ) {
+				await world2.apply( delta )
+			}
+			land2.root.sub( 'foo', $hyoo_crowd_reg ).numb( 234 )
+			land2.root.sub( 'bar', $hyoo_crowd_reg ).numb( 234 )
+			land2.level( peer.id, $hyoo_crowd_peer_level.law ) 
+			
+			$mol_assert_like( land1.delta().length, 4 )
+			
+			level_add: {
+				
+				land1.level( { lo: 0, hi: 0 }, $hyoo_crowd_peer_level.add )
+				
+				const broken = [] as [ $hyoo_crowd_unit, string ][]
+				
+				for await( const delta of world2.delta() ) {
+					broken.push( ... await world1.apply( delta ) )
+				}
+				
+				$mol_assert_like(
+					broken.map( ([_, error ])=> error ),
+					[ 'Already join', 'Already join', 'No rights', 'Need law level' ],
+				)
+				
+				$mol_assert_like( land1.delta().length, 7 )
+				$mol_assert_like( land1.root.sub( 'foo', $hyoo_crowd_reg ).numb(), 123 )
+				$mol_assert_like( land1.root.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
+				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.get )
+				
+			}
+			
+			level_mod: {
+				
+				land1.level( { lo: 0, hi: 0 }, $hyoo_crowd_peer_level.mod )
+				
+				const broken = [] as [ $hyoo_crowd_unit, string ][]
+				
+				for await( const delta of world2.delta() ) {
+					broken.push( ... await world1.apply( delta ) )
+				}
+				
+				$mol_assert_like(
+					broken.map( ([_, error ])=> error ),
+					[ 'Already join', 'Already join', 'Already join', 'Need law level' ],
+				)
+				
+				$mol_assert_like( land1.delta().length, 7 )
+				$mol_assert_like( land1.root.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
+				$mol_assert_like( land1.root.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
+				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.get )
+				
+			}
+			
+			// forbidden now
+			level_law: {
+				
+				land1.level( { lo: 0, hi: 0 }, $hyoo_crowd_peer_level.law )
+				
+				const broken = [] as [ $hyoo_crowd_unit, string ][]
+				
+				for await( const delta of world2.delta() ) {
+					broken.push( ... await world1.apply( delta ) )
+				}
+				
+				$mol_assert_like(
+					broken.map( ([_, error ])=> error ),
+					[ 'Already join', 'Already join', 'Already join', 'Need law level' ],
+				)
+				
+				$mol_assert_like( land1.delta().length, 7 )
+				$mol_assert_like( land1.root.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
+				$mol_assert_like( land1.root.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
+				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.get )
+				
+			}
+			
+		},
+		
 	})
 }

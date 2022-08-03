@@ -8,7 +8,7 @@ namespace $ {
 			this._knights.set( peer.id , peer )
 		}
 		
-		_lands = new $mol_dict<
+		lands = new $mol_dict<
 			$mol_int62_pair,
 			$hyoo_crowd_land
 		>()
@@ -17,11 +17,11 @@ namespace $ {
 			id: $mol_int62_pair,
 		) {
 			
-			const exists = this._lands.get( id )
+			const exists = this.lands.get( id )
 			if( exists ) return exists
 			
 			const land = new $hyoo_crowd_land( id, this.peer )
-			this._lands.set( id, land )
+			this.lands.set( id, land )
 			
 			return land
 		}
@@ -49,7 +49,7 @@ namespace $ {
 		
 		async *delta( clock = new $hyoo_crowd_clock ) {
 			
-			for( const land of this._lands.values() ) {
+			for( const land of this.lands.values() ) {
 				
 				const units = land.delta( clock )
 				if( !units.length ) continue
@@ -207,17 +207,39 @@ namespace $ {
 					
 					if( unit.auth_lo === king_unit.auth_lo && unit.auth_hi === king_unit.auth_hi ) break
 					
-					const give_unit = land.unit( land.id, unit.auth() )
-					const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
-					
-					if( level >= $hyoo_crowd_peer_level.mod ) break
-					
-					if( level === $hyoo_crowd_peer_level.add ) {
+					direct: {
 						
-						const exists = land.unit( unit.head(), unit.self() )
-						if( !exists ) break
+						const give_unit = land.unit( land.id, unit.auth() )
+						const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
 						
-						if( exists.auth_lo === unit.auth_lo && exists.auth_hi === unit.auth_hi ) break
+						if( level >= $hyoo_crowd_peer_level.mod ) break
+						
+						if( level === $hyoo_crowd_peer_level.add ) {
+							
+							const exists = land.unit( unit.head(), unit.self() )
+							if( !exists ) break
+							
+							if( exists.auth_lo === unit.auth_lo && exists.auth_hi === unit.auth_hi ) break
+							
+						}
+						
+					}
+					
+					fallback: {
+						
+						const give_unit = land.unit( land.id, { lo: 0, hi: 0 } )
+						const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
+						
+						if( level >= $hyoo_crowd_peer_level.mod ) break
+						
+						if( level === $hyoo_crowd_peer_level.add ) {
+							
+							const exists = land.unit( unit.head(), unit.self() )
+							if( !exists ) break
+							
+							if( exists.auth_lo === unit.auth_lo && exists.auth_hi === unit.auth_hi ) break
+							
+						}
 						
 					}
 					
