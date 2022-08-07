@@ -2,8 +2,8 @@ namespace $ {
 	
 	const common = [
 		
-		2  << 0 |  1 << 8, // spin
 		1  << 0 |  2 << 8 |  3 << 16 |  4 << 24, // time
+		2  << 0 |  1 << 8, // spin
 		12 << 0 | 13 << 8 | 14 << 16 | 15 << 24, // land_lo
 		13 << 0 | 14 << 8 | 15 << 16 | 16 << 24, // land_hi
 		
@@ -29,11 +29,13 @@ namespace $ {
 			const source = new $hyoo_crowd_unit(
 				... common,
 				null,
+				null,
 			)
 			
 			const packed = $hyoo_crowd_unit_bin.from( source )
 			const unpacked = packed.unit()
 			
+			source.bin = packed
 			$mol_assert_like( source, unpacked )
 			
 		},
@@ -43,11 +45,13 @@ namespace $ {
 			const source = new $hyoo_crowd_unit(
 				... common,
 				{ a: [ 1 ] },
+				null,
 			)
 			
 			const packed = $hyoo_crowd_unit_bin.from( source )
 			const unpacked = packed.unit()
 			
+			source.bin = packed
 			$mol_assert_like( source, unpacked )
 			
 		},
@@ -57,11 +61,13 @@ namespace $ {
 			const source = new $hyoo_crowd_unit(
 				... common,
 				new Uint8Array([ 1, 2, 3, 4, 5, 6, 7, 8 ]),
+				null,
 			)
 			
 			const packed = $hyoo_crowd_unit_bin.from( source )
 			const unpacked = packed.unit()
 			
+			source.bin = packed
 			$mol_assert_like( source, unpacked )
 			
 		},
@@ -71,6 +77,7 @@ namespace $ {
 			const source = new $hyoo_crowd_unit(
 				... common,
 				{ a: [ 1 ] },
+				null,
 			)
 			
 			const packed = $hyoo_crowd_unit_bin.from( source )

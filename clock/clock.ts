@@ -8,7 +8,7 @@ namespace $ {
 		
 		/** Maximum time for all peers. */
 		last_spin = 0
-		last_time = 0
+		last_time = -1 * 2**30
 		
 		constructor(
 			entries?: Iterable<
@@ -89,11 +89,15 @@ namespace $ {
 		}
 		
 		time( peer: $mol_int62_pair ) {
-			return this.get( peer ) ?? [ 0, 0 ]
+			return this.get( peer ) ?? [ 0, -1 * 2**31 ]
 		}
 		
 		now() {
-			return Math.floor( ( Date.now() - 1.657e12 ) / 1000 )
+			return Math.floor( Date.now() / 1000 ) - 2**31
+		}
+		
+		last_stamp() {
+			return ( this.last_time + 2**31 ) * 1000
 		}
 		
 		/** Gererates new time for peer that greater then other seen. */

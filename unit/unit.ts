@@ -12,11 +12,11 @@ namespace $ {
 		
 		constructor(
 	
-			/** Cyclic counter. mem = 4B / bin = 2B / info = 16b */
-			readonly spin: number,
-			
 			/** Monotonic real clock. 4B / info = 31b */
 			readonly time: number,
+			
+			/** Cyclic counter. mem = 4B / bin = 2B / info = 16b */
+			readonly spin: number,
 			
 			/** Identifier of land. 8B / info = 62b */
 			readonly land_lo: number,
@@ -48,6 +48,8 @@ namespace $ {
 			/** type-size = bin<0 | null=0 | json>0 */
 			/** Associated atomic data. mem = 4B+ / bin = (0|8B)+ / type-size-info = 16b */
 			readonly data: unknown,
+			
+			public bin: $hyoo_crowd_unit_bin | null
 			
 		) {
 			super()
@@ -87,40 +89,60 @@ namespace $ {
 			return JSON.stringify( this )
 		}
 		
+		[ $mol_dev_format_head ]() {
+			
+			const kind = this.kind()
+			
+			return $mol_dev_format_div( {},
+				$mol_dev_format_native( this ),
+				{
+					'join': '🔑',
+					'give': '🏅',
+					'data': '📦',
+				}[ kind ],
+				kind === 'give'
+					? $hyoo_crowd_peer_level[ this.data as number ] ?? this.data
+					: $mol_dev_format_native( this.data ),
+			)
+			
+		}
+		
 	}
 	
 	const offset = {
 		
 		sign: 0,
-		sens: 32,
+		sens: 64,
 		
-		meta: 32,
-		size: 32,
-		spin: 34,
-		time: 36,
-		land_lo: 40,
-		land_hi: 44,
+		meta: 64,
+		size: 64,
+		spin: 66,
+		time: 68,
+		land_lo: 72,
+		land_hi: 76,
 		
-		auth_lo: 48,
-		auth_hi: 52,
-		head_lo: 56,
-		head_hi: 60,
+		auth_lo: 80,
+		auth_hi: 84,
+		head_lo: 88,
+		head_hi: 92,
 		
-		next_lo: 64,
-		next_hi: 68,
-		prev_lo: 72,
-		prev_hi: 76,
+		next_lo: 96,
+		next_hi: 100,
+		prev_lo: 104,
+		prev_hi: 108,
 		
-		self_lo: 80,
-		self_hi: 84,
+		self_lo: 112,
+		self_hi: 116,
 		
-		data: 88,
+		data: 120,
 		
 	} as const
 	
 	export class $hyoo_crowd_unit_bin extends DataView {
 		
 		static from( unit: $hyoo_crowd_unit ) {
+			
+			if( unit.bin ) return unit.bin
 			
 			const type = unit.data === null
 				? 0
@@ -143,7 +165,7 @@ namespace $ {
 			
 			bin.setInt16( offset.size, type * size, true )
 			bin.setUint16( offset.spin, unit.spin, true )
-			bin.setUint32( offset.time, unit.time, true )
+			bin.setInt32( offset.time, unit.time, true )
 			bin.setInt32( offset.land_lo, unit.land_lo, true )
 			bin.setInt32( offset.land_hi, unit.land_hi, true )
 			
@@ -215,11 +237,22 @@ namespace $ {
 			)
 		}
 		
+		ids() {
+			return [
+				this.getInt32( this.byteOffset + offset.land_lo, true ),
+				this.getInt32( this.byteOffset + offset.land_hi, true ),
+				this.getInt32( this.byteOffset + offset.head_lo, true ),
+				this.getInt32( this.byteOffset + offset.head_hi, true ),
+				this.getInt32( this.byteOffset + offset.self_lo, true ),
+				this.getInt32( this.byteOffset + offset.self_hi, true ),
+			] as const
+		}
+		
 		unit(): $hyoo_crowd_unit {
 			
 			const type_size = this.getInt16( this.byteOffset + offset.size, true )
 			const spin = this.getUint16( this.byteOffset + offset.spin, true )
-			const time = this.getUint32( this.byteOffset + offset.time, true )
+			const time = this.getInt32( this.byteOffset + offset.time, true )
 			const land_lo = this.getInt32( this.byteOffset + offset.land_lo, true )
 			const land_hi = this.getInt32( this.byteOffset + offset.land_hi, true )
 			
@@ -249,8 +282,8 @@ namespace $ {
 			
 			return new $hyoo_crowd_unit(
 				
-				spin,
 				time,
+				spin,
 				land_lo,
 				land_hi,
 				
@@ -268,6 +301,7 @@ namespace $ {
 				self_hi,
 				
 				data,
+				this,
 				
 			)
 			

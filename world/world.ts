@@ -8,20 +8,28 @@ namespace $ {
 			this._knights.set( peer.id , peer )
 		}
 		
-		lands = new $mol_dict<
+		readonly lands_pub = new $mol_wire_pub
+		
+		_lands = new $mol_dict<
 			$mol_int62_pair,
 			$hyoo_crowd_land
 		>()
+		
+		get lands() {
+			this.lands_pub.promote()
+			return this._lands
+		}
 		
 		land(
 			id: $mol_int62_pair,
 		) {
 			
-			const exists = this.lands.get( id )
+			const exists = this._lands.get( id )
 			if( exists ) return exists
 			
 			const land = new $hyoo_crowd_land( id, this.peer )
-			this.lands.set( id, land )
+			this._lands.set( id, land )
+			this.lands_pub.emit()
 			
 			return land
 		}
@@ -47,18 +55,18 @@ namespace $ {
 			return land_inner
 		}
 		
-		async *delta( clock = new $hyoo_crowd_clock ) {
+		async delta_land( land: $hyoo_crowd_land, clock = new $hyoo_crowd_clock ) {
 			
-			for( const land of this.lands.values() ) {
+			const units = land.delta( clock )
+			if( !units.length ) return []
+			
+			// let size = 0
+			// const bins = [] as $hyoo_crowd_unit_bin[]
+			
+			for( const unit of units ) {
 				
-				const units = land.delta( clock )
-				if( !units.length ) continue
+				if( !unit.bin ) {
 				
-				let size = 0
-				// const bins = [] as $hyoo_crowd_unit_bin[]
-				
-				for( const unit of units ) {
-					
 					const bin = $hyoo_crowd_unit_bin.from( unit )
 					
 					let sign = this._signs.get( unit )
@@ -68,26 +76,39 @@ namespace $ {
 					}
 					
 					bin.sign( sign )
+					unit.bin = bin
 					this._signs.set( unit, sign )
-					
-					// bins.push( bin )
-					yield new Uint8Array( bin.buffer )
-					size += bin.byteLength
-					if( size > 2 ** 15 ) break
-					
+				
 				}
 				
-				// const delta = new Uint8Array( size )
-				
-				// let offset = 0
-				// for( const bin of bins ) {
-				// 	delta.set( new Uint8Array( bin.buffer ), offset )
-				// 	offset += bin.byteLength
-				// }
-				
-				// yield delta				
+				// bins.push( bin )
+				// yield unit
+				// size += unit.bin.byteLength
+				// if( size > 2 ** 15 ) break
 			}
 			
+			// const delta = new Uint8Array( size )
+			
+			// let offset = 0
+			// for( const bin of bins ) {
+			// 	delta.set( new Uint8Array( bin.buffer ), offset )
+			// 	offset += bin.byteLength
+			// }
+			
+			// yield delta
+			return units
+		}
+		
+		async delta( clocks = new $mol_dict< $mol_int62_pair, $hyoo_crowd_clock >() ) {
+			
+			const delta = [] as $hyoo_crowd_unit[]
+			
+			for( const land of this.lands.values() ) {
+				const units = await this.delta_land( land, clocks.get( land.id ) )
+				delta.push( ... units )
+			}
+			
+			return delta
 		}
 		
 		async apply(
@@ -99,36 +120,42 @@ namespace $ {
 			let bin_offset = 0
 			while( bin_offset < delta.byteLength ) {
 				
-				const bin = new $hyoo_crowd_unit_bin( delta.buffer, bin_offset )
+				const bin = new $hyoo_crowd_unit_bin( delta.buffer, delta.byteOffset + bin_offset )
 				const unit = bin.unit()
-				const land = this.land( unit.land() )
 				
-				apply: {
-					
-					try {
-						await this.audit( land, unit, bin )
-					} catch( error: any ) {
-						broken.push([ unit, error.message ])
-						break apply
-					}
-				
-					land.apply([ unit ])
-					
-				}
+				const error = await this.apply_unit( unit )
+				if( error ) broken.push([ unit, error ])
 				
 				bin_offset += bin.size()
 				
 			}
 			
-			
 			return broken
+		}
+		
+		async apply_unit(
+			unit: $hyoo_crowd_unit,
+		) {
+			
+			const land = this.land( unit.land() )
+			
+			try {
+				await this.audit( land, unit )
+			} catch( error: any ) {
+				return error.message as string
+			}
+		
+			land.apply([ unit ])
+			
+			return ''
 		}
 		
 		async audit(
 			land: $hyoo_crowd_land,
 			unit: $hyoo_crowd_unit,
-			bin: $hyoo_crowd_unit_bin,
 		) {
+			
+			const bin = unit.bin!
 				
 			const desync = 60 * 60 // 1 hour
 			const deadline = land.clock.now() + desync
