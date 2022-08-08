@@ -711,14 +711,13 @@ var $;
         static blue = this.ansi(94, 39);
         static magenta = this.ansi(95, 39);
         static cyan = this.ansi(96, 39);
-        static white = this.ansi(97, 39);
+        static Gray = (str) => this.inverse(this.gray(str));
         static Red = (str) => this.inverse(this.red(str));
         static Green = (str) => this.inverse(this.green(str));
         static Yellow = (str) => this.inverse(this.yellow(str));
         static Blue = (str) => this.inverse(this.blue(str));
         static Magenta = (str) => this.inverse(this.magenta(str));
         static Cyan = (str) => this.inverse(this.cyan(str));
-        static White = (str) => this.inverse(this.white(str));
         static ansi(open, close) {
             if (typeof process === 'undefined')
                 return String;
@@ -6978,7 +6977,7 @@ var $;
                 return this.autocomplete() ? 'on' : 'off';
             }
             selection_watcher() {
-                return new $mol_dom_listener(this.$.$mol_dom_context.document, 'selectionchange', event => this.selection_change(event));
+                return new $mol_dom_listener(this.$.$mol_dom_context.document, 'selectionchange', $mol_wire_async(event => this.selection_change(event)));
             }
             selection_change(event) {
                 const el = this.dom_node();
