@@ -7,6 +7,29 @@ namespace $ {
 	
 	const level = $mol_data_enum( 'level', $hyoo_crowd_peer_level )
 	
+	export enum $hyoo_crowd_unit_kind {
+		
+		/** Join peer to land */
+		join = 0,
+		
+		/* Give rights for land to another peer */
+		give = 1,
+		
+		/** Add data to land by joined peer with given rights */
+		data = 2,
+		
+	}
+	
+	export enum $hyoo_crowd_unit_group {
+		
+		/** Join and Give units */
+		auth = 0,
+		
+		/** Data units */
+		data = 1,
+		
+	}
+	
 	/** Independent part of data. mem >= 80B / bin >= 32B + 48B */
 	export class $hyoo_crowd_unit extends Object {
 		
@@ -69,16 +92,22 @@ namespace $ {
 			// head === self === auth
 			if( this.head_lo === this.self_lo && this.head_hi === this.self_hi ) {
 				if( this.auth_lo === this.self_lo && this.auth_hi === this.self_hi ) {
-					return 'join' // join peer to land for data auth
+					return $hyoo_crowd_unit_kind.join
 				}
 			}
 			
 			// head === land
 			if( this.head_lo === this.land_lo && this.head_hi === this.land_hi ) {
-				return 'give' // give rights for land to another peer
+				return  $hyoo_crowd_unit_kind.give
 			}
 			
-			return 'data' // add data to land by auth peer
+			return  $hyoo_crowd_unit_kind.data
+		}
+		
+		group() {
+			return this.kind() === $hyoo_crowd_unit_kind.data
+				? $hyoo_crowd_unit_group.data
+				: $hyoo_crowd_unit_group.auth
 		}
 		
 		level() {
@@ -91,19 +120,36 @@ namespace $ {
 		
 		[ $mol_dev_format_head ]() {
 			
-			const kind = this.kind()
-			
-			return $mol_dev_format_div( {},
-				$mol_dev_format_native( this ),
-				{
-					'join': '🔑',
-					'give': '🏅',
-					'data': '📦',
-				}[ kind ],
-				kind === 'give'
-					? $hyoo_crowd_peer_level[ this.data as number ] ?? this.data
-					: $mol_dev_format_native( this.data ),
-			)
+			switch( this.kind() ) {
+				
+				case $hyoo_crowd_unit_kind.join:
+					return $mol_dev_format_div( {},
+						$mol_dev_format_native( this ),
+						' ',
+						JSON.stringify( this.self() ),
+						'🔑',
+						$mol_dev_format_native( this.data ),
+					)
+				
+				case $hyoo_crowd_unit_kind.give:
+					return $mol_dev_format_div( {},
+						$mol_dev_format_native( this ),
+						' ',
+						JSON.stringify( this.self() ),
+						'🏅',
+						$mol_dev_format_native( $hyoo_crowd_peer_level[ this.data as number ] ?? this.data ),
+					)
+				
+				case $hyoo_crowd_unit_kind.data:
+					return $mol_dev_format_div( {},
+						$mol_dev_format_native( this ),
+						' ',
+						JSON.stringify( this.head() ),
+						'📦',
+						$mol_dev_format_native( this.data ),
+					)
+				
+			}
 			
 		}
 		
@@ -313,7 +359,8 @@ namespace $ {
 		left: $hyoo_crowd_unit,
 		right: $hyoo_crowd_unit,
 	) {
-		return ( left.time - right.time )
+		return ( left.group() - right.group() )
+			|| ( left.time - right.time )
 			|| ( left.spin - right.spin )
 			
 			|| ( left.auth_hi - right.auth_hi )

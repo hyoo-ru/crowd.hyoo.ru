@@ -12,14 +12,23 @@ namespace $ {
 		
 		destructor() {}
 		
-		readonly _clock = new $hyoo_crowd_clock
-		
-		get clock() {
+		get clock_auth() {
 			this.pub.promote()
-			return this._clock
+			return this._clocks[ $hyoo_crowd_unit_group.auth ]
+		}
+		
+		get clock_data() {
+			this.pub.promote()
+			return this._clocks[ $hyoo_crowd_unit_group.data ]
+		}
+		
+		get clocks() {
+			this.pub.promote()
+			return this._clocks
 		}
 		
 		readonly pub = new $mol_wire_pub
+		readonly _clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
 		
 		/** unit by head + self */
 		protected _unit_all = new $mol_dict<
@@ -111,7 +120,7 @@ namespace $ {
 		
 		/** Makes Delta bettween Clock and now. */
 		delta(
-			clock = new $hyoo_crowd_clock,
+			clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
 		) {
 			
 			this.pub.promote()
@@ -120,7 +129,7 @@ namespace $ {
 			
 			for( const unit of this._unit_all.values() ) {
 				
-				const [ spin, time ] = clock.time( unit.auth() )
+				const [ spin, time ] = clocks[ unit.group() ].time( unit.auth() )
 				
 				if( unit.time < time ) continue
 				if( unit.time === time && unit.spin <= spin ) continue
@@ -191,7 +200,7 @@ namespace $ {
 			
 			for( const next of delta ) {
 				
-				this._clock.see_peer( next.auth(), next.spin, next.time )
+				this._clocks[ next.group() ].see_peer( next.auth(), next.spin, next.time )
 				const kids = this.unit_list( next.head() )
 				
 				let prev = this._unit_all.get( next.id() )
@@ -226,7 +235,7 @@ namespace $ {
 			const auth = this._unit_all.get({ head: peer, self: peer })
 			if( auth ) return
 			
-			const [ spin, time ] = this._clock.tick( peer )
+			const [ spin, time ] = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
 			
 			const join_unit = new $hyoo_crowd_unit(
 				
@@ -259,24 +268,49 @@ namespace $ {
 			
 		}
 		
+		level_base( next?: $hyoo_crowd_peer_level ) {
+			this.level( { lo: 0, hi: 0 }, next )
+		}
+		
 		level( peer: $mol_int62_pair, next?: $hyoo_crowd_peer_level ) {
+			
+			this.join()
 			
 			const exists = this._unit_all.get({ head: this.id, self: peer })
 			const prev = exists?.level() ?? $hyoo_crowd_peer_level.get
 			
 			if( next === undefined ) return prev
-			if( next === prev ) return prev
+			if( next <= prev ) return prev
 			
-			if( prev > next ) {
-				$mol_fail( new Error( 'Revoke unsupported' ) )
-			}
+			const [ spin, time ] = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
 			
-			this.put(
-				this.id,
-				peer,
-				{ lo: 0, hi: 0 },
+			const join_unit = new $hyoo_crowd_unit(
+				
+				time,
+				spin,
+				this.id.lo,
+				this.id.hi,
+				
+				this.auth.id.lo,
+				this.auth.id.hi,
+				this.id.lo,
+				this.id.hi,
+				
+				0,
+				0,
+				0,
+				0,
+				
+				peer.lo,
+				peer.hi,
+				
 				next,
+				null,
+				
 			)
+			
+			this._unit_all.set( { head: this.id, self: peer }, join_unit )
+			this.pub.emit()
 			
 			return next
 		}
@@ -302,7 +336,7 @@ namespace $ {
 			
 			const next = lead?.self() ?? { lo: 0, hi: 0 }
 			
-			const [ spin, time ] = this._clock.tick( this.auth.id )
+			const [ spin, time ] = this._clocks[ $hyoo_crowd_unit_group.data ].tick( this.auth.id )
 			
 			const unit_new = new $hyoo_crowd_unit(
 				

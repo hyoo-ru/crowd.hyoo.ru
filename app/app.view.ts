@@ -17,8 +17,8 @@ namespace $.$$ {
 			this.Left().store().apply( right_delta )
 			this.Right().store().apply( left_delta )
 			
-			this.Left().sync_clock( new $hyoo_crowd_clock( this.Left().store().clock ) )
-			this.Right().sync_clock( new $hyoo_crowd_clock( this.Right().store().clock ) )
+			this.Left().sync_clocks( this.Left().store().clocks.map( clock => new $hyoo_crowd_clock( clock ) ) as any )
+			this.Right().sync_clocks( this.Right().store().clocks.map( clock => new $hyoo_crowd_clock( clock ) ) as any )
 			
 			return Math.random()
 		}
@@ -28,7 +28,7 @@ namespace $.$$ {
 	export class $hyoo_crowd_app_peer extends $.$hyoo_crowd_app_peer {
 
 		@ $mol_mem
-		sync_clock( next = new $hyoo_crowd_clock ) {
+		sync_clocks( next = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const ) {
 			return next
 		}
 		
@@ -41,7 +41,7 @@ namespace $.$$ {
 		@ $mol_mem
 		delta() {
 			this.text()
-			return this.store().delta( this.sync_clock() )
+			return this.store().delta( this.sync_clocks() )
 		}
 		
 		@ $mol_mem
@@ -103,8 +103,8 @@ namespace $.$$ {
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
 			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
-			.replace( '{stamp:now}', this.store().clock.last_time + '_' + this.store().clock.last_spin )
-			.replace( '{stamp:sync}', this.sync_clock().last_time + '_' + this.sync_clock().last_spin )
+			.replace( '{stamp:now}', this.store().clock_data.last_time + '_' + this.store().clock_data.last_spin )
+			.replace( '{stamp:sync}', this.sync_clocks()[1].last_time + '_' + this.sync_clocks()[1].last_spin )
 			.replace( '{size:text}', this.size_text().toLocaleString() )
 			.replace( '{size:state}', this.size_state_bin().toLocaleString() )
 			.replace( '{size:delta}', this.size_delta_bin().toLocaleString() )

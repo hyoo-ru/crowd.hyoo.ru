@@ -67,7 +67,7 @@ namespace $ {
 			left.root.sub( 'foo', $hyoo_crowd_list ).list([ 111 ])
 			
 			const right = new $hyoo_crowd_land( { lo: 2, hi: 22 }, await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.root.sub( 'foo', $hyoo_crowd_list ).list([ 222 ])
 			
 			const left_delta = left.delta()
@@ -88,14 +88,14 @@ namespace $ {
 			
 			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
 			store.root.as( $hyoo_crowd_reg ).str( 'foo' )
-			const [ spin, time ] = [ store.clock.last_spin, store.clock.last_time ]
+			const [ spin, time ] = [ store.clock_data.last_spin, store.clock_data.last_time ]
 			
 			store.root.as( $hyoo_crowd_reg ).str( 'foo' )
 			store.root.as( $hyoo_crowd_list ).list( [ 'foo' ] )
 			
 			$mol_assert_like(
 				store.delta().map( unit => [ unit.spin, unit.time ] ),
-				[ [ spin - 1, time ], [ spin, time ] ],
+				[ [ spin, time ], [ spin, time ] ],
 			)
 			
 		},
@@ -173,42 +173,57 @@ namespace $ {
 		async 'Deltas for different versions'() {
 			
 			const store = new $hyoo_crowd_land( { lo: -1, hi: -11 }, { ... await $hyoo_crowd_peer.generate(), key_public_serial: null as any } )
-			store.clock.see_time( 0, store.clock.now()[0] + 60 )
+			store.clock_data.see_time( 0, store.clock_data.now()[0] + 60 )
 			
 			store.root.as( $hyoo_crowd_list ).list( [ 'foo', 'bar', 'lol' ] )
 			
 			$mol_assert_like(
-				store.delta( new $hyoo_crowd_clock([
-					[ { lo: 2, hi: 22 }, [2, 22] ],
-				]) ).map( unit => unit.data ),
+				store.delta([
+					new $hyoo_crowd_clock,
+					new $hyoo_crowd_clock([
+						[ { lo: 2, hi: 22 }, [2, 22] ],
+					])
+				]).map( unit => unit.data ),
 				[ 'foo', 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
-				store.delta( new $hyoo_crowd_clock([
-					[ store.auth.id, [ store.clock.last_spin - 3, store.clock.last_time ] ],
-				]) ).map( unit => unit.data ),
+				store.delta([
+					new $hyoo_crowd_clock,
+					new $hyoo_crowd_clock([
+						[ store.auth.id, [ store.clock_data.last_spin - 3, store.clock_data.last_time ] ],
+					])
+				]).map( unit => unit.data ),
 				[ 'foo', 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
-				store.delta( new $hyoo_crowd_clock([
-					[ store.auth.id, [ store.clock.last_spin - 2, store.clock.last_time ] ],
-				]) ).map( unit => unit.data ),
+				store.delta([
+					new $hyoo_crowd_clock,
+					new $hyoo_crowd_clock([
+						[ store.auth.id, [ store.clock_data.last_spin - 2, store.clock_data.last_time ] ],
+					])
+				]).map( unit => unit.data ),
 				[ 'bar', 'lol' ],
 			)
 			
 			$mol_assert_like(
-				store.delta( new $hyoo_crowd_clock([
-					[ store.auth.id, [ store.clock.last_spin - 1, store.clock.last_time ] ],
-				]) ).map( unit => unit.data ),
+				store.delta([
+					new $hyoo_crowd_clock,
+					new $hyoo_crowd_clock([
+						[ store.auth.id, [ store.clock_data.last_spin - 1, store.clock_data.last_time ] ],
+					])
+				]).map( unit => unit.data ),
 				[ 'lol' ],
 			)
 			
 			$mol_assert_like(
-				store.delta( new $hyoo_crowd_clock([
-					[ store.auth.id, [ store.clock.last_spin - 0, store.clock.last_time ] ],
-				]) ),
+				store.delta([
+					new $hyoo_crowd_clock,
+					new $hyoo_crowd_clock([
+						[ store.auth.id, [ store.clock_data.last_spin - 0, store.clock_data.last_time ] ],
+					])
+				]),
 				[],
 			)
 			
@@ -342,7 +357,7 @@ namespace $ {
 			left.root.as( $hyoo_crowd_text ).text( 'foo bar.' )
 			
 			const right = new $hyoo_crowd_land( { lo: 2, hi: 22 }, await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.root.as( $hyoo_crowd_text ).text( 'xxx yyy.' )
 			
 			const left_delta = left.delta()
@@ -368,11 +383,11 @@ namespace $ {
 			left.root.as( $hyoo_crowd_text ).text( 'foo xxx bar' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.root.as( $hyoo_crowd_text ).text( 'foo yyy bar' )
 			
-			const left_delta = left.delta( base.clock )
-			const right_delta = right.delta( base.clock )
+			const left_delta = left.delta( base.clocks )
+			const right_delta = right.delta( base.clocks )
 			
 			left.apply( right_delta )
 			right.apply( left_delta )
@@ -394,11 +409,11 @@ namespace $ {
 			left.root.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.insert( right.root.units()[0], { lo: 0, hi: 0 }, 2 )
 			
-			const left_delta = left.delta( base.clock )
-			const right_delta = right.delta( base.clock )
+			const left_delta = left.delta( base.clocks )
+			const right_delta = right.delta( base.clocks )
 			
 			left.apply( right_delta )
 			right.apply( left_delta )
@@ -420,11 +435,11 @@ namespace $ {
 			left.root.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.insert( right.root.units()[1], { lo: 0, hi: 0 }, 0 )
 			
-			const left_delta = left.delta( base.clock )
-			const right_delta = right.delta( base.clock )
+			const left_delta = left.delta( base.clocks )
+			const right_delta = right.delta( base.clocks )
 			
 			left.apply( right_delta )
 			right.apply( left_delta )
@@ -446,11 +461,11 @@ namespace $ {
 			left.root.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.insert( right.root.units()[1], { lo: 0, hi: 0 }, 3 )
 			
-			const left_delta = left.delta( base.clock )
-			const right_delta = right.delta( base.clock )
+			const left_delta = left.delta( base.clocks )
+			const right_delta = right.delta( base.clocks )
 			
 			left.apply( right_delta )
 			right.apply( left_delta )
@@ -472,11 +487,11 @@ namespace $ {
 			left.root.as( $hyoo_crowd_text ).text( 'FooXxxBar' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.root.as( $hyoo_crowd_text ).text( 'Bar' )
 			
-			const left_delta = left.delta( base.clock )
-			const right_delta = right.delta( base.clock )
+			const left_delta = left.delta( base.clocks )
+			const right_delta = right.delta( base.clocks )
 			
 			left.apply( right_delta )
 			right.apply( left_delta )
@@ -498,11 +513,11 @@ namespace $ {
 			$hyoo_crowd_text.for( left, { lo: 1, hi: 11 } ).text( 'FooBarXxxZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.insert( $hyoo_crowd_node.for( right, { lo: 1, hi: 11 } ).units()[1], { lo: 2, hi: 22 }, 0 )
 			
-			const left_delta = left.delta( base.clock )
-			const right_delta = right.delta( base.clock )
+			const left_delta = left.delta( base.clocks )
+			const right_delta = right.delta( base.clocks )
 			
 			left.apply( right_delta )
 			right.apply( left_delta )
@@ -530,11 +545,11 @@ namespace $ {
 			left.root.as( $hyoo_crowd_text ).text( 'XxxFooYyyZzz' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.root.as( $hyoo_crowd_text ).text( 'XxxBarZzz' )
 			
-			const left_delta = left.delta( base.clock )
-			const right_delta = right.delta( base.clock )
+			const left_delta = left.delta( base.clocks )
+			const right_delta = right.delta( base.clocks )
 			
 			left.apply( right_delta )
 			right.apply( left_delta )
@@ -556,12 +571,12 @@ namespace $ {
 			left.root.as( $hyoo_crowd_list ).list([ 111, 222, 777, 333, 444, 555, 666 ])
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			right.insert( right.root.units()[1], { lo: 0, hi: 0 }, 5 )
 			right.insert( right.root.units()[1], { lo: 0, hi: 0 }, 5 )
 			
-			const left_delta = left.delta( base.clock )
-			const right_delta = right.delta( base.clock )
+			const left_delta = left.delta( base.clocks )
+			const right_delta = right.delta( base.clocks )
 			
 			left.apply( right_delta )
 			right.apply( left_delta )
@@ -581,7 +596,7 @@ namespace $ {
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock.tick( right.auth.id )
+			right.clock_data.tick( right.auth.id )
 			
 			left.root.as( $hyoo_crowd_text ).text( 'Hello Alice and fun!' )
 			right.root.as( $hyoo_crowd_text ).text( 'Bye World and fun!' )

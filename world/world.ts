@@ -41,23 +41,33 @@ namespace $ {
 		
 		_signs = new WeakMap< $hyoo_crowd_unit, Uint8Array >()
 		
-		async grab() {
+		async grab(
+			king_level = $hyoo_crowd_peer_level.law,
+			base_level = $hyoo_crowd_peer_level.get,
+		) {
+			
+			if( !king_level && !base_level ) $mol_fail( new Error( 'Grabbing dead land' ) )
 			
 			const knight = await $hyoo_crowd_peer.generate()
 			this._knights.set( knight.id, knight )
 			
+			const land_inner = this.land( knight.id )
 			const land_outer = new $hyoo_crowd_land( knight.id, knight )
-			land_outer.level( this.peer.id, $hyoo_crowd_peer_level.law )
 			
-			const land_inner = this.land( land_outer.id )
+			land_outer.level( this.peer.id, king_level )
+			land_outer.level_base( base_level )
+			
 			land_inner.apply( land_outer.delta() )
 			
 			return land_inner
 		}
 		
-		async delta_land( land: $hyoo_crowd_land, clock = new $hyoo_crowd_clock ) {
+		async delta_land(
+			land: $hyoo_crowd_land,
+			clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
+		) {
 			
-			const units = land.delta( clock )
+			const units = land.delta( clocks )
 			if( !units.length ) return []
 			
 			// let size = 0
@@ -99,7 +109,7 @@ namespace $ {
 			return units
 		}
 		
-		async delta( clocks = new $mol_dict< $mol_int62_pair, $hyoo_crowd_clock >() ) {
+		async delta( clocks = new $mol_dict< $mol_int62_pair, readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ] >() ) {
 			
 			const delta = [] as $hyoo_crowd_unit[]
 			
@@ -158,7 +168,7 @@ namespace $ {
 			const bin = unit.bin!
 				
 			const desync = 60 * 60 // 1 hour
-			const deadline = land.clock.now() + desync
+			const deadline = land.clock_data.now() + desync
 			
 			if( unit.time > deadline ) {
 				$mol_fail( new Error( 'Far future' ) )
@@ -169,7 +179,7 @@ namespace $ {
 			
 			switch( kind ) {
 				
-				case 'join': {
+				case $hyoo_crowd_unit_kind.join: {
 				
 					if( auth_unit ) {
 						$mol_fail( new Error( 'Already join' ) )
@@ -199,7 +209,7 @@ namespace $ {
 					return
 				}
 				
-				case 'give': {
+				case $hyoo_crowd_unit_kind.give: {
 					
 					const king_unit = land.unit( land.id, land.id )
 					
@@ -224,7 +234,7 @@ namespace $ {
 					break
 				}
 				
-				case 'data': {
+				case $hyoo_crowd_unit_kind.data: {
 				
 					const king_unit = land.unit( land.id, land.id )
 					
