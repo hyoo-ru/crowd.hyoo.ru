@@ -1,5 +1,5 @@
 namespace $ {
-	export class $hyoo_crowd_world extends Object {
+	export class $hyoo_crowd_world extends $mol_object2 {
 		
 		constructor(
 			readonly peer: $hyoo_crowd_peer
@@ -20,6 +20,8 @@ namespace $ {
 			return this._lands
 		}
 		
+		sync( id: $hyoo_crowd_land ) { }
+		
 		land(
 			id: $mol_int62_pair,
 		) {
@@ -28,10 +30,25 @@ namespace $ {
 			if( exists ) return exists
 			
 			const land = new $hyoo_crowd_land( id, this.peer )
+			land.world = $mol_const( this )
+			
 			this._lands.set( id, land )
 			this.lands_pub.emit()
 			
 			return land
+		}
+		
+		land_sync(
+			id: $mol_int62_pair,
+		) {
+			const first = !this._lands.get( id )
+			const land = this.land( id )
+			if( first ) this.sync( land )
+			return land
+		}
+		
+		home() {
+			return this.land( this.peer.id )
 		}
 		
 		_knights = new $mol_dict<

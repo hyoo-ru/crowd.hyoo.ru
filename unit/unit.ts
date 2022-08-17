@@ -125,27 +125,37 @@ namespace $ {
 				case $hyoo_crowd_unit_kind.join:
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
-						' ',
-						JSON.stringify( this.self() ),
-						'🔑',
-						$mol_dev_format_native( this.data ),
+						$mol_dev_format_shade(
+							' ',
+							$mol_int62_to_string( this.land() ),
+							' 🔑 ',
+							$mol_int62_to_string( this.self() ),
+						),
 					)
 				
 				case $hyoo_crowd_unit_kind.give:
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
-						' ',
-						JSON.stringify( this.self() ),
-						'🏅',
+						$mol_dev_format_shade(
+							' ',
+							$mol_int62_to_string( this.land() ),
+							' 🏅 ',
+							$mol_int62_to_string( this.self() ),
+							' ',
+						),
 						$mol_dev_format_native( $hyoo_crowd_peer_level[ this.data as number ] ?? this.data ),
 					)
 				
 				case $hyoo_crowd_unit_kind.data:
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
-						' ',
-						JSON.stringify( this.head() ),
-						'📦',
+						$mol_dev_format_shade(
+							' ',
+							$mol_int62_to_string( this.land() ),
+							' 📦 ',
+							$mol_int62_to_string( this.head() ),
+							' ',
+						),
 						$mol_dev_format_native( this.data ),
 					)
 				

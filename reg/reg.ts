@@ -53,5 +53,21 @@ namespace $ {
 			return Boolean( this.value( next ) ?? false )
 		}
 		
+		yoke(
+			king_level: $hyoo_crowd_peer_level,
+			base_level: $hyoo_crowd_peer_level,
+		) {
+			
+			const world = this.world()
+			
+			let land_id = this.value() as $mol_int62_pair | null
+			if( land_id ) return world.land_sync( land_id )
+			
+			const land = $mol_wire_sync( world ).grab( king_level, base_level )
+			this.value( land.id )
+			
+			return land
+		}
+		
 	}
 }

@@ -12,6 +12,10 @@ namespace $ {
 		
 		destructor() {}
 		
+		world(): $hyoo_crowd_world {
+			$mol_fail( new Error( `World isn't defined` ) )
+		}
+		
 		get clock_auth() {
 			this.pub.promote()
 			return this._clocks[ $hyoo_crowd_unit_group.auth ]

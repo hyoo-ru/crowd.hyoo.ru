@@ -18,6 +18,10 @@ namespace $ {
 			return new this( land, head ) as InstanceType< Node >
 		}
 		
+		world() {
+			return this.land.world()
+		}
+		
 		/** Returns another representation of this node. */
 		as< Node extends typeof $hyoo_crowd_node >( Node: Node ) {
 			return new Node( this.land, this.head ) as InstanceType< Node >
@@ -37,7 +41,7 @@ namespace $ {
 			return $mol_dev_format_span( {} ,
 				$mol_dev_format_native( this ) ,
 				$mol_dev_format_shade( '/' ) ,
-				$mol_dev_format_auto( this.as( $hyoo_crowd_list ).list() ) ,
+				$mol_dev_format_auto( this.units().map( unit => unit.data ) ) ,
 				$mol_dev_format_shade( '/' ) ,
 				$mol_dev_format_auto( this.nodes( $hyoo_crowd_node ) ) ,
 			)
