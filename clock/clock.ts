@@ -63,6 +63,23 @@ namespace $ {
 			
 		}
 		
+		see_bin( bin: $hyoo_crowd_clock_bin, group: $hyoo_crowd_unit_group ) {
+			
+			for( let cursor = offset.clocks; cursor < bin.byteLength; cursor += 16 ) {
+				
+				this.see_peer(
+					{
+						lo: bin.getInt32( cursor + 0, true ),
+						hi: bin.getInt32( cursor + 4, true ),
+					},
+					0,
+					bin.getInt32( cursor + 8 + 4 * group, true )
+				)
+				
+			}
+
+		}
+		
 		/** Checks if time from future. */
 		fresh(
 			peer: $mol_int62_pair,
@@ -119,6 +136,52 @@ namespace $ {
 			this.see_peer( peer, spin, time )
 			
 			return [ spin, time ] as const
+		}
+		
+	}
+	
+	const offset = {
+		
+		land_lo: 0,
+		land_hi: 4,
+		
+		clocks: 8,
+		
+	} as const
+	
+	export class $hyoo_crowd_clock_bin extends DataView {
+		
+		static from(
+			land: $mol_int62_pair,
+			clocks: readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ]
+		) {
+			
+			const size = offset.clocks + clocks[0].size * 16
+			const mem = new Uint8Array( size )
+			const bin = new $hyoo_crowd_clock_bin( mem.buffer )
+			
+			bin.setInt32( offset.land_lo, land.lo, true )
+			bin.setInt32( offset.land_hi, land.hi ^ ( 1 << 31 ), true )
+			
+			let cursor = offset.clocks
+			for( const [ peer, [ spin, time ] ] of clocks[0] ) {
+				
+				bin.setInt32( cursor + 0, peer.lo, true )
+				bin.setInt32( cursor + 4, peer.hi, true )
+				bin.setInt32( cursor + 8, time, true )
+				bin.setInt32( cursor + 12, clocks[1].get( peer )?.[1] ?? -1 * 2**30, true )
+				
+				cursor += 16
+			}
+			
+			return bin
+		}
+		
+		land() {
+			return {
+				lo: this.getInt32( offset.land_lo, true ),
+				hi: this.getInt32( offset.land_hi, true ) << 1 >> 1,
+			}
 		}
 		
 	}

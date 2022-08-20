@@ -81,5 +81,33 @@ namespace $ {
 			
 		},
 		
+		'bin'() {
+			
+			const clocks1 = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
+			clocks1[ $hyoo_crowd_unit_group.auth ].see_peer( { lo: 11, hi: 111 }, 7, 1 )
+			clocks1[ $hyoo_crowd_unit_group.data ].see_peer( { lo: 11, hi: 111 }, 13, 2 )
+			
+			const bin = $hyoo_crowd_clock_bin.from( { lo: -11, hi: -111 }, clocks1 )
+			
+			$mol_assert_like( bin.land(), { lo: -11, hi: -111 } )
+			
+			const clocks2 = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
+			clocks2[ $hyoo_crowd_unit_group.auth ].see_bin( bin, $hyoo_crowd_unit_group.auth )
+			clocks2[ $hyoo_crowd_unit_group.data ].see_bin( bin, $hyoo_crowd_unit_group.data )
+			
+			$mol_assert_like(
+				clocks2.map( clock => new Map( clock ) ),
+				[
+					new Map([
+						[ { lo: 11, hi: 111 }, [ 0, 1 ] ],
+					]),
+					new Map([
+						[ { lo: 11, hi: 111 }, [ 0, 2 ] ],
+					]),
+				]
+			)
+			
+		},
+		
 	})
 }

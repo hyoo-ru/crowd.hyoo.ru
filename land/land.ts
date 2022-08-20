@@ -243,10 +243,10 @@ namespace $ {
 			
 			const join_unit = new $hyoo_crowd_unit(
 				
-				time,
-				spin,
 				this.id.lo,
 				this.id.hi,
+				peer.lo,
+				peer.hi,
 				
 				peer.lo,
 				peer.hi,
@@ -258,9 +258,8 @@ namespace $ {
 				0,
 				0,
 				
-				peer.lo,
-				peer.hi,
-				
+				time,
+				spin,
 				key_public_serial,
 				null,
 				
@@ -290,24 +289,23 @@ namespace $ {
 			
 			const join_unit = new $hyoo_crowd_unit(
 				
-				time,
-				spin,
 				this.id.lo,
 				this.id.hi,
-				
 				this.auth.id.lo,
 				this.auth.id.hi,
+				
 				this.id.lo,
 				this.id.hi,
-				
-				0,
-				0,
-				0,
-				0,
-				
 				peer.lo,
 				peer.hi,
 				
+				0,
+				0,
+				0,
+				0,
+				
+				time,
+				spin,
 				next,
 				null,
 				
@@ -344,24 +342,23 @@ namespace $ {
 			
 			const unit_new = new $hyoo_crowd_unit(
 				
-				time,
-				spin,
 				this.id.lo,
 				this.id.hi,
-				
 				this.auth.id.lo,
 				this.auth.id.hi,
+				
 				head.lo,
 				head.hi,
+				self.lo,
+				self.hi,
 				
 				next.lo,
 				next.hi,
 				prev.lo,
 				prev.hi,
 				
-				self.lo,
-				self.hi,
-				
+				time,
+				spin,
 				data,
 				null,
 				

@@ -20,7 +20,7 @@ namespace $ {
 			return this._lands
 		}
 		
-		sync( id: $hyoo_crowd_land ) { }
+		land_init( id: $hyoo_crowd_land ) { }
 		
 		land(
 			id: $mol_int62_pair,
@@ -43,7 +43,7 @@ namespace $ {
 		) {
 			const first = !this._lands.get( id )
 			const land = this.land( id )
-			if( first ) this.sync( land )
+			if( first ) this.land_init( land )
 			return land
 		}
 		

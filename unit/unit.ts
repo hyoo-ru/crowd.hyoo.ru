@@ -35,24 +35,22 @@ namespace $ {
 		
 		constructor(
 	
-			/** Monotonic real clock. 4B / info = 31b */
-			readonly time: number,
-			
-			/** Cyclic counter. mem = 4B / bin = 2B / info = 16b */
-			readonly spin: number,
-			
 			/** Identifier of land. 8B / info = 62b */
 			readonly land_lo: number,
 			readonly land_hi: number,
-			
 			
 			/** Identifier of auth. 8B / info = 62b */
 			readonly auth_lo: number,
 			readonly auth_hi: number,
 			
+			
 			/** Identifier of head node. 8B / info = 62b */
 			readonly head_lo: number,
 			readonly head_hi: number,
+			
+			/** Self identifier inside head after prev before next. 8B / info = 62b */
+			readonly self_lo: number,
+			readonly self_hi: number,
 			
 			
 			/** Identifier of next node. 8B / info = 62b */
@@ -64,9 +62,11 @@ namespace $ {
 			readonly prev_hi: number,
 			
 			
-			/** Self identifier inside head after prev before next. 8B / info = 62b */
-			readonly self_lo: number,
-			readonly self_hi: number,
+			/** Monotonic real clock. 4B / info = 31b */
+			readonly time: number,
+			
+			/** Cyclic counter. mem = 4B / bin = 2B / info = 16b */
+			readonly spin: number,
 			
 			/** type-size = bin<0 | null=0 | json>0 */
 			/** Associated atomic data. mem = 4B+ / bin = (0|8B)+ / type-size-info = 16b */
@@ -167,30 +167,25 @@ namespace $ {
 	
 	const offset = {
 		
-		sign: 0,
-		sens: 64,
+		land_lo: 0,
+		land_hi: 4,
+		auth_lo: 8,
+		auth_hi: 12,
 		
-		meta: 64,
-		size: 64,
-		spin: 66,
-		time: 68,
-		land_lo: 72,
-		land_hi: 76,
+		head_lo: 16,
+		head_hi: 20,
+		self_lo: 24,
+		self_hi: 28,
 		
-		auth_lo: 80,
-		auth_hi: 84,
-		head_lo: 88,
-		head_hi: 92,
+		next_lo: 32,
+		next_hi: 36,
+		prev_lo: 40,
+		prev_hi: 44,
 		
-		next_lo: 96,
-		next_hi: 100,
-		prev_lo: 104,
-		prev_hi: 108,
-		
-		self_lo: 112,
-		self_hi: 116,
-		
-		data: 120,
+		time: 48,
+		spin: 52,
+		size: 54,
+		data: 56,
 		
 	} as const
 	
@@ -214,29 +209,29 @@ namespace $ {
 			if( type > 0 && size > 2**15 - 1 ) throw new Error( `Too large json data: ${size} > ${ 2**15 - 1 }` )
 			if( type < 0 && size > 2**15 ) throw new Error( `Too large binary data: ${size} > ${ 2**15 }` )
 			
-			const total = offset.data + Math.ceil( size / 8 ) * 8
+			const total = offset.data + Math.ceil( size / 8 ) * 8 + $mol_crypto_auditor_sign_size
 			
 			const mem = new Uint8Array( total )
 			const bin = new $hyoo_crowd_unit_bin( mem.buffer )
 			
-			bin.setInt16( offset.size, type * size, true )
-			bin.setUint16( offset.spin, unit.spin, true )
-			bin.setInt32( offset.time, unit.time, true )
 			bin.setInt32( offset.land_lo, unit.land_lo, true )
 			bin.setInt32( offset.land_hi, unit.land_hi, true )
-			
 			bin.setInt32( offset.auth_lo, unit.auth_lo, true )
 			bin.setInt32( offset.auth_hi, unit.auth_hi, true )
+			
 			bin.setInt32( offset.head_lo, unit.head_lo, true )
 			bin.setInt32( offset.head_hi, unit.head_hi, true )
+			bin.setInt32( offset.self_lo, unit.self_lo, true )
+			bin.setInt32( offset.self_hi, unit.self_hi, true )
 			
 			bin.setInt32( offset.next_lo, unit.next_lo, true )
 			bin.setInt32( offset.next_hi, unit.next_hi, true )
 			bin.setInt32( offset.prev_lo, unit.prev_lo, true )
 			bin.setInt32( offset.prev_hi, unit.prev_hi, true )
 			
-			bin.setInt32( offset.self_lo, unit.self_lo, true )
-			bin.setInt32( offset.self_hi, unit.self_hi, true )
+			bin.setInt32( offset.time, unit.time, true )
+			bin.setUint16( offset.spin, unit.spin, true )
+			bin.setInt16( offset.size, type * size, true )
 			
 			if( buff ) mem.set( buff, offset.data )
 			
@@ -245,11 +240,17 @@ namespace $ {
 		
 		sign( next?: Uint8Array ) {
 			
-			const buff = new Uint8Array( this.buffer, this.byteOffset + offset.sign, offset.meta - offset.sign )
+			const sign_offset = this.byteOffset + this.byteLength - $mol_crypto_auditor_sign_size
+			
+			const buff = new Uint8Array(
+				this.buffer,
+				sign_offset,
+				$mol_crypto_auditor_sign_size,
+			)
 			
 			if( !next ) return buff
 			
-			buff.set( next, this.byteOffset + offset.sign )
+			buff.set( next )
 			return buff
 			
 		}
@@ -274,7 +275,7 @@ namespace $ {
 		// }
 		
 		size() {
-			return Math.ceil( Math.abs( this.getInt16( offset.size, true ) ) / 8 ) * 8 + offset.data
+			return Math.ceil( Math.abs( this.getInt16( offset.size, true ) ) / 8 ) * 8 + offset.data + $mol_crypto_auditor_sign_size
 		}
 		
 		// data() {
@@ -288,8 +289,8 @@ namespace $ {
 		sens() {
 			return new Uint8Array(
 				this.buffer,
-				this.byteOffset + offset.sens,
-				this.size() - offset.sens,
+				this.byteOffset,
+				this.size() - $mol_crypto_auditor_sign_size,
 			)
 		}
 		
@@ -306,24 +307,24 @@ namespace $ {
 		
 		unit(): $hyoo_crowd_unit {
 			
-			const type_size = this.getInt16( this.byteOffset + offset.size, true )
-			const spin = this.getUint16( this.byteOffset + offset.spin, true )
-			const time = this.getInt32( this.byteOffset + offset.time, true )
 			const land_lo = this.getInt32( this.byteOffset + offset.land_lo, true )
 			const land_hi = this.getInt32( this.byteOffset + offset.land_hi, true )
-			
 			const auth_lo = this.getInt32( this.byteOffset + offset.auth_lo, true )
 			const auth_hi = this.getInt32( this.byteOffset + offset.auth_hi, true )
+			
 			const head_lo = this.getInt32( this.byteOffset + offset.head_lo, true )
 			const head_hi = this.getInt32( this.byteOffset + offset.head_hi, true )
-			
-			const prev_lo = this.getInt32( this.byteOffset + offset.prev_lo, true )
-			const prev_hi = this.getInt32( this.byteOffset + offset.prev_hi, true )
-			const next_lo = this.getInt32( this.byteOffset + offset.next_lo, true )
-			const next_hi = this.getInt32( this.byteOffset + offset.next_hi, true )
-			
 			const self_lo = this.getInt32( this.byteOffset + offset.self_lo, true )
 			const self_hi = this.getInt32( this.byteOffset + offset.self_hi, true )
+			
+			const next_lo = this.getInt32( this.byteOffset + offset.next_lo, true )
+			const next_hi = this.getInt32( this.byteOffset + offset.next_hi, true )
+			const prev_lo = this.getInt32( this.byteOffset + offset.prev_lo, true )
+			const prev_hi = this.getInt32( this.byteOffset + offset.prev_hi, true )
+			
+			const time = this.getInt32( this.byteOffset + offset.time, true )
+			const spin = this.getUint16( this.byteOffset + offset.spin, true )
+			const type_size = this.getInt16( this.byteOffset + offset.size, true )
 			
 			let data = null as unknown
 			
@@ -338,24 +339,23 @@ namespace $ {
 			
 			return new $hyoo_crowd_unit(
 				
-				time,
-				spin,
 				land_lo,
 				land_hi,
-				
 				auth_lo,
 				auth_hi,
+				
 				head_lo,
 				head_hi,
+				self_lo,
+				self_hi,
 				
 				next_lo,
 				next_hi,
 				prev_lo,
 				prev_hi,
 				
-				self_lo,
-				self_hi,
-				
+				time,
+				spin,
 				data,
 				this,
 				
