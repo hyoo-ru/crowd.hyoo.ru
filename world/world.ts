@@ -2,10 +2,10 @@ namespace $ {
 	export class $hyoo_crowd_world extends $mol_object2 {
 		
 		constructor(
-			readonly peer: $hyoo_crowd_peer
+			readonly peer?: $hyoo_crowd_peer
 		) {
 			super()
-			this._knights.set( peer.id , peer )
+			if( peer ) this._knights.set( peer.id , peer )
 		}
 		
 		readonly lands_pub = new $mol_wire_pub
@@ -29,7 +29,7 @@ namespace $ {
 			const exists = this._lands.get( id )
 			if( exists ) return exists
 			
-			const land = new $hyoo_crowd_land( id, this.peer )
+			const land = new $hyoo_crowd_land( id, this.peer! )
 			land.world = $mol_const( this )
 			
 			this._lands.set( id, land )
@@ -48,7 +48,7 @@ namespace $ {
 		}
 		
 		home() {
-			return this.land( this.peer.id )
+			return this.land( this.peer!.id )
 		}
 		
 		_knights = new $mol_dict<
@@ -71,7 +71,7 @@ namespace $ {
 			const land_inner = this.land( knight.id )
 			const land_outer = new $hyoo_crowd_land( knight.id, knight )
 			
-			land_outer.level( this.peer.id, king_level )
+			land_outer.level( this.peer!.id, king_level )
 			land_outer.level_base( base_level )
 			
 			land_inner.apply( land_outer.delta() )

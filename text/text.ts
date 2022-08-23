@@ -105,7 +105,7 @@ namespace $ {
 		
 		selection( peer: $mol_int62_pair, next?: number[] ) {
 			
-			const reg = this.land.world().land_sync( peer ).root.sub( '$hyoo_crowd_text..selection', $hyoo_crowd_reg )
+			const reg = this.land.world().land_sync( peer ).chief.sub( '$hyoo_crowd_text..selection', $hyoo_crowd_reg )
 			
 			if( next ) {
 				reg.value( next.map( offset => this.point_by_offset( offset ) ) )

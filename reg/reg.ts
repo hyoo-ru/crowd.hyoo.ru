@@ -60,11 +60,11 @@ namespace $ {
 			
 			const world = this.world()
 			
-			let land_id = this.value() as $mol_int62_pair | null
-			if( land_id ) return world.land_sync( land_id )
+			let land_id = $mol_int62_from_string( this.value() as string ?? '0_0' )
+			if( land_id.lo || land_id.hi ) return world.land_sync( land_id )
 			
 			const land = $mol_wire_sync( world ).grab( king_level, base_level )
-			this.value( land.id )
+			this.value( $mol_int62_to_string( land.id ) )
 			
 			return land
 		}

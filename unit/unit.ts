@@ -296,33 +296,33 @@ namespace $ {
 		
 		ids() {
 			return [
-				this.getInt32( this.byteOffset + offset.land_lo, true ),
-				this.getInt32( this.byteOffset + offset.land_hi, true ),
-				this.getInt32( this.byteOffset + offset.head_lo, true ),
-				this.getInt32( this.byteOffset + offset.head_hi, true ),
-				this.getInt32( this.byteOffset + offset.self_lo, true ),
-				this.getInt32( this.byteOffset + offset.self_hi, true ),
+				this.getInt32( this.byteOffset + offset.land_lo, true ) << 1 >> 1,
+				this.getInt32( this.byteOffset + offset.land_hi, true ) << 1 >> 1,
+				this.getInt32( this.byteOffset + offset.head_lo, true ) << 1 >> 1,
+				this.getInt32( this.byteOffset + offset.head_hi, true ) << 1 >> 1,
+				this.getInt32( this.byteOffset + offset.self_lo, true ) << 1 >> 1,
+				this.getInt32( this.byteOffset + offset.self_hi, true ) << 1 >> 1,
 			] as const
 		}
 		
 		unit(): $hyoo_crowd_unit {
 			
-			const land_lo = this.getInt32( this.byteOffset + offset.land_lo, true )
-			const land_hi = this.getInt32( this.byteOffset + offset.land_hi, true )
-			const auth_lo = this.getInt32( this.byteOffset + offset.auth_lo, true )
-			const auth_hi = this.getInt32( this.byteOffset + offset.auth_hi, true )
+			const land_lo = this.getInt32( this.byteOffset + offset.land_lo, true ) << 1 >> 1
+			const land_hi = this.getInt32( this.byteOffset + offset.land_hi, true ) << 1 >> 1
+			const auth_lo = this.getInt32( this.byteOffset + offset.auth_lo, true ) << 1 >> 1
+			const auth_hi = this.getInt32( this.byteOffset + offset.auth_hi, true ) << 1 >> 1
 			
-			const head_lo = this.getInt32( this.byteOffset + offset.head_lo, true )
-			const head_hi = this.getInt32( this.byteOffset + offset.head_hi, true )
-			const self_lo = this.getInt32( this.byteOffset + offset.self_lo, true )
-			const self_hi = this.getInt32( this.byteOffset + offset.self_hi, true )
+			const head_lo = this.getInt32( this.byteOffset + offset.head_lo, true ) << 1 >> 1
+			const head_hi = this.getInt32( this.byteOffset + offset.head_hi, true ) << 1 >> 1
+			const self_lo = this.getInt32( this.byteOffset + offset.self_lo, true ) << 1 >> 1
+			const self_hi = this.getInt32( this.byteOffset + offset.self_hi, true ) << 1 >> 1
 			
-			const next_lo = this.getInt32( this.byteOffset + offset.next_lo, true )
-			const next_hi = this.getInt32( this.byteOffset + offset.next_hi, true )
-			const prev_lo = this.getInt32( this.byteOffset + offset.prev_lo, true )
-			const prev_hi = this.getInt32( this.byteOffset + offset.prev_hi, true )
+			const next_lo = this.getInt32( this.byteOffset + offset.next_lo, true ) << 1 >> 1
+			const next_hi = this.getInt32( this.byteOffset + offset.next_hi, true ) << 1 >> 1
+			const prev_lo = this.getInt32( this.byteOffset + offset.prev_lo, true ) << 1 >> 1
+			const prev_hi = this.getInt32( this.byteOffset + offset.prev_hi, true ) << 1 >> 1
 			
-			const time = this.getInt32( this.byteOffset + offset.time, true )
+			const time = this.getInt32( this.byteOffset + offset.time, true ) << 1 >> 1
 			const spin = this.getUint16( this.byteOffset + offset.spin, true )
 			const type_size = this.getInt16( this.byteOffset + offset.size, true )
 			

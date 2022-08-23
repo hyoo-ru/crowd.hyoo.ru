@@ -96,7 +96,7 @@ namespace $ {
 		}
 		
 		/** Root Node. */
-		root = new $hyoo_crowd_struct( this, { lo: 0, hi: 0 } )
+		chief = new $hyoo_crowd_struct( this, { lo: 0, hi: 0 } )
 		
 		/** Generates new identifier. */
 		id_new(): $mol_int62_pair {
@@ -144,10 +144,6 @@ namespace $ {
 			delta.sort( $hyoo_crowd_unit_compare )
 			
 			return delta as readonly $hyoo_crowd_unit[]
-		}
-		
-		toJSON() {
-			return this.delta()
 		}
 		
 		resort(

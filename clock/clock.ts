@@ -69,8 +69,8 @@ namespace $ {
 				
 				this.see_peer(
 					{
-						lo: bin.getInt32( cursor + 0, true ),
-						hi: bin.getInt32( cursor + 4, true ),
+						lo: bin.getInt32( cursor + 0, true ) << 1 >> 1,
+						hi: bin.getInt32( cursor + 4, true ) << 1 >> 1,
 					},
 					0,
 					bin.getInt32( cursor + 8 + 4 * group, true )
@@ -160,8 +160,8 @@ namespace $ {
 			const mem = new Uint8Array( size )
 			const bin = new $hyoo_crowd_clock_bin( mem.buffer )
 			
-			bin.setInt32( offset.land_lo, land.lo, true )
-			bin.setInt32( offset.land_hi, land.hi ^ ( 1 << 31 ), true )
+			bin.setInt32( offset.land_lo, land.lo ^ ( 1 << 31 ), true )
+			bin.setInt32( offset.land_hi, land.hi, true )
 			
 			let cursor = offset.clocks
 			for( const [ peer, [ spin, time ] ] of clocks[0] ) {
@@ -179,7 +179,7 @@ namespace $ {
 		
 		land() {
 			return {
-				lo: this.getInt32( offset.land_lo, true ),
+				lo: this.getInt32( offset.land_lo, true ) << 1 >> 1,
 				hi: this.getInt32( offset.land_hi, true ) << 1 >> 1,
 			}
 		}
