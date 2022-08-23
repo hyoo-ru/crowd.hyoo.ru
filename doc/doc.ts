@@ -135,8 +135,7 @@ namespace $ {
 
 				if( kid.prev ) {
 
-					let prev = this.chunk( head, kid.prev )!
-					index = chunks.indexOf( prev ) + 1
+					index = kids.findIndex( sib => sib.self === kid.prev ) + 1
 					
 					if( !index ) {
 
@@ -144,8 +143,7 @@ namespace $ {
 						
 						if( kid.next ) {
 							
-							const next = this.chunk( head, kid.next )!
-							index = chunks.indexOf( next )
+							index = kids.findIndex( sib => sib.self === kid.next )
 							
 							if( index === -1 ) continue
 
