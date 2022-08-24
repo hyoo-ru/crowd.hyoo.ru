@@ -1,16 +1,16 @@
 namespace $ {
 	
 	/** Conflict-free Reinterpretable Ordered Washed Data Tree */
-	export class $hyoo_crowd_land extends Object {
+	export class $hyoo_crowd_land extends $mol_object {
 		
-		constructor(
-			readonly id: $mol_int62_pair,
-			readonly auth: $hyoo_crowd_peer,
-		) {
-			super()
+		@ $mol_memo.method
+		id(): $mol_int62_pair {
+			return $mol_int62_random()
 		}
 		
-		destructor() {}
+		peer(): $hyoo_crowd_peer {
+			return this.world().peer!
+		}
 		
 		world(): $hyoo_crowd_world {
 			$mol_fail( new Error( `World isn't defined` ) )
@@ -106,7 +106,7 @@ namespace $ {
 				const id = $mol_int62_random()
 				
 				if( id.lo === 0 && id.hi === 0 ) continue // zero reserved for empty
-				if( id.lo === this.id.lo && id.hi === this.id.hi ) continue // reserved for rights
+				if( id.lo === this.id().lo && id.hi === this.id().hi ) continue // reserved for rights
 				if( this._unit_lists.has( id ) ) continue // skip already exists
 				
 				return id
@@ -118,7 +118,12 @@ namespace $ {
 		
 		/** Makes independent clone with defined peer. */
 		fork( auth: $hyoo_crowd_peer ) {
-			const fork = new $hyoo_crowd_land( this.id, auth )
+			
+			const fork = $hyoo_crowd_land.make({
+				id: ()=> this.id(),
+				peer: ()=> this.peer(),
+			})
+			
 			return fork.apply( this.delta() )
 		}
 		
@@ -133,10 +138,8 @@ namespace $ {
 			
 			for( const unit of this._unit_all.values() ) {
 				
-				const [ spin, time ] = clocks[ unit.group() ].time( unit.auth() )
-				
-				if( unit.time < time ) continue
-				if( unit.time === time && unit.spin <= spin ) continue
+				const time = clocks[ unit.group() ].time( unit.auth() )
+				if( unit.time <= time ) continue
 				
 				delta.push( unit! )
 			}
@@ -163,8 +166,7 @@ namespace $ {
 
 				if( kid.prev_lo || kid.prev_hi ) {
 
-					let prev = this._unit_all.get({ head, self: kid.prev() })!
-					index = kids.indexOf( prev ) + 1
+					index = kids.findIndex( sib => sib.self_lo === kid.prev_lo && sib.self_hi === kid.prev_hi ) + 1
 					
 					if( !index ) {
 
@@ -172,8 +174,7 @@ namespace $ {
 						
 						if( kid.next_lo || kid.next_hi ) {
 							
-							const next = this._unit_all.get({ head, self: kid.next() })!
-							index = kids.indexOf( next )
+							index = kids.findIndex( sib => sib.self_lo === kid.next_lo && sib.self_hi === kid.next_hi )
 							
 							if( index === -1 ) continue
 
@@ -200,7 +201,7 @@ namespace $ {
 			
 			for( const next of delta ) {
 				
-				this._clocks[ next.group() ].see_peer( next.auth(), next.spin, next.time )
+				this._clocks[ next.group() ].see_peer( next.auth(), next.time )
 				const kids = this.unit_list( next.head() )
 				
 				let prev = this._unit_all.get( next.id() )
@@ -229,18 +230,18 @@ namespace $ {
 			
 			if( this._joined ) return
 			
-			const { id: peer, key_public_serial } = this.auth
+			const { id: peer, key_public_serial } = this.peer()
 			if( !key_public_serial ) return
 			
 			const auth = this._unit_all.get({ head: peer, self: peer })
 			if( auth ) return
 			
-			const [ spin, time ] = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
+			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
 			
 			const join_unit = new $hyoo_crowd_unit(
 				
-				this.id.lo,
-				this.id.hi,
+				this.id().lo,
+				this.id().hi,
 				peer.lo,
 				peer.hi,
 				
@@ -255,7 +256,6 @@ namespace $ {
 				0,
 				
 				time,
-				spin,
 				key_public_serial,
 				null,
 				
@@ -275,23 +275,24 @@ namespace $ {
 			
 			this.join()
 			
-			const exists = this._unit_all.get({ head: this.id, self: peer })
+			const exists = this._unit_all.get({ head: this.id(), self: peer })
 			const prev = exists?.level() ?? $hyoo_crowd_peer_level.get
 			
 			if( next === undefined ) return prev
 			if( next <= prev ) return prev
 			
-			const [ spin, time ] = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
+			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
+			const auth = this.peer()
 			
 			const join_unit = new $hyoo_crowd_unit(
 				
-				this.id.lo,
-				this.id.hi,
-				this.auth.id.lo,
-				this.auth.id.hi,
+				this.id().lo,
+				this.id().hi,
+				auth.id.lo,
+				auth.id.hi,
 				
-				this.id.lo,
-				this.id.hi,
+				this.id().lo,
+				this.id().hi,
 				peer.lo,
 				peer.hi,
 				
@@ -301,13 +302,12 @@ namespace $ {
 				0,
 				
 				time,
-				spin,
 				next,
 				null,
 				
 			)
 			
-			this._unit_all.set( { head: this.id, self: peer }, join_unit )
+			this._unit_all.set( { head: this.id(), self: peer }, join_unit )
 			this.pub.emit()
 			
 			return next
@@ -334,14 +334,15 @@ namespace $ {
 			
 			const next = lead?.self() ?? { lo: 0, hi: 0 }
 			
-			const [ spin, time ] = this._clocks[ $hyoo_crowd_unit_group.data ].tick( this.auth.id )
+			const time = this._clocks[ $hyoo_crowd_unit_group.data ].tick( this.peer().id )
+			const auth = this.peer()
 			
 			const unit_new = new $hyoo_crowd_unit(
 				
-				this.id.lo,
-				this.id.hi,
-				this.auth.id.lo,
-				this.auth.id.hi,
+				this.id().lo,
+				this.id().hi,
+				auth.id.lo,
+				auth.id.hi,
 				
 				head.lo,
 				head.hi,
@@ -354,7 +355,6 @@ namespace $ {
 				prev.hi,
 				
 				time,
-				spin,
 				data,
 				null,
 				

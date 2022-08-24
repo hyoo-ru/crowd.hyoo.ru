@@ -26,6 +26,15 @@ namespace $.$$ {
 	}
 
 	export class $hyoo_crowd_app_peer extends $.$hyoo_crowd_app_peer {
+		
+		@ $mol_mem
+		store() {
+			return $hyoo_crowd_land.make({
+				peer: $mol_const(
+					$mol_wire_sync( $hyoo_crowd_peer ).generate()
+				),
+			})
+		}
 
 		@ $mol_mem
 		sync_clocks( next = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const ) {
@@ -48,17 +57,21 @@ namespace $.$$ {
 		delta_view() {
 			return this.delta().slice().reverse().map( unit => ({
 				
-				'Time': unit.time + '_' + unit.spin,
-				'Land': $mol_int62_to_string( unit.land() ),
+				'kind': $hyoo_crowd_unit_kind[ unit.kind() ],
 				
+				'Land': $mol_int62_to_string( unit.land() ),
 				'Auth': $mol_int62_to_string( unit.auth() ),
+				
 				'Head': $mol_int62_to_string( unit.head() ),
+				'Self': $mol_int62_to_string( unit.self() ),
 				
 				'Next': $mol_int62_to_string( unit.next() ),
 				'Prev': $mol_int62_to_string( unit.prev() ),
 				
-				'Self': $mol_int62_to_string( unit.self() ),
-				'Data': JSON.stringify( unit.data ),
+				'Time': $hyoo_crowd_time_stamp( unit.time ).toString(36),
+				'Data': unit.data instanceof Uint8Array
+					? `Buffer(${ unit.data.length })`
+					: JSON.stringify( unit.data ),
 				
 			}) )
 		}
@@ -98,13 +111,13 @@ namespace $.$$ {
 		stats() {
 			this.text()
 			return super.stats()
-			.replace( '{peer}', $mol_int62_to_string( this.store().auth.id ) )
+			.replace( '{peer}', $mol_int62_to_string( this.store().peer().id ) )
 			.replace( '{changes}', this.changes().toLocaleString() )
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
 			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
-			.replace( '{stamp:now}', this.store().clock_data.last_time + '_' + this.store().clock_data.last_spin )
-			.replace( '{stamp:sync}', this.sync_clocks()[1].last_time + '_' + this.sync_clocks()[1].last_spin )
+			.replace( '{stamp:now}', this.store().clock_data.last_stamp().toString(36) )
+			.replace( '{stamp:sync}', this.sync_clocks()[1].last_stamp().toString(36) )
 			.replace( '{size:text}', this.size_text().toLocaleString() )
 			.replace( '{size:state}', this.size_state_bin().toLocaleString() )
 			.replace( '{size:delta}', this.size_delta_bin().toLocaleString() )

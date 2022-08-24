@@ -65,9 +65,6 @@ namespace $ {
 			/** Monotonic real clock. 4B / info = 31b */
 			readonly time: number,
 			
-			/** Cyclic counter. mem = 4B / bin = 2B / info = 16b */
-			readonly spin: number,
-			
 			/** type-size = bin<0 | null=0 | json>0 */
 			/** Associated atomic data. mem = 4B+ / bin = (0|8B)+ / type-size-info = 16b */
 			readonly data: unknown,
@@ -101,7 +98,7 @@ namespace $ {
 				return  $hyoo_crowd_unit_kind.give
 			}
 			
-			return  $hyoo_crowd_unit_kind.data
+			return $hyoo_crowd_unit_kind.data
 		}
 		
 		group() {
@@ -126,8 +123,8 @@ namespace $ {
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
 						$mol_dev_format_shade(
-							' ',
-							$mol_int62_to_string( this.land() ),
+							// ' ',
+							// $mol_int62_to_string( this.land() ),
 							' 🔑 ',
 							$mol_int62_to_string( this.self() ),
 						),
@@ -137,8 +134,8 @@ namespace $ {
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
 						$mol_dev_format_shade(
-							' ',
-							$mol_int62_to_string( this.land() ),
+							// ' ',
+							// $mol_int62_to_string( this.land() ),
 							' 🏅 ',
 							$mol_int62_to_string( this.self() ),
 							' ',
@@ -150,8 +147,8 @@ namespace $ {
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
 						$mol_dev_format_shade(
-							' ',
-							$mol_int62_to_string( this.land() ),
+							// ' ',
+							// $mol_int62_to_string( this.land() ),
 							' 📦 ',
 							$mol_int62_to_string( this.head() ),
 							' ',
@@ -183,7 +180,6 @@ namespace $ {
 		prev_hi: 44,
 		
 		time: 48,
-		spin: 52,
 		size: 54,
 		data: 56,
 		
@@ -230,7 +226,6 @@ namespace $ {
 			bin.setInt32( offset.prev_hi, unit.prev_hi, true )
 			
 			bin.setInt32( offset.time, unit.time, true )
-			bin.setUint16( offset.spin, unit.spin, true )
 			bin.setInt16( offset.size, type * size, true )
 			
 			if( buff ) mem.set( buff, offset.data )
@@ -323,7 +318,6 @@ namespace $ {
 			const prev_hi = this.getInt32( this.byteOffset + offset.prev_hi, true ) << 1 >> 1
 			
 			const time = this.getInt32( this.byteOffset + offset.time, true ) << 1 >> 1
-			const spin = this.getUint16( this.byteOffset + offset.spin, true )
 			const type_size = this.getInt16( this.byteOffset + offset.size, true )
 			
 			let data = null as unknown
@@ -355,7 +349,6 @@ namespace $ {
 				prev_hi,
 				
 				time,
-				spin,
 				data,
 				this,
 				
@@ -371,7 +364,6 @@ namespace $ {
 	) {
 		return ( left.group() - right.group() )
 			|| ( left.time - right.time )
-			|| ( left.spin - right.spin )
 			
 			|| ( left.auth_hi - right.auth_hi )
 			|| ( left.auth_lo - right.auth_lo )

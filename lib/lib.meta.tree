@@ -4,5 +4,6 @@ include \/hyoo/crowd/reg
 include \/hyoo/crowd/dict
 include \/hyoo/crowd/list
 include \/hyoo/crowd/text
+include \/hyoo/crowd/json
 include \/hyoo/crowd/dom
 include \/hyoo/crowd/html

@@ -3,63 +3,52 @@ namespace $ {
 	/** Vector clock. Stores real timestamps. */
 	export class $hyoo_crowd_clock extends $mol_dict<
 		$mol_int62_pair,
-		[ number, number ]
+		number
 	> {
 		
+		static begin = -1 * 2**30
+		
 		/** Maximum time for all peers. */
-		last_spin = 0
-		last_time = -1 * 2**30
+		last_time = $hyoo_crowd_clock.begin
 		
 		constructor(
 			entries?: Iterable<
-				readonly [
-					$mol_int62_pair,
-					[ number, number ]
-				]
+				readonly [ $mol_int62_pair, number ]
 			>
 		) {
 			
 			super( entries )
 			if( !entries ) return
 			
-			for( const [ peer, [ spin, time ] ] of entries ) {
-				this.see_time( spin, time )
+			for( const [ peer, time ] of entries ) {
+				this.see_time( time )
 			}
 			
 		}
 		
 		/** Synchronize this cloc with another. */
 		sync( right: $hyoo_crowd_clock ) {
-			for( const [ peer, [ spin, time ] ] of right ) {
-				this.see_peer( peer, spin, time )
+			for( const [ peer, time ] of right ) {
+				this.see_peer( peer, time )
 			}
 		}
 		
 		/** Increase `last` to latest. */
-		see_time(
-			spin: number,
-			time: number,
-		) {
-			
+		see_time( time: number ) {
 			if( time < this.last_time ) return
-			if( time === this.last_time && spin < this.last_spin ) return
-			
 			this.last_time = time
-			this.last_spin = spin
-			
 		}
 		
 		/** Add new `time` for `peer` and increase `last`. */
 		see_peer(
 			peer: $mol_int62_pair,
-			spin: number,
 			time: number,
 		) {
 			
-			if( !this.fresh( peer, spin, time ) ) return
+			if( !this.fresh( peer, time ) ) return
 			
-			this.set( peer, [ spin, time ] )
-			this.see_time( spin, time )
+			this.set( peer, time )
+			this.see_time( time )
 			
 		}
 		
@@ -72,7 +61,6 @@ namespace $ {
 						lo: bin.getInt32( cursor + 0, true ) << 1 >> 1,
 						hi: bin.getInt32( cursor + 4, true ) << 1 >> 1,
 					},
-					0,
 					bin.getInt32( cursor + 8 + 4 * group, true )
 				)
 				
@@ -83,59 +71,52 @@ namespace $ {
 		/** Checks if time from future. */
 		fresh(
 			peer: $mol_int62_pair,
-			spin: number,
 			time: number,
 		) {
-			
-			const [ peer_spin, peer_time ] = this.time( peer )
-			
-			if( time > peer_time ) return true
-			if( time === peer_time && spin > peer_spin ) return true
-			
-			return false
+			return time > this.time( peer )
 		}
 		
 		/** Checks if this clock from future of another. */
 		ahead( clock: $hyoo_crowd_clock ) {
 			
-			for( const [ peer, [ spin, time ] ] of this ) {
-				if( clock.fresh( peer, spin, time ) ) return true
+			for( const [ peer, time ] of this ) {
+				if( clock.fresh( peer, time ) ) return true
 			}
 			
 			return false
 		}
 		
 		time( peer: $mol_int62_pair ) {
-			return this.get( peer ) ?? [ 0, -1 * 2**31 ]
+			return this.get( peer ) ?? $hyoo_crowd_clock.begin
 		}
 		
 		now() {
-			return Math.floor( Date.now() / 1000 ) - 2**31
+			return $hyoo_crowd_time_now()
 		}
 		
 		last_stamp() {
-			return ( this.last_time + 2**31 ) * 1000
+			return  $hyoo_crowd_time_stamp( this.last_time )
 		}
 		
 		/** Gererates new time for peer that greater then other seen. */
 		tick( peer: $mol_int62_pair ) {
 			
 			let time = this.now()
-			let spin = 0
 			
 			if( time <= this.last_time ) {
-				if( this.last_spin < 2**16 - 1 ) {
-					time = this.last_time
-					spin = Number( this.last_spin ) + 1
-				} else {
-					time = Number( this.last_time ) + 1
-					spin = 0
-				}
+				time = this.last_time + 1
 			}
 			
-			this.see_peer( peer, spin, time )
+			this.see_peer( peer, time )
 			
-			return [ spin, time ] as const
+			return time
+		}
+		
+		[ $mol_dev_format_head ]() {
+			return $mol_dev_format_span( {} ,
+				$mol_dev_format_native( this ) ,
+				$mol_dev_format_shade( ' ' + new Date( this.last_stamp() ).toISOString().replace( 'T', ' ' ) ) ,
+			)
 		}
 		
 	}
@@ -164,12 +145,12 @@ namespace $ {
 			bin.setInt32( offset.land_hi, land.hi, true )
 			
 			let cursor = offset.clocks
-			for( const [ peer, [ spin, time ] ] of clocks[0] ) {
+			for( const [ peer, time ] of clocks[0] ) {
 				
 				bin.setInt32( cursor + 0, peer.lo, true )
 				bin.setInt32( cursor + 4, peer.hi, true )
 				bin.setInt32( cursor + 8, time, true )
-				bin.setInt32( cursor + 12, clocks[1].get( peer )?.[1] ?? -1 * 2**30, true )
+				bin.setInt32( cursor + 12, clocks[1].get( peer ) ?? $hyoo_crowd_clock.begin, true )
 				
 				cursor += 16
 			}

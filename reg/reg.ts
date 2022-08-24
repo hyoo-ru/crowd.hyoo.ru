@@ -64,7 +64,7 @@ namespace $ {
 			if( land_id.lo || land_id.hi ) return world.land_sync( land_id )
 			
 			const land = $mol_wire_sync( world ).grab( king_level, base_level )
-			this.value( $mol_int62_to_string( land.id ) )
+			this.value( $mol_int62_to_string( land.id() ) )
 			
 			return land
 		}

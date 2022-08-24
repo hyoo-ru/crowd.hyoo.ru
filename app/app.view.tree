@@ -12,13 +12,6 @@ $hyoo_crowd_app $mol_book2
 					title \Sync
 					enabled <= sync_enabled false
 					click?event <=> sync?event null
-			store <= left_store $hyoo_crowd_land /
-				*
-					lo 11
-					hi 1
-				* id *
-					lo 22
-					hi 2
 		<= Right $hyoo_crowd_app_peer
 			title \
 			hint \Text of Bob
@@ -27,22 +20,9 @@ $hyoo_crowd_app $mol_book2
 				<= Lights $mol_lights_toggle
 				<= Source $mol_link_source
 					uri \https://github.com/hyoo-ru/crowd.hyoo.ru/
-			store <= right_store $hyoo_crowd_land /
-				*
-					lo 11
-					hi 1
-				* id *
-					lo 33
-					hi 3
 
 $hyoo_crowd_app_peer $mol_page
-	store $hyoo_crowd_land /
-		*
-			lo 0
-			hi 0
-		* id *
-			lo 0
-			hi 0
+	store $hyoo_crowd_land
 	sync 0
 	body /
 		<= Text $mol_textarea

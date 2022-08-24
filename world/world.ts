@@ -29,8 +29,10 @@ namespace $ {
 			const exists = this._lands.get( id )
 			if( exists ) return exists
 			
-			const land = new $hyoo_crowd_land( id, this.peer! )
-			land.world = $mol_const( this )
+			const land = $hyoo_crowd_land.make({
+				id: $mol_const( id ),
+				world: $mol_const( this ),
+			})
 			
 			this._lands.set( id, land )
 			this.lands_pub.emit()
@@ -41,9 +43,8 @@ namespace $ {
 		land_sync(
 			id: $mol_int62_pair,
 		) {
-			const first = !this._lands.get( id )
 			const land = this.land( id )
-			if( first ) this.land_init( land )
+			this.land_init( land )
 			return land
 		}
 		
@@ -69,7 +70,10 @@ namespace $ {
 			this._knights.set( knight.id, knight )
 			
 			const land_inner = this.land( knight.id )
-			const land_outer = new $hyoo_crowd_land( knight.id, knight )
+			const land_outer = $hyoo_crowd_land.make({
+				id: $mol_const( knight.id ),
+				peer: $mol_const( knight ),
+			})
 			
 			land_outer.level( this.peer!.id, king_level )
 			land_outer.level_base( base_level )
@@ -131,7 +135,7 @@ namespace $ {
 			const delta = [] as $hyoo_crowd_unit[]
 			
 			for( const land of this.lands.values() ) {
-				const units = await this.delta_land( land, clocks.get( land.id ) )
+				const units = await this.delta_land( land, clocks.get( land.id() ) )
 				delta.push( ... units )
 			}
 			
@@ -167,7 +171,7 @@ namespace $ {
 			const land = this.land( unit.land() )
 			
 			try {
-				await this.audit( land, unit )
+				await this.audit( unit )
 			} catch( error: any ) {
 				return error.message as string
 			}
@@ -178,13 +182,13 @@ namespace $ {
 		}
 		
 		async audit(
-			land: $hyoo_crowd_land,
 			unit: $hyoo_crowd_unit,
 		) {
 			
+			const land = this.land( unit.land() )
 			const bin = unit.bin!
 				
-			const desync = 60 * 60 // 1 hour
+			const desync = 60 * 60 * 10 // 1 hour
 			const deadline = land.clock_data.now() + desync
 			
 			if( unit.time > deadline ) {
@@ -228,13 +232,13 @@ namespace $ {
 				
 				case $hyoo_crowd_unit_kind.give: {
 					
-					const king_unit = land.unit( land.id, land.id )
+					const king_unit = land.unit( land.id(), land.id() )
 					
 					if( !king_unit ) {
 						$mol_fail( new Error( 'No king' ) )
 					}
 					
-					const give_unit = land.unit( land.id, unit.self() )
+					const give_unit = land.unit( land.id(), unit.self() )
 					
 					if( give_unit?.level() as number > unit.level() ) {
 						$mol_fail( new Error( `Revoke unsupported` ) )
@@ -242,7 +246,7 @@ namespace $ {
 					
 					if( unit.auth_lo === king_unit.auth_lo && unit.auth_hi === king_unit.auth_hi ) break
 					
-					const lord_unit = land.unit( land.id, unit.auth() )
+					const lord_unit = land.unit( land.id(), unit.auth() )
 					
 					if( lord_unit?.level() !== $hyoo_crowd_peer_level.law ) {
 						$mol_fail( new Error( `Need law level` ) )
@@ -253,7 +257,7 @@ namespace $ {
 				
 				case $hyoo_crowd_unit_kind.data: {
 				
-					const king_unit = land.unit( land.id, land.id )
+					const king_unit = land.unit( land.id(), land.id() )
 					
 					if( !king_unit ) {
 						$mol_fail( new Error( 'No king' ) )
@@ -263,7 +267,7 @@ namespace $ {
 					
 					direct: {
 						
-						const give_unit = land.unit( land.id, unit.auth() )
+						const give_unit = land.unit( land.id(), unit.auth() )
 						const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
 						
 						if( level >= $hyoo_crowd_peer_level.mod ) break
@@ -281,7 +285,7 @@ namespace $ {
 					
 					fallback: {
 						
-						const give_unit = land.unit( land.id, { lo: 0, hi: 0 } )
+						const give_unit = land.unit( land.id(), { lo: 0, hi: 0 } )
 						const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
 						
 						if( level >= $hyoo_crowd_peer_level.mod ) break

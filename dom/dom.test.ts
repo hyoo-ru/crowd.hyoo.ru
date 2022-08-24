@@ -1,14 +1,22 @@
 namespace $ {
+	
+	async function make_land( id = { lo: -1, hi: -11 } ) {
+		return $hyoo_crowd_land.make({
+			id: $mol_const( id ),
+			peer: $mol_const( await $hyoo_crowd_peer.generate() ),
+		})
+	}
+	
 	$mol_test({
 		
 		async 'import exported html'() {
 			
-			const left = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const left = await make_land()
 			left.chief.as( $hyoo_crowd_list ).list([ 'foo', { tag: 'i' }, 'bar' ])
 			left.chief.nodes( $hyoo_crowd_text )[1].text( 'ton' )
 			const html = left.chief.as( $hyoo_crowd_html ).html()
 			
-			const right = new $hyoo_crowd_land( { lo: -2, hi: -22 }, await $hyoo_crowd_peer.generate() )
+			const right = await make_land({ lo: -2, hi: -22 })
 			right.chief.as( $hyoo_crowd_html ).html( html )
 			
 			$mol_assert_equal( html, left.chief.as( $hyoo_crowd_html ).html() )
@@ -22,7 +30,7 @@ namespace $ {
 		
 		async 'import wild spans'() {
 			
-			const land = new $hyoo_crowd_land( { lo: -1, hi: -11 }, await $hyoo_crowd_peer.generate() )
+			const land = await make_land()
 			land.chief.as( $hyoo_crowd_html ).html( '<body><span>foo bar<a href="ton"/></span></body>' )
 			
 			const dom = land.chief.as( $hyoo_crowd_dom ).dom()

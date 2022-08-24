@@ -20,12 +20,12 @@ namespace $ {
 			}
 			
 			$mol_assert_like(
-				world2.land( land1.id ).chief.as( $hyoo_crowd_list ).list(),
+				world2.land( land1.id() ).chief.as( $hyoo_crowd_list ).list(),
 				[ 123, 456 ],
 			)
 			
 			$mol_assert_like(
-				world2.land( land2.id ).chief.as( $hyoo_crowd_list ).list(),
+				world2.land( land2.id() ).chief.as( $hyoo_crowd_list ).list(),
 				[ 456, 789 ],
 			)
 			
@@ -39,7 +39,7 @@ namespace $ {
 			
 			// go to future
 			const clock = land.clock_data
-			clock.see_time( 0, clock.now() + 60 * 60 * 24 )
+			clock.see_time( clock.now() + 60 * 60 * 24 * 10 )
 			
 			// do changes
 			land.chief.as( $hyoo_crowd_reg ).numb( 123 )
@@ -52,7 +52,7 @@ namespace $ {
 			$mol_assert_like( broken, [ '', '', '', 'Far future' ] )
 			
 			// only 3 grab units
-			$mol_assert_like( world2.land( land.id ).delta().length, 3 )
+			$mol_assert_like( world2.land( land.id() ).delta().length, 3 )
 			
 		},
 		
@@ -73,7 +73,7 @@ namespace $ {
 			$mol_assert_like( broken, [ '', '', 'Alien join key', 'No auth key' ] )
 			
 			// only 2 grab units
-			$mol_assert_like( world2.land( land.id ).delta().length, 2 )
+			$mol_assert_like( world2.land( land.id() ).delta().length, 2 )
 			
 		},
 		
@@ -94,7 +94,7 @@ namespace $ {
 			$mol_assert_like( broken, [ '', '', 'No join key', 'No king' ] )
 			
 			// only 2 grab units
-			$mol_assert_like( world2.land( land.id ).delta().length, 2 )
+			$mol_assert_like( world2.land( land.id() ).delta().length, 2 )
 			
 		},
 		
@@ -113,7 +113,7 @@ namespace $ {
 			$mol_assert_like( broken, [ 'Wrong join sign', 'No king' ] )
 			
 			// no applied units 
-			$mol_assert_like( world2.land( land.id ).delta().length, 0 )
+			$mol_assert_like( world2.land( land.id() ).delta().length, 0 )
 			
 		},
 		
@@ -126,7 +126,7 @@ namespace $ {
 			
 			// do changes
 			land.chief.as( $hyoo_crowd_reg ).numb( 123 )
-			world2.land( land.id ).chief.as( $hyoo_crowd_reg ).numb( 234 )
+			world2.land( land.id() ).chief.as( $hyoo_crowd_reg ).numb( 234 )
 			
 			// 1 ignored unit
 			const broken = [] as string[]
@@ -136,7 +136,7 @@ namespace $ {
 			$mol_assert_like( broken, [ '', '', 'Already join', '' ] )
 			
 			// 5 units applied
-			$mol_assert_like( world2.land( land.id ).delta().length, 5 )
+			$mol_assert_like( world2.land( land.id() ).delta().length, 5 )
 			
 		},
 		
@@ -148,7 +148,7 @@ namespace $ {
 			const peer = await $hyoo_crowd_peer.generate()
 			
 			const land1 = await world1.grab() // +3 units
-			const land2 = world2.land( land1.id )
+			const land2 = world2.land( land1.id() )
 			
 			// do changes
 			land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb( 123 ) // +1 unit
@@ -179,7 +179,7 @@ namespace $ {
 			
 			level_add: {
 				
-				land1.level( land2.auth.id, $hyoo_crowd_peer_level.add ) // +1 unit
+				land1.level( land2.peer().id, $hyoo_crowd_peer_level.add ) // +1 unit
 				
 				const broken = [] as string[]
 				for( const bin of await world2.delta() ) {
@@ -196,7 +196,7 @@ namespace $ {
 			
 			level_mod: {
 				
-				land1.level( land2.auth.id, $hyoo_crowd_peer_level.mod )
+				land1.level( land2.peer().id, $hyoo_crowd_peer_level.mod )
 				
 				const broken = [] as string[]
 				for( const bin of await world2.delta() ) {
@@ -213,7 +213,7 @@ namespace $ {
 			
 			level_law: {
 				
-				land1.level( land2.auth.id, $hyoo_crowd_peer_level.law )
+				land1.level( land2.peer().id, $hyoo_crowd_peer_level.law )
 				
 				const broken = [] as string[]
 				for( const bin of await world2.delta() ) {
@@ -238,7 +238,7 @@ namespace $ {
 			const peer = await $hyoo_crowd_peer.generate()
 			
 			const land1 = await world1.grab()
-			const land2 = world2.land( land1.id )
+			const land2 = world2.land( land1.id() )
 			
 			// do changes
 			land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb( 123 )

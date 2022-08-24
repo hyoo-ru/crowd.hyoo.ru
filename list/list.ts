@@ -15,43 +15,9 @@ namespace $ {
 			
 		}
 		
-		// set( next?: ReadonlySet< string | number | boolean | null > ) {
-			
-		// 	const dict = new Map< unknown, $hyoo_crowd_unit >()
-			
-		// 	for( const uint of this.uints() ) {
-		// 		const p = dict.get( unit.data )
-		// 		if( p && $hyoo_crowd_unit_compare( p, unit ) > 0 ) continue
-		// 		dict.set( unit.data, unit )
-		// 	}
-			
-		// 	const prev = new Set( dict.keys() ) as ReadonlySet< string | number | boolean | null >
-			
-		// 	if( !next ) return prev
-			
-		// 	$mol_reconcile({
-		// 		prev: [ ... prev.keys() ],
-		// 		0,
-		// 		prev.size,
-		// 		[ ... next ],
-		// 		equal: ( next, prev )=> prev.data === next,
-		// 		drop: ( prev, lead )=> this.land.wipe( prev ),
-		// 		insert: ( next, lead )=> this.land.put(
-		// 			this.head,
-		// 			$mol_hash_string( next, this.head ),
-		// 			lead?.self ?? 0,
-		// 			next,
-		// 		),
-		// 		update: ( next, prev, lead )=> this.land.put(
-		// 			prev.head,
-		// 			prev.self,
-		// 			lead?.self ?? 0,
-		// 			next,
-		// 		),
-		// 	})
-			
-		// 	return next
-		// }
+		set( next?: ReadonlySet< string | number | boolean | null > ) {
+			return new Set( this.list( next && [ ... next ] ) )
+		}
 		
 		insert(
 			next: readonly unknown[],
@@ -96,6 +62,29 @@ namespace $ {
 		
 		cut( seat: number ) {
 			return this.land.wipe( this.units()[ seat ] )
+		}
+		
+		has( val: string | number | boolean | null ) {
+			
+			for( const unit of this.units() ) {
+				if( unit.data === val ) return true 
+			}
+			
+			return false
+		}
+		
+		add( val: string | number | boolean | null ) {
+			if( this.has( val ) ) return
+			this.insert([ val ])
+		}
+		
+		drop( val: string | number | boolean | null ) {
+			
+			for( const unit of this.units() ) {
+				if( unit.data !== val ) continue
+				this.land.wipe( unit )
+			}
+			
 		}
 		
 	}
