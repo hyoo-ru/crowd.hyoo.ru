@@ -4,32 +4,31 @@ namespace $ {
 		'fresh'() {
 			
 			const clock = new $hyoo_crowd_clock
-			clock.see( 111, 1 )
-			clock.see( 222, 2 )
+			clock.see_peer( { lo: 11, hi: 111 }, 1 )
+			clock.see_peer( { lo: 22, hi: 222 }, 2 )
 			
-			$mol_assert_ok( clock.fresh( 222, 3 ) )
-			$mol_assert_ok( clock.fresh( 333, 1 ) )
+			$mol_assert_ok( clock.fresh( { lo: 22, hi: 222 }, 3 ) )
+			$mol_assert_ok( clock.fresh( { lo: 33, hi: 333 }, 1 ) )
 			
-			$mol_assert_not( clock.fresh( 222, 1 ) )
-			$mol_assert_not( clock.fresh( 333, 0 ) )
+			$mol_assert_not( clock.fresh( { lo: 22, hi: 222 }, 1 ) )
 			
 		},
 		
 		'fork'() {
 			
 			const left = new $hyoo_crowd_clock
-			left.see( 111, 1 )
-			left.see( 222, 2 )
+			left.see_peer( { lo: 11, hi: 111 }, 1 )
+			left.see_peer( { lo: 22, hi: 222 }, 2 )
 			
 			const right = new $hyoo_crowd_clock( left )
 			
-			$mol_assert_equal( right.now, 2 )
+			$mol_assert_equal( right.last_time, 2 )
 			
 			$mol_assert_like(
 				[ ... right ],
 				[
-					[ 111, 1 ],
-					[ 222, 2 ],
+					[ { lo: 11, hi: 111 }, 1 ],
+					[ { lo: 22, hi: 222 }, 2 ],
 				],
 			)
 			
@@ -38,36 +37,37 @@ namespace $ {
 		'generate'() {
 			
 			const clock = new $hyoo_crowd_clock
-			clock.see( 111, 1 )
-			clock.see( 222, 2 )
+			clock.see_peer( { lo: 11, hi: 111 }, $mol_int62_min + 1 )
+			clock.see_peer( { lo: 22, hi: 222 }, $mol_int62_min + 2 )
 			
-			const now = Date.now()
+			const now = clock.now() as number
 			
-			const time1 = clock.tick( 111 )
-			$mol_assert_ok( time1 >= now )
-			$mol_assert_ok( clock.now >= now )
+			const time1 = clock.tick( { lo: 11, hi: 111 } )
+			$mol_assert_like( time1, now )
+			$mol_assert_like( clock.last_time, now )
 			
-			clock.see( 222, now + 1000 )
-			const time2 = clock.tick( 222 )
-			$mol_assert_ok( time2 > now + 1000 )
-			$mol_assert_ok( clock.now > now + 1000 )
+			clock.see_peer( { lo: 22, hi: 222 }, now + 10 )
+			
+			const time2 = clock.tick( { lo: 22, hi: 222 } )
+			$mol_assert_like( time2, now + 11 )
+			$mol_assert_like( clock.last_time, now + 11 )
 			
 		},
 		
 		'ahead'() {
 			
 			const clock1 = new $hyoo_crowd_clock
-			clock1.see( 111, 1 )
-			clock1.see( 222, 2 )
+			clock1.see_peer( { lo: 11, hi: 111 }, 1 )
+			clock1.see_peer( { lo: 22, hi: 222 }, 2 )
 			
 			const clock2 = new $hyoo_crowd_clock
-			clock2.see( 111, 1 )
-			clock2.see( 333, 2 )
+			clock2.see_peer( { lo: 11, hi: 111 }, 1 )
+			clock2.see_peer( { lo: 33, hi: 333 }, 2 )
 			
 			const clock3 = new $hyoo_crowd_clock
-			clock3.see( 111, 1 )
-			clock3.see( 222, 2 )
-			clock3.see( 333, 2 )
+			clock3.see_peer( { lo: 11, hi: 111 }, 1 )
+			clock3.see_peer( { lo: 22, hi: 222 }, 2 )
+			clock3.see_peer( { lo: 33, hi: 333 }, 2 )
 			
 			$mol_assert_ok( clock1.ahead( clock2 ) )
 			$mol_assert_ok( clock2.ahead( clock1 ) )
@@ -77,6 +77,34 @@ namespace $ {
 			
 			$mol_assert_not( clock1.ahead( clock3 ) )
 			$mol_assert_not( clock2.ahead( clock3 ) )
+			
+		},
+		
+		'bin'() {
+			
+			const clocks1 = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
+			clocks1[ $hyoo_crowd_unit_group.auth ].see_peer( { lo: 11, hi: 111 }, 1 )
+			clocks1[ $hyoo_crowd_unit_group.data ].see_peer( { lo: 11, hi: 111 }, 2 )
+			
+			const bin = $hyoo_crowd_clock_bin.from( { lo: -11, hi: -111 }, clocks1 )
+			
+			$mol_assert_like( bin.land(), { lo: -11, hi: -111 } )
+			
+			const clocks2 = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
+			clocks2[ $hyoo_crowd_unit_group.auth ].see_bin( bin, $hyoo_crowd_unit_group.auth )
+			clocks2[ $hyoo_crowd_unit_group.data ].see_bin( bin, $hyoo_crowd_unit_group.data )
+			
+			$mol_assert_like(
+				clocks2.map( clock => new Map( clock ) ),
+				[
+					new Map([
+						[ { lo: 11, hi: 111 }, 1 ],
+					]),
+					new Map([
+						[ { lo: 11, hi: 111 }, 2 ],
+					]),
+				]
+			)
 			
 		},
 		

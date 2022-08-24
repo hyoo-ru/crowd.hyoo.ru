@@ -1,22 +1,27 @@
 namespace $ {
 	
 	/** Vector clock. Stores real timestamps. */
-	export class $hyoo_crowd_clock extends Map<
-		$hyoo_crowd_chunk['peer'],
-		$hyoo_crowd_chunk['time']
+	export class $hyoo_crowd_clock extends $mol_dict<
+		$mol_int62_pair,
+		number
 	> {
 		
-		/** Maximum time for all peers. */
-		now = 0
+		static begin = -1 * 2**30
 		
-		constructor( entries?: Iterable< readonly [ number, number ] > ) {
+		/** Maximum time for all peers. */
+		last_time = $hyoo_crowd_clock.begin
+		
+		constructor(
+			entries?: Iterable<
+				readonly [ $mol_int62_pair, number ]
+			>
+		) {
 			
-			super( entries! )
+			super( entries )
+			if( !entries ) return
 			
-			if( entries ) {
-				for( const [ peer, time ] of entries ) {
-					if( this.now < time ) this.now = time
-				}
+			for( const [ peer, time ] of entries ) {
+				this.see_time( time )
 			}
 			
 		}
@@ -24,48 +29,142 @@ namespace $ {
 		/** Synchronize this cloc with another. */
 		sync( right: $hyoo_crowd_clock ) {
 			for( const [ peer, time ] of right ) {
-				this.see( peer, time )
+				this.see_peer( peer, time )
 			}
 		}
 		
-		/** Add new `time` for `peer` and increase `now`. */
-		see( peer: number, time: number ) {
+		/** Increase `last` to latest. */
+		see_time( time: number ) {
+			if( time < this.last_time ) return
+			this.last_time = time
+		}
+		
+		/** Add new `time` for `peer` and increase `last`. */
+		see_peer(
+			peer: $mol_int62_pair,
+			time: number,
+		) {
 			
-			if( this.now < time ) this.now = time
+			if( !this.fresh( peer, time ) ) return
 			
-			const peer_time = this.get( peer )
-			if( !peer_time || peer_time < time ) {
-				this.set( peer, time )
+			this.set( peer, time )
+			this.see_time( time )
+			
+		}
+		
+		see_bin( bin: $hyoo_crowd_clock_bin, group: $hyoo_crowd_unit_group ) {
+			
+			for( let cursor = offset.clocks; cursor < bin.byteLength; cursor += 16 ) {
+				
+				this.see_peer(
+					{
+						lo: bin.getInt32( cursor + 0, true ) << 1 >> 1,
+						hi: bin.getInt32( cursor + 4, true ) << 1 >> 1,
+					},
+					bin.getInt32( cursor + 8 + 4 * group, true )
+				)
+				
 			}
-			
-			return time
+
 		}
 		
 		/** Checks if time from future. */
-		fresh( peer: number, time: number ) {
-			return time > ( this.get( peer ) ?? 0 )
+		fresh(
+			peer: $mol_int62_pair,
+			time: number,
+		) {
+			return time > this.time( peer )
 		}
 		
 		/** Checks if this clock from future of another. */
 		ahead( clock: $hyoo_crowd_clock ) {
 			
-			for( const [ peer, time ] of this.entries() ) {
+			for( const [ peer, time ] of this ) {
 				if( clock.fresh( peer, time ) ) return true
 			}
 			
 			return false
 		}
 		
-		/** Gererates new time for peer that greater then other seen. */
-		tick( peer: number ) {
-			return this.see( peer, Math.max( Date.now(), this.now + 1 ) )
+		time( peer: $mol_int62_pair ) {
+			return this.get( peer ) ?? $hyoo_crowd_clock.begin
 		}
 		
-		clear() {
-			super.clear()
-			this.now = 0
+		now() {
+			return $hyoo_crowd_time_now()
 		}
+		
+		last_stamp() {
+			return  $hyoo_crowd_time_stamp( this.last_time )
+		}
+		
+		/** Gererates new time for peer that greater then other seen. */
+		tick( peer: $mol_int62_pair ) {
 			
+			let time = this.now()
+			
+			if( time <= this.last_time ) {
+				time = this.last_time + 1
+			}
+			
+			this.see_peer( peer, time )
+			
+			return time
+		}
+		
+		[ $mol_dev_format_head ]() {
+			return $mol_dev_format_span( {} ,
+				$mol_dev_format_native( this ) ,
+				$mol_dev_format_shade( ' ' + new Date( this.last_stamp() ).toISOString().replace( 'T', ' ' ) ) ,
+			)
+		}
+		
+	}
+	
+	const offset = {
+		
+		land_lo: 0,
+		land_hi: 4,
+		
+		clocks: 8,
+		
+	} as const
+	
+	export class $hyoo_crowd_clock_bin extends DataView {
+		
+		static from(
+			land: $mol_int62_pair,
+			clocks: readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ]
+		) {
+			
+			const size = offset.clocks + clocks[0].size * 16
+			const mem = new Uint8Array( size )
+			const bin = new $hyoo_crowd_clock_bin( mem.buffer )
+			
+			bin.setInt32( offset.land_lo, land.lo ^ ( 1 << 31 ), true )
+			bin.setInt32( offset.land_hi, land.hi, true )
+			
+			let cursor = offset.clocks
+			for( const [ peer, time ] of clocks[0] ) {
+				
+				bin.setInt32( cursor + 0, peer.lo, true )
+				bin.setInt32( cursor + 4, peer.hi, true )
+				bin.setInt32( cursor + 8, time, true )
+				bin.setInt32( cursor + 12, clocks[1].get( peer ) ?? $hyoo_crowd_clock.begin, true )
+				
+				cursor += 16
+			}
+			
+			return bin
+		}
+		
+		land() {
+			return {
+				lo: this.getInt32( offset.land_lo, true ) << 1 >> 1,
+				hi: this.getInt32( offset.land_hi, true ) << 1 >> 1,
+			}
+		}
+		
 	}
 	
 }

@@ -47,40 +47,41 @@ namespace $ {
 							}
 				}
 				
-				let chunks = this.chunks()
+				let units = this.units()
 				
 				$mol_reconcile({
-					prev: chunks,
+					prev: units,
 					from: 0,
-					to: chunks.length,
+					to: units.length,
 					next: sample,
 					equal: ( next, prev )=> typeof next === 'string'
 						? prev.data === next
 						: String( prev.self ) === next['id'],
-					drop: ( prev, lead )=> this.doc.wipe( prev ),
+					drop: ( prev, lead )=> this.land.wipe( prev ),
 					insert: ( next, lead )=> {
-						return this.doc.put(
+						return this.land.put(
 							this.head,
 							typeof next === 'string'
-								? this.doc.id_new()
-								: Number( ( next as Element ).id ) || this.doc.id_new(),
-							lead?.self ?? 0,
+								? this.land.id_new()
+								: $mol_int62_from_string( ( next as Element ).id )
+									|| this.land.id_new(),
+							lead?.self() ?? { lo: 0, hi: 0 },
 							val( next ),
 						)
 					},
-					update: ( next, prev, lead )=> this.doc.put(
-						prev.head,
-						prev.self,
-						lead?.self ?? 0,
+					update: ( next, prev, lead )=> this.land.put(
+						prev.head(),
+						prev.self(),
+						lead?.self() ?? { lo: 0, hi: 0 },
 						val( next ),
 					),
 				})
 				
-				chunks = this.chunks()
-				for( let i = 0; i < chunks.length; ++i ) {
+				units = this.units()
+				for( let i = 0; i < units.length; ++i ) {
 					const sam = sample[i]
 					if( typeof sam !== 'string' ) {
-						$hyoo_crowd_dom.for( this.doc, chunks[i].self ).dom( sam )
+						$hyoo_crowd_dom.for( this.land, units[i].self() ).dom( sam )
 					}
 				}
 				
@@ -89,21 +90,21 @@ namespace $ {
 			} else {
 				
 				return <>{
-					this.chunks().map( chunk => {
+					this.units().map( unit => {
 						
-						const Tag = typeof chunk.data === 'string'
+						const Tag = typeof unit.data === 'string'
 							? 'span'
-							: ( chunk.data as { tag: string } ).tag ?? 'span'
+							: ( unit.data as { tag: string } ).tag ?? 'span'
 							
-						const attr = typeof chunk.data === 'string'
+						const attr = typeof unit.data === 'string'
 							? {}
-							: ( chunk.data as { attr: {} } ).attr ?? {}
+							: ( unit.data as { attr: {} } ).attr ?? {}
 							
-						const content = typeof chunk.data === 'string'
-							? chunk.data
-							: $hyoo_crowd_dom.for( this.doc, chunk.self ).dom()
+						const content = typeof unit.data === 'string'
+							? unit.data
+							: $hyoo_crowd_dom.for( this.land, unit.self() ).dom()
 							
-						return <Tag { ... attr } id={ String( chunk.self ) } >{ content }</Tag>
+						return <Tag { ... attr } id={ $mol_int62_to_string( unit.self() ) } >{ content }</Tag>
 						
 					} )
 				}</>

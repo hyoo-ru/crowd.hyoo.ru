@@ -23,7 +23,7 @@ namespace $ {
 			str_to = str_from,
 		) {
 			
-			const list = this.chunks()
+			const list = this.units()
 			
 			let from = str_from < 0 ? list.length : 0
 			let word = ''
@@ -74,30 +74,47 @@ namespace $ {
 		point_by_offset( offset: number ) {
 			
 			let off = offset
-			for( const chunk of this.chunks() ) {
+			for( const unit of this.units() ) {
 				
-				const len = String( chunk.data ).length
+				const len = String( unit.data ).length
 				
-				if( off < len ) return { chunk: chunk.self, offset: off }
+				if( off < len ) return { self: unit.self(), offset: off }
 				else off -= len
 				
 			}
 			
-			return { chunk: this.head, offset: offset }
+			return { self: this.head, offset: offset }
 		}
 		
-		offset_by_point( point: { chunk: number, offset: number } ) {
+		offset_by_point( point: { self: $mol_int62_pair, offset: number } ) {
 			
 			let offset = 0
 			
-			for( const chunk of this.chunks() ) {
+			for( const unit of this.units() ) {
 				
-				if( chunk.self === point.chunk ) return offset + point.offset
+				if( unit.self_lo === point.self.lo && unit.self_hi === point.self.hi ) {
+					return offset + point.offset
+				} else {
+					offset += String( unit.data ).length
+				}
 				
-				offset += String( chunk.data ).length
 			}
 			
 			return offset
+		}
+		
+		selection( peer: $mol_int62_pair, next?: number[] ) {
+			
+			const reg = this.land.world().land_sync( peer ).chief.sub( '$hyoo_crowd_text..selection', $hyoo_crowd_reg )
+			
+			if( next ) {
+				reg.value( next.map( offset => this.point_by_offset( offset ) ) )
+				return next
+			} else {
+				return ( reg.value() as { self: $mol_int62_pair, offset: number }[] )
+					?.map( point => this.offset_by_point( point ) ) ?? [ 0, 0 ]
+			}
+			
 		}
 		
 	}

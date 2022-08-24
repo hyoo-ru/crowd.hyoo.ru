@@ -1,31 +1,39 @@
 namespace $ {
+	
+	async function make_land( id = { lo: -1, hi: -11 } ) {
+		return $hyoo_crowd_land.make({
+			id: $mol_const( id ),
+			peer: $mol_const( await $hyoo_crowd_peer.generate() ),
+		})
+	}
+	
 	$mol_test({
 		
-		'import exported html'() {
+		async 'import exported html'() {
 			
-			const left = new $hyoo_crowd_doc( 123 )
-			$hyoo_crowd_list.for( left ).list([ 'foo', { tag: 'i' }, 'bar' ])
-			left.root.nodes( $hyoo_crowd_text )[1].text( 'ton' )
-			const html = $hyoo_crowd_html.for( left ).html()
+			const left = await make_land()
+			left.chief.as( $hyoo_crowd_list ).list([ 'foo', { tag: 'i' }, 'bar' ])
+			left.chief.nodes( $hyoo_crowd_text )[1].text( 'ton' )
+			const html = left.chief.as( $hyoo_crowd_html ).html()
 			
-			const right = new $hyoo_crowd_doc( 234 )
-			$hyoo_crowd_html.for( right ).html( html )
+			const right = await make_land({ lo: -2, hi: -22 })
+			right.chief.as( $hyoo_crowd_html ).html( html )
 			
-			$mol_assert_equal( html, $hyoo_crowd_html.for( right ).html() )
+			$mol_assert_equal( html, left.chief.as( $hyoo_crowd_html ).html() )
 			$mol_assert_equal(
-				$hyoo_crowd_text.for( left ).text(),
-				$hyoo_crowd_text.for( right ).text(),
+				left.chief.as( $hyoo_crowd_text ).text(),
+				right.chief.as( $hyoo_crowd_text ).text(),
 				'foobar',
 			)
 			
 		},
 		
-		'import wild spans'() {
+		async 'import wild spans'() {
 			
-			const doc = new $hyoo_crowd_doc( 234 )
-			$hyoo_crowd_html.for( doc ).html( '<body><span>foo bar<a href="ton"/></span></body>' )
+			const land = await make_land()
+			land.chief.as( $hyoo_crowd_html ).html( '<body><span>foo bar<a href="ton"/></span></body>' )
 			
-			const dom = $hyoo_crowd_dom.for( doc ).dom()
+			const dom = land.chief.as( $hyoo_crowd_dom ).dom()
 			$mol_assert_equal( dom.children[0].nodeName, 'SPAN' )
 			$mol_assert_equal( dom.children[0].textContent, 'foo' )
 			$mol_assert_equal( dom.children[1].nodeName, 'SPAN' )

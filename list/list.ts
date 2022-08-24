@@ -4,40 +4,44 @@ namespace $ {
 		/** Data list representation. */
 		list( next?: readonly unknown[] ) {
 			
-			const chunks = this.chunks()
+			const units = this.units()
 			
 			if( next === undefined ) {
-				return chunks.map( chunk => chunk.data )
+				return units.map( unit => unit.data )
 			} else {
-				this.insert( next, 0, chunks.length )
+				this.insert( next, 0, units.length )
 				return next
 			}
 			
 		}
 		
+		set( next?: ReadonlySet< string | number | boolean | null > ) {
+			return new Set( this.list( next && [ ... next ] ) )
+		}
+		
 		insert(
 			next: readonly unknown[],
-			from = this.chunks().length,
+			from = this.units().length,
 			to = from,
 		) {
 			
 			$mol_reconcile({
-				prev: this.chunks(),
+				prev: this.units(),
 				from,
 				to,
 				next,
 				equal: ( next, prev )=> prev.data === next,
-				drop: ( prev, lead )=> this.doc.wipe( prev ),
-				insert: ( next, lead )=> this.doc.put(
+				drop: ( prev, lead )=> this.land.wipe( prev ),
+				insert: ( next, lead )=> this.land.put(
 					this.head,
-					this.doc.id_new(),
-					lead?.self ?? 0,
+					this.land.id_new(),
+					lead?.self() ?? { lo: 0, hi: 0 },
 					next,
 				),
-				update: ( next, prev, lead )=> this.doc.put(
-					prev.head,
-					prev.self,
-					lead?.self ?? 0,
+				update: ( next, prev, lead )=> this.land.put(
+					prev.head(),
+					prev.self(),
+					lead?.self() ?? { lo: 0, hi: 0 },
 					next,
 				),
 			})
@@ -49,15 +53,38 @@ namespace $ {
 			to: number,
 		) {
 			
-			const chunks = this.chunks()
-			const lead = to ? chunks[ to - 1 ].self : 0
+			const units = this.units()
+			const lead = to ? units[ to - 1 ] : null
 			
-			return this.doc.move( chunks[ from ], this.head, lead )
+			return this.land.move( units[ from ], this.head, lead?.self() ?? { lo: 0, hi: 0 } )
 			
 		}
 		
 		cut( seat: number ) {
-			return this.doc.wipe( this.chunks()[ seat ] )
+			return this.land.wipe( this.units()[ seat ] )
+		}
+		
+		has( val: string | number | boolean | null ) {
+			
+			for( const unit of this.units() ) {
+				if( unit.data === val ) return true 
+			}
+			
+			return false
+		}
+		
+		add( val: string | number | boolean | null ) {
+			if( this.has( val ) ) return
+			this.insert([ val ])
+		}
+		
+		drop( val: string | number | boolean | null ) {
+			
+			for( const unit of this.units() ) {
+				if( unit.data !== val ) continue
+				this.land.wipe( unit )
+			}
+			
 		}
 		
 	}
