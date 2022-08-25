@@ -1629,9 +1629,10 @@ declare namespace $ {
 declare namespace $ {
     type $hyoo_crowd_unit_id = `${$mol_int62_string}/${$mol_int62_string}`;
     enum $hyoo_crowd_unit_kind {
-        join = 0,
-        give = 1,
-        data = 2
+        grab = 0,
+        join = 1,
+        give = 2,
+        data = 3
     }
     enum $hyoo_crowd_unit_group {
         auth = 0,
