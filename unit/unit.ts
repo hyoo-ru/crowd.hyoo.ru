@@ -6,14 +6,17 @@ namespace $ {
 	
 	export enum $hyoo_crowd_unit_kind {
 		
-		/** Join peer to land */
-		join = 0,
+		/** Grab Land by King */
+		grab,
 		
-		/* Give rights for land to another peer */
-		give = 1,
+		/** Join Peer to Land */
+		join,
 		
-		/** Add data to land by joined peer with given rights */
-		data = 2,
+		/* Give Level for Peer for Land */
+		give,
+		
+		/** Add Data to Land by joined Peer with right Level */
+		data,
 		
 	}
 	
@@ -73,7 +76,11 @@ namespace $ {
 		kind() {
 			
 			if( this.head === this.self && this.auth === this.self ) {
-				return $hyoo_crowd_unit_kind.join
+				if( this.head === this.land ) {
+					return $hyoo_crowd_unit_kind.grab
+				} else {
+					return $hyoo_crowd_unit_kind.join
+				}
 			}
 			
 			if( this.head === this.land ) {
@@ -90,7 +97,11 @@ namespace $ {
 		}
 		
 		level() {
-			return level( this.data as any )
+			switch( this.kind() ) {
+				case $hyoo_crowd_unit_kind.grab: return $hyoo_crowd_peer_level.law
+				case $hyoo_crowd_unit_kind.give: return level( this.data as any )
+				default: $mol_fail( new Error( `Wrong unit kind for getting level: ${ this.kind() }` ) )
+			}
 		}
 		
 		[Symbol.toPrimitive]() {
@@ -100,6 +111,12 @@ namespace $ {
 		[ $mol_dev_format_head ]() {
 			
 			switch( this.kind() ) {
+				
+				case $hyoo_crowd_unit_kind.grab:
+					return $mol_dev_format_div( {},
+						$mol_dev_format_native( this ),
+						' 👑',
+					)
 				
 				case $hyoo_crowd_unit_kind.join:
 					return $mol_dev_format_div( {},

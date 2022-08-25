@@ -49,7 +49,7 @@ namespace $ {
 		}
 		
 		home() {
-			return this.land( this.peer!.id )
+			return this.land_sync( this.peer!.id )
 		}
 		
 		_knights = new $mol_dict<
@@ -200,6 +200,7 @@ namespace $ {
 			
 			switch( kind ) {
 				
+				case $hyoo_crowd_unit_kind.grab:
 				case $hyoo_crowd_unit_kind.join: {
 				
 					if( auth_unit ) {
@@ -234,22 +235,17 @@ namespace $ {
 					
 					const king_unit = land.unit( land.id(), land.id() )
 					
-					if( !king_unit ) {
-						$mol_fail( new Error( 'No king' ) )
-					}
-					
-					const give_unit = land.unit( land.id(), unit.self )
-					
-					if( give_unit?.level() as number > unit.level() ) {
-						$mol_fail( new Error( `Revoke unsupported` ) )
-					}
-					
+					if( !king_unit ) $mol_fail( new Error( 'No king' ) )
 					if( unit.auth === king_unit.auth ) break
 					
-					const lord_unit = land.unit( land.id(), unit.auth )
-					
-					if( lord_unit?.level() !== $hyoo_crowd_peer_level.law ) {
+					const lord_level = land.level( unit.auth )
+					if( lord_level !== $hyoo_crowd_peer_level.law ) {
 						$mol_fail( new Error( `Need law level` ) )
+					}
+					
+					const peer_level = land.level( unit.auth )
+					if( peer_level > unit.level() ) {
+						$mol_fail( new Error( `Revoke unsupported` ) )
 					}
 					
 					break

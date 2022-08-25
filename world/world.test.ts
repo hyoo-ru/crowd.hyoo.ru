@@ -265,7 +265,7 @@ namespace $ {
 				$mol_assert_like( land1.delta().length, 7 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 123 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
-				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.get )
+				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.add )
 				
 			}
 			
@@ -282,11 +282,10 @@ namespace $ {
 				$mol_assert_like( land1.delta().length, 7 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
-				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.get )
+				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.mod )
 				
 			}
 			
-			// forbidden now
 			level_law: {
 				
 				land1.level_base( $hyoo_crowd_peer_level.law )
@@ -296,11 +295,11 @@ namespace $ {
 					broken.push( await world1.apply_unit( bin ) )
 				}
 				
-				$mol_assert_like( broken, [ 'Already join', '', 'Already join', 'Already join', 'Need law level', '', '' ] )
-				$mol_assert_like( land1.delta().length, 7 )
+				$mol_assert_like( broken, [ 'Already join', '', 'Already join', 'Already join', '', '', '' ] )
+				$mol_assert_like( land1.delta().length, 8 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
-				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.get )
+				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.law )
 				
 			}
 			

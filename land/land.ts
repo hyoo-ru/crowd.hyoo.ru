@@ -271,12 +271,13 @@ namespace $ {
 		
 		level( peer: $mol_int62_string, next?: $hyoo_crowd_peer_level ) {
 			
-			this.join()
+			if( next ) this.join()
 			
 			const level_id = `${ this.id() }/${ peer }` as const
 			
 			const exists = this._unit_all.get( level_id )
-			const prev = exists?.level() ?? $hyoo_crowd_peer_level.get
+			const def = this._unit_all.get( `${ this.id() }/0_0` )
+			const prev = exists?.level() ?? def?.level() ?? $hyoo_crowd_peer_level.get
 			
 			if( next === undefined ) return prev
 			if( next <= prev ) return prev
