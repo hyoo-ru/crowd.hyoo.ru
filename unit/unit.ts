@@ -1,9 +1,6 @@
 namespace $ {
 	
-	export type $hyoo_crowd_unit_id = {
-		readonly head: $mol_int62_pair,
-		readonly self: $mol_int62_pair,
-	}
+	export type $hyoo_crowd_unit_id = `${ $mol_int62_string }/${ $mol_int62_string }`
 	
 	const level = $mol_data_enum( 'level', $hyoo_crowd_peer_level )
 	
@@ -75,7 +72,9 @@ namespace $ {
 			super()
 		}
 		
-		id(): $hyoo_crowd_unit_id { return { head: this.head(), self: this.self() } }
+		id(): $hyoo_crowd_unit_id {
+			return `${ $mol_int62_to_string( this.head() ) }/${ $mol_int62_to_string( this.self() ) }`
+		}
 		
 		land(): $mol_int62_pair { return { lo: this.land_lo, hi: this.land_hi } }
 		auth(): $mol_int62_pair { return { lo: this.auth_lo, hi: this.auth_hi } }

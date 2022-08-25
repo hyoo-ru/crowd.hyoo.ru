@@ -35,7 +35,7 @@ namespace $ {
 		readonly _clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
 		
 		/** unit by head + self */
-		protected _unit_all = new $mol_dict<
+		protected _unit_all = new Map<
 			$hyoo_crowd_unit_id,
 			$hyoo_crowd_unit
 		>()
@@ -44,18 +44,18 @@ namespace $ {
 			head: $mol_int62_pair,
 			self: $mol_int62_pair,
 		) {
-			return this._unit_all.get({ head, self })
+			return this._unit_all.get(`${ $mol_int62_to_string( head )}/${ $mol_int62_to_string( self ) }`)
 		}
 		
 		/** units by head */
-		protected _unit_lists = new $mol_dict<
-			$mol_int62_pair,
+		protected _unit_lists = new Map<
+			$mol_int62_string,
 			undefined | $hyoo_crowd_unit[] & { dirty: boolean }
 		>()
 		
 		/** Units by Head without tombstones */
-		protected _unit_alives = new $mol_dict<
-			$mol_int62_pair,
+		protected _unit_alives = new Map<
+			$mol_int62_string,
 			undefined | $hyoo_crowd_unit[]
 		>()
 		
@@ -65,7 +65,7 @@ namespace $ {
 		
 		/** Returns list of all Units for Node. */ 
 		protected unit_list(
-			head: $mol_int62_pair,
+			head: $mol_int62_string,
 		) {
 			
 			let kids = this._unit_lists.get( head )
@@ -81,14 +81,16 @@ namespace $ {
 			
 			this.pub.promote()
 			
-			let kids = this._unit_alives.get( head )
+			const head_id = $mol_int62_to_string( head )
+			
+			let kids = this._unit_alives.get( head_id )
 			if( !kids ) {
 				
-				const all = this.unit_list( head )
+				const all = this.unit_list( head_id )
 				if( all.dirty ) this.resort( head )
 				
 				kids = all.filter( kid => kid.data !== null )
-				this._unit_alives.set( head, kids )
+				this._unit_alives.set( head_id, kids )
 				
 			}
 			
@@ -107,7 +109,7 @@ namespace $ {
 				
 				if( id.lo === 0 && id.hi === 0 ) continue // zero reserved for empty
 				if( id.lo === this.id().lo && id.hi === this.id().hi ) continue // reserved for rights
-				if( this._unit_lists.has( id ) ) continue // skip already exists
+				if( this._unit_lists.has( $mol_int62_to_string( id ) ) ) continue // skip already exists
 				
 				return id
 			}
@@ -138,7 +140,7 @@ namespace $ {
 			
 			for( const unit of this._unit_all.values() ) {
 				
-				const time = clocks[ unit.group() ].time( unit.auth() )
+				const time = clocks[ unit.group() ].time( $mol_int62_to_string( unit.auth() ) )
 				if( unit.time <= time ) continue
 				
 				delta.push( unit! )
@@ -153,7 +155,8 @@ namespace $ {
 			head: $mol_int62_pair,
 		) {
 			
-			const kids = this._unit_lists.get( head )!
+			const head_id = $mol_int62_to_string( head )
+			const kids = this._unit_lists.get( head_id )!
 			
 			const queue = kids.splice(0).sort(
 				( left, right )=> - $hyoo_crowd_unit_compare( left, right )
@@ -190,7 +193,7 @@ namespace $ {
 
 			}
 			
-			this._unit_lists.set( head, kids )
+			this._unit_lists.set( head_id, kids )
 			kids.dirty = false
 			
 			return kids
@@ -201,10 +204,13 @@ namespace $ {
 			
 			for( const next of delta ) {
 				
-				this._clocks[ next.group() ].see_peer( next.auth(), next.time )
-				const kids = this.unit_list( next.head() )
+				const head_id = $mol_int62_to_string( next.head() )
 				
-				let prev = this._unit_all.get( next.id() )
+				this._clocks[ next.group() ].see_peer( $mol_int62_to_string( next.auth() ), next.time )
+				const kids = this.unit_list( head_id )
+				const next_id = next.id()
+				
+				let prev = this._unit_all.get( next_id )
 				if( prev ) {
 					if( $hyoo_crowd_unit_compare( prev, next ) > 0 ) continue
 					kids.splice( kids.indexOf( prev ), 1, next )
@@ -212,9 +218,9 @@ namespace $ {
 					kids.push( next )
 				}
 				
-				this._unit_all.set( next.id(), next )
+				this._unit_all.set( next_id, next )
 				kids.dirty = true
-				this._unit_alives.set( next.head(), undefined )
+				this._unit_alives.set( head_id, undefined )
 				
 			}
 			
@@ -233,10 +239,13 @@ namespace $ {
 			const { id: peer, key_public_serial } = this.peer()
 			if( !key_public_serial ) return
 			
-			const auth = this._unit_all.get({ head: peer, self: peer })
+			const peer_id = $mol_int62_to_string( peer )
+			const auth_id = `${ peer_id }/${ peer_id }` as const
+			
+			const auth = this._unit_all.get( auth_id )
 			if( auth ) return
 			
-			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
+			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer_id )
 			
 			const join_unit = new $hyoo_crowd_unit(
 				
@@ -261,7 +270,7 @@ namespace $ {
 				
 			)
 			
-			this._unit_all.set( { head: peer, self: peer }, join_unit )
+			this._unit_all.set( auth_id, join_unit )
 			
 			this._joined = true
 			
@@ -275,16 +284,19 @@ namespace $ {
 			
 			this.join()
 			
-			const exists = this._unit_all.get({ head: this.id(), self: peer })
+			const peer_id = $mol_int62_to_string( peer )
+			const level_id = `${ $mol_int62_to_string( this.id() ) }/${ peer_id }` as const
+			
+			const exists = this._unit_all.get( level_id )
 			const prev = exists?.level() ?? $hyoo_crowd_peer_level.get
 			
 			if( next === undefined ) return prev
 			if( next <= prev ) return prev
 			
-			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
+			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer_id )
 			const auth = this.peer()
 			
-			const join_unit = new $hyoo_crowd_unit(
+			const level_unit = new $hyoo_crowd_unit(
 				
 				this.id().lo,
 				this.id().hi,
@@ -307,7 +319,7 @@ namespace $ {
 				
 			)
 			
-			this._unit_all.set( { head: this.id(), self: peer }, join_unit )
+			this._unit_all.set( level_id, level_unit )
 			this.pub.emit()
 			
 			return next
@@ -323,10 +335,14 @@ namespace $ {
 			
 			this.join()
 			
-			let unit_old = this._unit_all.get({ head, self })
-			let unit_prev = prev ? this._unit_all.get({ head, self: prev })! : null
+			const head_id = $mol_int62_to_string( head )
+			const old_id = `${ head_id }/${ $mol_int62_to_string( self ) }` as const
+			const prev_id = `${ head_id }/${ $mol_int62_to_string( prev ) }` as const
 			
-			const unit_list = this.unit_list( head ) as $hyoo_crowd_unit[]
+			let unit_old = this._unit_all.get( old_id )
+			let unit_prev = prev ? this._unit_all.get( prev_id )! : null
+			
+			const unit_list = this.unit_list( head_id ) as $hyoo_crowd_unit[]
 			if( unit_old ) unit_list.splice( unit_list.indexOf( unit_old ), 1 )
 			
 			const seat = unit_prev ? unit_list.indexOf( unit_prev ) + 1 : 0
@@ -334,8 +350,8 @@ namespace $ {
 			
 			const next = lead?.self() ?? { lo: 0, hi: 0 }
 			
-			const time = this._clocks[ $hyoo_crowd_unit_group.data ].tick( this.peer().id )
 			const auth = this.peer()
+			const time = this._clocks[ $hyoo_crowd_unit_group.data ].tick( $mol_int62_to_string( auth.id ) )
 			
 			const unit_new = new $hyoo_crowd_unit(
 				
@@ -360,10 +376,10 @@ namespace $ {
 				
 			)
 			
-			this._unit_all.set( { head, self }, unit_new )
+			this._unit_all.set( old_id, unit_new )
 			
 			unit_list.splice( seat, 0, unit_new )
-			this._unit_alives.set( head, undefined )
+			this._unit_alives.set( head_id, undefined )
 			
 			// this.apply([ unit ])
 			
@@ -377,11 +393,11 @@ namespace $ {
 			
 			if( unit.data === null ) return unit
 			
-			for( const kid of this.unit_list( unit.self() ) ) {
+			for( const kid of this.unit_list( $mol_int62_to_string( unit.self() ) ) ) {
 				this.wipe( kid )
 			}
 			
-			const unit_list = this.unit_list( unit.head() )
+			const unit_list = this.unit_list( $mol_int62_to_string( unit.head() ) )
 			const seat = unit_list.indexOf( unit )
 			
 			const prev = seat > 0 ? unit_list[ seat - 1 ].self() : seat < 0 ? unit.prev() : { lo: 0, hi: 0 }
@@ -419,7 +435,7 @@ namespace $ {
 			head: $mol_int62_pair,
 			seat: number,
 		) {
-			const list = this.unit_list( head )
+			const list = this.unit_list( $mol_int62_to_string( head ) )
 			const prev = seat ? list[ seat - 1 ].self() : { lo: 0, hi: 0 }
 			return this.move( unit, head, prev )
 		}

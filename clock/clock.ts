@@ -1,8 +1,8 @@
 namespace $ {
 	
 	/** Vector clock. Stores real timestamps. */
-	export class $hyoo_crowd_clock extends $mol_dict<
-		$mol_int62_pair,
+	export class $hyoo_crowd_clock extends Map<
+		$mol_int62_string,
 		number
 	> {
 		
@@ -13,7 +13,7 @@ namespace $ {
 		
 		constructor(
 			entries?: Iterable<
-				readonly [ $mol_int62_pair, number ]
+				readonly [ $mol_int62_string, number ]
 			>
 		) {
 			
@@ -41,7 +41,7 @@ namespace $ {
 		
 		/** Add new `time` for `peer` and increase `last`. */
 		see_peer(
-			peer: $mol_int62_pair,
+			peer: $mol_int62_string,
 			time: number,
 		) {
 			
@@ -57,10 +57,10 @@ namespace $ {
 			for( let cursor = offset.clocks; cursor < bin.byteLength; cursor += 16 ) {
 				
 				this.see_peer(
-					{
+					$mol_int62_to_string({
 						lo: bin.getInt32( cursor + 0, true ) << 1 >> 1,
 						hi: bin.getInt32( cursor + 4, true ) << 1 >> 1,
-					},
+					}),
 					bin.getInt32( cursor + 8 + 4 * group, true )
 				)
 				
@@ -70,7 +70,7 @@ namespace $ {
 		
 		/** Checks if time from future. */
 		fresh(
-			peer: $mol_int62_pair,
+			peer: $mol_int62_string,
 			time: number,
 		) {
 			return time > this.time( peer )
@@ -86,7 +86,7 @@ namespace $ {
 			return false
 		}
 		
-		time( peer: $mol_int62_pair ) {
+		time( peer: $mol_int62_string ) {
 			return this.get( peer ) ?? $hyoo_crowd_clock.begin
 		}
 		
@@ -99,7 +99,7 @@ namespace $ {
 		}
 		
 		/** Gererates new time for peer that greater then other seen. */
-		tick( peer: $mol_int62_pair ) {
+		tick( peer: $mol_int62_string ) {
 			
 			let time = this.now()
 			
@@ -145,12 +145,14 @@ namespace $ {
 			bin.setInt32( offset.land_hi, land.hi, true )
 			
 			let cursor = offset.clocks
-			for( const [ peer, time ] of clocks[0] ) {
+			for( const [ peer_id, time ] of clocks[0] ) {
+				
+				const peer = $mol_int62_from_string( peer_id )
 				
 				bin.setInt32( cursor + 0, peer.lo, true )
 				bin.setInt32( cursor + 4, peer.hi, true )
 				bin.setInt32( cursor + 8, time, true )
-				bin.setInt32( cursor + 12, clocks[1].get( peer ) ?? $hyoo_crowd_clock.begin, true )
+				bin.setInt32( cursor + 12, clocks[1].get( peer_id ) ?? $hyoo_crowd_clock.begin, true )
 				
 				cursor += 16
 			}

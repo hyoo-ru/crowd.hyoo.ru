@@ -76,7 +76,7 @@ namespace $ {
 			left.chief.sub( 'foo', $hyoo_crowd_list ).list([ 111 ])
 			
 			const right = await make_land({ lo: 2, hi: 22 })
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.chief.sub( 'foo', $hyoo_crowd_list ).list([ 222 ])
 			
 			const left_delta = left.delta()
@@ -192,7 +192,7 @@ namespace $ {
 				store.delta([
 					new $hyoo_crowd_clock,
 					new $hyoo_crowd_clock([
-						[ store.peer().id, store.clock_data.last_time - 3 ],
+						[ store.peer().ids, store.clock_data.last_time - 3 ],
 					])
 				]).map( unit => unit.data ),
 				[ 'foo', 'bar', 'lol' ],
@@ -202,7 +202,7 @@ namespace $ {
 				store.delta([
 					new $hyoo_crowd_clock,
 					new $hyoo_crowd_clock([
-						[ store.peer().id, store.clock_data.last_time - 2 ],
+						[ store.peer().ids, store.clock_data.last_time - 2 ],
 					])
 				]).map( unit => unit.data ),
 				[ 'bar', 'lol' ],
@@ -212,7 +212,7 @@ namespace $ {
 				store.delta([
 					new $hyoo_crowd_clock,
 					new $hyoo_crowd_clock([
-						[ store.peer().id, store.clock_data.last_time - 1 ],
+						[ store.peer().ids, store.clock_data.last_time - 1 ],
 					])
 				]).map( unit => unit.data ),
 				[ 'lol' ],
@@ -222,7 +222,7 @@ namespace $ {
 				store.delta([
 					new $hyoo_crowd_clock,
 					new $hyoo_crowd_clock([
-						[ store.peer().id, store.clock_data.last_time ],
+						[ store.peer().ids, store.clock_data.last_time ],
 					])
 				]),
 				[],
@@ -358,7 +358,7 @@ namespace $ {
 			left.chief.as( $hyoo_crowd_text ).text( 'foo bar.' )
 			
 			const right = await make_land({ lo: 2, hi: 22 })
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.chief.as( $hyoo_crowd_text ).text( 'xxx yyy.' )
 			
 			const left_delta = left.delta()
@@ -384,7 +384,7 @@ namespace $ {
 			left.chief.as( $hyoo_crowd_text ).text( 'foo xxx bar' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.chief.as( $hyoo_crowd_text ).text( 'foo yyy bar' )
 			
 			const left_delta = left.delta( base.clocks )
@@ -410,7 +410,7 @@ namespace $ {
 			left.chief.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.insert( right.chief.units()[0], { lo: 0, hi: 0 }, 2 )
 			
 			const left_delta = left.delta( base.clocks )
@@ -436,7 +436,7 @@ namespace $ {
 			left.chief.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.insert( right.chief.units()[1], { lo: 0, hi: 0 }, 0 )
 			
 			const left_delta = left.delta( base.clocks )
@@ -462,7 +462,7 @@ namespace $ {
 			left.chief.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.insert( right.chief.units()[1], { lo: 0, hi: 0 }, 3 )
 			
 			const left_delta = left.delta( base.clocks )
@@ -488,7 +488,7 @@ namespace $ {
 			left.chief.as( $hyoo_crowd_text ).text( 'FooXxxBar' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.chief.as( $hyoo_crowd_text ).text( 'Bar' )
 			
 			const left_delta = left.delta( base.clocks )
@@ -514,7 +514,7 @@ namespace $ {
 			$hyoo_crowd_text.for( left, { lo: 1, hi: 11 } ).text( 'FooBarXxxZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.insert( $hyoo_crowd_node.for( right, { lo: 1, hi: 11 } ).units()[1], { lo: 2, hi: 22 }, 0 )
 			
 			const left_delta = left.delta( base.clocks )
@@ -546,7 +546,7 @@ namespace $ {
 			left.chief.as( $hyoo_crowd_text ).text( 'XxxFooYyyZzz' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.chief.as( $hyoo_crowd_text ).text( 'XxxBarZzz' )
 			
 			const left_delta = left.delta( base.clocks )
@@ -572,7 +572,7 @@ namespace $ {
 			left.chief.as( $hyoo_crowd_list ).list([ 111, 222, 777, 333, 444, 555, 666 ])
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			right.insert( right.chief.units()[1], { lo: 0, hi: 0 }, 5 )
 			right.insert( right.chief.units()[1], { lo: 0, hi: 0 }, 5 )
 			
@@ -597,7 +597,7 @@ namespace $ {
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
-			right.clock_data.tick( right.peer().id )
+			right.clock_data.tick( right.peer().ids )
 			
 			left.chief.as( $hyoo_crowd_text ).text( 'Hello Alice and fun!' )
 			right.chief.as( $hyoo_crowd_text ).text( 'Bye World and fun!' )
