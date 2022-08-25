@@ -16,8 +16,8 @@ namespace $ {
 				drop: ( prev, lead )=> this.land.wipe( prev ),
 				insert: ( next, lead )=> this.land.put(
 					this.head,
-					$mol_int62_hash_string( next, this.head.hi, this.head.lo ),
-					lead?.self() ?? { lo: 0, hi: 0 },
+					$mol_int62_hash_string( next, this.head ),
+					lead?.self ?? '0_0',
 					next,
 				),
 			})
@@ -27,7 +27,7 @@ namespace $ {
 		
 		sub< Node extends typeof $hyoo_crowd_node >( key: string, Node: Node ) {
 			this.add( key )
-			return new Node( this.land, $mol_int62_hash_string( key, this.head.hi, this.head.lo ) ) as InstanceType< Node >
+			return new Node( this.land, $mol_int62_hash_string( key, this.head ) ) as InstanceType< Node >
 		}
 		
 		has( key: string ) {

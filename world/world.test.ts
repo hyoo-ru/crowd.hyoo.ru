@@ -58,7 +58,7 @@ namespace $ {
 		
 		async 'ignore auth as another peer'() {
 			
-			const world1 = new $hyoo_crowd_world( { ... await $hyoo_crowd_peer.generate(), id: { lo: 1, hi: 11 } } )
+			const world1 = new $hyoo_crowd_world( { ... await $hyoo_crowd_peer.generate(), id: '1_1' } )
 			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
 			const land = await world1.grab()
 			
@@ -84,7 +84,7 @@ namespace $ {
 			const land = await world1.grab()
 			
 			// do changes
-			world1.land({ lo: 1, hi: 1 }).chief.as( $hyoo_crowd_reg ).numb( 123 )
+			world1.land( '1_1' ).chief.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 2 ignored units
 			const broken = [] as string[]

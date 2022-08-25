@@ -133,7 +133,7 @@ namespace $ {
 	export class $hyoo_crowd_clock_bin extends DataView {
 		
 		static from(
-			land: $mol_int62_pair,
+			land_id: $mol_int62_string,
 			clocks: readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ]
 		) {
 			
@@ -141,6 +141,7 @@ namespace $ {
 			const mem = new Uint8Array( size )
 			const bin = new $hyoo_crowd_clock_bin( mem.buffer )
 			
+			const land = $mol_int62_from_string( land_id )
 			bin.setInt32( offset.land_lo, land.lo ^ ( 1 << 31 ), true )
 			bin.setInt32( offset.land_hi, land.hi, true )
 			
@@ -161,10 +162,10 @@ namespace $ {
 		}
 		
 		land() {
-			return {
+			return $mol_int62_to_string({
 				lo: this.getInt32( offset.land_lo, true ) << 1 >> 1,
 				hi: this.getInt32( offset.land_hi, true ) << 1 >> 1,
-			}
+			})
 		}
 		
 	}

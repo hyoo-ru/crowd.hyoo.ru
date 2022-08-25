@@ -35,13 +35,13 @@ namespace $ {
 				insert: ( next, lead )=> this.land.put(
 					this.head,
 					this.land.id_new(),
-					lead?.self() ?? { lo: 0, hi: 0 },
+					lead?.self ?? '0_0',
 					next,
 				),
 				update: ( next, prev, lead )=> this.land.put(
-					prev.head(),
-					prev.self(),
-					lead?.self() ?? { lo: 0, hi: 0 },
+					prev.head,
+					prev.self,
+					lead?.self ?? '0_0',
 					next,
 				),
 			})
@@ -56,7 +56,7 @@ namespace $ {
 			const units = this.units()
 			const lead = to ? units[ to - 1 ] : null
 			
-			return this.land.move( units[ from ], this.head, lead?.self() ?? { lo: 0, hi: 0 } )
+			return this.land.move( units[ from ], this.head, lead?.self ?? '0_0' )
 			
 		}
 		

@@ -9,8 +9,7 @@ namespace $ {
 	
 	export class $hyoo_crowd_peer extends Object {
 		
-		id: $mol_int62_pair
-		ids: $mol_int62_string
+		id: $mol_int62_string
 		
 		constructor(
 			readonly key_public: $mol_crypto_auditor_public,
@@ -19,8 +18,7 @@ namespace $ {
 			readonly key_private_serial: Uint8Array,
 		) {
 			super()
-			this.id = $mol_int62_hash_buffer( this.key_public_serial )
-			this.ids = $mol_int62_to_string( this.id )
+			this.id = $mol_int62_to_string( $mol_int62_hash_buffer( this.key_public_serial ) )
 		}
 		
 		static async generate() {

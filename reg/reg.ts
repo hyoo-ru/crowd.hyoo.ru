@@ -24,12 +24,12 @@ namespace $ {
 					this.land.wipe( unit )
 				}
 				
-				const self = last?.self() ?? this.land.id_new()
+				const self = last?.self ?? this.land.id_new()
 				
 				this.land.put(
 					this.head,
 					self,
-					{ lo: 0, hi: 0 },
+					'0_0',
 					next,
 				)
 			
@@ -60,11 +60,11 @@ namespace $ {
 			
 			const world = this.world()
 			
-			let land_id = $mol_int62_from_string( this.value() as string ?? '0_0' )
-			if( land_id.lo || land_id.hi ) return world.land_sync( land_id )
+			let land_id = ( this.value() ?? '0_0' ) as $mol_int62_string
+			if( land_id !== '0_0' ) return world.land_sync( land_id )
 			
 			const land = $mol_wire_sync( world ).grab( king_level, base_level )
-			this.value( $mol_int62_to_string( land.id() ) )
+			this.value( land.id() )
 			
 			return land
 		}

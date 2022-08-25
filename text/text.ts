@@ -78,7 +78,7 @@ namespace $ {
 				
 				const len = String( unit.data ).length
 				
-				if( off < len ) return { self: unit.self(), offset: off }
+				if( off < len ) return { self: unit.self, offset: off }
 				else off -= len
 				
 			}
@@ -86,13 +86,13 @@ namespace $ {
 			return { self: this.head, offset: offset }
 		}
 		
-		offset_by_point( point: { self: $mol_int62_pair, offset: number } ) {
+		offset_by_point( point: { self: $mol_int62_string, offset: number } ) {
 			
 			let offset = 0
 			
 			for( const unit of this.units() ) {
 				
-				if( unit.self_lo === point.self.lo && unit.self_hi === point.self.hi ) {
+				if( unit.self === point.self ) {
 					return offset + point.offset
 				} else {
 					offset += String( unit.data ).length
@@ -103,7 +103,7 @@ namespace $ {
 			return offset
 		}
 		
-		selection( peer: $mol_int62_pair, next?: number[] ) {
+		selection( peer: $mol_int62_string, next?: number[] ) {
 			
 			const reg = this.land.world().land_sync( peer ).chief.sub( '$hyoo_crowd_text..selection', $hyoo_crowd_reg )
 			
@@ -111,7 +111,7 @@ namespace $ {
 				reg.value( next.map( offset => this.point_by_offset( offset ) ) )
 				return next
 			} else {
-				return ( reg.value() as { self: $mol_int62_pair, offset: number }[] )
+				return ( reg.value() as { self: $mol_int62_string, offset: number }[] )
 					?.map( point => this.offset_by_point( point ) ) ?? [ 0, 0 ]
 			}
 			

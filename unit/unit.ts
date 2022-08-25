@@ -27,36 +27,30 @@ namespace $ {
 		
 	}
 	
-	/** Independent part of data. mem >= 80B / bin >= 32B + 48B */
+	/** Independent part of data. */
 	export class $hyoo_crowd_unit extends Object {
 		
 		constructor(
 	
-			/** Identifier of land. 8B / info = 62b */
-			readonly land_lo: number,
-			readonly land_hi: number,
+			/** Identifier of land. */
+			readonly land: $mol_int62_string,
 			
-			/** Identifier of auth. 8B / info = 62b */
-			readonly auth_lo: number,
-			readonly auth_hi: number,
+			/** Identifier of auth. */
+			readonly auth: $mol_int62_string,
 			
 			
-			/** Identifier of head node. 8B / info = 62b */
-			readonly head_lo: number,
-			readonly head_hi: number,
+			/** Identifier of head node. */
+			readonly head: $mol_int62_string,
 			
-			/** Self identifier inside head after prev before next. 8B / info = 62b */
-			readonly self_lo: number,
-			readonly self_hi: number,
+			/** Self identifier inside head after prev before next. */
+			readonly self: $mol_int62_string,
 			
 			
-			/** Identifier of next node. 8B / info = 62b */
-			readonly next_lo: number,
-			readonly next_hi: number,
+			/** Identifier of next node. */
+			readonly next: $mol_int62_string,
 			
-			/** Identifier of prev node. 8B / info = 62b */
-			readonly prev_lo: number,
-			readonly prev_hi: number,
+			/** Identifier of prev node. */
+			readonly prev: $mol_int62_string,
 			
 			
 			/** Monotonic real clock. 4B / info = 31b */
@@ -72,28 +66,17 @@ namespace $ {
 			super()
 		}
 		
-		id(): $hyoo_crowd_unit_id {
-			return `${ $mol_int62_to_string( this.head() ) }/${ $mol_int62_to_string( this.self() ) }`
+		get id(): $hyoo_crowd_unit_id {
+			return `${ this.head }/${ this.self }`
 		}
-		
-		land(): $mol_int62_pair { return { lo: this.land_lo, hi: this.land_hi } }
-		auth(): $mol_int62_pair { return { lo: this.auth_lo, hi: this.auth_hi } }
-		head(): $mol_int62_pair { return { lo: this.head_lo, hi: this.head_hi } }
-		next(): $mol_int62_pair { return { lo: this.next_lo, hi: this.next_hi } }
-		prev(): $mol_int62_pair { return { lo: this.prev_lo, hi: this.prev_hi } }
-		self(): $mol_int62_pair { return { lo: this.self_lo, hi: this.self_hi } }
 		
 		kind() {
 			
-			// head === self === auth
-			if( this.head_lo === this.self_lo && this.head_hi === this.self_hi ) {
-				if( this.auth_lo === this.self_lo && this.auth_hi === this.self_hi ) {
-					return $hyoo_crowd_unit_kind.join
-				}
+			if( this.head === this.self && this.auth === this.self ) {
+				return $hyoo_crowd_unit_kind.join
 			}
 			
-			// head === land
-			if( this.head_lo === this.land_lo && this.head_hi === this.land_hi ) {
+			if( this.head === this.land ) {
 				return  $hyoo_crowd_unit_kind.give
 			}
 			
@@ -122,10 +105,8 @@ namespace $ {
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
 						$mol_dev_format_shade(
-							// ' ',
-							// $mol_int62_to_string( this.land() ),
 							' 🔑 ',
-							$mol_int62_to_string( this.self() ),
+							this.self,
 						),
 					)
 				
@@ -133,10 +114,8 @@ namespace $ {
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
 						$mol_dev_format_shade(
-							// ' ',
-							// $mol_int62_to_string( this.land() ),
 							' 🏅 ',
-							$mol_int62_to_string( this.self() ),
+							this.self,
 							' ',
 						),
 						$mol_dev_format_native( $hyoo_crowd_peer_level[ this.data as number ] ?? this.data ),
@@ -146,10 +125,8 @@ namespace $ {
 					return $mol_dev_format_div( {},
 						$mol_dev_format_native( this ),
 						$mol_dev_format_shade(
-							// ' ',
-							// $mol_int62_to_string( this.land() ),
 							' 📦 ',
-							$mol_int62_to_string( this.head() ),
+							this.head,
 							' ',
 						),
 						$mol_dev_format_native( this.data ),
@@ -209,20 +186,26 @@ namespace $ {
 			const mem = new Uint8Array( total )
 			const bin = new $hyoo_crowd_unit_bin( mem.buffer )
 			
-			bin.setInt32( offset.land_lo, unit.land_lo, true )
-			bin.setInt32( offset.land_hi, unit.land_hi, true )
-			bin.setInt32( offset.auth_lo, unit.auth_lo, true )
-			bin.setInt32( offset.auth_hi, unit.auth_hi, true )
+			const land = $mol_int62_from_string( unit.land )
+			bin.setInt32( offset.land_lo, land.lo, true )
+			bin.setInt32( offset.land_hi, land.hi, true )
+			const auth = $mol_int62_from_string( unit.auth )
+			bin.setInt32( offset.auth_lo, auth.lo, true )
+			bin.setInt32( offset.auth_hi, auth.hi, true )
 			
-			bin.setInt32( offset.head_lo, unit.head_lo, true )
-			bin.setInt32( offset.head_hi, unit.head_hi, true )
-			bin.setInt32( offset.self_lo, unit.self_lo, true )
-			bin.setInt32( offset.self_hi, unit.self_hi, true )
+			const head = $mol_int62_from_string( unit.head )
+			bin.setInt32( offset.head_lo, head.lo, true )
+			bin.setInt32( offset.head_hi, head.hi, true )
+			const self = $mol_int62_from_string( unit.self )
+			bin.setInt32( offset.self_lo, self.lo, true )
+			bin.setInt32( offset.self_hi, self.hi, true )
 			
-			bin.setInt32( offset.next_lo, unit.next_lo, true )
-			bin.setInt32( offset.next_hi, unit.next_hi, true )
-			bin.setInt32( offset.prev_lo, unit.prev_lo, true )
-			bin.setInt32( offset.prev_hi, unit.prev_hi, true )
+			const next = $mol_int62_from_string( unit.next )
+			bin.setInt32( offset.next_lo, next.lo, true )
+			bin.setInt32( offset.next_hi, next.hi, true )
+			const prev = $mol_int62_from_string( unit.prev )
+			bin.setInt32( offset.prev_lo, prev.lo, true )
+			bin.setInt32( offset.prev_hi, prev.hi, true )
 			
 			bin.setInt32( offset.time, unit.time, true )
 			bin.setInt16( offset.size, type * size, true )
@@ -288,33 +271,34 @@ namespace $ {
 			)
 		}
 		
-		ids() {
-			return [
-				this.getInt32( this.byteOffset + offset.land_lo, true ) << 1 >> 1,
-				this.getInt32( this.byteOffset + offset.land_hi, true ) << 1 >> 1,
-				this.getInt32( this.byteOffset + offset.head_lo, true ) << 1 >> 1,
-				this.getInt32( this.byteOffset + offset.head_hi, true ) << 1 >> 1,
-				this.getInt32( this.byteOffset + offset.self_lo, true ) << 1 >> 1,
-				this.getInt32( this.byteOffset + offset.self_hi, true ) << 1 >> 1,
-			] as const
-		}
-		
 		unit(): $hyoo_crowd_unit {
 			
-			const land_lo = this.getInt32( this.byteOffset + offset.land_lo, true ) << 1 >> 1
-			const land_hi = this.getInt32( this.byteOffset + offset.land_hi, true ) << 1 >> 1
-			const auth_lo = this.getInt32( this.byteOffset + offset.auth_lo, true ) << 1 >> 1
-			const auth_hi = this.getInt32( this.byteOffset + offset.auth_hi, true ) << 1 >> 1
+			const land = $mol_int62_to_string({
+				lo: this.getInt32( this.byteOffset + offset.land_lo, true ) << 1 >> 1,
+				hi: this.getInt32( this.byteOffset + offset.land_hi, true ) << 1 >> 1,
+			})
+			const auth = $mol_int62_to_string({
+				lo: this.getInt32( this.byteOffset + offset.auth_lo, true ) << 1 >> 1,
+				hi: this.getInt32( this.byteOffset + offset.auth_hi, true ) << 1 >> 1,
+			})
 			
-			const head_lo = this.getInt32( this.byteOffset + offset.head_lo, true ) << 1 >> 1
-			const head_hi = this.getInt32( this.byteOffset + offset.head_hi, true ) << 1 >> 1
-			const self_lo = this.getInt32( this.byteOffset + offset.self_lo, true ) << 1 >> 1
-			const self_hi = this.getInt32( this.byteOffset + offset.self_hi, true ) << 1 >> 1
+			const head = $mol_int62_to_string({
+				lo: this.getInt32( this.byteOffset + offset.head_lo, true ) << 1 >> 1,
+				hi: this.getInt32( this.byteOffset + offset.head_hi, true ) << 1 >> 1,
+			})
+			const self = $mol_int62_to_string({
+				lo: this.getInt32( this.byteOffset + offset.self_lo, true ) << 1 >> 1,
+				hi: this.getInt32( this.byteOffset + offset.self_hi, true ) << 1 >> 1,
+			})
 			
-			const next_lo = this.getInt32( this.byteOffset + offset.next_lo, true ) << 1 >> 1
-			const next_hi = this.getInt32( this.byteOffset + offset.next_hi, true ) << 1 >> 1
-			const prev_lo = this.getInt32( this.byteOffset + offset.prev_lo, true ) << 1 >> 1
-			const prev_hi = this.getInt32( this.byteOffset + offset.prev_hi, true ) << 1 >> 1
+			const next = $mol_int62_to_string({
+				lo: this.getInt32( this.byteOffset + offset.next_lo, true ) << 1 >> 1,
+				hi: this.getInt32( this.byteOffset + offset.next_hi, true ) << 1 >> 1,
+			})
+			const prev = $mol_int62_to_string({
+				lo: this.getInt32( this.byteOffset + offset.prev_lo, true ) << 1 >> 1,
+				hi: this.getInt32( this.byteOffset + offset.prev_hi, true ) << 1 >> 1,
+			})
 			
 			const time = this.getInt32( this.byteOffset + offset.time, true ) << 1 >> 1
 			const type_size = this.getInt16( this.byteOffset + offset.size, true )
@@ -331,26 +315,11 @@ namespace $ {
 			}
 			
 			return new $hyoo_crowd_unit(
-				
-				land_lo,
-				land_hi,
-				auth_lo,
-				auth_hi,
-				
-				head_lo,
-				head_hi,
-				self_lo,
-				self_hi,
-				
-				next_lo,
-				next_hi,
-				prev_lo,
-				prev_hi,
-				
-				time,
-				data,
+				land, auth,
+				head, self,
+				next, prev,
+				time, data,
 				this,
-				
 			)
 			
 		}
@@ -364,21 +333,12 @@ namespace $ {
 		return ( left.group() - right.group() )
 			|| ( left.time - right.time )
 			
-			|| ( left.auth_hi - right.auth_hi )
-			|| ( left.auth_lo - right.auth_lo )
-			
-			|| ( left.self_hi - right.self_hi )
-			|| ( left.self_lo - right.self_lo )
-			|| ( left.head_hi - right.head_hi )
-			|| ( left.head_lo - right.head_lo )
-			
-			|| ( left.prev_hi - right.prev_hi )
-			|| ( left.prev_lo - right.prev_lo )
-			|| ( left.next_hi - right.next_hi )
-			|| ( left.next_lo - right.next_lo )
-			
-			|| ( left.land_hi - right.land_hi )
-			|| ( left.land_lo - right.land_lo )
+			|| ( ( left.auth > right.auth ) ? 1 : ( left.auth < right.auth ) ? -1 : 0 )
+			|| ( ( left.self > right.self ) ? 1 : ( left.self < right.self ) ? -1 : 0 )
+			|| ( ( left.head > right.head ) ? 1 : ( left.head < right.head ) ? -1 : 0 )
+			|| ( ( left.prev > right.prev ) ? 1 : ( left.prev < right.prev ) ? -1 : 0 )
+			|| ( ( left.next > right.next ) ? 1 : ( left.next < right.next ) ? -1 : 0 )
+			|| ( ( left.land > right.land ) ? 1 : ( left.land < right.land ) ? -1 : 0 )
 			
 	}
 	

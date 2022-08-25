@@ -11,7 +11,7 @@ namespace $ {
 		readonly lands_pub = new $mol_wire_pub
 		
 		_lands = new $mol_dict<
-			$mol_int62_pair,
+			$mol_int62_string,
 			$hyoo_crowd_land
 		>()
 		
@@ -20,10 +20,10 @@ namespace $ {
 			return this._lands
 		}
 		
-		land_init( id: $hyoo_crowd_land ) { }
+		land_init( id: $mol_int62_string ) { }
 		
 		land(
-			id: $mol_int62_pair,
+			id: $mol_int62_string,
 		) {
 			
 			const exists = this._lands.get( id )
@@ -41,10 +41,10 @@ namespace $ {
 		}
 		
 		land_sync(
-			id: $mol_int62_pair,
+			id: $mol_int62_string,
 		) {
 			const land = this.land( id )
-			this.land_init( land )
+			this.land_init( id )
 			return land
 		}
 		
@@ -53,7 +53,7 @@ namespace $ {
 		}
 		
 		_knights = new $mol_dict<
-			$mol_int62_pair,
+			$mol_int62_string,
 			$hyoo_crowd_peer
 		>()
 		
@@ -102,7 +102,7 @@ namespace $ {
 					
 					let sign = this._signs.get( unit )
 					if( !sign ) {
-						const knight = this._knights.get( unit.auth() )!
+						const knight = this._knights.get( unit.auth )!
 						sign = new Uint8Array( await knight.key_private.sign( bin.sens() ) )
 					}
 					
@@ -130,7 +130,7 @@ namespace $ {
 			return units
 		}
 		
-		async delta( clocks = new $mol_dict< $mol_int62_pair, readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ] >() ) {
+		async delta( clocks = new Map< $mol_int62_string, readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ] >() ) {
 			
 			const delta = [] as $hyoo_crowd_unit[]
 			
@@ -168,7 +168,7 @@ namespace $ {
 			unit: $hyoo_crowd_unit,
 		) {
 			
-			const land = this.land( unit.land() )
+			const land = this.land( unit.land )
 			
 			try {
 				await this.audit( unit )
@@ -185,7 +185,7 @@ namespace $ {
 			unit: $hyoo_crowd_unit,
 		) {
 			
-			const land = this.land( unit.land() )
+			const land = this.land( unit.land )
 			const bin = unit.bin!
 				
 			const desync = 60 * 60 * 10 // 1 hour
@@ -195,7 +195,7 @@ namespace $ {
 				$mol_fail( new Error( 'Far future' ) )
 			}
 			
-			const auth_unit = land.unit( unit.auth(), unit.auth() )
+			const auth_unit = land.unit( unit.auth, unit.auth )
 			const kind = unit.kind()
 			
 			switch( kind ) {
@@ -211,9 +211,9 @@ namespace $ {
 					}
 					
 					const key_buf = unit.data
-					const self = $mol_int62_hash_buffer( key_buf )
+					const self = $mol_int62_to_string( $mol_int62_hash_buffer( key_buf ) )
 					
-					if( unit.self_lo !== self.lo || unit.self_hi !== self.hi ) {
+					if( unit.self !== self ) {
 						$mol_fail( new Error( 'Alien join key' ) )
 					}
 					
@@ -238,15 +238,15 @@ namespace $ {
 						$mol_fail( new Error( 'No king' ) )
 					}
 					
-					const give_unit = land.unit( land.id(), unit.self() )
+					const give_unit = land.unit( land.id(), unit.self )
 					
 					if( give_unit?.level() as number > unit.level() ) {
 						$mol_fail( new Error( `Revoke unsupported` ) )
 					}
 					
-					if( unit.auth_lo === king_unit.auth_lo && unit.auth_hi === king_unit.auth_hi ) break
+					if( unit.auth === king_unit.auth ) break
 					
-					const lord_unit = land.unit( land.id(), unit.auth() )
+					const lord_unit = land.unit( land.id(), unit.auth )
 					
 					if( lord_unit?.level() !== $hyoo_crowd_peer_level.law ) {
 						$mol_fail( new Error( `Need law level` ) )
@@ -263,21 +263,21 @@ namespace $ {
 						$mol_fail( new Error( 'No king' ) )
 					}
 					
-					if( unit.auth_lo === king_unit.auth_lo && unit.auth_hi === king_unit.auth_hi ) break
+					if( unit.auth === king_unit.auth ) break
 					
 					direct: {
 						
-						const give_unit = land.unit( land.id(), unit.auth() )
+						const give_unit = land.unit( land.id(), unit.auth )
 						const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
 						
 						if( level >= $hyoo_crowd_peer_level.mod ) break
 						
 						if( level === $hyoo_crowd_peer_level.add ) {
 							
-							const exists = land.unit( unit.head(), unit.self() )
+							const exists = land.unit( unit.head, unit.self )
 							if( !exists ) break
 							
-							if( exists.auth_lo === unit.auth_lo && exists.auth_hi === unit.auth_hi ) break
+							if( exists.auth === unit.auth ) break
 							
 						}
 						
@@ -285,17 +285,17 @@ namespace $ {
 					
 					fallback: {
 						
-						const give_unit = land.unit( land.id(), { lo: 0, hi: 0 } )
+						const give_unit = land.unit( land.id(), '0_0' )
 						const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
 						
 						if( level >= $hyoo_crowd_peer_level.mod ) break
 						
 						if( level === $hyoo_crowd_peer_level.add ) {
 							
-							const exists = land.unit( unit.head(), unit.self() )
+							const exists = land.unit( unit.head, unit.self )
 							if( !exists ) break
 							
-							if( exists.auth_lo === unit.auth_lo && exists.auth_hi === unit.auth_hi ) break
+							if( exists.auth === unit.auth ) break
 							
 						}
 						

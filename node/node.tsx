@@ -7,13 +7,13 @@ namespace $ {
 		
 		constructor(
 			readonly land: $hyoo_crowd_land,
-			readonly head: $mol_int62_pair,
+			readonly head: $mol_int62_string,
 		) {}
 		
 		static for< Node extends typeof $hyoo_crowd_node >(
 			this: Node,
 			land: $hyoo_crowd_land,
-			head: $mol_int62_pair,
+			head: $mol_int62_string,
 		) {
 			return new this( land, head ) as InstanceType< Node >
 		}
@@ -34,7 +34,7 @@ namespace $ {
 		
 		/** Ordered inner alive Node. */
 		nodes< Node extends typeof $hyoo_crowd_node >( Node: Node ) {
-			return this.units().map( unit => new Node( this.land, unit.self() ) as InstanceType< Node > )
+			return this.units().map( unit => new Node( this.land, unit.self ) as InstanceType< Node > )
 		}
 		
 		[ $mol_dev_format_head ]() {

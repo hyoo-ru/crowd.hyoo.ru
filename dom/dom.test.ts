@@ -1,6 +1,6 @@
 namespace $ {
 	
-	async function make_land( id = { lo: -1, hi: -11 } ) {
+	async function make_land( id = '1_1' as $mol_int62_string ) {
 		return $hyoo_crowd_land.make({
 			id: $mol_const( id ),
 			peer: $mol_const( await $hyoo_crowd_peer.generate() ),
@@ -16,7 +16,7 @@ namespace $ {
 			left.chief.nodes( $hyoo_crowd_text )[1].text( 'ton' )
 			const html = left.chief.as( $hyoo_crowd_html ).html()
 			
-			const right = await make_land({ lo: -2, hi: -22 })
+			const right = await make_land('2_2')
 			right.chief.as( $hyoo_crowd_html ).html( html )
 			
 			$mol_assert_equal( html, left.chief.as( $hyoo_crowd_html ).html() )

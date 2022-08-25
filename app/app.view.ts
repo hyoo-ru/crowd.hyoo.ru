@@ -59,14 +59,14 @@ namespace $.$$ {
 				
 				'kind': $hyoo_crowd_unit_kind[ unit.kind() ],
 				
-				'Land': $mol_int62_to_string( unit.land() ),
-				'Auth': $mol_int62_to_string( unit.auth() ),
+				'Land': unit.land,
+				'Auth': unit.auth,
 				
-				'Head': $mol_int62_to_string( unit.head() ),
-				'Self': $mol_int62_to_string( unit.self() ),
+				'Head': unit.head,
+				'Self': unit.self,
 				
-				'Next': $mol_int62_to_string( unit.next() ),
-				'Prev': $mol_int62_to_string( unit.prev() ),
+				'Next': unit.next,
+				'Prev': unit.prev,
 				
 				'Time': $hyoo_crowd_time_stamp( unit.time ).toString(36),
 				'Data': unit.data instanceof Uint8Array
@@ -111,7 +111,7 @@ namespace $.$$ {
 		stats() {
 			this.text()
 			return super.stats()
-			.replace( '{peer}', $mol_int62_to_string( this.store().peer().id ) )
+			.replace( '{peer}', this.store().peer().id )
 			.replace( '{changes}', this.changes().toLocaleString() )
 			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
 			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )

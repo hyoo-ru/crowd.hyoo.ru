@@ -63,16 +63,16 @@ namespace $ {
 							this.head,
 							typeof next === 'string'
 								? this.land.id_new()
-								: $mol_int62_from_string( ( next as Element ).id )
+								: $mol_int62_to_string( $mol_int62_from_string( ( next as Element ).id ) )
 									|| this.land.id_new(),
-							lead?.self() ?? { lo: 0, hi: 0 },
+							lead?.self ?? '0_0',
 							val( next ),
 						)
 					},
 					update: ( next, prev, lead )=> this.land.put(
-						prev.head(),
-						prev.self(),
-						lead?.self() ?? { lo: 0, hi: 0 },
+						prev.head,
+						prev.self,
+						lead?.self ?? '0_0',
 						val( next ),
 					),
 				})
@@ -81,7 +81,7 @@ namespace $ {
 				for( let i = 0; i < units.length; ++i ) {
 					const sam = sample[i]
 					if( typeof sam !== 'string' ) {
-						$hyoo_crowd_dom.for( this.land, units[i].self() ).dom( sam )
+						$hyoo_crowd_dom.for( this.land, units[i].self ).dom( sam )
 					}
 				}
 				
@@ -102,9 +102,9 @@ namespace $ {
 							
 						const content = typeof unit.data === 'string'
 							? unit.data
-							: $hyoo_crowd_dom.for( this.land, unit.self() ).dom()
+							: $hyoo_crowd_dom.for( this.land, unit.self ).dom()
 							
-						return <Tag { ... attr } id={ $mol_int62_to_string( unit.self() ) } >{ content }</Tag>
+						return <Tag { ... attr } id={ unit.self } >{ content }</Tag>
 						
 					} )
 				}</>

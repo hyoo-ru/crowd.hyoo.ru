@@ -1,6 +1,6 @@
 namespace $ {
 	
-	async function make_land( id = { lo: -1, hi: -11 } ) {
+	async function make_land( id = '1_1' as $mol_int62_string ) {
 		return $hyoo_crowd_land.make({
 			id: $mol_const( id ),
 			peer: $mol_const( await $hyoo_crowd_peer.generate() ),
