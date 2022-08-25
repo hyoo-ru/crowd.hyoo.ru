@@ -4026,10 +4026,17 @@ var $;
 //mol/check/icon/-css/icon.view.css.ts
 ;
 "use strict";
+//mol/charset/encoding/encoding.ts
+;
+"use strict";
 var $;
 (function ($) {
-    function $mol_charset_decode(value, code = 'utf8') {
-        return new TextDecoder(code).decode(value);
+    const decoders = {};
+    function $mol_charset_decode(buffer, encoding = 'utf8') {
+        let decoder = decoders[encoding];
+        if (!decoder)
+            decoder = decoders[encoding] = new TextDecoder(encoding);
+        return decoder.decode(buffer);
     }
     $.$mol_charset_decode = $mol_charset_decode;
 })($ || ($ = {}));
@@ -4915,7 +4922,7 @@ var $;
     function $mol_int62_to_string({ lo, hi }) {
         lo = (lo + $.$mol_int62_range) % $.$mol_int62_range;
         hi = (hi + $.$mol_int62_range) % $.$mol_int62_range;
-        return `${lo.toString(36)}_${hi.toString(36)}`;
+        return lo.toString(36) + '_' + hi.toString(36);
     }
     $.$mol_int62_to_string = $mol_int62_to_string;
     function $mol_int62_from_string(str) {
@@ -5044,6 +5051,7 @@ var $;
         key_private;
         key_private_serial;
         id;
+        ids;
         constructor(key_public, key_public_serial, key_private, key_private_serial) {
             super();
             this.key_public = key_public;
@@ -5051,6 +5059,7 @@ var $;
             this.key_private = key_private;
             this.key_private_serial = key_private_serial;
             this.id = $mol_int62_hash_buffer(this.key_public_serial);
+            this.ids = $mol_int62_to_string(this.id);
         }
         static async generate() {
             const pair = await $$.$mol_crypto_auditor_pair();
@@ -5277,7 +5286,9 @@ var $;
             this.data = data;
             this.bin = bin;
         }
-        id() { return { head: this.head(), self: this.self() }; }
+        id() {
+            return `${$mol_int62_to_string(this.head())}/${$mol_int62_to_string(this.self())}`;
+        }
         land() { return { lo: this.land_lo, hi: this.land_hi }; }
         auth() { return { lo: this.auth_lo, hi: this.auth_hi }; }
         head() { return { lo: this.head_lo, hi: this.head_hi }; }
@@ -5461,7 +5472,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crowd_clock extends $mol_dict {
+    class $hyoo_crowd_clock extends Map {
         static begin = -1 * 2 ** 30;
         last_time = $hyoo_crowd_clock.begin;
         constructor(entries) {
@@ -5490,10 +5501,10 @@ var $;
         }
         see_bin(bin, group) {
             for (let cursor = offset.clocks; cursor < bin.byteLength; cursor += 16) {
-                this.see_peer({
+                this.see_peer($mol_int62_to_string({
                     lo: bin.getInt32(cursor + 0, true) << 1 >> 1,
                     hi: bin.getInt32(cursor + 4, true) << 1 >> 1,
-                }, bin.getInt32(cursor + 8 + 4 * group, true));
+                }), bin.getInt32(cursor + 8 + 4 * group, true));
             }
         }
         fresh(peer, time) {
@@ -5541,11 +5552,12 @@ var $;
             bin.setInt32(offset.land_lo, land.lo ^ (1 << 31), true);
             bin.setInt32(offset.land_hi, land.hi, true);
             let cursor = offset.clocks;
-            for (const [peer, time] of clocks[0]) {
+            for (const [peer_id, time] of clocks[0]) {
+                const peer = $mol_int62_from_string(peer_id);
                 bin.setInt32(cursor + 0, peer.lo, true);
                 bin.setInt32(cursor + 4, peer.hi, true);
                 bin.setInt32(cursor + 8, time, true);
-                bin.setInt32(cursor + 12, clocks[1].get(peer) ?? $hyoo_crowd_clock.begin, true);
+                bin.setInt32(cursor + 12, clocks[1].get(peer_id) ?? $hyoo_crowd_clock.begin, true);
                 cursor += 16;
             }
             return bin;
@@ -5964,12 +5976,12 @@ var $;
         }
         pub = new $mol_wire_pub;
         _clocks = [new $hyoo_crowd_clock, new $hyoo_crowd_clock];
-        _unit_all = new $mol_dict();
+        _unit_all = new Map();
         unit(head, self) {
-            return this._unit_all.get({ head, self });
+            return this._unit_all.get(`${$mol_int62_to_string(head)}/${$mol_int62_to_string(self)}`);
         }
-        _unit_lists = new $mol_dict();
-        _unit_alives = new $mol_dict();
+        _unit_lists = new Map();
+        _unit_alives = new Map();
         size() {
             return this._unit_all.size;
         }
@@ -5981,13 +5993,14 @@ var $;
         }
         unit_alives(head) {
             this.pub.promote();
-            let kids = this._unit_alives.get(head);
+            const head_id = $mol_int62_to_string(head);
+            let kids = this._unit_alives.get(head_id);
             if (!kids) {
-                const all = this.unit_list(head);
+                const all = this.unit_list(head_id);
                 if (all.dirty)
                     this.resort(head);
                 kids = all.filter(kid => kid.data !== null);
-                this._unit_alives.set(head, kids);
+                this._unit_alives.set(head_id, kids);
             }
             return kids;
         }
@@ -5999,7 +6012,7 @@ var $;
                     continue;
                 if (id.lo === this.id().lo && id.hi === this.id().hi)
                     continue;
-                if (this._unit_lists.has(id))
+                if (this._unit_lists.has($mol_int62_to_string(id)))
                     continue;
                 return id;
             }
@@ -6016,7 +6029,7 @@ var $;
             this.pub.promote();
             const delta = [];
             for (const unit of this._unit_all.values()) {
-                const time = clocks[unit.group()].time(unit.auth());
+                const time = clocks[unit.group()].time($mol_int62_to_string(unit.auth()));
                 if (unit.time <= time)
                     continue;
                 delta.push(unit);
@@ -6025,7 +6038,8 @@ var $;
             return delta;
         }
         resort(head) {
-            const kids = this._unit_lists.get(head);
+            const head_id = $mol_int62_to_string(head);
+            const kids = this._unit_lists.get(head_id);
             const queue = kids.splice(0).sort((left, right) => -$hyoo_crowd_unit_compare(left, right));
             for (let cursor = queue.length - 1; cursor >= 0; --cursor) {
                 const kid = queue[cursor];
@@ -6045,15 +6059,17 @@ var $;
                 queue.splice(cursor, 1);
                 cursor = queue.length;
             }
-            this._unit_lists.set(head, kids);
+            this._unit_lists.set(head_id, kids);
             kids.dirty = false;
             return kids;
         }
         apply(delta) {
             for (const next of delta) {
-                this._clocks[next.group()].see_peer(next.auth(), next.time);
-                const kids = this.unit_list(next.head());
-                let prev = this._unit_all.get(next.id());
+                const head_id = $mol_int62_to_string(next.head());
+                this._clocks[next.group()].see_peer($mol_int62_to_string(next.auth()), next.time);
+                const kids = this.unit_list(head_id);
+                const next_id = next.id();
+                let prev = this._unit_all.get(next_id);
                 if (prev) {
                     if ($hyoo_crowd_unit_compare(prev, next) > 0)
                         continue;
@@ -6062,9 +6078,9 @@ var $;
                 else {
                     kids.push(next);
                 }
-                this._unit_all.set(next.id(), next);
+                this._unit_all.set(next_id, next);
                 kids.dirty = true;
-                this._unit_alives.set(next.head(), undefined);
+                this._unit_alives.set(head_id, undefined);
             }
             this.pub.emit();
             return this;
@@ -6076,12 +6092,14 @@ var $;
             const { id: peer, key_public_serial } = this.peer();
             if (!key_public_serial)
                 return;
-            const auth = this._unit_all.get({ head: peer, self: peer });
+            const peer_id = $mol_int62_to_string(peer);
+            const auth_id = `${peer_id}/${peer_id}`;
+            const auth = this._unit_all.get(auth_id);
             if (auth)
                 return;
-            const time = this._clocks[$hyoo_crowd_unit_group.auth].tick(peer);
+            const time = this._clocks[$hyoo_crowd_unit_group.auth].tick(peer_id);
             const join_unit = new $hyoo_crowd_unit(this.id().lo, this.id().hi, peer.lo, peer.hi, peer.lo, peer.hi, peer.lo, peer.hi, 0, 0, 0, 0, time, key_public_serial, null);
-            this._unit_all.set({ head: peer, self: peer }, join_unit);
+            this._unit_all.set(auth_id, join_unit);
             this._joined = true;
         }
         level_base(next) {
@@ -6089,45 +6107,50 @@ var $;
         }
         level(peer, next) {
             this.join();
-            const exists = this._unit_all.get({ head: this.id(), self: peer });
+            const peer_id = $mol_int62_to_string(peer);
+            const level_id = `${$mol_int62_to_string(this.id())}/${peer_id}`;
+            const exists = this._unit_all.get(level_id);
             const prev = exists?.level() ?? $hyoo_crowd_peer_level.get;
             if (next === undefined)
                 return prev;
             if (next <= prev)
                 return prev;
-            const time = this._clocks[$hyoo_crowd_unit_group.auth].tick(peer);
+            const time = this._clocks[$hyoo_crowd_unit_group.auth].tick(peer_id);
             const auth = this.peer();
-            const join_unit = new $hyoo_crowd_unit(this.id().lo, this.id().hi, auth.id.lo, auth.id.hi, this.id().lo, this.id().hi, peer.lo, peer.hi, 0, 0, 0, 0, time, next, null);
-            this._unit_all.set({ head: this.id(), self: peer }, join_unit);
+            const level_unit = new $hyoo_crowd_unit(this.id().lo, this.id().hi, auth.id.lo, auth.id.hi, this.id().lo, this.id().hi, peer.lo, peer.hi, 0, 0, 0, 0, time, next, null);
+            this._unit_all.set(level_id, level_unit);
             this.pub.emit();
             return next;
         }
         put(head, self, prev, data) {
             this.join();
-            let unit_old = this._unit_all.get({ head, self });
-            let unit_prev = prev ? this._unit_all.get({ head, self: prev }) : null;
-            const unit_list = this.unit_list(head);
+            const head_id = $mol_int62_to_string(head);
+            const old_id = `${head_id}/${$mol_int62_to_string(self)}`;
+            const prev_id = `${head_id}/${$mol_int62_to_string(prev)}`;
+            let unit_old = this._unit_all.get(old_id);
+            let unit_prev = prev ? this._unit_all.get(prev_id) : null;
+            const unit_list = this.unit_list(head_id);
             if (unit_old)
                 unit_list.splice(unit_list.indexOf(unit_old), 1);
             const seat = unit_prev ? unit_list.indexOf(unit_prev) + 1 : 0;
             const lead = unit_list[seat];
             const next = lead?.self() ?? { lo: 0, hi: 0 };
-            const time = this._clocks[$hyoo_crowd_unit_group.data].tick(this.peer().id);
             const auth = this.peer();
+            const time = this._clocks[$hyoo_crowd_unit_group.data].tick($mol_int62_to_string(auth.id));
             const unit_new = new $hyoo_crowd_unit(this.id().lo, this.id().hi, auth.id.lo, auth.id.hi, head.lo, head.hi, self.lo, self.hi, next.lo, next.hi, prev.lo, prev.hi, time, data, null);
-            this._unit_all.set({ head, self }, unit_new);
+            this._unit_all.set(old_id, unit_new);
             unit_list.splice(seat, 0, unit_new);
-            this._unit_alives.set(head, undefined);
+            this._unit_alives.set(head_id, undefined);
             this.pub.emit();
             return unit_new;
         }
         wipe(unit) {
             if (unit.data === null)
                 return unit;
-            for (const kid of this.unit_list(unit.self())) {
+            for (const kid of this.unit_list($mol_int62_to_string(unit.self()))) {
                 this.wipe(kid);
             }
-            const unit_list = this.unit_list(unit.head());
+            const unit_list = this.unit_list($mol_int62_to_string(unit.head()));
             const seat = unit_list.indexOf(unit);
             const prev = seat > 0 ? unit_list[seat - 1].self() : seat < 0 ? unit.prev() : { lo: 0, hi: 0 };
             return this.put(unit.head(), unit.self(), prev, null);
@@ -6137,7 +6160,7 @@ var $;
             return this.put(head, unit.self(), prev, unit.data);
         }
         insert(unit, head, seat) {
-            const list = this.unit_list(head);
+            const list = this.unit_list($mol_int62_to_string(head));
             const prev = seat ? list[seat - 1].self() : { lo: 0, hi: 0 };
             return this.move(unit, head, prev);
         }
@@ -13531,6 +13554,82 @@ var $;
 var $;
 (function ($) {
     $mol_test({
+        'fresh'() {
+            const clock = new $hyoo_crowd_clock;
+            clock.see_peer('b_33', 1);
+            clock.see_peer('m_66', 2);
+            $mol_assert_ok(clock.fresh('m_66', 3));
+            $mol_assert_ok(clock.fresh('x_99', 1));
+            $mol_assert_not(clock.fresh('m_66', 1));
+        },
+        'fork'() {
+            const left = new $hyoo_crowd_clock;
+            left.see_peer('b_33', 1);
+            left.see_peer('m_66', 2);
+            const right = new $hyoo_crowd_clock(left);
+            $mol_assert_equal(right.last_time, 2);
+            $mol_assert_like([...right], [
+                ['b_33', 1],
+                ['m_66', 2],
+            ]);
+        },
+        'generate'() {
+            const clock = new $hyoo_crowd_clock;
+            clock.see_peer('b_33', $mol_int62_min + 1);
+            clock.see_peer('m_66', $mol_int62_min + 2);
+            const now = clock.now();
+            const time1 = clock.tick('b_33');
+            $mol_assert_like(time1, now);
+            $mol_assert_like(clock.last_time, now);
+            clock.see_peer('m_66', now + 10);
+            const time2 = clock.tick('m_66');
+            $mol_assert_like(time2, now + 11);
+            $mol_assert_like(clock.last_time, now + 11);
+        },
+        'ahead'() {
+            const clock1 = new $hyoo_crowd_clock;
+            clock1.see_peer('b_33', 1);
+            clock1.see_peer('m_66', 2);
+            const clock2 = new $hyoo_crowd_clock;
+            clock2.see_peer('b_33', 1);
+            clock2.see_peer('x_99', 2);
+            const clock3 = new $hyoo_crowd_clock;
+            clock3.see_peer('b_33', 1);
+            clock3.see_peer('m_66', 2);
+            clock3.see_peer('x_99', 2);
+            $mol_assert_ok(clock1.ahead(clock2));
+            $mol_assert_ok(clock2.ahead(clock1));
+            $mol_assert_ok(clock3.ahead(clock1));
+            $mol_assert_ok(clock3.ahead(clock2));
+            $mol_assert_not(clock1.ahead(clock3));
+            $mol_assert_not(clock2.ahead(clock3));
+        },
+        'bin'() {
+            const clocks1 = [new $hyoo_crowd_clock, new $hyoo_crowd_clock];
+            clocks1[$hyoo_crowd_unit_group.auth].see_peer('b_33', 1);
+            clocks1[$hyoo_crowd_unit_group.data].see_peer('b_33', 2);
+            const bin = $hyoo_crowd_clock_bin.from({ lo: -11, hi: -111 }, clocks1);
+            $mol_assert_like(bin.land(), { lo: -11, hi: -111 });
+            const clocks2 = [new $hyoo_crowd_clock, new $hyoo_crowd_clock];
+            clocks2[$hyoo_crowd_unit_group.auth].see_bin(bin, $hyoo_crowd_unit_group.auth);
+            clocks2[$hyoo_crowd_unit_group.data].see_bin(bin, $hyoo_crowd_unit_group.data);
+            $mol_assert_like(clocks2.map(clock => new Map(clock)), [
+                new Map([
+                    ['b_33', 1],
+                ]),
+                new Map([
+                    ['b_33', 2],
+                ]),
+            ]);
+        },
+    });
+})($ || ($ = {}));
+//hyoo/crowd/clock/clock.test.ts
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
         'number'() {
             const dict = new $mol_dict();
             $mol_assert_equal(dict.get(123), undefined);
@@ -13609,82 +13708,6 @@ var $;
     });
 })($ || ($ = {}));
 //mol/dict/dict.test.tsx
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'fresh'() {
-            const clock = new $hyoo_crowd_clock;
-            clock.see_peer({ lo: 11, hi: 111 }, 1);
-            clock.see_peer({ lo: 22, hi: 222 }, 2);
-            $mol_assert_ok(clock.fresh({ lo: 22, hi: 222 }, 3));
-            $mol_assert_ok(clock.fresh({ lo: 33, hi: 333 }, 1));
-            $mol_assert_not(clock.fresh({ lo: 22, hi: 222 }, 1));
-        },
-        'fork'() {
-            const left = new $hyoo_crowd_clock;
-            left.see_peer({ lo: 11, hi: 111 }, 1);
-            left.see_peer({ lo: 22, hi: 222 }, 2);
-            const right = new $hyoo_crowd_clock(left);
-            $mol_assert_equal(right.last_time, 2);
-            $mol_assert_like([...right], [
-                [{ lo: 11, hi: 111 }, 1],
-                [{ lo: 22, hi: 222 }, 2],
-            ]);
-        },
-        'generate'() {
-            const clock = new $hyoo_crowd_clock;
-            clock.see_peer({ lo: 11, hi: 111 }, $mol_int62_min + 1);
-            clock.see_peer({ lo: 22, hi: 222 }, $mol_int62_min + 2);
-            const now = clock.now();
-            const time1 = clock.tick({ lo: 11, hi: 111 });
-            $mol_assert_like(time1, now);
-            $mol_assert_like(clock.last_time, now);
-            clock.see_peer({ lo: 22, hi: 222 }, now + 10);
-            const time2 = clock.tick({ lo: 22, hi: 222 });
-            $mol_assert_like(time2, now + 11);
-            $mol_assert_like(clock.last_time, now + 11);
-        },
-        'ahead'() {
-            const clock1 = new $hyoo_crowd_clock;
-            clock1.see_peer({ lo: 11, hi: 111 }, 1);
-            clock1.see_peer({ lo: 22, hi: 222 }, 2);
-            const clock2 = new $hyoo_crowd_clock;
-            clock2.see_peer({ lo: 11, hi: 111 }, 1);
-            clock2.see_peer({ lo: 33, hi: 333 }, 2);
-            const clock3 = new $hyoo_crowd_clock;
-            clock3.see_peer({ lo: 11, hi: 111 }, 1);
-            clock3.see_peer({ lo: 22, hi: 222 }, 2);
-            clock3.see_peer({ lo: 33, hi: 333 }, 2);
-            $mol_assert_ok(clock1.ahead(clock2));
-            $mol_assert_ok(clock2.ahead(clock1));
-            $mol_assert_ok(clock3.ahead(clock1));
-            $mol_assert_ok(clock3.ahead(clock2));
-            $mol_assert_not(clock1.ahead(clock3));
-            $mol_assert_not(clock2.ahead(clock3));
-        },
-        'bin'() {
-            const clocks1 = [new $hyoo_crowd_clock, new $hyoo_crowd_clock];
-            clocks1[$hyoo_crowd_unit_group.auth].see_peer({ lo: 11, hi: 111 }, 1);
-            clocks1[$hyoo_crowd_unit_group.data].see_peer({ lo: 11, hi: 111 }, 2);
-            const bin = $hyoo_crowd_clock_bin.from({ lo: -11, hi: -111 }, clocks1);
-            $mol_assert_like(bin.land(), { lo: -11, hi: -111 });
-            const clocks2 = [new $hyoo_crowd_clock, new $hyoo_crowd_clock];
-            clocks2[$hyoo_crowd_unit_group.auth].see_bin(bin, $hyoo_crowd_unit_group.auth);
-            clocks2[$hyoo_crowd_unit_group.data].see_bin(bin, $hyoo_crowd_unit_group.data);
-            $mol_assert_like(clocks2.map(clock => new Map(clock)), [
-                new Map([
-                    [{ lo: 11, hi: 111 }, 1],
-                ]),
-                new Map([
-                    [{ lo: 11, hi: 111 }, 2],
-                ]),
-            ]);
-        },
-    });
-})($ || ($ = {}));
-//hyoo/crowd/clock/clock.test.ts
 ;
 "use strict";
 var $;
@@ -13938,7 +13961,7 @@ var $;
             const left = await make_land();
             left.chief.sub('foo', $hyoo_crowd_list).list([111]);
             const right = await make_land({ lo: 2, hi: 22 });
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.chief.sub('foo', $hyoo_crowd_list).list([222]);
             const left_delta = left.delta();
             const right_delta = right.delta();
@@ -14002,25 +14025,25 @@ var $;
             $mol_assert_like(store.delta([
                 new $hyoo_crowd_clock,
                 new $hyoo_crowd_clock([
-                    [store.peer().id, store.clock_data.last_time - 3],
+                    [store.peer().ids, store.clock_data.last_time - 3],
                 ])
             ]).map(unit => unit.data), ['foo', 'bar', 'lol']);
             $mol_assert_like(store.delta([
                 new $hyoo_crowd_clock,
                 new $hyoo_crowd_clock([
-                    [store.peer().id, store.clock_data.last_time - 2],
+                    [store.peer().ids, store.clock_data.last_time - 2],
                 ])
             ]).map(unit => unit.data), ['bar', 'lol']);
             $mol_assert_like(store.delta([
                 new $hyoo_crowd_clock,
                 new $hyoo_crowd_clock([
-                    [store.peer().id, store.clock_data.last_time - 1],
+                    [store.peer().ids, store.clock_data.last_time - 1],
                 ])
             ]).map(unit => unit.data), ['lol']);
             $mol_assert_like(store.delta([
                 new $hyoo_crowd_clock,
                 new $hyoo_crowd_clock([
-                    [store.peer().id, store.clock_data.last_time],
+                    [store.peer().ids, store.clock_data.last_time],
                 ])
             ]), []);
         },
@@ -14105,7 +14128,7 @@ var $;
             const left = await make_land();
             left.chief.as($hyoo_crowd_text).text('foo bar.');
             const right = await make_land({ lo: 2, hi: 22 });
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.chief.as($hyoo_crowd_text).text('xxx yyy.');
             const left_delta = left.delta();
             const right_delta = right.delta();
@@ -14119,7 +14142,7 @@ var $;
             const left = base.fork(await $hyoo_crowd_peer.generate());
             left.chief.as($hyoo_crowd_text).text('foo xxx bar');
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.chief.as($hyoo_crowd_text).text('foo yyy bar');
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
@@ -14133,7 +14156,7 @@ var $;
             const left = base.fork(await $hyoo_crowd_peer.generate());
             left.chief.as($hyoo_crowd_text).text('FooXxxBarZak');
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.insert(right.chief.units()[0], { lo: 0, hi: 0 }, 2);
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
@@ -14147,7 +14170,7 @@ var $;
             const left = base.fork(await $hyoo_crowd_peer.generate());
             left.chief.as($hyoo_crowd_text).text('FooXxxBarZak');
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.insert(right.chief.units()[1], { lo: 0, hi: 0 }, 0);
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
@@ -14161,7 +14184,7 @@ var $;
             const left = base.fork(await $hyoo_crowd_peer.generate());
             left.chief.as($hyoo_crowd_text).text('FooXxxBarZak');
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.insert(right.chief.units()[1], { lo: 0, hi: 0 }, 3);
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
@@ -14175,7 +14198,7 @@ var $;
             const left = base.fork(await $hyoo_crowd_peer.generate());
             left.chief.as($hyoo_crowd_text).text('FooXxxBar');
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.chief.as($hyoo_crowd_text).text('Bar');
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
@@ -14189,7 +14212,7 @@ var $;
             const left = base.fork(await $hyoo_crowd_peer.generate());
             $hyoo_crowd_text.for(left, { lo: 1, hi: 11 }).text('FooBarXxxZak');
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.insert($hyoo_crowd_node.for(right, { lo: 1, hi: 11 }).units()[1], { lo: 2, hi: 22 }, 0);
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
@@ -14204,7 +14227,7 @@ var $;
             const left = base.fork(await $hyoo_crowd_peer.generate());
             left.chief.as($hyoo_crowd_text).text('XxxFooYyyZzz');
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.chief.as($hyoo_crowd_text).text('XxxBarZzz');
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
@@ -14218,7 +14241,7 @@ var $;
             const left = base.fork(await $hyoo_crowd_peer.generate());
             left.chief.as($hyoo_crowd_list).list([111, 222, 777, 333, 444, 555, 666]);
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             right.insert(right.chief.units()[1], { lo: 0, hi: 0 }, 5);
             right.insert(right.chief.units()[1], { lo: 0, hi: 0 }, 5);
             const left_delta = left.delta(base.clocks);
@@ -14232,7 +14255,7 @@ var $;
             base.chief.as($hyoo_crowd_text).text('Hello World and fun!');
             const left = base.fork(await $hyoo_crowd_peer.generate());
             const right = base.fork(await $hyoo_crowd_peer.generate());
-            right.clock_data.tick(right.peer().id);
+            right.clock_data.tick(right.peer().ids);
             left.chief.as($hyoo_crowd_text).text('Hello Alice and fun!');
             right.chief.as($hyoo_crowd_text).text('Bye World and fun!');
             const left_delta = left.delta();
