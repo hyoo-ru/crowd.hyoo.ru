@@ -1,3 +1,7 @@
+interface Array<T> {
+	findLastIndex: Array<T>['findIndex']
+}
+
 namespace $ {
 	
 	/** Conflict-free Reinterpretable Ordered Washed Data Tree */
@@ -169,7 +173,7 @@ namespace $ {
 
 				if( kid.prev_lo || kid.prev_hi ) {
 
-					index = kids.findIndex( sib => sib.self_lo === kid.prev_lo && sib.self_hi === kid.prev_hi ) + 1
+					index = kids.findLastIndex( sib => sib.self_lo === kid.prev_lo && sib.self_hi === kid.prev_hi ) + 1
 					
 					if( !index ) {
 
@@ -177,7 +181,7 @@ namespace $ {
 						
 						if( kid.next_lo || kid.next_hi ) {
 							
-							index = kids.findIndex( sib => sib.self_lo === kid.next_lo && sib.self_hi === kid.next_hi )
+							index = kids.findLastIndex( sib => sib.self_lo === kid.next_lo && sib.self_hi === kid.next_hi )
 							
 							if( index === -1 ) continue
 
