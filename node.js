@@ -6845,7 +6845,7 @@ var $;
     $.$mol_syntax2_md_flow = new $mol_syntax2({
         'quote': /^((?:(?:> )(?:[^]*?)$(\r?\n?))+)([\n\r]*)/,
         'header': /^(#+)(\s+)(.*?)$([\n\r]*)/,
-        'list': /^((?:(?:\s?[*+-]|\d+\.)\s+(?:[^]*?)$(?:\r?\n?)(?:(?:  |\t)(?:[^]*?)$(?:\r?\n?))*)+)((?:\r?\n)*)/,
+        'list': /^((?:(?:\s?[*+-]|\d+\.) +(?:[^]*?)$(?:\r?\n?)(?:(?:  |\t)(?:[^]*?)$(?:\r?\n?))*)+)((?:\r?\n)*)/,
         'code': /^(```\s*)([\w.-]*)[\r\n]+([^]*?)^(```)$([\n\r]*)/,
         'code-indent': /^((?:(?:  |\t)(?:[^]*?)$([\n\r]*))+)/,
         'table': /((?:^\|.+?$\r?\n)+)([\n\r]*)/,
@@ -7696,7 +7696,7 @@ var $;
                 return new $mol_dom_listener(this.$.$mol_dom_context.document, 'selectionchange', $mol_wire_async(event => this.selection_change(event)));
             }
             selection_change(event) {
-                const prev = this.selection();
+                const prev = $mol_wire_probe(() => this.selection()) ?? [0, 0];
                 const el = this.dom_node();
                 const next = [
                     el.selectionStart,
