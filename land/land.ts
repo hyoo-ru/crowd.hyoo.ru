@@ -1,7 +1,3 @@
-interface Array<T> {
-	findLastIndex: Array<T>['findIndex']
-}
-
 namespace $ {
 	
 	/** Conflict-free Reinterpretable Ordered Washed Data Tree */
@@ -166,6 +162,21 @@ namespace $ {
 				( left, right )=> - $hyoo_crowd_unit_compare( left, right )
 			)
 			
+			const locate = ( lo: number, hi: number )=> {
+				
+				for( let i = kids.length - 1; i >= 0; --i ) {
+					
+					const kid = kids[i]
+					
+					if( kid.self_lo !== lo ) continue
+					if( kid.self_hi !== hi ) continue
+					
+					return i
+				}
+				
+				return -1
+			}
+			
 			for( let cursor = queue.length - 1; cursor >= 0; --cursor ) {
 				
 				const kid = queue[cursor]
@@ -173,7 +184,7 @@ namespace $ {
 
 				if( kid.prev_lo || kid.prev_hi ) {
 
-					index = kids.findLastIndex( sib => sib.self_lo === kid.prev_lo && sib.self_hi === kid.prev_hi ) + 1
+					index = locate( kid.prev_lo, kid.prev_hi ) + 1
 					
 					if( !index ) {
 
@@ -181,7 +192,7 @@ namespace $ {
 						
 						if( kid.next_lo || kid.next_hi ) {
 							
-							index = kids.findLastIndex( sib => sib.self_lo === kid.next_lo && sib.self_hi === kid.next_hi )
+							index = locate( kid.next_lo, kid.next_hi )
 							
 							if( index === -1 ) continue
 
