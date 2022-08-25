@@ -65,7 +65,7 @@ namespace $ {
 				next = String( list[ from ].data ) + next
 			}
 			
-			const words = [ ... next.matchAll( $hyoo_crowd_tokenizer ) ].map( token => token[0] )
+			const words = next.match( $hyoo_crowd_tokenizer )!
 			this.as( $hyoo_crowd_list ).insert( words, from, to )
 			
 			return this
