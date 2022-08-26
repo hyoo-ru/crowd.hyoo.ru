@@ -45,12 +45,12 @@ namespace $ {
 		
 		/** Atomic number. */
 		numb( next?: number ) {
-			return Number( this.value( next ) ?? 0 )
+			return Number( this.value( next ) )
 		}
 		
 		/** Atomic boolean. */
 		bool( next?: boolean ) {
-			return Boolean( this.value( next ) ?? false )
+			return Boolean( this.value( next ) )
 		}
 		
 		yoke(
