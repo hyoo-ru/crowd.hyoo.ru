@@ -2957,7 +2957,7 @@ declare namespace $ {
 
 declare namespace $ {
     class $hyoo_crowd_reg extends $hyoo_crowd_node {
-        value(next?: unknown): unknown;
+        value(next?: unknown): {} | null;
         str(next?: string): string;
         numb(next?: number): number;
         bool(next?: boolean): boolean;
