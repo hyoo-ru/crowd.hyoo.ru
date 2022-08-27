@@ -91,7 +91,7 @@ namespace $.$$ {
 		
 		tokens_total() {
 			this.text()
-			return this.store().size()
+			return Math.max( 0, this.store().size() - 1 )
 		}
 		
 		tokens_dead() {
