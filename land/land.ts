@@ -35,7 +35,7 @@ namespace $ {
 		readonly _clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
 		
 		/** unit by head + self */
-		protected _unit_all = new Map<
+		_unit_all = new Map<
 			$hyoo_crowd_unit_id,
 			$hyoo_crowd_unit
 		>()
@@ -48,13 +48,13 @@ namespace $ {
 		}
 		
 		/** units by head */
-		protected _unit_lists = new Map<
+		_unit_lists = new Map<
 			$mol_int62_string,
 			undefined | $hyoo_crowd_unit[] & { dirty: boolean }
 		>()
 		
 		/** Units by Head without tombstones */
-		protected _unit_alives = new Map<
+		_unit_alives = new Map<
 			$mol_int62_string,
 			undefined | $hyoo_crowd_unit[]
 		>()
@@ -64,7 +64,7 @@ namespace $ {
 		}
 		
 		/** Returns list of all Units for Node. */ 
-		protected unit_list(
+		unit_list(
 			head: $mol_int62_string,
 		) {
 			
@@ -120,8 +120,8 @@ namespace $ {
 		fork( auth: $hyoo_crowd_peer ) {
 			
 			const fork = $hyoo_crowd_land.make({
-				id: ()=> this.id(),
-				peer: ()=> this.peer(),
+				id: $mol_const( this.id() ),
+				peer: $mol_const( auth ),
 			})
 			
 			return fork.apply( this.delta() )
@@ -275,9 +275,9 @@ namespace $ {
 			
 			const level_id = `${ this.id() }/${ peer }` as const
 			
-			const exists = this._unit_all.get( level_id )
-			const def = this._unit_all.get( `${ this.id() }/0_0` )
-			const prev = exists?.level() ?? def?.level() ?? $hyoo_crowd_peer_level.get
+			const prev = this._unit_all.get( level_id )?.level()
+				?? this._unit_all.get( `${ this.id() }/0_0` )?.level()
+				?? ( this.id() === peer ? $hyoo_crowd_peer_level.law : $hyoo_crowd_peer_level.get )
 			
 			if( next === undefined ) return prev
 			if( next <= prev ) return prev

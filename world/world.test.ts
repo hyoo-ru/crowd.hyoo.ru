@@ -2,7 +2,7 @@ namespace $ {
 	
 	$mol_test({
 		
-		async 'delta & apply'() {
+		async 'world delta & apply'() {
 			
 			const world1 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
 			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
@@ -15,8 +15,11 @@ namespace $ {
 			land2.chief.as( $hyoo_crowd_list ).list([ 456, 789 ])
 			
 			// apply changes
-			for( const unit of await world1.delta() ) {
-				$mol_assert_like( await world2.apply_unit( unit ), '' )
+			for await( const batch of world1.delta() ) {
+				$mol_assert_like(
+					( await world2.apply( batch ) ).forbid,
+					new Map,
+				)
 			}
 			
 			$mol_assert_like(
@@ -27,6 +30,31 @@ namespace $ {
 			$mol_assert_like(
 				world2.land( land2.id() ).chief.as( $hyoo_crowd_list ).list(),
 				[ 456, 789 ],
+			)
+			
+		},
+		
+		async 'land delta & apply'() {
+			
+			const world1 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+			
+			const land = world1.land( world1.peer!.id )
+			
+			// do changes
+			land.chief.as( $hyoo_crowd_list ).list([ 123, 456 ])
+			
+			// apply changes
+			for await( const batch of world1.delta_batch( land ) ) {
+				$mol_assert_like(
+					( await world2.apply( batch ) ).forbid,
+					new Map,
+				)
+			}
+			
+			$mol_assert_like(
+				world2.land( land.id() ).chief.as( $hyoo_crowd_list ).list(),
+				[ 123, 456 ],
 			)
 			
 		},
@@ -45,11 +73,12 @@ namespace $ {
 			land.chief.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 1 ignored units
-			const broken = [] as string[]
-			for( const bin of await world1.delta() ) {
-				broken.push( await world2.apply_unit( bin ) )
+			for await( const batch of world1.delta_batch( land ) ) {
+				$mol_assert_like(
+					[ ... ( await world2.apply( batch ) ).forbid.values() ],
+					[ 'Far future' ],
+				)
 			}
-			$mol_assert_like( broken, [ '', '', '', 'Far future' ] )
 			
 			// only 3 grab units
 			$mol_assert_like( world2.land( land.id() ).delta().length, 3 )
@@ -66,11 +95,12 @@ namespace $ {
 			land.chief.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 2 ignored units
-			const broken = [] as string[]
-			for( const bin of await world1.delta() ) {
-				broken.push( await world2.apply_unit( bin ) )
+			for await( const batch of world1.delta_batch( land ) ) {
+				$mol_assert_like(
+					[ ... ( await world2.apply( batch ) ).forbid.values() ],
+					[ 'Alien join key', 'No auth key' ],
+				)
 			}
-			$mol_assert_like( broken, [ '', '', 'Alien join key', 'No auth key' ] )
 			
 			// only 2 grab units
 			$mol_assert_like( world2.land( land.id() ).delta().length, 2 )
@@ -81,20 +111,21 @@ namespace $ {
 			
 			const world1 = new $hyoo_crowd_world( { ... await $hyoo_crowd_peer.generate(), key_public_serial: [] as any } )
 			const world2 = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
-			const land = await world1.grab()
+			const land = world1.land( '1_1' )
 			
 			// do changes
-			world1.land( '1_1' ).chief.as( $hyoo_crowd_reg ).numb( 123 )
+			land.chief.as( $hyoo_crowd_reg ).numb( 123 )
 			
 			// 2 ignored units
-			const broken = [] as string[]
-			for( const bin of await world1.delta() ) {
-				broken.push( await world2.apply_unit( bin ) )
+			for await( const batch of world1.delta_batch( land ) ) {
+				$mol_assert_like(
+					[ ... ( await world2.apply( batch ) ).forbid.values() ],
+					[ 'No join key', 'Level too low' ],
+				)
 			}
-			$mol_assert_like( broken, [ '', '', 'No join key', 'No king' ] )
 			
 			// only 2 grab units
-			$mol_assert_like( world2.land( land.id() ).delta().length, 2 )
+			$mol_assert_like( world2.land( land.id() ).delta().length, 0 )
 			
 		},
 		
@@ -105,12 +136,16 @@ namespace $ {
 			const land = await world1.grab()
 			
 			// 2 ignored units
-			const broken = [] as string[]
-			for( const unit of await world1.delta() ) {
-				unit.bin!.setInt8( 16, ~ unit.bin!.getInt8( 16 ) ) // break sign
-				broken.push( await world2.apply_unit( unit ) )
+			for await( const batch of world1.delta_batch( land ) ) {
+				
+				batch[152] = ~batch[152] // break sign
+				
+				$mol_assert_like(
+					[ ... ( await world2.apply( batch ) ).forbid.values() ],
+					[ 'Wrong join sign', 'Level too low' ],
+				)
+				
 			}
-			$mol_assert_like( broken, [ 'Wrong join sign', 'No king' ] )
 			
 			// no applied units 
 			$mol_assert_like( world2.land( land.id() ).delta().length, 0 )
@@ -129,11 +164,12 @@ namespace $ {
 			world2.land( land.id() ).chief.as( $hyoo_crowd_reg ).numb( 234 )
 			
 			// 1 ignored unit
-			const broken = [] as string[]
-			for( const bin of await world1.delta() ) {
-				broken.push( await world2.apply_unit( bin ) )
+			for await( const batch of world1.delta_batch( land ) ) {
+				$mol_assert_like(
+					[ ... ( await world2.apply( batch ) ).forbid.values() ],
+					[ 'Already join' ],
+				)
 			}
-			$mol_assert_like( broken, [ '', '', 'Already join', '' ] )
 			
 			// 5 units applied
 			$mol_assert_like( world2.land( land.id() ).delta().length, 5 )
@@ -153,9 +189,13 @@ namespace $ {
 			// do changes
 			land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb( 123 ) // +1 unit
 			
-			for( const bin of await world1.delta() ) {
-				await world2.apply_unit( bin )
+			for await( const batch of world1.delta() ) {
+				$mol_assert_like(
+					[ ... ( await world2.apply( batch ) ).forbid.values() ],
+					[],
+				)
 			}
+			
 			land2.chief.sub( 'foo', $hyoo_crowd_reg ).numb( 234 ) // 1 unit update +1 unit
 			land2.chief.sub( 'bar', $hyoo_crowd_reg ).numb( 234 ) // +1 unit
 			land2.level( peer.id, $hyoo_crowd_peer_level.law ) // +1 unit
@@ -164,12 +204,13 @@ namespace $ {
 			
 			level_get: {
 				
-				const broken = [] as string[]
-				for( const bin of await world2.delta() ) {
-					broken.push( await world1.apply_unit( bin ) )
+				for await( const batch of world2.delta_batch( land2 ) ) {
+					$mol_assert_like(
+						[ ... ( await world1.apply( batch ) ).forbid.values() ],
+						[ 'Already join', 'Already join', 'Level too low', 'Level too low', 'Level too low' ],
+					)
 				}
 				
-				$mol_assert_like( broken, [ 'Already join', '', 'Already join', '', 'Need law level', 'No rights', 'No rights' ] )
 				$mol_assert_like( land1.delta().length, 5 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 123 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 0 )
@@ -181,12 +222,13 @@ namespace $ {
 				
 				land1.level( land2.peer().id, $hyoo_crowd_peer_level.add ) // +1 unit
 				
-				const broken = [] as string[]
-				for( const bin of await world2.delta() ) {
-					broken.push( await world1.apply_unit( bin ) )
+				for await( const batch of world2.delta_batch( land2 ) ) {
+					$mol_assert_like(
+						[ ... ( await world1.apply( batch ) ).forbid.values() ],
+						[ 'Already join', 'Already join', 'Already join', 'Level too low', 'Level too low' ],
+					)
 				}
 				
-				$mol_assert_like( broken, [ 'Already join', '', 'Already join', 'Already join', 'Need law level', 'No rights', '' ] )
 				$mol_assert_like( land1.delta().length, 7 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 123 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
@@ -198,12 +240,13 @@ namespace $ {
 				
 				land1.level( land2.peer().id, $hyoo_crowd_peer_level.mod )
 				
-				const broken = [] as string[]
-				for( const bin of await world2.delta() ) {
-					broken.push( await world1.apply_unit( bin ) )
+				for await( const batch of world2.delta_batch( land2 ) ) {
+					$mol_assert_like(
+						[ ... ( await world1.apply( batch ) ).forbid.values() ],
+						[ 'Already join', 'Already join', 'Already join', 'Level too low' ],
+					)
 				}
 				
-				$mol_assert_like( broken, [ 'Already join', '', 'Already join', 'Already join', 'Need law level', '', '' ] )
 				$mol_assert_like( land1.delta().length, 7 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
@@ -215,12 +258,13 @@ namespace $ {
 				
 				land1.level( land2.peer().id, $hyoo_crowd_peer_level.law )
 				
-				const broken = [] as string[]
-				for( const bin of await world2.delta() ) {
-					broken.push( await world1.apply_unit( bin ) )
+				for await( const batch of world2.delta_batch( land2 ) ) {
+					$mol_assert_like(
+						[ ... ( await world1.apply( batch ) ).forbid.values() ],
+						[ 'Already join', 'Already join', 'Already join' ],
+					)
 				}
 				
-				$mol_assert_like( broken, [ 'Already join', '', 'Already join', 'Already join', '', '', '' ] )
 				$mol_assert_like( land1.delta().length, 8 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
@@ -243,9 +287,13 @@ namespace $ {
 			// do changes
 			land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb( 123 )
 			
-			for( const bin of await world1.delta() ) {
-				await world2.apply_unit( bin )
+			for await( const batch of world1.delta_batch( land1 ) ) {
+				$mol_assert_like(
+					[ ... ( await world2.apply( batch ) ).forbid.values() ],
+					[],
+				)
 			}
+			
 			land2.chief.sub( 'foo', $hyoo_crowd_reg ).numb( 234 )
 			land2.chief.sub( 'bar', $hyoo_crowd_reg ).numb( 234 )
 			land2.level( peer.id, $hyoo_crowd_peer_level.law ) 
@@ -256,12 +304,13 @@ namespace $ {
 				
 				land1.level_base( $hyoo_crowd_peer_level.add )
 				
-				const broken = [] as string[]
-				for( const bin of await world2.delta() ) {
-					broken.push( await world1.apply_unit( bin ) )
+				for await( const batch of world2.delta_batch( land2 ) ) {
+					$mol_assert_like(
+						[ ... ( await world1.apply( batch ) ).forbid.values() ],
+						[ 'Already join', 'Already join', 'Level too low', 'Level too low' ],
+					)
 				}
 				
-				$mol_assert_like( broken, [ 'Already join', '', 'Already join', '', 'Need law level', 'No rights', '' ] )
 				$mol_assert_like( land1.delta().length, 7 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 123 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
@@ -273,12 +322,13 @@ namespace $ {
 				
 				land1.level_base( $hyoo_crowd_peer_level.mod )
 				
-				const broken = [] as string[]
-				for( const bin of await world2.delta() ) {
-					broken.push( await world1.apply_unit( bin ) )
+				for await( const batch of world2.delta_batch( land2 ) ) {
+					$mol_assert_like(
+						[ ... ( await world1.apply( batch ) ).forbid.values() ],
+						[ 'Already join', 'Already join', 'Already join', 'Level too low' ],
+					)
 				}
 				
-				$mol_assert_like( broken, [ 'Already join', '', 'Already join', 'Already join', 'Need law level', '', '' ] )
 				$mol_assert_like( land1.delta().length, 7 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
@@ -290,12 +340,13 @@ namespace $ {
 				
 				land1.level_base( $hyoo_crowd_peer_level.law )
 				
-				const broken = [] as string[]
-				for( const bin of await world2.delta() ) {
-					broken.push( await world1.apply_unit( bin ) )
+				for await( const batch of world2.delta_batch( land2 ) ) {
+					$mol_assert_like(
+						[ ... ( await world1.apply( batch ) ).forbid.values() ],
+						[ 'Already join', 'Already join', 'Already join' ],
+					)
 				}
 				
-				$mol_assert_like( broken, [ 'Already join', '', 'Already join', 'Already join', '', '', '' ] )
 				$mol_assert_like( land1.delta().length, 8 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )

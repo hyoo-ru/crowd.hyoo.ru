@@ -100,12 +100,12 @@ namespace $.$$ {
 		
 		@ $mol_mem
 		size_state_bin() {
-			return this.store().delta().reduce( ( res, unit )=> res + this.$.$hyoo_crowd_unit_bin.from( unit ).byteLength, 0 )
+			return this.store().delta().reduce( ( res, unit )=> res + this.$.$hyoo_crowd_unit_bin.from_unit( unit ).byteLength, 0 )
 		}
 		
 		@ $mol_mem
 		size_delta_bin() {
-			return this.delta().reduce( ( res, unit )=> res + this.$.$hyoo_crowd_unit_bin.from( unit ).byteLength, 0 )
+			return this.delta().reduce( ( res, unit )=> res + this.$.$hyoo_crowd_unit_bin.from_unit( unit ).byteLength, 0 )
 		}
 		
 		stats() {

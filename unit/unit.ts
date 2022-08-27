@@ -180,7 +180,12 @@ namespace $ {
 	
 	export class $hyoo_crowd_unit_bin extends DataView {
 		
-		static from( unit: $hyoo_crowd_unit ) {
+		static from_buffer( buffer: Int16Array ) {
+			const size = Math.ceil( Math.abs( buffer[ offset.size / 2 ] ) / 8 ) * 8 + offset.data + $mol_crypto_auditor_sign_size
+			return new this( buffer.slice( 0, size / 2 ).buffer )
+		}
+		
+		static from_unit( unit: $hyoo_crowd_unit ) {
 			
 			if( unit.bin ) return unit.bin
 			
@@ -291,34 +296,34 @@ namespace $ {
 		unit(): $hyoo_crowd_unit {
 			
 			const land = $mol_int62_to_string({
-				lo: this.getInt32( this.byteOffset + offset.land_lo, true ) << 1 >> 1,
-				hi: this.getInt32( this.byteOffset + offset.land_hi, true ) << 1 >> 1,
+				lo: this.getInt32( offset.land_lo, true ) << 1 >> 1,
+				hi: this.getInt32( offset.land_hi, true ) << 1 >> 1,
 			})
 			const auth = $mol_int62_to_string({
-				lo: this.getInt32( this.byteOffset + offset.auth_lo, true ) << 1 >> 1,
-				hi: this.getInt32( this.byteOffset + offset.auth_hi, true ) << 1 >> 1,
+				lo: this.getInt32( offset.auth_lo, true ) << 1 >> 1,
+				hi: this.getInt32( offset.auth_hi, true ) << 1 >> 1,
 			})
 			
 			const head = $mol_int62_to_string({
-				lo: this.getInt32( this.byteOffset + offset.head_lo, true ) << 1 >> 1,
-				hi: this.getInt32( this.byteOffset + offset.head_hi, true ) << 1 >> 1,
+				lo: this.getInt32( offset.head_lo, true ) << 1 >> 1,
+				hi: this.getInt32( offset.head_hi, true ) << 1 >> 1,
 			})
 			const self = $mol_int62_to_string({
-				lo: this.getInt32( this.byteOffset + offset.self_lo, true ) << 1 >> 1,
-				hi: this.getInt32( this.byteOffset + offset.self_hi, true ) << 1 >> 1,
+				lo: this.getInt32( offset.self_lo, true ) << 1 >> 1,
+				hi: this.getInt32( offset.self_hi, true ) << 1 >> 1,
 			})
 			
 			const next = $mol_int62_to_string({
-				lo: this.getInt32( this.byteOffset + offset.next_lo, true ) << 1 >> 1,
-				hi: this.getInt32( this.byteOffset + offset.next_hi, true ) << 1 >> 1,
+				lo: this.getInt32( offset.next_lo, true ) << 1 >> 1,
+				hi: this.getInt32( offset.next_hi, true ) << 1 >> 1,
 			})
 			const prev = $mol_int62_to_string({
-				lo: this.getInt32( this.byteOffset + offset.prev_lo, true ) << 1 >> 1,
-				hi: this.getInt32( this.byteOffset + offset.prev_hi, true ) << 1 >> 1,
+				lo: this.getInt32( offset.prev_lo, true ) << 1 >> 1,
+				hi: this.getInt32( offset.prev_hi, true ) << 1 >> 1,
 			})
 			
-			const time = this.getInt32( this.byteOffset + offset.time, true ) << 1 >> 1
-			const type_size = this.getInt16( this.byteOffset + offset.size, true )
+			const time = this.getInt32( offset.time, true ) << 1 >> 1
+			const type_size = this.getInt16( offset.size, true )
 			
 			let data = null as unknown
 			

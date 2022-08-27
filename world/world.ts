@@ -91,14 +91,11 @@ namespace $ {
 			const units = land.delta( clocks )
 			if( !units.length ) return []
 			
-			// let size = 0
-			// const bins = [] as $hyoo_crowd_unit_bin[]
-			
 			for( const unit of units ) {
 				
 				if( !unit.bin ) {
 				
-					const bin = $hyoo_crowd_unit_bin.from( unit )
+					const bin = $hyoo_crowd_unit_bin.from_unit( unit )
 					
 					let sign = this._signs.get( unit )
 					if( !sign ) {
@@ -112,211 +109,209 @@ namespace $ {
 				
 				}
 				
-				// bins.push( bin )
-				// yield unit
-				// size += unit.bin.byteLength
-				// if( size > 2 ** 15 ) break
 			}
 			
-			// const delta = new Uint8Array( size )
-			
-			// let offset = 0
-			// for( const bin of bins ) {
-			// 	delta.set( new Uint8Array( bin.buffer ), offset )
-			// 	offset += bin.byteLength
-			// }
-			
-			// yield delta
 			return units
 		}
 		
-		async delta( clocks = new Map< $mol_int62_string, readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ] >() ) {
+		async *delta_batch(
+			land: $hyoo_crowd_land,
+			clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
+		) {
 			
-			const delta = [] as $hyoo_crowd_unit[]
+			const units = await this.delta_land( land, clocks )
 			
-			for( const land of this.lands.values() ) {
-				const units = await this.delta_land( land, clocks.get( land.id() ) )
-				delta.push( ... units )
+			let size = 0
+			const bins = [] as $hyoo_crowd_unit_bin[]
+			
+			function pack() {
+				
+				const batch = new Uint8Array( size )
+				
+				let offset = 0
+				for( const bin of bins ) {
+					batch.set( new Uint8Array( bin.buffer, bin.byteOffset, bin.byteLength ), offset )
+					offset += bin.byteLength
+				}
+				
+				size = 0
+				bins.length = 0
+				
+				return batch
 			}
 			
-			return delta
+			for( const unit of units ) {
+				
+				const bin = unit.bin!
+				
+				bins.push( bin )
+				size += bin.byteLength
+				
+				if( size >= 2 ** 17 ) yield pack()
+				
+			}
+			
+			if( size ) yield pack()
+			
+		}
+				
+		async *delta( clocks = new Map< $mol_int62_string, readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ] >() ) {
+			for( const land of this.lands.values() ) {
+				yield* this.delta_batch( land, clocks.get( land.id() ) )
+			}
 		}
 		
 		async apply(
 			delta: Uint8Array,
 		) {
 			
-			const broken = [] as [ $hyoo_crowd_unit, string ][]
+			const units = [] as $hyoo_crowd_unit[]
 			
 			let bin_offset = 0
 			while( bin_offset < delta.byteLength ) {
 				
-				const bin = new $hyoo_crowd_unit_bin( delta.buffer, delta.byteOffset + bin_offset )
-				const unit = bin.unit()
+				const buf = new Int16Array( delta.buffer, delta.byteOffset + bin_offset )
+				const bin = $hyoo_crowd_unit_bin.from_buffer( buf )
 				
-				const error = await this.apply_unit( unit )
-				if( error ) broken.push([ unit, error ])
-				
+				units.push( bin.unit() )
 				bin_offset += bin.size()
 				
 			}
 			
-			return broken
+			const land = this.land( units[0].land )
+			const report = await this.audit_delta( land, units )
+			land.apply( report.allow )
+			
+			return report
 		}
 		
-		async apply_unit(
-			unit: $hyoo_crowd_unit,
+		async audit_delta(
+			land: $hyoo_crowd_land,
+			delta: $hyoo_crowd_unit[],
 		) {
 			
-			const land = this.land( unit.land )
+			const all = new Map<
+				$hyoo_crowd_unit_id,
+				$hyoo_crowd_unit
+			>()
 			
-			try {
-				await this.audit( unit )
-			} catch( error: any ) {
-				return error.message as string
-			}
-		
-			land.apply([ unit ])
-			
-			return ''
-		}
-		
-		async audit(
-			unit: $hyoo_crowd_unit,
-		) {
-			
-			const land = this.land( unit.land )
-			const bin = unit.bin!
-				
 			const desync = 60 * 60 * 10 // 1 hour
 			const deadline = land.clock_data.now() + desync
 			
-			if( unit.time > deadline ) {
-				$mol_fail( new Error( 'Far future' ) )
+			const get_unit = ( id: $hyoo_crowd_unit_id )=> {
+				return all.get( id ) ?? land._unit_all.get( id )
 			}
 			
-			const auth_unit = land.unit( unit.auth, unit.auth )
-			const kind = unit.kind()
+			const get_level = ( head: $mol_int62_string, self: $mol_int62_string )=> {
+				return get_unit( `${ head }/${ self }` )?.level()
+					?? get_unit( `${ head }/0_0` )?.level()
+					?? $hyoo_crowd_peer_level.get
+			}
 			
-			switch( kind ) {
+			const check_unit = async( unit: $hyoo_crowd_unit )=> {
+			
+				const bin = unit.bin!
+					
+				if( unit.time > deadline ) return 'Far future'
 				
-				case $hyoo_crowd_unit_kind.grab:
-				case $hyoo_crowd_unit_kind.join: {
+				const auth_unit = get_unit( `${ unit.auth }/${ unit.auth }` )
+				const kind = unit.kind()
 				
-					if( auth_unit ) {
-						$mol_fail( new Error( 'Already join' ) )
-					}
+				switch( kind ) {
 					
-					if(!( unit.data instanceof Uint8Array )) {
-						$mol_fail( new Error( 'No join key' ) )
-					}
+					case $hyoo_crowd_unit_kind.grab:
+					case $hyoo_crowd_unit_kind.join: {
 					
-					const key_buf = unit.data
-					const self = $mol_int62_to_string( $mol_int62_hash_buffer( key_buf ) )
-					
-					if( unit.self !== self ) {
-						$mol_fail( new Error( 'Alien join key' ) )
-					}
-					
-					const key = await $mol_crypto_auditor_public.from( key_buf )
-					const sign = bin.sign()
-					const valid = await key.verify( bin.sens(), sign )
-					
-					if( !valid ) {
-						$mol_fail( new Error( 'Wrong join sign' ) )
-					}
-					
-					this._signs.set( unit, sign )
+						if( auth_unit ) return 'Already join'
+						if(!( unit.data instanceof Uint8Array )) return 'No join key'
+						
+						const key_buf = unit.data
+						const self = $mol_int62_to_string( $mol_int62_hash_buffer( key_buf ) )
+						
+						if( unit.self !== self ) return 'Alien join key'
+						
+						const key = await $mol_crypto_auditor_public.from( key_buf )
+						const sign = bin.sign()
+						const valid = await key.verify( bin.sens(), sign )
+						
+						if( !valid ) return 'Wrong join sign'
+						
+						all.set( `${ unit.head }/${ unit.auth }`, unit )
+						this._signs.set( unit, sign )
 
-					return
-				}
-				
-				case $hyoo_crowd_unit_kind.give: {
-					
-					const king_unit = land.unit( land.id(), land.id() )
-					
-					if( !king_unit ) $mol_fail( new Error( 'No king' ) )
-					if( unit.auth === king_unit.auth ) break
-					
-					const lord_level = land.level( unit.auth )
-					if( lord_level !== $hyoo_crowd_peer_level.law ) {
-						$mol_fail( new Error( `Need law level` ) )
+						return ''
 					}
 					
-					const peer_level = land.level( unit.auth )
-					if( peer_level > unit.level() ) {
-						$mol_fail( new Error( `Revoke unsupported` ) )
-					}
-					
-					break
-				}
-				
-				case $hyoo_crowd_unit_kind.data: {
-				
-					const king_unit = land.unit( land.id(), land.id() )
-					
-					if( !king_unit ) {
-						$mol_fail( new Error( 'No king' ) )
-					}
-					
-					if( unit.auth === king_unit.auth ) break
-					
-					direct: {
+					case $hyoo_crowd_unit_kind.give: {
 						
-						const give_unit = land.unit( land.id(), unit.auth )
-						const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
+						const lord_level = get_level( land.id(), unit.auth )
+						if( lord_level < $hyoo_crowd_peer_level.law ) return `Level too low`
 						
+						const peer_level = get_level( land.id(), unit.self )
+						if( peer_level > unit.level() ) return `Cancel unsupported`
+						
+						break
+					}
+					
+					case $hyoo_crowd_unit_kind.data: {
+					
+						const level = get_level( land.id(), unit.auth )
 						if( level >= $hyoo_crowd_peer_level.mod ) break
 						
 						if( level === $hyoo_crowd_peer_level.add ) {
 							
-							const exists = land.unit( unit.head, unit.self )
+							const exists = get_unit( `${ unit.head }/${ unit.self }` )
 							if( !exists ) break
 							
 							if( exists.auth === unit.auth ) break
 							
 						}
 						
+						return `Level too low`
 					}
 					
-					fallback: {
-						
-						const give_unit = land.unit( land.id(), '0_0' )
-						const level = give_unit?.level() ?? $hyoo_crowd_peer_level.get
-						
-						if( level >= $hyoo_crowd_peer_level.mod ) break
-						
-						if( level === $hyoo_crowd_peer_level.add ) {
-							
-							const exists = land.unit( unit.head, unit.self )
-							if( !exists ) break
-							
-							if( exists.auth === unit.auth ) break
-							
-						}
-						
-					}
-					
-					$mol_fail( new Error( `No rights` ) )
 				}
+				
+				if( !auth_unit ) return 'No auth key'
+				
+				const key_buf = auth_unit.data as Uint8Array
+				const key = await $mol_crypto_auditor_public.from( key_buf )
+				const sign = bin.sign()
+				const valid = await key.verify( bin.sens(), sign )
+				
+				if( !valid ) return 'Wrong auth sign'
+				
+				all.set( `${ unit.head }/${ unit.self }`, unit )
+				this._signs.set( unit, sign )
+				
+				return ''
+			}
+			
+			const allow = [] as $hyoo_crowd_unit[]
+			const forbid = new Map< $hyoo_crowd_unit, string >()
+			
+			const proceed_unit = async( unit: $hyoo_crowd_unit )=> {
+				
+				const error = await check_unit( unit )
+					
+				if( error ) forbid.set( unit, error )
+				else allow.push( unit )
 				
 			}
 			
-			if( !auth_unit ) {
-				$mol_fail( new Error( 'No auth key' ) )
+			const tasks = [] as Promise<void>[]
+			for( const unit of delta ) {
+				
+				const task = proceed_unit( unit )
+				tasks.push( task )
+				
+				if( unit.group() === $hyoo_crowd_unit_group.auth ) await task
+				
 			}
 			
-			const key_buf = auth_unit.data as Uint8Array
-			const key = await $mol_crypto_auditor_public.from( key_buf )
-			const sign = bin.sign()
-			const valid = await key.verify( bin.sens(), sign )
+			await Promise.all( tasks )
 			
-			if( !valid ) {
-				$mol_fail( new Error( 'Wrong auth sign' ) )
-			}
-			
-			this._signs.set( unit, sign )
-			
+			return { allow, forbid }
 		}
 		
 	}
