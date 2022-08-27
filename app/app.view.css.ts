@@ -29,6 +29,16 @@ namespace $.$$ {
 			padding: $mol_gap.block,
 		},
 		
+		Delta: {
+			font: {
+				size: rem(.875),
+				family: 'monospace',
+			},
+			Cell_text: {
+				whiteSpace: 'pre',
+			},
+		},
+		
 	} )
 	
 }
