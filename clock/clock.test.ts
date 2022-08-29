@@ -46,7 +46,7 @@ namespace $ {
 			$mol_assert_like( time1, now )
 			$mol_assert_like( clock.last_time, now )
 			
-			clock.see_peer( 'm_66', now + 10 )
+			clock.see_peer( 'm_66', clock.now() + 10 )
 			
 			const time2 = clock.tick( 'm_66' )
 			$mol_assert_like( time2, now + 11 )
