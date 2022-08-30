@@ -13,8 +13,6 @@ declare namespace $ {
     export {};
 }
 
-declare let $hyoo_crowd_test: string;
-
 declare namespace $ {
     class $mol_decor<Value> {
         readonly value: Value;
