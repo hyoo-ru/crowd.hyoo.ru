@@ -32,6 +32,10 @@ $node[ "../mam.ts" ] = $node[ "../mam.ts" ] = module.exports }.call( {} , {} )
 //hyoo/hyoo.ts
 ;
 "use strict";
+let $hyoo_crowd_test = "1";
+//hyoo/crowd/-meta.tree/crowd.meta.tree.ts
+;
+"use strict";
 var $;
 (function ($) {
     class $mol_decor {
