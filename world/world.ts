@@ -147,7 +147,7 @@ namespace $ {
 				bins.push( bin )
 				size += bin.byteLength
 				
-				if( size >= 2 ** 17 ) yield pack()
+				if( size >= 2 ** 15 ) yield pack()
 				
 			}
 			
