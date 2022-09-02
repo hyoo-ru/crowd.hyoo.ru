@@ -8,6 +8,10 @@ namespace $ {
 			return $mol_int62_to_string( $mol_int62_random() )
 		}
 		
+		toJSON() {
+			return this.id()
+		}
+		
 		peer(): $hyoo_crowd_peer {
 			return this.world().peer!
 		}
@@ -272,6 +276,7 @@ namespace $ {
 		level( peer: $mol_int62_string, next?: $hyoo_crowd_peer_level ) {
 			
 			if( next ) this.join()
+			else this.pub.promote()
 			
 			const level_id = `${ this.id() }/${ peer }` as const
 			
@@ -396,6 +401,10 @@ namespace $ {
 			const list = this.unit_list( head )
 			const prev = seat ? list[ seat - 1 ].self : '0_0'
 			return this.move( unit, head, prev )
+		}
+		
+		[ $mol_dev_format_head ]() {
+			return $mol_dev_format_native( this )
 		}
 		
 	}

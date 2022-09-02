@@ -10,7 +10,7 @@ namespace $ {
 		
 		readonly lands_pub = new $mol_wire_pub
 		
-		_lands = new $mol_dict<
+		_lands = new Map<
 			$mol_int62_string,
 			$hyoo_crowd_land
 		>()
@@ -20,7 +20,7 @@ namespace $ {
 			return this._lands
 		}
 		
-		land_init( id: $mol_int62_string ) { }
+		land_init( id: $hyoo_crowd_land ) { }
 		
 		land(
 			id: $mol_int62_string,
@@ -44,7 +44,7 @@ namespace $ {
 			id: $mol_int62_string,
 		) {
 			const land = this.land( id )
-			this.land_init( id )
+			this.land_init( land )
 			return land
 		}
 		
@@ -93,28 +93,25 @@ namespace $ {
 			
 			for( const unit of units ) {
 				
-				if( !unit.bin ) {
+				if( unit.bin ) continue
+				const bin = $hyoo_crowd_unit_bin.from_unit( unit )
 				
-					const bin = $hyoo_crowd_unit_bin.from_unit( unit )
-					
-					let sign = this._signs.get( unit )
-					if( !sign ) {
-						const knight = this._knights.get( unit.auth )!
-						sign = new Uint8Array( await knight.key_private.sign( bin.sens() ) )
-					}
-					
-					bin.sign( sign )
-					unit.bin = bin
-					this._signs.set( unit, sign )
-				
+				let sign = this._signs.get( unit )
+				if( !sign ) {
+					const knight = this._knights.get( unit.auth )!
+					sign = new Uint8Array( await knight.key_private.sign( bin.sens() ) )
 				}
+				
+				bin.sign( sign )
+				unit.bin = bin
+				this._signs.set( unit, sign )
 				
 			}
 			
 			return units
 		}
 		
-		async *delta_batch(
+		async delta_batch(
 			land: $hyoo_crowd_land,
 			clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
 		) {
@@ -123,8 +120,9 @@ namespace $ {
 			
 			let size = 0
 			const bins = [] as $hyoo_crowd_unit_bin[]
+			const packs = [] as Uint8Array[]
 			
-			function pack() {
+			function wrap() {
 				
 				const batch = new Uint8Array( size )
 				
@@ -137,7 +135,7 @@ namespace $ {
 				size = 0
 				bins.length = 0
 				
-				return batch
+				packs.push( batch )
 			}
 			
 			for( const unit of units ) {
@@ -147,17 +145,20 @@ namespace $ {
 				bins.push( bin )
 				size += bin.byteLength
 				
-				if( size >= 2 ** 17 ) yield pack()
+				if( size >= 2 ** 15 ) wrap()
 				
 			}
 			
-			if( size ) yield pack()
+			if( size ) wrap()
 			
+			return packs
 		}
 				
 		async *delta( clocks = new Map< $mol_int62_string, readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ] >() ) {
 			for( const land of this.lands.values() ) {
-				yield* this.delta_batch( land, clocks.get( land.id() ) )
+				for( const pack of await this.delta_batch( land, clocks.get( land.id() ) ) ) {
+					yield pack
+				}
 			}
 		}
 		

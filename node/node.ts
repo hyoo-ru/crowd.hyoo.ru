@@ -1,5 +1,3 @@
-/** @jsx $mol_jsx */
-/** @jsxFrag $mol_jsx_frag */
 namespace $ {
 	
 	/** Stateless non-unique adapter to CROWD Tree for given Head. */
