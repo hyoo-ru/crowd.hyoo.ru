@@ -3051,7 +3051,7 @@ var $;
                 disabled: this.disabled(),
                 role: "button",
                 tabindex: this.tab_index(),
-                title: this.hint()
+                title: this.hint_safe()
             };
         }
         sub() {
@@ -3087,6 +3087,9 @@ var $;
         }
         hint() {
             return "";
+        }
+        hint_safe() {
+            return this.hint();
         }
         error() {
             return "";
@@ -3271,6 +3274,15 @@ var $;
                     return $mol_fail_hidden(error);
                 }
                 return String(error.message ?? error);
+            }
+            hint_safe() {
+                try {
+                    return this.hint();
+                }
+                catch (error) {
+                    $mol_fail_log(error);
+                    return '';
+                }
             }
             sub_visible() {
                 return [
@@ -4186,7 +4198,7 @@ var $;
             return {
                 ...super.attr(),
                 href: this.uri_toggle(),
-                title: this.hint(),
+                title: this.hint_safe(),
                 target: this.target(),
                 download: this.file_name(),
                 mol_link_current: this.current()
@@ -4211,6 +4223,9 @@ var $;
         }
         hint() {
             return "";
+        }
+        hint_safe() {
+            return this.hint();
         }
         target() {
             return "_self";
@@ -4338,6 +4353,15 @@ var $;
             }
             target() {
                 return this.external() ? '_blank' : '_self';
+            }
+            hint_safe() {
+                try {
+                    return this.hint();
+                }
+                catch (error) {
+                    $mol_fail_log(error);
+                    return '';
+                }
             }
         }
         __decorate([
