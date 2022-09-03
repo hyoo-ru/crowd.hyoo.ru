@@ -14,8 +14,9 @@ namespace $ {
 			base_level: $hyoo_crowd_peer_level,
 		) {
 			return this.sub( key, $hyoo_crowd_reg )
-				.yoke( king_level, base_level )!.chief
+				.yoke( king_level, base_level )?.chief
 				.sub( key, Node )
+			?? null
 		}
 		
 	}
