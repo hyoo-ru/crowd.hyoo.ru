@@ -5950,8 +5950,9 @@ var $;
         }
         yoke(key, Node, king_level, base_level) {
             return this.sub(key, $hyoo_crowd_reg)
-                .yoke(king_level, base_level).chief
-                .sub(key, Node);
+                .yoke(king_level, base_level)?.chief
+                .sub(key, Node)
+                ?? null;
         }
     }
     $.$hyoo_crowd_struct = $hyoo_crowd_struct;
