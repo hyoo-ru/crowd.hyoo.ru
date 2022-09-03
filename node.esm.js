@@ -10059,6 +10059,8 @@ var $;
             let land_id = (this.value() ?? '0_0');
             if (land_id !== '0_0')
                 return world.land_sync(land_id);
+            if (this.land.level(this.land.peer().id) < $hyoo_crowd_peer_level.add)
+                return null;
             const land = $mol_wire_sync(world).grab(king_level, base_level);
             this.value(land.id());
             return land;

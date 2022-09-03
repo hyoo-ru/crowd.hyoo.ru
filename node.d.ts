@@ -2975,7 +2975,7 @@ declare namespace $ {
         str(next?: string): string;
         numb(next?: number): number;
         bool(next?: boolean): boolean;
-        yoke(king_level: $hyoo_crowd_peer_level, base_level: $hyoo_crowd_peer_level): $hyoo_crowd_land;
+        yoke(king_level: $hyoo_crowd_peer_level, base_level: $hyoo_crowd_peer_level): $hyoo_crowd_land | null;
     }
 }
 
