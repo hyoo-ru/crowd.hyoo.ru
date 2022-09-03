@@ -305,6 +305,20 @@ namespace $ {
 			return next
 		}
 		
+		lords() {
+			
+			this.pub.promote()
+			
+			const lords = [] as $mol_int62_string[]
+			
+			for( const unit of this._unit_all.values() ) {
+				if( unit.kind() !== $hyoo_crowd_unit_kind.give ) continue
+				lords.push( unit.self )
+			}
+			
+			return lords as Readonly< typeof lords >
+		}
+		
 		/** Places data to tree. */
 		put(
 			head: $mol_int62_string,
