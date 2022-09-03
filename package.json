@@ -154,6 +154,8 @@
     "$hyoo_crowd_time",
     "$hyoo_crowd_struct",
     "$hyoo_crowd_node",
+    "$hyoo_crowd_reg",
+    "$mol_wire_sync",
     "$mol_textarea",
     "$mol_stack",
     "$mol_text_code",
@@ -190,7 +192,6 @@
     "$mol_ghost",
     "$mol_dom_render_events",
     "$mol_embed_native",
-    "$mol_wire_sync",
     "$mol_wait_timeout",
     "$mol_wait",
     "$mol_promise",
@@ -203,8 +204,7 @@
     "$hyoo_crowd_text",
     "$hyoo_crowd_list",
     "$mol_reconcile",
-    "$hyoo_crowd_tokenizer",
-    "$hyoo_crowd_reg"
+    "$hyoo_crowd_tokenizer"
   ],
   "dependencies": {
     "jsdom": "*",
