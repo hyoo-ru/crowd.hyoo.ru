@@ -13,36 +13,38 @@ namespace $ {
 		
 		constructor(
 			readonly key_public: $mol_crypto_auditor_public,
-			readonly key_public_serial: Uint8Array,
+			readonly key_public_serial: string,
 			readonly key_private: $mol_crypto_auditor_private,
-			readonly key_private_serial: Uint8Array,
+			readonly key_private_serial: string,
 		) {
 			super()
-			this.id = $mol_int62_to_string( $mol_int62_hash_buffer( this.key_public_serial ) )
+			this.id = $mol_int62_hash_string( this.key_public_serial )
 		}
 		
 		static async generate() {
 			
 			const pair = await $$.$mol_crypto_auditor_pair()
+			const serial = await pair.private.serial()
 			
-			const public_serial = new Uint8Array( await pair.public.serial() )
-			const private_serial = new Uint8Array( await pair.private.serial() )
-			
-			return new this( pair.public, public_serial, pair.private, private_serial )
+			return new this(
+				pair.public,
+				$mol_crypto_auditor_private_to_public( serial ),
+				pair.private,
+				serial,
+			)
 			
 		}
 		
 		static async restore(
-			public_serial: Uint8Array,
-			private_serial: Uint8Array,
+			serial: string,
 		) {
 			
-			const pair = {
-				public: await $$.$mol_crypto_auditor_public.from( public_serial ),
-				private: await $$.$mol_crypto_auditor_private.from( private_serial ),
-			}
-			
-			return new this( pair.public, public_serial, pair.private, private_serial )
+			return new this(
+				await $$.$mol_crypto_auditor_public.from( serial ),
+				$mol_crypto_auditor_private_to_public( serial ),
+				await $$.$mol_crypto_auditor_private.from( serial ),
+				serial,
+			)
 	
 		}
 		

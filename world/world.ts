@@ -224,10 +224,10 @@ namespace $ {
 					case $hyoo_crowd_unit_kind.join: {
 					
 						if( auth_unit ) return 'Already join'
-						if(!( unit.data instanceof Uint8Array )) return 'No join key'
+						if( typeof unit.data !== 'string' ) return 'No join key'
 						
 						const key_buf = unit.data
-						const self = $mol_int62_to_string( $mol_int62_hash_buffer( key_buf ) )
+						const self = $mol_int62_hash_string( key_buf )
 						
 						if( unit.self !== self ) return 'Alien join key'
 						
@@ -275,7 +275,7 @@ namespace $ {
 				
 				if( !auth_unit ) return 'No auth key'
 				
-				const key_buf = auth_unit.data as Uint8Array
+				const key_buf = auth_unit.data as string
 				const key = await $mol_crypto_auditor_public.from( key_buf )
 				const sign = bin.sign()
 				const valid = await key.verify( bin.sens(), sign )
