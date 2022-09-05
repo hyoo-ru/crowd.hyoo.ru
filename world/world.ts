@@ -145,7 +145,7 @@ namespace $ {
 				bins.push( bin )
 				size += bin.byteLength
 				
-				if( size >= 2 ** 15 ) wrap()
+				// if( size >= 2 ** 15 ) wrap()
 				
 			}
 			
