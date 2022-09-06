@@ -10,80 +10,81 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 
 - Any states can be merged without conflicts.
 - Convergence (Strong Eventual Consistency).
-- Merge result is independent of merge order.
+- Merge result is **independent of merge order** (except auth units).
 - Merge is semilattice.
 
 ## Reinterpretable
 
-- Same state can be reinterpreted as any Type.
+- Same state can be reinterpreted as any Type (weak typing).
 - Type of data can be changed dynamicaly without data migration.
-- Cross-merge between different types is available.
+- **Cross-merge** between different types is available.
 
 ## Ordered
 
 - Every data have a stable place in the document.
 - Wiped data inside some Head stays tombstone to hold place.
-- Interleaving-free.
+- **Interleaving-free**.
 
 ## Washed
 
-- Wiped data comptely removes from state.
-- Past state can't be reproduced. Snapshots/layers/changelog should be used for this.
-- Small footprint. Metadata size ~= 4x-8x user data size.
+- Wiped data comptely removed from state.
+- Past state can't be reproduced. Snapshots/layers/changelog should be used for that.
 - Garbage collection isn't required.
+- But metadata size (binary, with signs) ~20x of user data size (~10x without signs).
 
 ## Data
 
-- All deltas are idempotent.
-- Closest to user data as more as possible.
-- Every word is just one unit.
-- Delta is simply slice of full state.
+- All **deltas are idempotent**.
+- Every token is just one unit.
+- Delta is simply slice of full state (array of units).
 - Deltas can be merged together to reduce transmit size.
 
 ## Secure
 
-- Every unit can be crypto signed separately.
-- Every peer checks signs and rejects incorrect units.
-- Every unit can be encrypted.
-- Conflict-free merge avaailable without decrypt.
-- Merging doesn't invalidate signs or decrypt data.
+- Every unit is crypto signed separately.
+- Every peer **checks signs and rights** and rejects incorrect units.
+- Every unit can be encrypted (not yet).
+- Conflict-free **merge without decrypt**.
+- Merging doesn't invalidate signs.
 
 # Vocabulary
 
-- **Land** - Full CROWD document (direct graph) which consists of real Units and virtual Nodes over them.
-- **Node** - A single subtree which represented by few units with same Self in different Heads.
+- **World** - Whole state as graph of Lands.
+- **Node** - A single subtree which represented by few Units with same Self in different Heads.
 - **Unit** - Minimal atomic unit of data with metadata. Actually it's edge between Nodes. And it's extended CvRDT LWW-Register.
+  - **Land** - Document direct graph which consists of (real) Units and (virtual) Nodes over them and syncs entirely.
   - **Self** - Node id
   - **Head** - Parent Node id.
   - **Prev** - Previous Node id in the siblings list.
   - **Next** - Next Node id in the siblings list.
-  - **Peer** - Global unique identifier of independent actor.
-  - **Time** - Monotonic version.
-  - **Data** - Any JSON data.
+  - **Auth** - Global unique identifier of independent actor.
+  - **Time** - Monotonic time as count of 100ms intervals from ~2022-08-04.
+  - **Data** - Any JSON or Binary data. Size is limited by 32KB.
   - **Sign** - Crypto sign of whole Unit data.
-- **Delta** - Difference of two Land state as list of Units.
+- **Delta** - Difference of two Land states as list of Units.
 - **Clock** - Vector clock. Dictionary which maps Peer to Time.
-- **Token** - Minimal meaningfull part of text (single word + punctuation + one space).
-- **Point** - Place inside Unit. Usefull for caret.
+- **Token** - Minimal meaningfull part of text (space + single word / spaces / punctuation etc).
+- **Point** - Place inside Unit. Usefull for caret position.
 - **Range** - Range between two Points. Usefull for selection.
 - **Offset** - Count of letters from beginning.
-- **Channel** - Geter/Setter method. `foo()` - read. `foo(123)` - write. Write returns written.
+- **Channel** - Geter/Setter method. `foo()` - read. `foo(123)` - write and return written.
 
 # Internals
 
 ## State/Delta Format
 
 ```typescript
-type Unit = {
-    head: number
-    self: number
-    prev: number
-    next: number
-    peer: number
-    time: number
-    data: unknown
-    sign: null | Uint8Array & { length: 64 }
-}
+type Unit = Readonly<{
+    land: int62
+    auth: int62
+    head: int62
+    self: int62
+    next: int62
+    prev: int62
+    time: int31
+    data: json | bin
+    sign: bin64
+}>
 
 type State = Unit[]
 type Delta = readonly Unit[]
@@ -93,12 +94,13 @@ Internally Units may be stored in RDBMS. Example:
 
 ```sql
 CREATE TABLE units (
-	head uint(6),
-	self uint(6),
-	prev uint(6),
-	next uint(6),
-	peer uint(6),
-	time uint(4),
+	land int(8),
+	auth int(8),
+	head int(8),
+	self int(8),
+	next int(8),
+	prev int(8),
+	time int(4),
 	data json,
 	sign byte(64),
 )
@@ -108,7 +110,9 @@ CREATE TABLE units (
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/unit.svg)
 
-Primary key for Units: `[ Head, Self ]`
+Primary key for Units: `[ Land, Head, Self ]`
+
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/unit-bin.svg)
 
 # Data Types Representation
 
