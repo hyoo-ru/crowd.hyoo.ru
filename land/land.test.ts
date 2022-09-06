@@ -32,7 +32,7 @@ namespace $ {
 			$mol_assert_like( reg.bool( false ), false )
 			$mol_assert_like( reg.str( '' ), '' )
 			$mol_assert_like( reg.numb( 0 ), 0 )
-			$mol_assert_like( text.text( '' ), '' )
+			$mol_assert_like( text.str( '' ), '' )
 			$mol_assert_like( reg.value( null ), null )
 			$mol_assert_like( list.list(), [] )
 			
@@ -188,10 +188,10 @@ namespace $ {
 			
 			const store = await make_land()
 			
-			store.chief.as( $hyoo_crowd_text ).text( 'FooBarLol' )
+			store.chief.as( $hyoo_crowd_text ).str( 'FooBarLol' )
 			store.chief.as( $hyoo_crowd_list ).move( 0, 2 )
 			
-			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).text(), 'BarFooLol' )
+			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).str(), 'BarFooLol' )
 			
 		},
 		
@@ -246,16 +246,16 @@ namespace $ {
 			
 		},
 		
-		async 'Delete with subtree and ignore inserted into deleted'() {
+		async 'Delete without subtree and ignore inserted into deleted'() {
 			
 			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'foo' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foo' )
 			
 			const b2 = store.chief.nodes( $hyoo_crowd_text )[0]
-			b2.text( 'bar' )
+			b2.str( 'bar' )
 			
 			const b3 = b2.nodes( $hyoo_crowd_text )[0]
-			b3.text( 'lol' )
+			b3.str( 'lol' )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_reg ).value(), 'foo' )
 			$mol_assert_like( b2.as( $hyoo_crowd_reg ).value(), 'bar' )
@@ -264,8 +264,8 @@ namespace $ {
 			store.chief.as( $hyoo_crowd_list ).cut( 0 )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_reg ).value(), null )
-			$mol_assert_like( b2.as( $hyoo_crowd_reg ).value(), null )
-			$mol_assert_like( b3.as( $hyoo_crowd_reg ).value(), null )
+			$mol_assert_like( b2.as( $hyoo_crowd_reg ).value(), 'bar' )
+			$mol_assert_like( b3.as( $hyoo_crowd_reg ).value(), 'lol' )
 			
 		},
 		
@@ -287,13 +287,13 @@ namespace $ {
 			
 			const store1 = await make_land()
 			
-			store1.chief.as( $hyoo_crowd_text ).text( 'foo bar foo' )
-			$mol_assert_like( store1.chief.as( $hyoo_crowd_text ).text(), 'foo bar foo' )
+			store1.chief.as( $hyoo_crowd_text ).str( 'foo bar foo' )
+			$mol_assert_like( store1.chief.as( $hyoo_crowd_text ).str(), 'foo bar foo' )
 			$mol_assert_like( store1.chief.as( $hyoo_crowd_list ).list(), [ 'foo', ' bar', ' foo' ] )
 			
 			const store2 = store1.fork( await $hyoo_crowd_peer.generate() )
-			store2.chief.as( $hyoo_crowd_text ).text( 'barFFFoo  bar' )
-			$mol_assert_like( store2.chief.as( $hyoo_crowd_text ).text(), 'barFFFoo  bar' )
+			store2.chief.as( $hyoo_crowd_text ).str( 'barFFFoo  bar' )
+			$mol_assert_like( store2.chief.as( $hyoo_crowd_text ).str(), 'barFFFoo  bar' )
 			$mol_assert_like( store2.chief.as( $hyoo_crowd_list ).list(), [ 'bar', 'FFFoo', ' ', ' bar' ] )
 			
 		},
@@ -301,10 +301,10 @@ namespace $ {
 		async 'Text modifications'() {
 			
 			const store1 = await make_land()
-			store1.chief.as( $hyoo_crowd_text ).text( 'foo bar' )
+			store1.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
 			
 			const store2 = store1.fork( await $hyoo_crowd_peer.generate() )
-			store2.chief.as( $hyoo_crowd_text ).text( 'foo  bar' )
+			store2.chief.as( $hyoo_crowd_text ).str( 'foo  bar' )
 			$mol_assert_like(
 				store1.chief.units().map( unit => unit.self ),
 				[
@@ -314,7 +314,7 @@ namespace $ {
 			)
 			
 			const store3 = store2.fork( await $hyoo_crowd_peer.generate() )
-			store3.chief.as( $hyoo_crowd_text ).text( 'foo ton bar' )
+			store3.chief.as( $hyoo_crowd_text ).str( 'foo ton bar' )
 			$mol_assert_like(
 				store2.chief.units().map( unit => unit.self ),
 				[
@@ -325,7 +325,7 @@ namespace $ {
 			)
 			
 			const store4 = store3.fork( await $hyoo_crowd_peer.generate() )
-			store4.chief.as( $hyoo_crowd_text ).text( 'foo bar' )
+			store4.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
 			$mol_assert_like(
 				[
 					store3.chief.units()[0].self,
@@ -335,7 +335,7 @@ namespace $ {
 			)
 			
 			const store5 = store3.fork( await $hyoo_crowd_peer.generate() )
-			store5.chief.as( $hyoo_crowd_text ).text( 'foo ' )
+			store5.chief.as( $hyoo_crowd_text ).str( 'foo ' )
 			$mol_assert_like(
 				[
 					store4.chief.units()[0].self,
@@ -349,33 +349,33 @@ namespace $ {
 		async 'Change sequences'() {
 			
 			const store = await make_land()
-			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).text(), '' )
+			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).str(), '' )
 			
-			store.chief.as( $hyoo_crowd_text ).text( 'foo' )
-			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).text(), 'foo' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foo' )
+			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).str(), 'foo' )
 			
-			store.chief.as( $hyoo_crowd_text ).text( 'foo bar' )
-			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).text(), 'foo bar' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
+			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).str(), 'foo bar' )
 			
-			store.chief.as( $hyoo_crowd_text ).text( 'foo lol bar' )
-			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).text(), 'foo lol bar' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foo lol bar' )
+			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).str(), 'foo lol bar' )
 			
-			store.chief.as( $hyoo_crowd_text ).text( 'lol bar' )
-			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).text(), 'lol bar' )
+			store.chief.as( $hyoo_crowd_text ).str( 'lol bar' )
+			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).str(), 'lol bar' )
 			
-			store.chief.as( $hyoo_crowd_text ).text( 'foo bar' )
-			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).text(), 'foo bar' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
+			$mol_assert_like( store.chief.as( $hyoo_crowd_text ).str(), 'foo bar' )
 			
 		},
 		
 		async 'Merge different sequences'() {
 			
 			const left = await make_land()
-			left.chief.as( $hyoo_crowd_text ).text( 'foo bar.' )
+			left.chief.as( $hyoo_crowd_text ).str( 'foo bar.' )
 			
 			const right = await make_land('a_2')
 			right.clock_data.tick( right.peer().id )
-			right.chief.as( $hyoo_crowd_text ).text( 'xxx yyy.' )
+			right.chief.as( $hyoo_crowd_text ).str( 'xxx yyy.' )
 			
 			const left_delta = left.delta()
 			const right_delta = right.delta()
@@ -384,8 +384,8 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.chief.as( $hyoo_crowd_text ).text(),
-				right.chief.as( $hyoo_crowd_text ).text(),
+				left.chief.as( $hyoo_crowd_text ).str(),
+				right.chief.as( $hyoo_crowd_text ).str(),
 				'xxx yyy.foo bar.',
 			)
 			
@@ -394,14 +394,14 @@ namespace $ {
 		async 'Merge different insertions to same place of same sequence'() {
 			
 			const base = await make_land()
-			base.chief.as( $hyoo_crowd_text ).text( 'foo bar' )
+			base.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
-			left.chief.as( $hyoo_crowd_text ).text( 'foo xxx bar' )
+			left.chief.as( $hyoo_crowd_text ).str( 'foo xxx bar' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock_data.tick( right.peer().id )
-			right.chief.as( $hyoo_crowd_text ).text( 'foo yyy bar' )
+			right.chief.as( $hyoo_crowd_text ).str( 'foo yyy bar' )
 			
 			const left_delta = left.delta( base.clocks )
 			const right_delta = right.delta( base.clocks )
@@ -410,8 +410,8 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.chief.as( $hyoo_crowd_text ).text(),
-				right.chief.as( $hyoo_crowd_text ).text(),
+				left.chief.as( $hyoo_crowd_text ).str(),
+				right.chief.as( $hyoo_crowd_text ).str(),
 				'foo yyy xxx bar',
 			)
 			
@@ -420,10 +420,10 @@ namespace $ {
 		async 'Insert after moved'() {
 			
 			const base = await make_land()
-			base.chief.as( $hyoo_crowd_text ).text( 'FooBarZak' )
+			base.chief.as( $hyoo_crowd_text ).str( 'FooBarZak' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
-			left.chief.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
+			left.chief.as( $hyoo_crowd_text ).str( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock_data.tick( right.peer().id )
@@ -436,8 +436,8 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.chief.as( $hyoo_crowd_text ).text(),
-				right.chief.as( $hyoo_crowd_text ).text(),
+				left.chief.as( $hyoo_crowd_text ).str(),
+				right.chief.as( $hyoo_crowd_text ).str(),
 				'XxxBarFooZak',
 			)
 			
@@ -446,10 +446,10 @@ namespace $ {
 		async 'Insert before moved left'() {
 			
 			const base = await make_land()
-			base.chief.as( $hyoo_crowd_text ).text( 'fooBarZak' )
+			base.chief.as( $hyoo_crowd_text ).str( 'fooBarZak' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
-			left.chief.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
+			left.chief.as( $hyoo_crowd_text ).str( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock_data.tick( right.peer().id )
@@ -462,8 +462,8 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.chief.as( $hyoo_crowd_text ).text(),
-				right.chief.as( $hyoo_crowd_text ).text(),
+				left.chief.as( $hyoo_crowd_text ).str(),
+				right.chief.as( $hyoo_crowd_text ).str(),
 				'BarFooXxxZak',
 			)
 			
@@ -472,10 +472,10 @@ namespace $ {
 		async 'Insert before moved right'() {
 			
 			const base = await make_land()
-			base.chief.as( $hyoo_crowd_text ).text( 'FooBarZak' )
+			base.chief.as( $hyoo_crowd_text ).str( 'FooBarZak' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
-			left.chief.as( $hyoo_crowd_text ).text( 'FooXxxBarZak' )
+			left.chief.as( $hyoo_crowd_text ).str( 'FooXxxBarZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock_data.tick( right.peer().id )
@@ -488,8 +488,8 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.chief.as( $hyoo_crowd_text ).text(),
-				right.chief.as( $hyoo_crowd_text ).text(),
+				left.chief.as( $hyoo_crowd_text ).str(),
+				right.chief.as( $hyoo_crowd_text ).str(),
 				'FooXxxZakBar',
 			)
 			
@@ -498,14 +498,14 @@ namespace $ {
 		async 'Insert after removed'() {
 			
 			const base = await make_land()
-			base.chief.as( $hyoo_crowd_text ).text( 'FooBar' )
+			base.chief.as( $hyoo_crowd_text ).str( 'FooBar' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
-			left.chief.as( $hyoo_crowd_text ).text( 'FooXxxBar' )
+			left.chief.as( $hyoo_crowd_text ).str( 'FooXxxBar' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock_data.tick( right.peer().id )
-			right.chief.as( $hyoo_crowd_text ).text( 'Bar' )
+			right.chief.as( $hyoo_crowd_text ).str( 'Bar' )
 			
 			const left_delta = left.delta( base.clocks )
 			const right_delta = right.delta( base.clocks )
@@ -514,8 +514,8 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.chief.as( $hyoo_crowd_text ).text(),
-				right.chief.as( $hyoo_crowd_text ).text(),
+				left.chief.as( $hyoo_crowd_text ).str(),
+				right.chief.as( $hyoo_crowd_text ).str(),
 				'XxxBar',
 			)
 			
@@ -524,10 +524,10 @@ namespace $ {
 		async 'Insert after removed out'() {
 			
 			const base = await make_land()
-			$hyoo_crowd_text.for( base, '1_1' ).text( 'FooBarZak' )
+			$hyoo_crowd_text.for( base, '1_1' ).str( 'FooBarZak' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
-			$hyoo_crowd_text.for( left, '1_1' ).text( 'FooBarXxxZak' )
+			$hyoo_crowd_text.for( left, '1_1' ).str( 'FooBarXxxZak' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock_data.tick( right.peer().id )
@@ -540,14 +540,14 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				$hyoo_crowd_text.for( left, '1_1' ).text(),
-				$hyoo_crowd_text.for( right, '1_1' ).text(),
+				$hyoo_crowd_text.for( left, '1_1' ).str(),
+				$hyoo_crowd_text.for( right, '1_1' ).str(),
 				'FooXxxZak',
 			)
 			
 			$mol_assert_like(
-				$hyoo_crowd_text.for( left, '2_2' ).text(),
-				$hyoo_crowd_text.for( right, '2_2' ).text(),
+				$hyoo_crowd_text.for( left, '2_2' ).str(),
+				$hyoo_crowd_text.for( right, '2_2' ).str(),
 				'Bar',
 			)
 			
@@ -556,14 +556,14 @@ namespace $ {
 		async 'Insert before changed'() {
 			
 			const base = await make_land()
-			base.chief.as( $hyoo_crowd_text ).text( 'XxxYyyZzz' )
+			base.chief.as( $hyoo_crowd_text ).str( 'XxxYyyZzz' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
-			left.chief.as( $hyoo_crowd_text ).text( 'XxxFooYyyZzz' )
+			left.chief.as( $hyoo_crowd_text ).str( 'XxxFooYyyZzz' )
 			
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock_data.tick( right.peer().id )
-			right.chief.as( $hyoo_crowd_text ).text( 'XxxBarZzz' )
+			right.chief.as( $hyoo_crowd_text ).str( 'XxxBarZzz' )
 			
 			const left_delta = left.delta( base.clocks )
 			const right_delta = right.delta( base.clocks )
@@ -572,8 +572,8 @@ namespace $ {
 			right.apply( left_delta )
 	
 			$mol_assert_like(
-				left.chief.as( $hyoo_crowd_text ).text(),
-				right.chief.as( $hyoo_crowd_text ).text(),
+				left.chief.as( $hyoo_crowd_text ).str(),
+				right.chief.as( $hyoo_crowd_text ).str(),
 				'XxxBarFooZzz',
 			)
 			
@@ -609,14 +609,14 @@ namespace $ {
 		async 'Merge text changes'() {
 			
 			const base = await make_land()
-			base.chief.as( $hyoo_crowd_text ).text( 'Hello World and fun!' )
+			base.chief.as( $hyoo_crowd_text ).str( 'Hello World and fun!' )
 			
 			const left = base.fork( await $hyoo_crowd_peer.generate() )
 			const right = base.fork( await $hyoo_crowd_peer.generate() )
 			right.clock_data.tick( right.peer().id )
 			
-			left.chief.as( $hyoo_crowd_text ).text( 'Hello Alice and fun!' )
-			right.chief.as( $hyoo_crowd_text ).text( 'Bye World and fun!' )
+			left.chief.as( $hyoo_crowd_text ).str( 'Hello Alice and fun!' )
+			right.chief.as( $hyoo_crowd_text ).str( 'Bye World and fun!' )
 			
 			const left_delta = left.delta()
 			const right_delta = right.delta()
@@ -625,8 +625,8 @@ namespace $ {
 			right.apply( left_delta )
 
 			$mol_assert_equal(
-				left.chief.as( $hyoo_crowd_text ).text(),
-				right.chief.as( $hyoo_crowd_text ).text(),
+				left.chief.as( $hyoo_crowd_text ).str(),
+				right.chief.as( $hyoo_crowd_text ).str(),
 				'Bye Alice and fun!',
 			)
 
@@ -635,7 +635,7 @@ namespace $ {
 		async 'Write into token'() {
 			
 			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'foobar' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foobar' )
 			store.chief.as( $hyoo_crowd_text ).write( 'xyz', 3 )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [ 'fooxyzbar' ] )
@@ -645,7 +645,7 @@ namespace $ {
 		async 'Write into token with split'() {
 			
 			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'foobar' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foobar' )
 			store.chief.as( $hyoo_crowd_text ).write( 'XYZ', 2, 4 )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [ 'fo', 'XYZar' ] )
@@ -655,7 +655,7 @@ namespace $ {
 		async 'Write over few tokens'() {
 			
 			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'xxx foo bar yyy' )
+			store.chief.as( $hyoo_crowd_text ).str( 'xxx foo bar yyy' )
 			store.chief.as( $hyoo_crowd_text ).write( 'X Y Z', 6, 9 )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [ 'xxx', ' fo', 'X', ' Y', ' Zar', ' yyy' ] )
@@ -665,7 +665,7 @@ namespace $ {
 		async 'Write whole token'() {
 			
 			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'xxxFoo yyy' )
+			store.chief.as( $hyoo_crowd_text ).str( 'xxxFoo yyy' )
 			store.chief.as( $hyoo_crowd_text ).write( 'bar', 3, 7 )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [ 'xxxbaryyy' ] )
@@ -675,7 +675,7 @@ namespace $ {
 		async 'Write whole text'() {
 			
 			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'foo bar' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
 			store.chief.as( $hyoo_crowd_text ).write( 'xxx', 0, 7 )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [ 'xxx' ] )
@@ -685,7 +685,7 @@ namespace $ {
 		async 'Write at the end'() {
 			
 			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'foo' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foo' )
 			store.chief.as( $hyoo_crowd_text ).write( 'bar' )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [ 'foobar' ] )
@@ -695,58 +695,10 @@ namespace $ {
 		async 'Write between tokens'() {
 			
 			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'foo bar' )
+			store.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
 			store.chief.as( $hyoo_crowd_text ).write( 'xxx', 4 )
 			
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [ 'foo', ' xxxbar' ] )
-			
-		},
-
-		async 'Offset <=> Point'() {
-			
-			const store = await make_land()
-			store.chief.as( $hyoo_crowd_text ).text( 'fooBar' )
-			const [ first, second ] = store.chief.units()
-			
-			$mol_assert_like(
-				store.chief.as( $hyoo_crowd_text ).point_by_offset( 0 ),
-				{ self: first.self, offset: 0 },
-			)
-			$mol_assert_like(
-				store.chief.as( $hyoo_crowd_text )
-					.offset_by_point({ self: first.self, offset: 0 }),
-				0,
-			)
-			
-			$mol_assert_like(
-				store.chief.as( $hyoo_crowd_text ).point_by_offset( 3 ),
-				{ self: second.self, offset: 0 },
-			)
-			$mol_assert_like(
-				store.chief.as( $hyoo_crowd_text )
-					.offset_by_point({ self: second.self, offset: 0 }),
-				3,
-			)
-			
-			$mol_assert_like(
-				store.chief.as( $hyoo_crowd_text ).point_by_offset( 5 ),
-				{ self: second.self, offset: 2 },
-			)
-			$mol_assert_like(
-				store.chief.as( $hyoo_crowd_text )
-					.offset_by_point({ self: second.self, offset: 2 }),
-				5,
-			)
-			
-			$mol_assert_like(
-				store.chief.as( $hyoo_crowd_text ).point_by_offset( 6 ),
-				{ self: store.chief.head, offset: 6 },
-			)
-			$mol_assert_like(
-				store.chief.as( $hyoo_crowd_text )
-					.offset_by_point({ self: store.chief.head, offset: 6 }),
-				6,
-			)
 			
 		},
 

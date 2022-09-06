@@ -84,18 +84,19 @@ namespace $.$$ {
 			return $mol_charset_encode( this.text() ).length
 		}
 		
-		tokens_alive() {
+		units_alive() {
 			this.text()
-			return this.store().chief.as( $hyoo_crowd_list ).list().length
+			return [ ... this.store()._unit_all.values() ]
+				.reduce( ( count, unit )=> unit.data === null ? count : count + 1, 0 )
 		}
 		
-		tokens_total() {
+		units_total() {
 			this.text()
-			return Math.max( 0, this.store().size() - 1 )
+			return this.store().size()
 		}
 		
-		tokens_dead() {
-			return this.tokens_total() - this.tokens_alive()
+		units_dead() {
+			return this.units_total() - this.units_alive()
 		}
 		
 		@ $mol_mem
@@ -111,11 +112,11 @@ namespace $.$$ {
 		stats() {
 			this.text()
 			return super.stats()
-			.replace( '{peer}', this.store().peer().id )
+			.replace( '{peer}', this.store().peer_id() )
 			.replace( '{changes}', this.changes().toLocaleString() )
-			.replace( '{tokens:alive}', this.tokens_alive().toLocaleString() )
-			.replace( '{tokens:dead}', this.tokens_dead().toLocaleString() )
-			.replace( '{tokens:total}', this.tokens_total().toLocaleString() )
+			.replace( '{units:alive}', this.units_alive().toLocaleString() )
+			.replace( '{units:dead}', this.units_dead().toLocaleString() )
+			.replace( '{units:total}', this.units_total().toLocaleString() )
 			.replace( '{stamp:now}', this.store().clock_data.last_stamp().toString(36) )
 			.replace( '{stamp:sync}', this.sync_clocks()[1].last_stamp().toString(36) )
 			.replace( '{size:text}', this.size_text().toLocaleString() )

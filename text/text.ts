@@ -2,11 +2,61 @@ namespace $ {
 	export class $hyoo_crowd_text extends $hyoo_crowd_node {
 		
 		/** Text representation. Based on list of strings. */
-		text( next?: string ) {
+		text( next?: string ): string {
 			
 			if( next === undefined ) {
 				
-				return this.as( $hyoo_crowd_list ).list().filter( item => typeof item === 'string' ).join( '' )
+				return this.str()
+			
+			} else {
+				
+				const prev = this.units()
+				const lines = next.match(/.*\n|.+$/g) ?? []
+				
+				$mol_reconcile({
+					prev,
+					from: 0,
+					to: prev.length,
+					next: lines,
+					equal: ( next, prev )=> {
+						if( typeof prev.data === 'string' ) return false
+						return this.land.node( prev.self, $hyoo_crowd_text ).str() === next
+					},
+					drop: ( prev, lead )=> this.land.wipe( prev ),
+					insert: ( next, lead )=> {
+						const unit = this.land.put(
+							this.head,
+							this.land.id_new(),
+							lead?.self ?? '0_0',
+							[],
+						)
+						this.land.node( unit.self, $hyoo_crowd_text ).str( next )
+						return unit
+					},
+					update: ( next, prev, lead )=> {
+						this.land.node( prev.self, $hyoo_crowd_text ).str( next )
+						return prev
+					},
+				})
+				
+				return next
+			}
+			
+		}
+		
+		/** Text representation. Based on list of strings. */
+		str( next?: string ) {
+			
+			if( next === undefined ) {
+				
+				let str = ''
+				
+				for( const unit of this.units() ) {
+					if( typeof unit.data === 'string' ) str += unit.data
+					else str += this.land.node( unit.self, $hyoo_crowd_text ).str()
+				}
+				
+				return str
 			
 			} else {
 				
@@ -71,51 +121,70 @@ namespace $ {
 			return this
 		}
 
-		point_by_offset( offset: number ) {
+		point_by_offset( offset: number ): readonly[ $mol_int62_string, number ] {
 			
 			let off = offset
 			for( const unit of this.units() ) {
 				
-				const len = String( unit.data ).length
-				
-				if( off < len ) return { self: unit.self, offset: off }
-				else off -= len
-				
-			}
-			
-			return { self: this.head, offset: offset }
-		}
-		
-		offset_by_point( point: { self: $mol_int62_string, offset: number } ) {
-			
-			let offset = 0
-			
-			for( const unit of this.units() ) {
-				
-				if( unit.self === point.self ) {
-					return offset + point.offset
+				if( typeof unit.data === 'string' ) {
+					
+					const len = String( unit.data ).length
+					
+					if( off <= len ) return [ unit.self, off ]
+					else off -= len
+					
 				} else {
-					offset += String( unit.data ).length
+					
+					const found = this.land.node( unit.self, $hyoo_crowd_text ).point_by_offset( off )
+					if( found[0] !== '0_0' ) return found
+					
+					off = found[1]
+					
 				}
 				
 			}
 			
-			return offset
+			return [ '0_0', off ]
+		}
+		
+		offset_by_point( [ self, offset ]: [ $mol_int62_string, number ] ): readonly[ $mol_int62_string, number ]  {
+			
+			for( const unit of this.units() ) {
+				
+				if( unit.self === self ) return [ self, offset ]
+				
+				if( typeof unit.data === 'string' ) {
+					
+					offset += unit.data.length
+					
+				} else {
+					
+					const found = this.land.node( unit.self, $hyoo_crowd_text ).offset_by_point([ self, offset ])
+					if( found[0] !== '0_0' ) return [ self, found[1] ]
+					
+					offset = found[1]
+					
+				}
+				
+			}
+			
+			return [ '0_0', offset ]
 		}
 		
 		selection( peer: $mol_int62_string, next?: number[] ) {
 			
-			const reg = this.land.world().land_sync( peer ).chief.sub( '$hyoo_crowd_text..selection', $hyoo_crowd_reg )
+			const reg = this.land.selection( peer )
 			
 			if( next ) {
 				reg.value( next.map( offset => this.point_by_offset( offset ) ) )
 				return next
 			} else {
-				return ( reg.value() as { self: $mol_int62_string, offset: number }[] )
-					?.map( point => this.offset_by_point( point ) ) ?? [ 0, 0 ]
+				return ( reg.value() as readonly[ $mol_int62_string, number ][] )
+					?.map( point => this.offset_by_point( point )[1] ) ?? [ 0, 0 ]
 			}
 			
 		}
 		
 	}
+	
 }

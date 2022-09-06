@@ -12,12 +12,16 @@ namespace $ {
 			return this.id()
 		}
 		
-		peer(): $hyoo_crowd_peer {
-			return this.world().peer!
+		peer() {
+			return this.world()?.peer!
 		}
 		
-		world(): $hyoo_crowd_world {
-			$mol_fail( new Error( `World isn't defined` ) )
+		peer_id() {
+			return this.peer()?.id ?? '0_0'
+		}
+		
+		world(): $hyoo_crowd_world | null {
+			return null
 		}
 		
 		get clock_auth() {
@@ -99,8 +103,13 @@ namespace $ {
 			return kids
 		}
 		
+		/** Node by id and type. */
+		node< Node extends typeof $hyoo_crowd_node >( head: $mol_int62_string, Node: Node ) {
+			return new Node( this, head ) as InstanceType< Node >
+		}
+		
 		/** Root Node. */
-		chief = new $hyoo_crowd_struct( this, '0_0' )
+		chief = this.node( '0_0', $hyoo_crowd_struct )
 		
 		/** Generates new identifier. */
 		id_new(): $mol_int62_string {
@@ -244,21 +253,22 @@ namespace $ {
 			
 			if( this._joined ) return
 			
-			const { id: peer, key_public_serial } = this.peer()
-			if( !key_public_serial ) return
+			const auth = this.peer()
+			if( !auth ) return
+			if( !auth.key_public_serial ) return
 			
-			const auth_id = `${ peer }/${ peer }` as const
+			const auth_id = `${ auth.id }/${ auth.id }` as const
 			
 			const auth_unit = this._unit_all.get( auth_id )
 			if( auth_unit ) return
 			
-			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
+			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( auth.id )
 			
 			const join_unit = new $hyoo_crowd_unit(
-				this.id(), peer,
-				peer, peer,
+				this.id(), auth.id,
+				auth.id, auth.id,
 				'0_0', '0_0',
-				time, key_public_serial,
+				time, auth.key_public_serial,
 				null,
 				
 			)
@@ -288,10 +298,10 @@ namespace $ {
 			if( next <= prev ) return prev
 			
 			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
-			const auth = this.peer()
+			const auth = this.peer_id()
 			
 			const level_unit = new $hyoo_crowd_unit(
-				this.id(), auth.id,
+				this.id(), auth,
 				this.id(), peer,
 				'0_0', '0_0',
 				time, next,
@@ -334,6 +344,10 @@ namespace $ {
 			return authors
 		}
 		
+		selection( peer: $mol_int62_string ) {
+			return this.world()!.land_sync( peer ).chief.sub( '$hyoo_crowd_land..selection', $hyoo_crowd_reg )
+		}
+		
 		/** Places data to tree. */
 		put(
 			head: $mol_int62_string,
@@ -356,11 +370,11 @@ namespace $ {
 			const seat = unit_prev ? unit_list.indexOf( unit_prev ) + 1 : 0
 			const next = unit_list[ seat ]?.self ?? '0_0'
 			
-			const auth = this.peer()
-			const time = this._clocks[ $hyoo_crowd_unit_group.data ].tick( auth.id )
+			const auth = this.peer_id()
+			const time = this._clocks[ $hyoo_crowd_unit_group.data ].tick( auth )
 			
 			const unit_new = new $hyoo_crowd_unit(
-				this.id(), auth.id,
+				this.id(), auth,
 				head, self,
 				next, prev,
 				time, data,
@@ -380,14 +394,14 @@ namespace $ {
 			return unit_new
 		}
 		
-		/** Recursively marks unit with its subtree as deleted and wipes data. */
+		/** Marks unit as deleted and wipes its data. */
 		wipe( unit: $hyoo_crowd_unit ) {
 			
 			if( unit.data === null ) return unit
 			
-			for( const kid of this.unit_list( unit.self ) ) {
-				this.wipe( kid )
-			}
+			// for( const kid of this.unit_list( unit.self ) ) {
+			// 	this.wipe( kid )
+			// }
 			
 			const unit_list = this.unit_list( unit.head )
 			const seat = unit_list.indexOf( unit )

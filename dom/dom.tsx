@@ -41,10 +41,7 @@ namespace $ {
 						? el
 						: el.nodeName === 'span'
 							? el.textContent
-							: {
-								tag: el.nodeName,
-								attr: attr( el ),
-							}
+							: [ el.nodeName, attr( el ) ]
 				}
 				
 				let units = this.units()
@@ -94,11 +91,11 @@ namespace $ {
 						
 						const Tag = typeof unit.data === 'string'
 							? 'span'
-							: ( unit.data as { tag: string } ).tag ?? 'span'
+							: ( unit.data as string[] )[0] ?? 'p'
 							
 						const attr = typeof unit.data === 'string'
 							? {}
-							: ( unit.data as { attr: {} } ).attr ?? {}
+							: ( unit.data as {}[] )[1] ?? {}
 							
 						const content = typeof unit.data === 'string'
 							? unit.data

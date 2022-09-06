@@ -58,7 +58,7 @@ namespace $ {
 			base_level: $hyoo_crowd_peer_level,
 		) {
 			
-			const world = this.world()
+			const world = this.world()!
 			
 			let land_id = ( this.value() ?? '0_0' ) as $mol_int62_string
 			if( land_id !== '0_0' ) return world.land_sync( land_id )
