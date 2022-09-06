@@ -58,9 +58,17 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
   - **Prev** - Previous Node id in the siblings list.
   - **Next** - Next Node id in the siblings list.
   - **Auth** - Global unique identifier of independent actor.
-  - **Time** - Monotonic time as count of 100ms intervals from ~2022-08-04.
+  - **Time** - Monotonic time as count of 100ms intervals from Aeon start.
+  - **Aeon** - number of 7-year epochs from ~2022-08-04 (not yet).
   - **Data** - Any JSON or Binary data. Size is limited by 32KB.
   - **Sign** - Crypto sign of whole Unit data.
+  - **kind** - Type of unit (👑 `grab`, 🏅 `grant`, 🔑 `join`, 📦 `data`) with different acceptance criterias.
+  - **group** - Priority of synchronization (`auth`, `data`).
+- **Level** - Access level (`law`, `mod`, `add`, `get`).
+- **Peer** - Any actor who have private key to make and sign Units.
+  - **Lord** - Any Peer who have `law` level for Land.
+  - **King** - Peer with same id as Land. He has `law` level in that Land by default.
+  - **Knight** - Temporary King to grab Land and grant level for current Peer and/or for all Peers.
 - **Delta** - Difference of two Land states as list of Units.
 - **Clock** - Vector clock. Dictionary which maps Peer to Time.
 - **Token** - Minimal meaningfull part of text (space + single word / spaces / punctuation etc).
@@ -112,7 +120,19 @@ CREATE TABLE units (
 
 Primary key for Units: `[ Land, Head, Self ]`
 
+# Binary messages
+
+## Delta
+
+Delta is array of 8-byte aligned binary serialized Units of same Land ordered by Aeon+Time.
+
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/unit-bin.svg)
+
+## Clocks
+
+First message in sync flow. Contains last seen Times for each Peer+Group of already known Units.
+
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/clocks-bin.svg)
 
 # Data Types Representation
 
