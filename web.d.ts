@@ -1693,7 +1693,7 @@ declare namespace $ {
         readonly head: $mol_int62_string;
         constructor(land: $hyoo_crowd_land, head: $mol_int62_string);
         static for<Node extends typeof $hyoo_crowd_node>(this: Node, land: $hyoo_crowd_land, head: $mol_int62_string): InstanceType<Node>;
-        world(): $hyoo_crowd_world;
+        world(): $hyoo_crowd_world | null;
         as<Node extends typeof $hyoo_crowd_node>(Node: Node): InstanceType<Node>;
         units(): readonly $hyoo_crowd_unit[];
         nodes<Node extends typeof $hyoo_crowd_node>(Node: Node): InstanceType<Node>[];
@@ -1722,7 +1722,8 @@ declare namespace $ {
         id(): `${string}_${string}`;
         toJSON(): `${string}_${string}`;
         peer(): $hyoo_crowd_peer;
-        world(): $hyoo_crowd_world;
+        peer_id(): `${string}_${string}`;
+        world(): $hyoo_crowd_world | null;
         get clock_auth(): $hyoo_crowd_clock;
         get clock_data(): $hyoo_crowd_clock;
         get clocks(): readonly [$hyoo_crowd_clock, $hyoo_crowd_clock];
@@ -1739,6 +1740,7 @@ declare namespace $ {
             dirty: boolean;
         };
         unit_alives(head: $mol_int62_string): readonly $hyoo_crowd_unit[];
+        node<Node extends typeof $hyoo_crowd_node>(head: $mol_int62_string, Node: Node): InstanceType<Node>;
         chief: $hyoo_crowd_struct;
         id_new(): $mol_int62_string;
         fork(auth: $hyoo_crowd_peer): $hyoo_crowd_land;
@@ -1753,6 +1755,7 @@ declare namespace $ {
         level(peer: $mol_int62_string, next?: $hyoo_crowd_peer_level): $hyoo_crowd_peer_level;
         lords(): readonly `${string}_${string}`[];
         authors(): Set<`${string}_${string}`>;
+        selection(peer: $mol_int62_string): $hyoo_crowd_reg;
         put(head: $mol_int62_string, self: $mol_int62_string, prev: $mol_int62_string, data: unknown): $hyoo_crowd_unit;
         wipe(unit: $hyoo_crowd_unit): $hyoo_crowd_unit;
         move(unit: $hyoo_crowd_unit, head: $mol_int62_string, prev: $mol_int62_string): $hyoo_crowd_unit;
@@ -2922,6 +2925,10 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    let $hyoo_crowd_tokenizer: RegExp;
+}
+
+declare namespace $ {
     class $hyoo_crowd_list extends $hyoo_crowd_node {
         list(next?: readonly unknown[]): readonly unknown[];
         set(next?: ReadonlySet<string | number | boolean | null>): Set<unknown>;
@@ -2935,21 +2942,12 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    let $hyoo_crowd_tokenizer: RegExp;
-}
-
-declare namespace $ {
     class $hyoo_crowd_text extends $hyoo_crowd_node {
         text(next?: string): string;
+        str(next?: string): string;
         write(next: string, str_from?: number, str_to?: number): this;
-        point_by_offset(offset: number): {
-            self: `${string}_${string}`;
-            offset: number;
-        };
-        offset_by_point(point: {
-            self: $mol_int62_string;
-            offset: number;
-        }): number;
+        point_by_offset(offset: number): readonly [$mol_int62_string, number];
+        offset_by_point([self, offset]: [$mol_int62_string, number]): readonly [$mol_int62_string, number];
         selection(peer: $mol_int62_string, next?: number[]): number[];
     }
 }
@@ -2980,9 +2978,9 @@ declare namespace $.$$ {
         }[];
         changes(): number;
         size_text(): number;
-        tokens_alive(): number;
-        tokens_total(): number;
-        tokens_dead(): number;
+        units_alive(): number;
+        units_total(): number;
+        units_dead(): number;
         size_state_bin(): number;
         size_delta_bin(): number;
         stats(): string;
