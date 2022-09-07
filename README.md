@@ -237,11 +237,22 @@ It's both Struct and List:
 
 ### $hyoo_crowd_dict
 
-- `keys()` Returns list of keys.
+- `keys()` Channel for list of keys.
 - `sub( key: string, Node )` Returns inner Node for key.
 - `has( val: unknown )` Checks for value existence.
 - `add( val: unknown )` Adds value if doesn't exist.
 - `drop( val: unknown )` Removes value if exists.
+
+## Mergeable JSON
+
+It's recursive version of Dictionary. Special values which marks inner structures:
+
+- `{}` - inner JSON.
+- `[]` - inner List.
+
+### $hyoo_crowd_json
+
+- `json( json )` Channel for JSON.
 
 ## Mergeable Plain String and Text
 
@@ -275,7 +286,7 @@ Under the hood, String is just List of Tokens. So, entering word letter by lette
 
 ## Mergeable Rich Text
 
-Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `["div"]`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Unit Self. This `id` is using to reuse existing Units and track Nodes moving.
+Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `["div"]`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Self. This `id` is using to reuse existing Units and track Nodes moving.
 
 ### $hyoo_crowd_dom
 
@@ -284,15 +295,9 @@ Under the hood, tokens are stored in the same form as in plain text. There may b
 
 ## Mergeable Document
 
-- `root` Returns root Node with Head = 0.
-- `delta( clock )` Returns delta between past clock and now.
-- `apply( delta )` Merges delta to current state.
-- `toJSON()` Returns full state dump.
-- `fork( peer: number )` Makes independent clone with another Peer for testing purposes.
-
 ### Delta Algorithm
 
-- Input: Clock, received from Peer.
+- Input: Clocks, received from Peer.
 - Iterate over all Unit in Land.
 	- Skip Units which Time less then Clock Time for same Peer.
 - Return all remainig Units ordered by Time.
@@ -301,7 +306,7 @@ Example with SQL:
 
 ```sql
 SELECT *
-FROM units
+FROM Unit
 WHERE
 	NOT( peer = 1 AND time <= 123 )
 	AND NOT( peer = 2 AND time <= 456 )
@@ -321,6 +326,13 @@ ORDER BY
 	- If Unit exists and Time of new Unit is greater, replace old by new.
 	- If Unit exists and Time of new Unit is same, but Peer is greater, replace old by new.
 	- Otherwise skip this Unit.
+
+### $hyoo_crowd_land
+
+- `chief` Returns chief Node with Head = 0.
+- `delta( clocks? )` Returns delta between past clock and now.
+- `apply( delta )` Merges delta to current state.
+- `fork( peer )` Makes independent clone with another Peer for testing purposes.
 
 # Reinterpretations
 
@@ -364,16 +376,16 @@ const bob = base.fork(2);
 const carol = base.fork(3);
 
 // Twice change register named "foo"
-alice.root.sub("foo", $hyoo_crowd_reg).str("A1");
-alice.root.sub("foo", $hyoo_crowd_reg).str("A2");
+alice.chief.sub("foo", $hyoo_crowd_reg).str("A1");
+alice.chief.sub("foo", $hyoo_crowd_reg).str("A2");
 
 // Change register named "foo"
 // Then converts it to sequence and insert some values
-bob.root.sub("foo", $hyoo_crowd_reg).str("B1");
-bob.root.sub("foo", $hyoo_crowd_list).insert(["B2", "B3"]);
+bob.chief.sub("foo", $hyoo_crowd_reg).str("B1");
+bob.chief.sub("foo", $hyoo_crowd_list).insert(["B2", "B3"]);
 
 // Replace text named "foo"
-carol.root.sub("foo", $hyoo_crowd_text).text("C1 C2");
+carol.chief.sub("foo", $hyoo_crowd_text).text("C1 C2");
 
 // Make deltas
 const alice_delta = alice.delta(base.clock);
@@ -387,9 +399,9 @@ carol.apply(bob_delta).apply(alice_delta);
 
 console.log(
   ["C1 ", "C2", "B1", "B2", "B3", "A2"],
-  alice.root.sub("foo", $hyoo_crowd_list).list(),
-  bob.root.sub("foo", $hyoo_crowd_list).list(),
-  carol.root.sub("foo", $hyoo_crowd_list).list()
+  alice.chief.sub("foo", $hyoo_crowd_list).list(),
+  bob.chief.sub("foo", $hyoo_crowd_list).list(),
+  carol.chief.sub("foo", $hyoo_crowd_list).list()
 );
 ```
 
