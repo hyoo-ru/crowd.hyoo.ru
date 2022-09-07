@@ -336,6 +336,8 @@ ORDER BY
 
 # Reinterpretations
 
+*need update*
+
 - ✅ Expected behaviour.
 - ⭕ Unexpected but acceptable behaviour.
 - ❌ Unacceptable behaviour in most cases.
@@ -346,15 +348,10 @@ ORDER BY
 | Struct     | ⭕ Last changed field value | ✅ Same                         | ⭕ Field values      | ❌ Field values as keys | ⭕ Empty                            | ⭕ Empty
 | List       | ⭕ Last changed item        | ⭕ Nullish fields               | ✅ Same              | ✅ Items as keys        | ⭕ Strings as tokens, other ignored | ⭕ Items as spans 
 | Dictionary | ⭕ Last changed key         | ✅ keys values as fields values | ✅ Keys              | ✅ Same                 | ✅ Keys as tokens                   | ✅ Keys as tokens
+| JSON       |                             |                                  |                      |                          |                                     | 
+| String     |                             |                                  |                      |                          |                                     | 
 | Text       | ❌ Last changed token       | ⭕ Nullish fields               | ✅ Tokens            | ❌ Tokens as keys       | ✅ Same                             | ✅ Tokens as spans 
 | DOM        | ❌ Last changed token       | ⭕ Nullish fields               | ✅ Top level items   | ❌ Tokens as keys       | ⭕ Text from top level tokens       | ✅ Same
-
-# Binary Serialization
-
-- `$hyoo_crowd_unit_pack( unit )` - Pack Unit to binary.
-- `$hyoo_crowd_unit_unpack( binary )` - Unpack Unit from binary.
-
-Use [$mol_crypto](https://github.com/hyoo-ru/mam_mol/tree/master/crypto) to generate key-pair, sign packed Unit and verify it.
 
 # Usage Example
 
@@ -368,12 +365,12 @@ Use [$mol_crypto](https://github.com/hyoo-ru/mam_mol/tree/master/crypto) to gene
 // } from 'hyoo_crowd_lib'
 
 // Create document
-const base = new $hyoo_crowd_land();
+const base = new $hyoo_crowd_land;
 
 // Make independent forks for testng
-const alice = base.fork(1);
-const bob = base.fork(2);
-const carol = base.fork(3);
+const alice = base.fork({ id: '1_1' });
+const bob = base.fork({ id: '2_2' });
+const carol = base.fork({ id: '3_3' });
 
 // Twice change register named "foo"
 alice.chief.sub("foo", $hyoo_crowd_reg).str("A1");
@@ -385,7 +382,7 @@ bob.chief.sub("foo", $hyoo_crowd_reg).str("B1");
 bob.chief.sub("foo", $hyoo_crowd_list).insert(["B2", "B3"]);
 
 // Replace text named "foo"
-carol.chief.sub("foo", $hyoo_crowd_text).text("C1 C2");
+carol.chief.sub("foo", $hyoo_crowd_text).str("C1 C2");
 
 // Make deltas
 const alice_delta = alice.delta(base.clock);
@@ -398,14 +395,14 @@ bob.apply(alice_delta).apply(carol_delta);
 carol.apply(bob_delta).apply(alice_delta);
 
 console.log(
-  ["C1 ", "C2", "B1", "B2", "B3", "A2"],
+  ["A2", "C1", " C2", "B1", "B2", "B3"],
   alice.chief.sub("foo", $hyoo_crowd_list).list(),
   bob.chief.sub("foo", $hyoo_crowd_list).list(),
   carol.chief.sub("foo", $hyoo_crowd_list).list()
 );
 ```
 
-[Sandbox](https://codepen.io/nin-jin-the-typescripter/pen/QWqNOOv?editors=0000011)
+[Sandbox](https://codepen.io/nin-jin/pen/mdLeLRw?editors=0012)
 
 # Comparison of CRDT Libraries
 
