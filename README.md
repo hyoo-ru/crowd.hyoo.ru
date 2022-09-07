@@ -30,7 +30,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 - Wiped data comptely removed from state.
 - Past state can't be reproduced. Snapshots/layers/changelog should be used for that.
 - Garbage collection isn't required.
-- But metadata size (binary, with signs) ~20x of user data size (~10x without signs).
+- But metadata size (binary, with signs) ~28x of user data size (~14x without signs).
 
 ## Data
 
@@ -120,7 +120,9 @@ CREATE TABLE units (
 
 Primary key for Units: `[ Land, Head, Self ]`
 
-# Binary messages
+# Sync Flow
+
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/sync.svg)
 
 ## Delta
 
@@ -130,7 +132,7 @@ Delta is array of 8-byte aligned binary serialized Units of same Land ordered by
 
 ## Clocks
 
-First message in sync flow. Contains last seen Times for each Peer+Group of already known Units.
+Contains last seen Times for each Peer+Group of already known Units.
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/clocks-bin.svg)
 
