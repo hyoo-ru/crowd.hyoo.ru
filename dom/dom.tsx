@@ -110,5 +110,18 @@ namespace $ {
 			
 		}
 		
+		html( next?: string ) {
+			
+			const dom = this.as( $hyoo_crowd_dom )
+			
+			if( next === undefined ) {
+				return $mol_dom_serialize( <body>{ dom.dom() }</body> )
+			} else {
+				dom.dom( $mol_dom_parse( next ).documentElement )
+				return next
+			}
+			
+		}
+		
 	}
 }

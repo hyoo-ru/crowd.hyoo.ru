@@ -256,7 +256,7 @@ Under the hood, String is just List of Tokens. So, entering word letter by lette
 
 ### **[Online sandbox](https://crowd.hyoo.ru/)**
 
-[![](https://i.imgur.com/VpR3OB1.png)](https://crowd.hyoo.ru/)
+![](https://i.imgur.com/VpR3OB1.png)
 
 ### Write Algorithm
 
@@ -275,14 +275,11 @@ Under the hood, String is just List of Tokens. So, entering word letter by lette
 
 ## Mergeable Rich Text
 
-Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `{ tag: 'div' }`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Unit Self. This `is` is using to reuse existing Units and track Nodes moving.
+Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `["div"]`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Unit Self. This `id` is using to reuse existing Units and track Nodes moving.
 
 ### $hyoo_crowd_dom
 
 - `dom( next?: Element | DocumentFragment )` Channel for DOM representation of subtree.
-
-### $hyoo_crowd_html
-
 - `html( next?: string )` Channel for XHTML serialization of DOM.
 
 ## Mergeable Document
