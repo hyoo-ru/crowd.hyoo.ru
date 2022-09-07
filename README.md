@@ -53,6 +53,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 - [$hyoo_draw](https://talks.hyoo.ru) - infinity collaborative whiteboard.
 - [$hyoo_sketch](https://sketch.hyoo.ru) - fast UI mockups.
 - [$hyoo_talks](https://talks.hyoo.ru) - decentralized secure messanger.
+- [BenZen](https://github.com/hyoo-ru/benzen) - Conflict-Free Version Control System
 
 # Vocabulary
 
@@ -412,7 +413,7 @@ console.log(
 | Garbage Collection     | Doesn't required | Stores full history | Enabled by default  | ❓
 | Changes signing        | ✅ Support | ❌       | ❌  | ❓
 | Merge without decrypt  | ✅ Support | ❌       | ❌  | ❓
-| Gzipped Bundle Size    | [**9 KB**](https://bundlephobia.com/result?p=hyoo_crowd_lib)       | [60 KB](https://bundlephobia.com/result?p=automerge)     | [23 KB](https://bundlephobia.com/result?p=yjs) | [43 KB](https://bundlephobia.com/result?p=delta-crdts)
+| Gzipped Bundle Size    | [**15 KB**](https://bundlephobia.com/result?p=hyoo_crowd_lib)       | [46 KB](https://bundlephobia.com/result?p=automerge)     | [24 KB](https://bundlephobia.com/result?p=yjs) | [43 KB](https://bundlephobia.com/result?p=delta-crdts)
 | Sequence: 500 Push + 500 Shift Perf | **17 ms** | 280 ms | 36 ms
 | Sequence: 500 Push + 500 Shift Mem | 80 KB | 2_100 KB | **12 KB**
 | Text: 500 Append + 500 Crop Perf   | **22 ms** | 370 ms | 31 ms
@@ -420,32 +421,27 @@ console.log(
 
 ## Benchmarks
 
-### [Sequence: Push + Shift](https://perf.js.hyoo.ru/#!prefixes=%5B%22const%20%7B%20%24hyoo_crowd_land%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%2Fweb.esm.js'%5Cn%29.default%22%2C%22%24mol_import.script%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fautomerge%400%2Fdist%2Fautomerge.js'%5Cn%29%22%2C%22const%20%7B%20Doc%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%5Cn%29%22%5D/sources=%5B%22let%20doc%7B%23%7D%20%3D%20new%20%24hyoo_crowd_land%28%29%5Cnlet%20list%7B%23%7D%20%3D%20doc%7B%23%7D.root.sub%28%20'list'%2C%20%24hyoo_crowd_list%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.insert%28%5B%20i%20%5D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.cut%28%200%20%29%5Cn%22%2C%22let%20doc%7B%23%7D%20%3D%20Automerge.from%28%7B%20list%3A%20%5B%5D%20%7D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.list.push%28%20i%20%29%5Cn%5Ct%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.list.shift%28%29%5Cn%5Ct%29%22%2C%22const%20doc%7B%23%7D%20%3D%20new%20Doc%5Cnconst%20list%7B%23%7D%20%3D%20doc%7B%23%7D.getArray%28%20'list'%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.push%28%5B%20i%20%5D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.delete%280%2C1%29%22%5D/prefix=const%20total%20%3D%20500)
+### [Sequence: Push + Shift](https://perf.js.hyoo.ru/#!prefixes=%5B%22const%20%7B%20%24hyoo_crowd_land%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%2Fweb.esm.js'%5Cn%29.default%22%2C%22%24mol_import.script%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fautomerge%2Fdist%2Fautomerge.js'%5Cn%29%22%2C%22const%20%7B%20Doc%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%5Cn%29%22%5D/sources=%5B%22let%20doc%7B%23%7D%20%3D%20new%20%24hyoo_crowd_land%28%29%5Cnlet%20list%7B%23%7D%20%3D%20doc%7B%23%7D.chief.sub%28%20'list'%2C%20%24hyoo_crowd_list%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.insert%28%5B%20i%20%5D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.cut%28%200%20%29%5Cn%22%2C%22let%20doc%7B%23%7D%20%3D%20Automerge.from%28%7B%20list%3A%20%5B%5D%20%7D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.list.push%28%20i%20%29%5Cn%5Ct%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.list.shift%28%29%5Cn%5Ct%29%22%2C%22const%20doc%7B%23%7D%20%3D%20new%20Doc%5Cnconst%20list%7B%23%7D%20%3D%20doc%7B%23%7D.getArray%28%20'list'%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.push%28%5B%20i%20%5D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctlist%7B%23%7D.delete%280%2C1%29%22%5D/prefix=const%20total%20%3D%20500)
 
-### Chrome 92
-![](https://i.imgur.com/ZpwnDS0.png)
+### Chrome 104
+![](https://i.imgur.com/xgPpqi4.png)
 
-### FireFox 91
-![](https://i.imgur.com/ARB3cRJ.png)
+### FireFox 104
+![](https://i.imgur.com/c9Q3eRB.png)
 
-### [Text: Append + Crop](https://perf.js.hyoo.ru/#!prefixes=%5B%22const%20%7B%20%24hyoo_crowd_land%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%2Fweb.esm.js'%5Cn%29.default%22%2C%22%24mol_import.script%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fautomerge%400%2Fdist%2Fautomerge.js'%5Cn%29%22%2C%22const%20%7B%20Doc%2C%20Text%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%5Cn%29%22%5D/sources=%5B%22let%20doc%7B%23%7D%20%3D%20new%20%24hyoo_crowd_land%28%29%5Cnlet%20text%7B%23%7D%20%3D%20doc%7B%23%7D.root.sub%28%20'text'%2C%20%24hyoo_crowd_text%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%20%7B%5Cn%5Cttext%7B%23%7D.write%28%20i%20%2B%20'%20'%20%29%5Cn%7D%5Cnfor%28%20let%20i%20%3D%20total-1%3B%20i%20%3E%3D%200%3B%20--i%20%29%20%7B%5Cn%5Cttext%7B%23%7D.write%28%20''%2C%200%2C%20String%28i%29.length%20%2B%201%20%29%5Cn%7D%22%2C%22let%20doc%7B%23%7D%20%3D%20Automerge.from%28%7B%7D%29%5Cndoc%7B%23%7D%20%3D%20Automerge.change%28doc%7B%23%7D%2C%20doc%20%3D%3E%20%7B%5Cn%5Ctdoc.text%20%3D%20new%20Automerge.Text%28%29%5Cn%7D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.text.insertAt%28%5Cn%5Ct%5Ct%5Ctdoc.text.length%2C%5Cn%5Ct%5Ct%5Ct...%20%28%20i%20%2B%20'%20'%20%29%2C%5Cn%5Ct%5Ct%29%5Cn%5Ct%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%20doc%20%3D%3E%20%7B%5Cn%5Ct%5Ctconst%20len%20%3D%20String%28i%29.length%20%2B%201%5Cn%5Ct%5Ctfor%28%20let%20j%20%3D%200%3B%20j%20%3C%20len%3B%20%2B%2Bj%20%29%5Cn%5Ct%5Ct%5Ctdoc.text.deleteAt%280%29%5Cn%5Ct%7D%20%29%22%2C%22const%20doc%7B%23%7D%20%3D%20new%20Doc%5Cnconst%20text%7B%23%7D%20%3D%20doc%7B%23%7D.get%28%20'text'%2C%20Text%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Cttext%7B%23%7D.insert%28%20text%7B%23%7D.length%2C%20i%20%2B%20'%20'%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Cttext%7B%23%7D.delete%28%200%2C%20String%28i%29.length%20%2B%201%20%29%22%5D/prefix=const%20total%20%3D%20500)
+### [Text: Append + Crop](https://perf.js.hyoo.ru/#!prefixes=%5B%22const%20%7B%20%24hyoo_crowd_land%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fhyoo_crowd_lib%2Fweb.esm.js'%5Cn%29.default%22%2C%22%24mol_import.script%28%5Cn%5Ct'https%3A%2F%2Funpkg.com%2Fautomerge%2Fdist%2Fautomerge.js'%5Cn%29%22%2C%22const%20%7B%20Doc%2C%20Text%20%7D%20%3D%20%24mol_import.module%28%5Cn%5Ct'https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fyjs%2F%2Besm'%5Cn%29%22%5D/sources=%5B%22let%20doc%7B%23%7D%20%3D%20new%20%24hyoo_crowd_land%28%29%5Cnlet%20text%7B%23%7D%20%3D%20doc%7B%23%7D.chief.sub%28%20'text'%2C%20%24hyoo_crowd_text%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%20%7B%5Cn%5Cttext%7B%23%7D.write%28%20'%20'%20%2B%20i%20%29%5Cn%7D%5Cnfor%28%20let%20i%20%3D%20total-1%3B%20i%20%3E%3D%200%3B%20--i%20%29%20%7B%5Cn%5Cttext%7B%23%7D.write%28%20''%2C%200%2C%20String%28i%29.length%20%2B%201%20%29%5Cn%7D%22%2C%22let%20doc%7B%23%7D%20%3D%20Automerge.from%28%7B%7D%29%5Cndoc%7B%23%7D%20%3D%20Automerge.change%28doc%7B%23%7D%2C%20doc%20%3D%3E%20%7B%5Cn%5Ctdoc.text%20%3D%20new%20Automerge.Text%28%29%5Cn%7D%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%5Cn%5Ct%5Ctdoc%20%3D%3E%20doc.text.insertAt%28%5Cn%5Ct%5Ct%5Ctdoc.text.length%2C%5Cn%5Ct%5Ct%5Ct...%20%28%20'%20'%20%2B%20i%20%29%2C%5Cn%5Ct%5Ct%29%5Cn%5Ct%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Ctdoc%7B%23%7D%20%3D%20Automerge.change%28%20doc%7B%23%7D%2C%20'op'%2C%20doc%20%3D%3E%20%7B%5Cn%5Ct%5Ct%2F***%2F%20const%20len%20%3D%20String%28i%29.length%20%2B%201%5Cn%5Ct%5Ctfor%28%20let%20j%20%3D%200%3B%20j%20%3C%20len%3B%20%2B%2Bj%20%29%5Cn%5Ct%5Ct%5Ctdoc.text.deleteAt%280%29%5Cn%5Ct%7D%20%29%22%2C%22const%20doc%7B%23%7D%20%3D%20new%20Doc%5Cnconst%20text%7B%23%7D%20%3D%20doc%7B%23%7D.get%28%20'text'%2C%20Text%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Cttext%7B%23%7D.insert%28%20text%7B%23%7D.length%2C%20'%20'%20%2B%20i%20%29%5Cnfor%28%20let%20i%20%3D%200%3B%20i%20%3C%20total%3B%20%2B%2Bi%20%29%5Cn%5Cttext%7B%23%7D.delete%28%200%2C%20String%28i%29.length%20%2B%201%20%29%22%5D/prefix=const%20total%20%3D%20500)
 
-### Chrome 89
+### Chrome 104
 
-![](https://i.imgur.com/Hzvrm0h.png)
+![](https://i.imgur.com/0X9W1MR.png)
 
-### FireFox 91
+### FireFox 104
 
-![](https://i.imgur.com/kmig8gm.png)
+![](https://i.imgur.com/d75gvHo.png)
 
 ### [crdt-benchmarks](https://github.com/dmonad/crdt-benchmarks)
 
 # Support the Project
 
 - Leave us a feedback in [duscussions section](https://github.com/hyoo-ru/crowd.hyoo.ru/discussions).
-- [Fund $hyoo_guild](https://patreon.com/hyoo) to drive open source to the future.
-- Hire [nin-jin](https://github.com/nin-jin/) as a contractor for your collaborative app.
-
-# Related Projects
-
-- [BenZen](https://github.com/hyoo-ru/benzen) - Conflict-Free Version Control System
+- [Fund $hyoo_guild](https://boosty.to/hyoo) to drive open source to the future.
