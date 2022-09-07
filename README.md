@@ -128,6 +128,12 @@ Primary key for Units: `[ Land, Head, Self ]`
 
 Delta is array of 8-byte aligned binary serialized Units of same Land ordered by Aeon+Time.
 
+![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/delta.svg)
+
+## Unit
+
+Unit contains data, it global position, time of creation, authorship and sign of all of this.
+
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/unit-bin.svg)
 
 ## Clocks
