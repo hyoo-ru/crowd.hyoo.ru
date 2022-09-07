@@ -414,10 +414,10 @@ console.log(
 | Changes signing        | ✅ Support | ❌       | ❌  | ❓
 | Merge without decrypt  | ✅ Support | ❌       | ❌  | ❓
 | Gzipped Bundle Size    | [**15 KB**](https://bundlephobia.com/result?p=hyoo_crowd_lib)       | [46 KB](https://bundlephobia.com/result?p=automerge)     | [24 KB](https://bundlephobia.com/result?p=yjs) | [43 KB](https://bundlephobia.com/result?p=delta-crdts)
-| Sequence: 500 Push + 500 Shift Perf | **17 ms** | 280 ms | 36 ms
-| Sequence: 500 Push + 500 Shift Mem | 80 KB | 2_100 KB | **12 KB**
-| Text: 500 Append + 500 Crop Perf   | **22 ms** | 370 ms | 31 ms
-| Text: 500 Append + 500 Crop Mem   | 80 KB | 3_300 KB | **13 KB**
+| Sequence: 500 Push + 500 Shift Perf | **17 ms** | 420 ms | 21 ms
+| Sequence: 500 Push + 500 Shift Mem | 84 KB | 986 KB | **3.84 KB**
+| Text: 500 Append + 500 Crop Perf   | 21 ms | 480 ms | **18 ms**
+| Text: 500 Append + 500 Crop Mem   | 86 KB | 1_080 KB | **5 KB**
 
 ## Benchmarks
 
