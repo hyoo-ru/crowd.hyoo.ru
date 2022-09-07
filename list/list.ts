@@ -30,7 +30,7 @@ namespace $ {
 				from,
 				to,
 				next,
-				equal: ( next, prev )=> prev.data === next,
+				equal: ( next, prev )=> $mol_compare_deep( prev.data, next ),
 				drop: ( prev, lead )=> this.land.wipe( prev ),
 				insert: ( next, lead )=> this.land.put(
 					this.head,

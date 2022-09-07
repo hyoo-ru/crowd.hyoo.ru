@@ -47,6 +47,13 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 - Conflict-free **merge without decrypt**.
 - Merging doesn't invalidate signs.
 
+# Real World Usages
+
+- [$hyoo_page](https://page.hyoo.ru) - decentralized real-time wiki.
+- [$hyoo_draw](https://talks.hyoo.ru) - infinity collaborative whiteboard.
+- [$hyoo_sketch](https://sketch.hyoo.ru) - fast UI mockups.
+- [$hyoo_talks](https://talks.hyoo.ru) - decentralized secure messanger.
+
 # Vocabulary
 
 - **World** - Whole state as graph of Lands.
@@ -69,12 +76,14 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
   - **Lord** - Any Peer who have `law` level for Land.
   - **King** - Peer with same id as Land. He has `law` level in that Land by default.
   - **Knight** - Temporary King to grab Land and grant level for current Peer and/or for all Peers.
+- **Home** - Land where Peer is King (with same id).
 - **Delta** - Difference of two Land states as list of Units.
 - **Clock** - Vector clock. Dictionary which maps Peer to Time.
 - **Token** - Minimal meaningfull part of text (space + single word / spaces / punctuation etc).
 - **Point** - Place inside Unit. Usefull for caret position.
 - **Range** - Range between two Points. Usefull for selection.
 - **Offset** - Count of letters from beginning.
+- **Seat** - Position in the list.
 - **Channel** - Geter/Setter method. `foo()` - read. `foo(123)` - write and return written.
 
 # Internals
@@ -154,7 +163,7 @@ Single value store. Just CvRDT LWW-Register.
 
 - `value( next?: unknown )` Channel for raw value. Returns `null` by default.
 - `bool( next?: boolean )` Channel for `boolean` value. Returns `false` by default.
-- `numb( next?: number )` Channel for `number` value. Returns `0` by default.
+- `numb( next?: number )` Channel for `number` value. Returns `NaN` by default.
 - `str( next?: string )` Channel for `string` value. Returns `""` by default.
 
 ## Mergeable Struct
@@ -168,7 +177,7 @@ Struct is completely virtual thing. No one Unit is stored for it. Only for field
 - Make derived Head by formula:
 
 ```javascript
-field_head = hash_48bit( field_name, struct_self )
+field_head = hash_62bit( field_name, struct_self )
 ```
 
 So all Peers writes to the same Node when uses the same key.
@@ -176,6 +185,7 @@ So all Peers writes to the same Node when uses the same key.
 ### $hyoo_crowd_struct
 
 - `sub( key: string )` Returns inner Node for field name.
+- `yoke( key: string, Node, king_level, base_level )` Makes or reuse Land which Self is stored inside register.
 
 ## Mergeable Ordered List
 
@@ -208,36 +218,45 @@ So all Peers writes to the same Node when uses the same key.
 ### $hyoo_crowd_list
 
 - `list( next?: unknown[] )` Channel for list of raw values. Uses `insert` to replace content.
-- `insert( next?: unknown[], from?, to? )` Replaces range of items with reconciliation. Appends to the end when range isn't defined.
+- `set( next?: unknown[] )` Channel for list of unique raw values.
+- `insert( next?: unknown[], from?: number, to?: number )` Replaces range of items with reconciliation. Appends to the end when range isn't defined.
+- `move( from?: number, to?: number )` Moves item to another seat.
+- `cut( seat: number )` Removes item by seat.
+- `has( val: unknown )` Checks for value existence.
+- `add( val: unknown )` Adds value if doesn't exist.
+- `drop( val: unknown )` Removes value if exists.
 
 ## Mergeable Ordered Dictionary
-
-- `sub( key: string )` Returns inner Node for key.
-- `list()` Returns list of keys.
 
 It's both Struct and List:
 
 - As list it contains keys.
-- As struct it stores every key by derived Head.
-
-So, every key is Node for value.
+- As struct it stores every key in Unit with derived Self. So, every key is Node for value.
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/dict.svg)
 
-## Mergeable Plain Text
+### $hyoo_crowd_dict
 
-Under the hood, text is just List of Tokens. So, entering word letter by letter changes same Unit instead of creating new.
+- `keys()` Returns list of keys.
+- `sub( key: string, Node )` Returns inner Node for key.
+- `has( val: unknown )` Checks for value existence.
+- `add( val: unknown )` Adds value if doesn't exist.
+- `drop( val: unknown )` Removes value if exists.
+
+## Mergeable Plain String and Text
+
+Under the hood, String is just List of Tokens. So, entering word letter by letter changes same Unit instead of creating new. Text is the List of Strings which represents multiline text.
 
 ### Properties
 
 - Can be simply bound to native `<textarea>`.
 - Merge never produces unreadable token value. Only one of valid (LWW).
 - No interleaving. The typed text will not be interrupted after merging.
-- For `3.2MB` text (320k words) of "[War and Peace](http://az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml)" in CROWD Land takes up  `40MB` (`12x`) in JSON serialization and `25MB` (`8x`) in binary with signing (obsoleted data, sign was 32B but now 64B).
+- Weight of CROWD representation of text ~15x of raw text snapshot without signs and ~30x with signs.
 
 ### **[Online sandbox](https://crowd.hyoo.ru/)**
 
-[![](https://i.imgur.com/xPodKWy.png)](https://crowd.hyoo.ru/)
+[![](https://i.imgur.com/VpR3OB1.png)](https://crowd.hyoo.ru/)
 
 ### Write Algorithm
 
@@ -249,8 +268,10 @@ Under the hood, text is just List of Tokens. So, entering word letter by letter 
 
 ### $hyoo_crowd_text
 
-- `text( next?: string )` Channel for text representation of List. Uses `write` to replace content.
-- `write( next?: string, from?, to? )` Replaces range of text with reconciliation. Writes to the end when range isn't defined.
+- `str( next?: string )` Channel for String representation. Uses `write` to replace content.
+- `text( next?: string )` Channel for Text representation. 
+- `selection( peer, next?: [ number, number ] )` Channel for selection Offsets of given Peer inside this Text. Stored inside Peer Home Land with anchoring to most inner token.
+- `write( next?: string, from?, to? )` Replaces range of String with reconciliation. Writes to the end when range isn't defined.
 
 ## Mergeable Rich Text
 
