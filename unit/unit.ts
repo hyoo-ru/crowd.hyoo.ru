@@ -329,7 +329,12 @@ namespace $ {
 			
 			if( type_size ) {
 				
-				const buff = new Uint8Array( this.buffer, this.byteOffset + offset.data, Math.abs( type_size ) )
+				try {
+					var buff = new Uint8Array( this.buffer, this.byteOffset + offset.data, Math.abs( type_size ) )
+				} catch( error: any ) {
+					error['message'] += `\nhead=${head};self=${self}`
+					$mol_fail_hidden( error )
+				}
 				
 				if( type_size < 0 ) data = buff
 				else data = JSON.parse( $mol_charset_decode( buff ) )
