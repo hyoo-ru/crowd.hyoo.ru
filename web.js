@@ -1518,7 +1518,7 @@ var $;
             new $mol_after_tick(() => {
                 const element = this.focused()[0];
                 if (element)
-                    element.focus({ preventScroll: true });
+                    element.focus();
                 else
                     $mol_dom_context.blur();
             });
@@ -1835,51 +1835,6 @@ var $;
     $.$mol_func_name_from = $mol_func_name_from;
 })($ || ($ = {}));
 //mol/func/name/name.ts
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_after_timeout extends $mol_object2 {
-        delay;
-        task;
-        id;
-        constructor(delay, task) {
-            super();
-            this.delay = delay;
-            this.task = task;
-            this.id = setTimeout(task, delay);
-        }
-        destructor() {
-            clearTimeout(this.id);
-        }
-    }
-    $.$mol_after_timeout = $mol_after_timeout;
-})($ || ($ = {}));
-//mol/after/timeout/timeout.ts
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_after_work extends $mol_object2 {
-        delay;
-        task;
-        id;
-        constructor(delay, task) {
-            super();
-            this.delay = delay;
-            this.task = task;
-            this.id = requestIdleCallback(task, { timeout: delay });
-        }
-        destructor() {
-            cancelIdleCallback(this.id);
-        }
-    }
-    $.$mol_after_work = $mol_after_work;
-    if (typeof requestIdleCallback !== 'function') {
-        $.$mol_after_work = $mol_after_timeout;
-    }
-})($ || ($ = {}));
-//mol/after/work/work.ts
 ;
 "use strict";
 //mol/type/keys/extract/extract.ts
@@ -2207,9 +2162,9 @@ var $;
             view.dom_node().scrollIntoView({ block: align });
         }
         bring() {
-            new $mol_after_work(150, () => {
+            new $mol_after_frame(() => {
+                this.dom_node().scrollIntoView();
                 this.focused(true);
-                this.dom_node().scrollIntoView({ behavior: 'smooth' });
             });
         }
     }
@@ -2669,7 +2624,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/book2/book2.view.css", "[mol_book2] {\n\tdisplay: flex;\n\tflex-flow: row nowrap;\n\talign-items: stretch;\n\tflex: 1 1 auto;\n\talign-self: stretch;\n\tmargin: 0;\n\t/* box-shadow: 0 0 0 1px var(--mol_theme_line); */\n\t/* transform: translateZ(0); */\n\ttransition: none;\n\toverflow: overlay;\n\tscroll-snap-type: x mandatory;\n}\n\n[mol_book2] > * {\n/* \tflex: none; */\n\tscroll-snap-stop: always;\n\tscroll-snap-align: end;\n\tposition: relative;\n\t/* z-index: 0; */\n\tmin-height: 100%;\n\tmax-height: 100%;\n\tmax-width: 100%;\n\tflex-shrink: 0;\n}\n\n[mol_book2] > *:nth-child(odd):not([mol_book2_placeholder]) {\n\tbackground-color: var(--mol_theme_card);\n}\n\n[mol_book2] > [mol_book2] {\n\tdisplay: contents;\n}\n\n[mol_book2] > *:first-child {\n\tscroll-snap-align: start;\n}\n\n[mol_book2] > [mol_view] {\n\ttransform: none; /* prevent content clipping */\n}\n\n[mol_book2_placeholder] {\n\tflex: 1 1 0;\n\t/* background: var(--mol_theme_back); */\n}\n");
+    $mol_style_attach("mol/book2/book2.view.css", "[mol_book2] {\n\tdisplay: flex;\n\tflex-flow: row nowrap;\n\talign-items: stretch;\n\tflex: 1 1 auto;\n\talign-self: stretch;\n\tmargin: 0;\n\t/* box-shadow: 0 0 0 1px var(--mol_theme_line); */\n\t/* transform: translateZ(0); */\n\ttransition: none;\n\toverflow: overlay;\n\tscroll-snap-type: x mandatory;\n}\n\n[mol_book2] > * {\n/* \tflex: none; */\n\tscroll-snap-stop: always;\n\tscroll-snap-align: end;\n\tposition: relative;\n\t/* z-index: 0; */\n\tmin-height: 100%;\n\tmax-height: 100%;\n\tmax-width: 100%;\n\tflex-shrink: 0;\n}\n[mol_book2] > * + *:before {\n\tdisplay: block;\n\tcontent: '≡';\n\topacity: .5;\n\tposition: absolute;\n\ttop: 1.125rem;\n\tleft: -.325rem;\n}\n\n[mol_book2] > *:nth-child(odd):not([mol_book2_placeholder]) {\n\tbackground-color: var(--mol_theme_card);\n}\n\n[mol_book2] > [mol_book2] {\n\tdisplay: contents;\n}\n\n[mol_book2] > *:first-child {\n\tscroll-snap-align: start;\n}\n\n[mol_book2] > [mol_view] {\n\ttransform: none; /* prevent content clipping */\n}\n\n[mol_book2_placeholder] {\n\tflex: 1 1 0;\n\t/* background: var(--mol_theme_back); */\n}\n");
 })($ || ($ = {}));
 //mol/book2/-css/book2.view.css.ts
 ;
@@ -3337,6 +3292,27 @@ var $;
     $.$mol_svg = $mol_svg;
 })($ || ($ = {}));
 //mol/svg/-view.tree/svg.view.tree.ts
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_after_timeout extends $mol_object2 {
+        delay;
+        task;
+        id;
+        constructor(delay, task) {
+            super();
+            this.delay = delay;
+            this.task = task;
+            this.id = setTimeout(task, delay);
+        }
+        destructor() {
+            clearTimeout(this.id);
+        }
+    }
+    $.$mol_after_timeout = $mol_after_timeout;
+})($ || ($ = {}));
+//mol/after/timeout/timeout.ts
 ;
 "use strict";
 var $;
