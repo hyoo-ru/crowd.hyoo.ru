@@ -1,12 +1,12 @@
 namespace $ {
 	
-	type Json = {
-		[ key in string ]: null | boolean | number | string | Json | ( null | boolean | number | string | Json )[]
+	export type $hyoo_crowd_json_data = {
+		[ key in string ]: null | boolean | number | string | $hyoo_crowd_json_data | ( null | boolean | number | string | $hyoo_crowd_json_data )[]
 	}
 	
 	export class $hyoo_crowd_json extends $hyoo_crowd_dict {
 		
-		json( next?: Json ): Json {
+		json( next?: $hyoo_crowd_json_data ): $hyoo_crowd_json_data {
 			
 			const reg = this.as( $hyoo_crowd_reg )
 			
@@ -42,10 +42,10 @@ namespace $ {
 					
 					if( Array.isArray( val ) ) {
 						kid.value( [] )
-						kid.nodes( $hyoo_crowd_list )[0].list( val as Json[] )
+						kid.nodes( $hyoo_crowd_list )[0].list( val as $hyoo_crowd_json_data[] )
 					} else if( val && typeof val === 'object' ) {
 						kid.value( {} )
-						kid.nodes( $hyoo_crowd_json )[0].json( val as Json )
+						kid.nodes( $hyoo_crowd_json )[0].json( val as $hyoo_crowd_json_data )
 					} else {
 						kid.value( val )
 					}
