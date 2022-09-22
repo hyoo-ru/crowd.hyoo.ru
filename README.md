@@ -70,7 +70,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
   - **Aeon** - number of 7-year epochs from ~2022-08-04 (not yet).
   - **Data** - Any JSON or Binary data. Size is limited by 32KB.
   - **Sign** - Crypto sign of whole Unit data.
-  - **kind** - Type of unit (👑 `grab`, 🏅 `grant`, 🔑 `join`, 📦 `data`) with different acceptance criterias.
+  - **kind** - Type of unit (👑 `grab`, 🏅 `give`, 🔑 `join`, 📦 `data`) with different acceptance criterias.
   - **group** - Priority of synchronization (`auth`, `data`).
 - **Level** - Access level (`law`, `mod`, `add`, `get`).
 - **Peer** - Any actor who have private key to make and sign Units.
