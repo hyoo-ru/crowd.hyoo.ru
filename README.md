@@ -281,9 +281,9 @@ Under the hood, String is just List of Tokens. So, entering word letter by lette
 
 - Input: new text and range of existen text.
 - Locate Tokens which relate to the range.
-- Before and after new text appen substrings of first and last tokens which should be untouched.
-- Split new text using universal tokinizer.
-- Reconciliate list of tokens unsing list insertion algorithm.
+- Before and after new text append substrings of first and last tokens which should be untouched.
+- Split new text using tokenizer.
+- Reconciliate list of tokens unsing the List insertion algorithm.
 
 ### $hyoo_crowd_text
 
