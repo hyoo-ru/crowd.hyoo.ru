@@ -271,7 +271,7 @@ Under the hood, String is just List of Tokens. So, entering word letter by lette
 - Can be simply bound to native `<textarea>`.
 - Merge never produces unreadable token value. Only one of valid (LWW).
 - No interleaving. The typed text will not be interrupted after merging.
-- Weight of CROWD representation of text ~15x of raw text snapshot without signs and ~30x with signs.
+- Weight of unsecure CROWD representation of text 3x..9x of raw text snapshot (and 11x..27x for secure).
 
 ### **[Online sandbox](https://crowd.hyoo.ru/)**
 
