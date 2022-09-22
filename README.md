@@ -46,6 +46,7 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 - Every unit can be encrypted (not yet).
 - Conflict-free **merge without decrypt**.
 - Merging doesn't invalidate signs.
+- Security features can be ommited if decentralization isn't required.
 
 # Real World Usages
 
