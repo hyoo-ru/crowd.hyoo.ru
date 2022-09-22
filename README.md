@@ -56,6 +56,12 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 - [$hyoo_talks](https://talks.hyoo.ru) - decentralized secure messanger.
 - [BenZen](https://github.com/hyoo-ru/benzen) - Conflict-Free Version Control System
 
+# Articles
+
+- [Consistent about Consensus](https://github.com/nin-jin/slides/tree/master/consensus).
+- The Whole Point of Conflict-Free Data Tyes (Coming soon).
+- CROWD - Secure Universal CRDT (Coming soon).
+
 # Vocabulary
 
 - **World** - Whole state as graph of Lands.
