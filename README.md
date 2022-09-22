@@ -51,9 +51,9 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 # Real World Usages
 
 - [$hyoo_page](https://page.hyoo.ru) - decentralized real-time wiki.
+- [$hyoo_talks](https://talks.hyoo.ru) - decentralized secure messanger.
 - [$hyoo_draw](https://talks.hyoo.ru) - infinity collaborative whiteboard.
 - [$hyoo_sketch](https://sketch.hyoo.ru) - fast UI mockups.
-- [$hyoo_talks](https://talks.hyoo.ru) - decentralized secure messanger.
 - [BenZen](https://github.com/hyoo-ru/benzen) - Conflict-Free Version Control System
 
 # Articles
