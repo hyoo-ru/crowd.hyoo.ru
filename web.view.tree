@@ -296,6 +296,7 @@ $mol_textarea $mol_stack
 			value?val <=> value?val \
 			hint <= hint \ 
 			enabled <= enabled true
+			spellcheck <= spellcheck true
 			length_max <= length_max +Infinity
 			selection?val <=> selection?val /number
 		<= View $mol_text_code
@@ -415,6 +416,8 @@ $mol_embed_native $mol_scroll
 			uri <= uri
 			sub /
 				<= title \
+	message *
+		hashchange? <=> uri_change? null
 
 $mol_frame $mol_embed_native
 	dom_name \iframe
