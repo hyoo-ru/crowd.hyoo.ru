@@ -69,10 +69,6 @@ namespace $ {
 			super()
 		}
 		
-		get id(): $hyoo_crowd_unit_id {
-			return `${ this.head }/${ this.self }`
-		}
-		
 		kind() {
 			
 			if( this.head === this.self && this.auth === this.self ) {

@@ -225,7 +225,7 @@ namespace $ {
 				
 				this._clocks[ next.group() ].see_peer( next.auth, next.time )
 				const kids = this.unit_list( next.head )
-				const next_id = next.id
+				const next_id = `${ next.head }/${ next.self }` as const
 				
 				let prev = this._unit_all.get( next_id )
 				if( prev ) {
