@@ -120,45 +120,27 @@ namespace $ {
 			
 			let size = 0
 			const bins = [] as $hyoo_crowd_unit_bin[]
-			const packs = [] as Uint8Array[]
-			
-			function wrap() {
-				
-				const batch = new Uint8Array( size )
-				
-				let offset = 0
-				for( const bin of bins ) {
-					batch.set( new Uint8Array( bin.buffer, bin.byteOffset, bin.byteLength ), offset )
-					offset += bin.byteLength
-				}
-				
-				size = 0
-				bins.length = 0
-				
-				packs.push( batch )
-			}
 			
 			for( const unit of units ) {
-				
 				const bin = unit.bin!
-				
 				bins.push( bin )
 				size += bin.byteLength
-				
-				// if( size >= 2 ** 15 ) wrap()
-				
 			}
 			
-			if( size ) wrap()
+			const batch = new Uint8Array( size )
+				
+			let offset = 0
+			for( const bin of bins ) {
+				batch.set( new Uint8Array( bin.buffer, bin.byteOffset, bin.byteLength ), offset )
+				offset += bin.byteLength
+			}
 			
-			return packs
+			return batch
 		}
 				
 		async *delta( clocks = new Map< $mol_int62_string, readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ] >() ) {
 			for( const land of this.lands.values() ) {
-				for( const pack of await this.delta_batch( land, clocks.get( land.id() ) ) ) {
-					yield pack
-				}
+				yield await this.delta_batch( land, clocks.get( land.id() ) )
 			}
 		}
 		
