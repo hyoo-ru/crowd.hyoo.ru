@@ -46,14 +46,21 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 - Every unit can be encrypted (not yet).
 - Conflict-free **merge without decrypt**.
 - Merging doesn't invalidate signs.
+- Security features can be ommited if decentralization isn't required.
 
 # Real World Usages
 
 - [$hyoo_page](https://page.hyoo.ru) - decentralized real-time wiki.
+- [$hyoo_talks](https://talks.hyoo.ru) - decentralized secure messanger.
 - [$hyoo_draw](https://talks.hyoo.ru) - infinity collaborative whiteboard.
 - [$hyoo_sketch](https://sketch.hyoo.ru) - fast UI mockups.
-- [$hyoo_talks](https://talks.hyoo.ru) - decentralized secure messanger.
 - [BenZen](https://github.com/hyoo-ru/benzen) - Conflict-Free Version Control System
+
+# Articles
+
+- [Consistent about Consensus](https://github.com/nin-jin/slides/tree/master/consensus).
+- The Whole Point of Conflict-Free Data Tyes (Coming soon).
+- CROWD - Secure Universal CRDT (Coming soon).
 
 # Vocabulary
 
@@ -154,9 +161,9 @@ Contains last seen Times for each Peer+Group of already known Units.
 
 # Data Types Representation
 
-## Atomic JSON Register
+## Atomic CROWD Register
 
-Single value store. Just CvRDT LWW-Register.
+Single value store. Just CvRDT LWW-Register. Value is any JSON or Binary data with size <= 32KB.
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/register.svg)
 
@@ -167,9 +174,9 @@ Single value store. Just CvRDT LWW-Register.
 - `numb( next?: number )` Channel for `number` value. Returns `NaN` by default.
 - `str( next?: string )` Channel for `string` value. Returns `""` by default.
 
-## Mergeable Struct
+## CROWD Struct
 
-Struct is completely virtual thing. No one Unit is stored for it. Only for field values (except it's structs too etc).
+Struct is completely virtual thing. No one Unit is stored for it. Only for field values (except it's structs too, etc).
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/struct.svg)
 
@@ -181,14 +188,14 @@ Struct is completely virtual thing. No one Unit is stored for it. Only for field
 field_head = hash_62bit( field_name, struct_self )
 ```
 
-So all Peers writes to the same Node when uses the same key.
+So each Peer writes to the same Node when uses the same key.
 
 ### $hyoo_crowd_struct
 
 - `sub( key: string )` Returns inner Node for field name.
 - `yoke( key: string, Node, king_level, base_level )` Makes or reuse Land which Self is stored inside register.
 
-## Mergeable Ordered List
+## CROWD Ordered List
 
 ![](https://github.com/hyoo-ru/crowd.hyoo.ru/raw/master/diagram/reorder.svg)
 
@@ -227,7 +234,7 @@ So all Peers writes to the same Node when uses the same key.
 - `add( val: unknown )` Adds value if doesn't exist.
 - `drop( val: unknown )` Removes value if exists.
 
-## Mergeable Ordered Dictionary
+## CROWD Ordered Dictionary
 
 It's both Struct and List:
 
@@ -244,7 +251,7 @@ It's both Struct and List:
 - `add( val: unknown )` Adds value if doesn't exist.
 - `drop( val: unknown )` Removes value if exists.
 
-## Mergeable JSON
+## CROWD JSON
 
 It's recursive version of Dictionary. Special values which marks inner structures:
 
@@ -255,16 +262,16 @@ It's recursive version of Dictionary. Special values which marks inner structure
 
 - `json( json )` Channel for JSON.
 
-## Mergeable Plain String and Text
+## CROWD Plain Text
 
 Under the hood, String is just List of Tokens. So, entering word letter by letter changes same Unit instead of creating new. Text is the List of Strings which represents multiline text.
 
 ### Properties
 
-- Can be simply bound to native `<textarea>`.
+- Can be simply bound to native `<textarea>` with real-time synchronization.
 - Merge never produces unreadable token value. Only one of valid (LWW).
 - No interleaving. The typed text will not be interrupted after merging.
-- Weight of CROWD representation of text ~15x of raw text snapshot without signs and ~30x with signs.
+- Weight of unsecure CROWD representation of text 3x..9x of raw text snapshot (and 11x..27x for secure).
 
 ### **[Online sandbox](https://crowd.hyoo.ru/)**
 
@@ -274,9 +281,9 @@ Under the hood, String is just List of Tokens. So, entering word letter by lette
 
 - Input: new text and range of existen text.
 - Locate Tokens which relate to the range.
-- Before and after new text appen substrings of first and last tokens which should be untouched.
-- Split new text using universal tokinizer.
-- Reconciliate list of tokens unsing list insertion algorithm.
+- Before and after new text append substrings of first and last tokens which should be untouched.
+- Split new text using tokenizer.
+- Reconciliate list of tokens unsing the List insertion algorithm.
 
 ### $hyoo_crowd_text
 
@@ -285,7 +292,7 @@ Under the hood, String is just List of Tokens. So, entering word letter by lette
 - `selection( peer, next?: [ number, number ] )` Channel for selection Offsets of given Peer inside this Text. Stored inside Peer Home Land with anchoring to most inner token.
 - `write( next?: string, from?, to? )` Replaces range of String with reconciliation. Writes to the end when range isn't defined.
 
-## Mergeable Rich Text
+## CROWD Rich Text
 
 Under the hood, tokens are stored in the same form as in plain text. There may be elements between them in form `["div"]`, which can contain the same content. Every token is represented as SPAN. Every DOM element has `id` equal to Self. This `id` is using to reuse existing Units and track Nodes moving.
 
@@ -294,7 +301,7 @@ Under the hood, tokens are stored in the same form as in plain text. There may b
 - `dom( next?: Element | DocumentFragment )` Channel for DOM representation of subtree.
 - `html( next?: string )` Channel for XHTML serialization of DOM.
 
-## Mergeable Document
+## CROWD Document
 
 ### Delta Algorithm
 
