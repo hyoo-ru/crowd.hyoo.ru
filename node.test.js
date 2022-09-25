@@ -5312,9 +5312,6 @@ var $;
             this.data = data;
             this.bin = bin;
         }
-        get id() {
-            return `${this.head}/${this.self}`;
-        }
         kind() {
             if (this.head === this.self && this.auth === this.self) {
                 if (this.head === this.land) {
@@ -5693,32 +5690,22 @@ var $;
             const units = await this.delta_land(land, clocks);
             let size = 0;
             const bins = [];
-            const packs = [];
-            function wrap() {
-                const batch = new Uint8Array(size);
-                let offset = 0;
-                for (const bin of bins) {
-                    batch.set(new Uint8Array(bin.buffer, bin.byteOffset, bin.byteLength), offset);
-                    offset += bin.byteLength;
-                }
-                size = 0;
-                bins.length = 0;
-                packs.push(batch);
-            }
             for (const unit of units) {
                 const bin = unit.bin;
                 bins.push(bin);
                 size += bin.byteLength;
             }
-            if (size)
-                wrap();
-            return packs;
+            const batch = new Uint8Array(size);
+            let offset = 0;
+            for (const bin of bins) {
+                batch.set(new Uint8Array(bin.buffer, bin.byteOffset, bin.byteLength), offset);
+                offset += bin.byteLength;
+            }
+            return batch;
         }
         async *delta(clocks = new Map()) {
             for (const land of this.lands.values()) {
-                for (const pack of await this.delta_batch(land, clocks.get(land.id()))) {
-                    yield pack;
-                }
+                yield await this.delta_batch(land, clocks.get(land.id()));
             }
         }
         async apply(delta) {
@@ -6079,7 +6066,7 @@ var $;
             for (const next of delta) {
                 this._clocks[next.group()].see_peer(next.auth, next.time);
                 const kids = this.unit_list(next.head);
-                const next_id = next.id;
+                const next_id = `${next.head}/${next.self}`;
                 let prev = this._unit_all.get(next_id);
                 if (prev) {
                     if ($hyoo_crowd_unit_compare(prev, next) > 0)
@@ -9517,7 +9504,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/text/text/text.view.css", "[mol_text] {\n\tline-height: 1.5em;\n\tbox-sizing: border-box;\n\tmax-width: 60rem;\n\tborder-radius: var(--mol_gap_round);\n\twhite-space: pre-line;\n\tdisplay: flex;\n\tflex-direction: column;\n\tflex: 0 0 auto;\n\ttab-size: 4;\n}\n\n[mol_text_paragraph] {\n\tpadding: var(--mol_gap_text);\n\toverflow: auto;\n\tmax-width: 100%;\n\tdisplay: block;\n}\n\n[mol_text_span] {\n\tdisplay: inline;\n}\n\n[mol_text_string] {\n\tdisplay: inline;\n\tflex: 0 1 auto;\n\twhite-space: normal;\n}\n\n[mol_text_quote] {\n\tbox-shadow: inset 1px 0 0px 0px var(--mol_theme_line);\n\tmargin-left: 0.75rem;\n\tpadding-left: 0.75rem;\n}\n\n[mol_text_header] {\n\tdisplay: block;\n\ttext-shadow: 0 0;\n\tfont-weight: normal;\n}\n\n* + [mol_text_header] {\n\tmargin-top: 0.75rem;\n}\n\nh1[mol_text_header] {\n\tfont-size: 1.5rem;\n}\n\nh2[mol_text_header] {\n\tfont-size: 1.5rem;\n\tfont-style: italic;\n}\n\nh3[mol_text_header] {\n\tfont-size: 1.25rem;\n}\n\nh4[mol_text_header] {\n\tfont-size: 1.25em;\n\tfont-style: italic;\n}\n\nh5[mol_text_header] {\n\tfont-size: 1rem;\n}\n\nh6[mol_text_header] {\n\tfont-size: 1rem;\n\tfont-style: italic;\n}\n\n[mol_text_header_link] {\n\tcolor: inherit;\n}\n\n[mol_text_list] {\n\tpadding-left: 1.5rem;\n}\n\n[mol_text_list_paragraph] {\n\tdisplay: list-item;\n}\n\n[mol_text_list_paragraph]::before {\n\tcontent: '•';\n\twidth: 1.5rem;\n\tdisplay: inline-block;\n\tposition: absolute;\n\tmargin-left: -1rem;\n}\n\n[mol_text_table_cell] {\n\twidth: auto;\n\tdisplay: table-cell;\n\tvertical-align: baseline;\n\tpadding: 0;\n\tborder-radius: 0;\n}\n\n[mol_text_link_http],\n[mol_text_link] {\n\tpadding: 0;\n\tdisplay: inline;\n\twhite-space: nowrap;\n}\n\n[mol_text_link_http_icon],\n[mol_text_link_icon] {\n\tmargin: .25rem;\n}\n\n[mol_text_embed_youtube_image],\n[mol_text_embed_youtube_frame],\n[mol_text_embed_object] {\n\tobject-fit: contain;\n\tobject-position: center;\n\tdisplay: inline;\n\twidth: 100vw;\n\tmax-height: calc( 100vh - 6rem );\n}\n[mol_text_embed_object_fallback] {\n\tpadding: 0;\n}\n[mol_text_embed_image] {\n\tobject-fit: contain;\n\tobject-position: center;\n\tdisplay: inline;\n\tmax-height: calc( 100vh - 6rem );\n\tvertical-align: top;\n}\n\n[mol_text_pre] {\n\twhite-space: pre;\n\toverflow-x: auto;\n\ttab-size: 2;\n}\n\n[mol_text_code_line] {\n\tdisplay: inline-block;\n}\n\n[mol_text_type=\"strong\"] {\n\ttext-shadow: 0 0;\n\tcolor: var(--mol_theme_special);\n}\n\n[mol_text_type=\"emphasis\"] {\n\tfont-style: italic;\n}\n\n[mol_text_type=\"strike\"] {\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_text_type=\"remark\"] {\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_text_type=\"quote\"] {\n\tfont-style: italic;\n}\n");
+    $mol_style_attach("mol/text/text/text.view.css", "[mol_text] {\n\tline-height: 1.5em;\n\tbox-sizing: border-box;\n\tmax-width: 60rem;\n\tborder-radius: var(--mol_gap_round);\n\twhite-space: pre-line;\n\tdisplay: flex;\n\tflex-direction: column;\n\tflex: 0 0 auto;\n\ttab-size: 4;\n}\n\n[mol_text_paragraph] {\n\tpadding: var(--mol_gap_text);\n\toverflow: auto;\n\tmax-width: 100%;\n\tdisplay: block;\n}\n\n[mol_text_span] {\n\tdisplay: inline;\n}\n\n[mol_text_string] {\n\tdisplay: inline;\n\tflex: 0 1 auto;\n\twhite-space: normal;\n}\n\n[mol_text_quote] {\n\tmargin: var(--mol_gap_block);\n\tpadding: var(--mol_gap_block);\n\tbackground: var(--mol_theme_card);\n}\n\n[mol_text_header] {\n\tdisplay: block;\n\ttext-shadow: 0 0;\n\tfont-weight: normal;\n}\n\n* + [mol_text_header] {\n\tmargin-top: 0.75rem;\n}\n\nh1[mol_text_header] {\n\tfont-size: 1.5rem;\n}\n\nh2[mol_text_header] {\n\tfont-size: 1.5rem;\n\tfont-style: italic;\n}\n\nh3[mol_text_header] {\n\tfont-size: 1.25rem;\n}\n\nh4[mol_text_header] {\n\tfont-size: 1.25em;\n\tfont-style: italic;\n}\n\nh5[mol_text_header] {\n\tfont-size: 1rem;\n}\n\nh6[mol_text_header] {\n\tfont-size: 1rem;\n\tfont-style: italic;\n}\n\n[mol_text_header_link] {\n\tcolor: inherit;\n}\n\n[mol_text_list] {\n\tpadding-left: 1.5rem;\n}\n\n[mol_text_list_paragraph] {\n\tdisplay: list-item;\n}\n\n[mol_text_list_paragraph]::before {\n\tcontent: '•';\n\twidth: 1.5rem;\n\tdisplay: inline-block;\n\tposition: absolute;\n\tmargin-left: -1rem;\n}\n\n[mol_text_table_cell] {\n\twidth: auto;\n\tdisplay: table-cell;\n\tvertical-align: baseline;\n\tpadding: 0;\n\tborder-radius: 0;\n}\n\n[mol_text_link_http],\n[mol_text_link] {\n\tpadding: 0;\n\tdisplay: inline;\n\twhite-space: nowrap;\n}\n\n[mol_text_link_http_icon],\n[mol_text_link_icon] {\n\tmargin: .25rem;\n}\n\n[mol_text_embed_youtube_image],\n[mol_text_embed_youtube_frame],\n[mol_text_embed_object] {\n\tobject-fit: contain;\n\tobject-position: center;\n\tdisplay: inline;\n\twidth: 100vw;\n\tmax-height: calc( 100vh - 6rem );\n}\n[mol_text_embed_object_fallback] {\n\tpadding: 0;\n}\n[mol_text_embed_image] {\n\tobject-fit: contain;\n\tobject-position: center;\n\tdisplay: inline;\n\tmax-height: calc( 100vh - 6rem );\n\tvertical-align: top;\n}\n\n[mol_text_pre] {\n\twhite-space: pre;\n\toverflow-x: auto;\n\ttab-size: 2;\n}\n\n[mol_text_code_line] {\n\tdisplay: inline-block;\n}\n\n[mol_text_type=\"strong\"] {\n\ttext-shadow: 0 0;\n\tcolor: var(--mol_theme_special);\n}\n\n[mol_text_type=\"emphasis\"] {\n\tfont-style: italic;\n}\n\n[mol_text_type=\"strike\"] {\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_text_type=\"remark\"] {\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_text_type=\"quote\"] {\n\tfont-style: italic;\n}\n");
 })($ || ($ = {}));
 //mol/text/text/-css/text.view.css.ts
 ;
@@ -13973,9 +13960,8 @@ var $;
             const world2 = new $hyoo_crowd_world(await $hyoo_crowd_peer.generate());
             const land = world1.land(world1.peer.id);
             land.chief.as($hyoo_crowd_list).list([123, 456]);
-            for (const batch of await world1.delta_batch(land)) {
-                $mol_assert_like((await world2.apply(batch)).forbid, new Map);
-            }
+            const batch = await world1.delta_batch(land);
+            $mol_assert_like((await world2.apply(batch)).forbid, new Map);
             $mol_assert_like(world2.land(land.id()).chief.as($hyoo_crowd_list).list(), [123, 456]);
         },
         async 'ignore changes from far future'() {
@@ -13985,9 +13971,8 @@ var $;
             const clock = land.clock_data;
             clock.see_time(clock.now() + 60 * 60 * 24 * 10);
             land.chief.as($hyoo_crowd_reg).numb(123);
-            for (const batch of await world1.delta_batch(land)) {
-                $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['Far future']);
-            }
+            const batch = await world1.delta_batch(land);
+            $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['Far future']);
             $mol_assert_like(world2.land(land.id()).delta().length, 3);
         },
         async 'ignore auth as another peer'() {
@@ -13995,9 +13980,8 @@ var $;
             const world2 = new $hyoo_crowd_world(await $hyoo_crowd_peer.generate());
             const land = await world1.grab();
             land.chief.as($hyoo_crowd_reg).numb(123);
-            for (const batch of await world1.delta_batch(land)) {
-                $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['Alien join key', 'No auth key']);
-            }
+            const batch = await world1.delta_batch(land);
+            $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['Alien join key', 'No auth key']);
             $mol_assert_like(world2.land(land.id()).delta().length, 2);
         },
         async 'ignore auth without key'() {
@@ -14005,19 +13989,17 @@ var $;
             const world2 = new $hyoo_crowd_world(await $hyoo_crowd_peer.generate());
             const land = world1.land('1_1');
             land.chief.as($hyoo_crowd_reg).numb(123);
-            for (const batch of await world1.delta_batch(land)) {
-                $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['No join key', 'Level too low']);
-            }
+            const batch = await world1.delta_batch(land);
+            $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['No join key', 'Level too low']);
             $mol_assert_like(world2.land(land.id()).delta().length, 0);
         },
         async 'ignore changes with wrong signs'() {
             const world1 = new $hyoo_crowd_world(await $hyoo_crowd_peer.generate());
             const world2 = new $hyoo_crowd_world(await $hyoo_crowd_peer.generate());
             const land = await world1.grab();
-            for (const batch of await world1.delta_batch(land)) {
-                batch[152] = ~batch[152];
-                $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['Wrong join sign', 'Level too low']);
-            }
+            const batch = await world1.delta_batch(land);
+            batch[152] = ~batch[152];
+            $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['Wrong join sign', 'Level too low']);
             $mol_assert_like(world2.land(land.id()).delta().length, 0);
         },
         async 'ignore update auth'() {
@@ -14027,9 +14009,8 @@ var $;
             const land = await world1.grab();
             land.chief.as($hyoo_crowd_reg).numb(123);
             world2.land(land.id()).chief.as($hyoo_crowd_reg).numb(234);
-            for (const batch of await world1.delta_batch(land)) {
-                $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['Already join']);
-            }
+            const batch = await world1.delta_batch(land);
+            $mol_assert_like([...(await world2.apply(batch)).forbid.values()], ['Already join']);
             $mol_assert_like(world2.land(land.id()).delta().length, 5);
         },
         async 'levels'() {
@@ -14047,9 +14028,8 @@ var $;
             land2.level(peer.id, $hyoo_crowd_peer_level.law);
             $mol_assert_like(land1.delta().length, 4);
             level_get: {
-                for (const batch of await world2.delta_batch(land2)) {
-                    $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Level too low', 'Level too low', 'Level too low']);
-                }
+                const batch = await world2.delta_batch(land2);
+                $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Level too low', 'Level too low', 'Level too low']);
                 $mol_assert_like(land1.delta().length, 5);
                 $mol_assert_like(land1.chief.sub('foo', $hyoo_crowd_reg).numb(), 123);
                 $mol_assert_like(land1.chief.sub('bar', $hyoo_crowd_reg).numb(), 0);
@@ -14057,9 +14037,8 @@ var $;
             }
             level_add: {
                 land1.level(land2.peer().id, $hyoo_crowd_peer_level.add);
-                for (const batch of await world2.delta_batch(land2)) {
-                    $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join', 'Level too low', 'Level too low']);
-                }
+                const batch = await world2.delta_batch(land2);
+                $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join', 'Level too low', 'Level too low']);
                 $mol_assert_like(land1.delta().length, 7);
                 $mol_assert_like(land1.chief.sub('foo', $hyoo_crowd_reg).numb(), 123);
                 $mol_assert_like(land1.chief.sub('bar', $hyoo_crowd_reg).numb(), 234);
@@ -14067,9 +14046,8 @@ var $;
             }
             level_mod: {
                 land1.level(land2.peer().id, $hyoo_crowd_peer_level.mod);
-                for (const batch of await world2.delta_batch(land2)) {
-                    $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join', 'Level too low']);
-                }
+                const batch = await world2.delta_batch(land2);
+                $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join', 'Level too low']);
                 $mol_assert_like(land1.delta().length, 7);
                 $mol_assert_like(land1.chief.sub('foo', $hyoo_crowd_reg).numb(), 234);
                 $mol_assert_like(land1.chief.sub('bar', $hyoo_crowd_reg).numb(), 234);
@@ -14077,9 +14055,8 @@ var $;
             }
             level_law: {
                 land1.level(land2.peer().id, $hyoo_crowd_peer_level.law);
-                for (const batch of await world2.delta_batch(land2)) {
-                    $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join']);
-                }
+                const batch = await world2.delta_batch(land2);
+                $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join']);
                 $mol_assert_like(land1.delta().length, 8);
                 $mol_assert_like(land1.chief.sub('foo', $hyoo_crowd_reg).numb(), 234);
                 $mol_assert_like(land1.chief.sub('bar', $hyoo_crowd_reg).numb(), 234);
@@ -14093,18 +14070,16 @@ var $;
             const land1 = await world1.grab();
             const land2 = world2.land(land1.id());
             land1.chief.sub('foo', $hyoo_crowd_reg).numb(123);
-            for (const batch of await world1.delta_batch(land1)) {
-                $mol_assert_like([...(await world2.apply(batch)).forbid.values()], []);
-            }
+            const batch = await world1.delta_batch(land1);
+            $mol_assert_like([...(await world2.apply(batch)).forbid.values()], []);
             land2.chief.sub('foo', $hyoo_crowd_reg).numb(234);
             land2.chief.sub('bar', $hyoo_crowd_reg).numb(234);
             land2.level(peer.id, $hyoo_crowd_peer_level.law);
             $mol_assert_like(land1.delta().length, 4);
             level_add: {
                 land1.level_base($hyoo_crowd_peer_level.add);
-                for (const batch of await world2.delta_batch(land2)) {
-                    $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Level too low', 'Level too low']);
-                }
+                const batch = await world2.delta_batch(land2);
+                $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Level too low', 'Level too low']);
                 $mol_assert_like(land1.delta().length, 7);
                 $mol_assert_like(land1.chief.sub('foo', $hyoo_crowd_reg).numb(), 123);
                 $mol_assert_like(land1.chief.sub('bar', $hyoo_crowd_reg).numb(), 234);
@@ -14112,9 +14087,8 @@ var $;
             }
             level_mod: {
                 land1.level_base($hyoo_crowd_peer_level.mod);
-                for (const batch of await world2.delta_batch(land2)) {
-                    $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join', 'Level too low']);
-                }
+                const batch = await world2.delta_batch(land2);
+                $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join', 'Level too low']);
                 $mol_assert_like(land1.delta().length, 7);
                 $mol_assert_like(land1.chief.sub('foo', $hyoo_crowd_reg).numb(), 234);
                 $mol_assert_like(land1.chief.sub('bar', $hyoo_crowd_reg).numb(), 234);
@@ -14122,9 +14096,8 @@ var $;
             }
             level_law: {
                 land1.level_base($hyoo_crowd_peer_level.law);
-                for (const batch of await world2.delta_batch(land2)) {
-                    $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join']);
-                }
+                const batch = await world2.delta_batch(land2);
+                $mol_assert_like([...(await world1.apply(batch)).forbid.values()], ['Already join', 'Already join', 'Already join']);
                 $mol_assert_like(land1.delta().length, 8);
                 $mol_assert_like(land1.chief.sub('foo', $hyoo_crowd_reg).numb(), 234);
                 $mol_assert_like(land1.chief.sub('bar', $hyoo_crowd_reg).numb(), 234);
