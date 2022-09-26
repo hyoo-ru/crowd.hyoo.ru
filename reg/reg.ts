@@ -34,6 +34,7 @@ namespace $ {
 			return Boolean( this.value( next ) )
 		}
 		
+		@ $mol_action
 		yoke(
 			king_level: $hyoo_crowd_peer_level,
 			base_level: $hyoo_crowd_peer_level,
