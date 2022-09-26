@@ -5547,6 +5547,9 @@ var $;
             return land;
         }
     }
+    __decorate([
+        $mol_action
+    ], $hyoo_crowd_reg.prototype, "yoke", null);
     $.$hyoo_crowd_reg = $hyoo_crowd_reg;
 })($ || ($ = {}));
 //hyoo/crowd/reg/reg.ts

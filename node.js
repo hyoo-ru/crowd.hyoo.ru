@@ -5863,6 +5863,13 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    $.$mol_action = $mol_wire_method;
+})($ || ($ = {}));
+//mol/action/action.ts
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_wire_sync(obj) {
         return new Proxy(obj, {
             get(obj, field) {
@@ -5920,6 +5927,9 @@ var $;
             return land;
         }
     }
+    __decorate([
+        $mol_action
+    ], $hyoo_crowd_reg.prototype, "yoke", null);
     $.$hyoo_crowd_reg = $hyoo_crowd_reg;
 })($ || ($ = {}));
 //hyoo/crowd/reg/reg.ts
