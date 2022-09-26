@@ -83,17 +83,11 @@ namespace $ {
 			return land_inner
 		}
 		
-		async delta_land(
-			land: $hyoo_crowd_land,
-			clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
-		) {
+		sign_units( units: readonly $hyoo_crowd_unit[] ) {
 			
-			const units = land.delta( clocks )
-			if( !units.length ) return []
-			
-			for( const unit of units ) {
+			return Promise.all( units.map( async( unit )=> {
 				
-				if( unit.bin ) continue
+				if( unit.bin ) return unit
 				const bin = $hyoo_crowd_unit_bin.from_unit( unit )
 				
 				let sign = this._signs.get( unit )
@@ -106,9 +100,17 @@ namespace $ {
 				unit.bin = bin
 				this._signs.set( unit, sign )
 				
-			}
+				return unit
+				
+			} ) )
 			
-			return units
+		}
+		
+		delta_land(
+			land: $hyoo_crowd_land,
+			clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
+		) {
+			return this.sign_units( land.delta( clocks ) )
 		}
 		
 		async delta_batch(
