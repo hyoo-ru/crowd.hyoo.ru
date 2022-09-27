@@ -154,7 +154,6 @@
     "$hyoo_crowd_node",
     "$hyoo_crowd_struct",
     "$hyoo_crowd_reg",
-    "$mol_action",
     "$mol_wire_sync",
     "$mol_textarea",
     "$mol_stack",
