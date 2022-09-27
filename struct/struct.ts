@@ -13,10 +13,8 @@ namespace $ {
 			king_level: $hyoo_crowd_peer_level,
 			base_level: $hyoo_crowd_peer_level,
 		) {
-			return this.sub( key, $hyoo_crowd_reg )
-				.yoke( king_level, base_level )?.chief
-				.sub( key, Node )
-			?? null
+			const land = this.sub( key, $hyoo_crowd_reg ).yoke( king_level, base_level )
+			return land?.chief.sub( key, Node ) ?? null
 		}
 		
 	}

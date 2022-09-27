@@ -34,7 +34,6 @@ namespace $ {
 			return Boolean( this.value( next ) )
 		}
 		
-		@ $mol_action
 		yoke(
 			king_level: $hyoo_crowd_peer_level,
 			base_level: $hyoo_crowd_peer_level,
@@ -48,7 +47,9 @@ namespace $ {
 			if( this.land.level( this.land.peer().id ) < $hyoo_crowd_peer_level.add ) return null
 			
 			const land = $mol_wire_sync( world ).grab( king_level, base_level )
+			
 			this.value( land.id() )
+			world.land_init( land )
 			
 			return land
 		}
