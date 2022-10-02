@@ -10121,6 +10121,11 @@ var $;
                 this.land.wipe(unit);
             }
         }
+        node_make(val, Node) {
+            this.insert([val]);
+            const unit = this.units().at(-1);
+            return this.land.node(unit.self, Node);
+        }
     }
     $.$hyoo_crowd_list = $hyoo_crowd_list;
 })($ || ($ = {}));

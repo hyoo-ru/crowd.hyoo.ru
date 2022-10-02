@@ -2989,6 +2989,7 @@ declare namespace $ {
         has(val: string | number | boolean | null): boolean;
         add(val: string | number | boolean | null): void;
         drop(val: string | number | boolean | null): void;
+        node_make<Node extends typeof $hyoo_crowd_node>(val: unknown, Node: Node): InstanceType<Node>;
     }
 }
 
