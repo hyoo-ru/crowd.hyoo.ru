@@ -87,5 +87,11 @@ namespace $ {
 			
 		}
 		
+		node_make< Node extends typeof $hyoo_crowd_node >( val: unknown, Node: Node ) {
+			this.insert([ val ])
+			const unit = this.units().at(-1)!
+			return this.land.node( unit.self, Node )
+		}
+		
 	}
 }
