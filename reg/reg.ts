@@ -35,8 +35,9 @@ namespace $ {
 		}
 		
 		yoke(
-			king_level: $hyoo_crowd_peer_level,
-			base_level: $hyoo_crowd_peer_level,
+			law = [''] as readonly ( $mol_int62_string | '' )[],
+			mod = [] as readonly ( $mol_int62_string | '' )[],
+			add = [] as readonly ( $mol_int62_string | '' )[],
 		) {
 			
 			const world = this.world()!
@@ -46,7 +47,7 @@ namespace $ {
 			
 			if( this.land.level( this.land.peer().id ) < $hyoo_crowd_peer_level.add ) return null
 			
-			const land = $mol_wire_sync( world ).grab( king_level, base_level )
+			const land = $mol_wire_sync( world ).grab( law, mod, add )
 			
 			this.value( land.id() )
 			world.land_init( land )

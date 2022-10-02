@@ -60,11 +60,12 @@ namespace $ {
 		_signs = new WeakMap< $hyoo_crowd_unit, Uint8Array >()
 		
 		async grab(
-			king_level = $hyoo_crowd_peer_level.law,
-			base_level = $hyoo_crowd_peer_level.get,
+			law = [''] as readonly ( $mol_int62_string | '' )[],
+			mod = [] as readonly ( $mol_int62_string | '' )[],
+			add = [] as readonly ( $mol_int62_string | '' )[],
 		) {
 			
-			if( !king_level && !base_level ) $mol_fail( new Error( 'Grabbing dead land' ) )
+			if( !law.length && !mod.length && !add.length ) $mol_fail( new Error( 'Grabbing dead land' ) )
 			
 			const knight = await $hyoo_crowd_peer.generate()
 			this._knights.set( knight.id, knight )
@@ -75,8 +76,9 @@ namespace $ {
 				peer: $mol_const( knight ),
 			})
 			
-			land_outer.level( this.peer!.id, king_level )
-			land_outer.level_base( base_level )
+			for( const peer of law ) land_outer.level( peer || this.peer!.id, $hyoo_crowd_peer_level.law )
+			for( const peer of mod ) land_outer.level( peer || this.peer!.id, $hyoo_crowd_peer_level.mod )
+			for( const peer of add ) land_outer.level( peer || this.peer!.id, $hyoo_crowd_peer_level.add )
 			
 			land_inner.apply( land_outer.delta() )
 			

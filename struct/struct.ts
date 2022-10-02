@@ -10,10 +10,11 @@ namespace $ {
 		yoke< Node extends typeof $hyoo_crowd_node >(
 			key: string,
 			Node: Node,
-			king_level: $hyoo_crowd_peer_level,
-			base_level: $hyoo_crowd_peer_level,
+			law = [''] as readonly ( $mol_int62_string | '' )[],
+			mod = [] as readonly ( $mol_int62_string | '' )[],
+			add = [] as readonly ( $mol_int62_string | '' )[],
 		) {
-			const land = this.sub( key, $hyoo_crowd_reg ).yoke( king_level, base_level )
+			const land = this.sub( key, $hyoo_crowd_reg ).yoke( law, mod, add )
 			return land?.chief.sub( key, Node ) ?? null
 		}
 		
