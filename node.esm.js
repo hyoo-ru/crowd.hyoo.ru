@@ -7847,6 +7847,9 @@ var $;
                 return val;
             return [];
         }
+        bring() {
+            return this.Edit().bring();
+        }
         Edit() {
             const obj = new this.$.$mol_textarea_edit();
             obj.value = (val) => this.value(val);
