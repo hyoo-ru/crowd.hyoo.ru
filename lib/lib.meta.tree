@@ -7,3 +7,4 @@ include \/hyoo/crowd/text
 include \/hyoo/crowd/json
 include \/hyoo/crowd/dom
 include \/hyoo/crowd/html
+include \/hyoo/crowd/blob
