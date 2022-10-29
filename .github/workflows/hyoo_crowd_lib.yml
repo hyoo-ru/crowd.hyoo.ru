@@ -16,9 +16,6 @@ jobs:
     
     steps:
     
-    - name: Environment Printer
-      uses: managedkaos/print-env@v1.0
-    
     - name: Build apps
       uses: hyoo-ru/mam_build@master2
       with:
