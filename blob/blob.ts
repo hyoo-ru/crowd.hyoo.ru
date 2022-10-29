@@ -15,7 +15,7 @@ namespace $ {
 		}
 		
 		/** Blob, File etc. */
-		blob( next?: Blob ) {
+		blob( next?: $mol_blob ) {
 			
 			if( next ) {
 				this.buffer( new Uint8Array( $mol_wire_sync( next ).arrayBuffer() ) )
@@ -23,7 +23,7 @@ namespace $ {
 				return next
 			}
 			
-			return new Blob( this.list() as Uint8Array[], {
+			return new $mol_blob( this.list() as Uint8Array[], {
 				type: this.type(),
 			} )
 			

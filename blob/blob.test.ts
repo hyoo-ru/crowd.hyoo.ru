@@ -31,12 +31,12 @@ namespace $ {
 			
 			const land = await make_land()
 			const node = land.chief.as( $hyoo_crowd_blob )
-			
+				
 			const source = new Uint8Array( 2**15 + 1 )
 			source[ 2**15 + 1 ] = 255 
 			
 			await $mol_wire_async( node ).blob(
-				new Blob( [source], { type: 'test/test' } )
+				new $mol_blob( [source], { type: 'test/test' } )
 			)
 			
 			$mol_assert_like( 'test/test', node.blob().type )
