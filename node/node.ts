@@ -1,12 +1,12 @@
 namespace $ {
 	
 	/** Stateless non-unique adapter to CROWD Tree for given Head. */
-	export class $hyoo_crowd_node {
+	export class $hyoo_crowd_node extends Object {
 		
 		constructor(
 			readonly land: $hyoo_crowd_land,
 			readonly head: $mol_int62_string,
-		) {}
+		) { super() }
 		
 		static for< Node extends typeof $hyoo_crowd_node >(
 			this: Node,
@@ -33,6 +33,10 @@ namespace $ {
 		/** Ordered inner alive Node. */
 		nodes< Node extends typeof $hyoo_crowd_node >( Node: Node ) {
 			return this.units().map( unit => new Node( this.land, unit.self ) as InstanceType< Node > )
+		}
+		
+		[ Symbol.toPrimitive ]() {
+			return `${ this.constructor.name }("${ this.land.id() }","${ this.head }")`
 		}
 		
 		[ $mol_dev_format_head ]() {
