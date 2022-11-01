@@ -10278,6 +10278,7 @@ var $;
                 return next;
             }
             else {
+                this.units();
                 return reg.value()
                     ?.map(point => this.offset_by_point(point)[1]) ?? [0, 0];
             }
