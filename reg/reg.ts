@@ -7,7 +7,7 @@ namespace $ {
 			const unit = this.units()[0]
 			if( next === undefined ) return unit?.data ?? null
 				
-			if( unit?.data === next ) return next
+			if( $mol_compare_deep( unit?.data, next ) ) return next
 			
 			this.land.put(
 				this.head,
