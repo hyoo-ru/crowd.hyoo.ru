@@ -5916,7 +5916,7 @@ var $;
             const unit = this.units()[0];
             if (next === undefined)
                 return unit?.data ?? null;
-            if (unit?.data === next)
+            if ($mol_compare_deep(unit?.data, next))
                 return next;
             this.land.put(this.head, unit?.self ?? this.land.id_new(), '0_0', next);
             return next;
