@@ -344,6 +344,15 @@ namespace $ {
 			return authors
 		}
 		
+		first_stamp() {
+			const grab_unit = this._unit_all.get( `${ this.id() }/${ this.id() }` )
+			return ( grab_unit && $hyoo_crowd_time_stamp( grab_unit.time ) ) ?? null
+		}
+		
+		last_stamp() {
+			return this.clock_data.last_stamp()
+		}
+		
 		selection( peer: $mol_int62_string ) {
 			return this.world()!.land_sync( peer ).chief.sub( '$hyoo_crowd_land..selection', $hyoo_crowd_reg )
 		}

@@ -95,7 +95,7 @@ namespace $ {
 		}
 		
 		last_stamp() {
-			return  $hyoo_crowd_time_stamp( this.last_time )
+			return $hyoo_crowd_time_stamp( this.last_time )
 		}
 		
 		/** Gererates new time for peer that greater then other seen. */

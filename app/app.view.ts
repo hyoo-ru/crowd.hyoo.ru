@@ -117,7 +117,7 @@ namespace $.$$ {
 			.replace( '{units:alive}', this.units_alive().toLocaleString() )
 			.replace( '{units:dead}', this.units_dead().toLocaleString() )
 			.replace( '{units:total}', this.units_total().toLocaleString() )
-			.replace( '{stamp:now}', this.store().clock_data.last_stamp().toString(36) )
+			.replace( '{stamp:now}', this.store().last_stamp().toString(36) )
 			.replace( '{stamp:sync}', this.sync_clocks()[1].last_stamp().toString(36) )
 			.replace( '{size:text}', this.size_text().toLocaleString() )
 			.replace( '{size:state}', this.size_state_bin().toLocaleString() )
