@@ -60,8 +60,8 @@ namespace $ {
 							this.head,
 							typeof next === 'string'
 								? this.land.id_new()
-								: $mol_int62_to_string( $mol_int62_from_string( ( next as Element ).id ) )
-									|| this.land.id_new(),
+								: $mol_int62_string_ensure( ( next as Element ).id )
+									?? this.land.id_new(),
 							lead?.self ?? '0_0',
 							val( next ),
 						)

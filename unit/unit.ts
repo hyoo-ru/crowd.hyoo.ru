@@ -204,24 +204,24 @@ namespace $ {
 			const mem = new Uint8Array( total )
 			const bin = new $hyoo_crowd_unit_bin( mem.buffer )
 			
-			const land = $mol_int62_from_string( unit.land )
+			const land = $mol_int62_from_string( unit.land )!
 			bin.setInt32( offset.land_lo, land.lo, true )
 			bin.setInt32( offset.land_hi, land.hi, true )
-			const auth = $mol_int62_from_string( unit.auth )
+			const auth = $mol_int62_from_string( unit.auth )!
 			bin.setInt32( offset.auth_lo, auth.lo, true )
 			bin.setInt32( offset.auth_hi, auth.hi, true )
 			
-			const head = $mol_int62_from_string( unit.head )
+			const head = $mol_int62_from_string( unit.head )!
 			bin.setInt32( offset.head_lo, head.lo, true )
 			bin.setInt32( offset.head_hi, head.hi, true )
-			const self = $mol_int62_from_string( unit.self )
+			const self = $mol_int62_from_string( unit.self )!
 			bin.setInt32( offset.self_lo, self.lo, true )
 			bin.setInt32( offset.self_hi, self.hi, true )
 			
-			const next = $mol_int62_from_string( unit.next )
+			const next = $mol_int62_from_string( unit.next )!
 			bin.setInt32( offset.next_lo, next.lo, true )
 			bin.setInt32( offset.next_hi, next.hi, true )
-			const prev = $mol_int62_from_string( unit.prev )
+			const prev = $mol_int62_from_string( unit.prev )!
 			bin.setInt32( offset.prev_lo, prev.lo, true )
 			bin.setInt32( offset.prev_hi, prev.hi, true )
 			

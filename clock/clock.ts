@@ -141,14 +141,14 @@ namespace $ {
 			const mem = new Uint8Array( size )
 			const bin = new $hyoo_crowd_clock_bin( mem.buffer )
 			
-			const land = $mol_int62_from_string( land_id )
+			const land = $mol_int62_from_string( land_id )!
 			bin.setInt32( offset.land_lo, land.lo ^ ( 1 << 31 ), true )
 			bin.setInt32( offset.land_hi, land.hi, true )
 			
 			let cursor = offset.clocks
 			for( const [ peer_id, time ] of clocks[0] ) {
 				
-				const peer = $mol_int62_from_string( peer_id )
+				const peer = $mol_int62_from_string( peer_id )!
 				
 				bin.setInt32( cursor + 0, peer.lo, true )
 				bin.setInt32( cursor + 4, peer.hi, true )
