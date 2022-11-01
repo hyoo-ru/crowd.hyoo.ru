@@ -179,6 +179,7 @@ namespace $ {
 				reg.value( next.map( offset => this.point_by_offset( offset ) ) )
 				return next
 			} else {
+				this.units() // track text to recalc selection on its change
 				return ( reg.value() as readonly[ $mol_int62_string, number ][] )
 					?.map( point => this.offset_by_point( point )[1] ) ?? [ 0, 0 ]
 			}
