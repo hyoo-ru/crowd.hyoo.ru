@@ -9,6 +9,26 @@ namespace $ {
 	
 	$mol_test({
 		
+		async 'Join & Leave'() {
+			
+			const store = await make_land()
+			$mol_assert_like( store.peers(), [] )
+			$mol_assert_like( store.residents(), [] )
+			
+			store.join()
+			$mol_assert_like( store.peers(), [] )
+			$mol_assert_like( store.residents(), [ store.peer_id() ] )
+			
+			store.level( store.peer_id(), $hyoo_crowd_peer_level.add )
+			$mol_assert_like( store.peers(), [ store.peer_id() ] )
+			$mol_assert_like( store.residents(), [ store.peer_id() ] )
+			
+			store.leave()
+			$mol_assert_like( store.peers(), [ store.peer_id() ] )
+			$mol_assert_like( store.residents(), [] )
+			
+		},
+		
 		async 'Default state'() {
 			
 			const store = await make_land()

@@ -260,7 +260,7 @@ namespace $ {
 			const auth_id = `${ auth.id }/${ auth.id }` as const
 			
 			const auth_unit = this._unit_all.get( auth_id )
-			if( auth_unit ) return
+			if( auth_unit?.data ) return this._joined = true
 			
 			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( auth.id )
 			
@@ -270,12 +270,39 @@ namespace $ {
 				'0_0', '0_0',
 				time, auth.key_public_serial,
 				null,
-				
 			)
 			
 			this._unit_all.set( auth_id, join_unit )
 			
 			this._joined = true
+			
+		}
+		
+		/** Unregister public key of current peer **/
+		leave() {
+			
+			const auth = this.peer()
+			if( !auth ) return
+			if( !auth.key_public_serial ) return
+			
+			const auth_id = `${ auth.id }/${ auth.id }` as const
+			
+			const auth_unit = this._unit_all.get( auth_id )
+			if( !auth_unit || !auth_unit.data ) return this._joined = false
+			
+			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( auth.id )
+			
+			const join_unit = new $hyoo_crowd_unit(
+				this.id(), auth.id,
+				auth.id, auth.id,
+				'0_0', '0_0',
+				time, null,
+				null,
+			)
+			
+			this._unit_all.set( auth_id, join_unit )
+			
+			this._joined = false
 			
 		}
 		
@@ -315,6 +342,7 @@ namespace $ {
 			return next
 		}
 		
+		/** All peers who have special rights to write o land. */
 		peers() {
 			
 			this.pub.promote()
@@ -322,13 +350,41 @@ namespace $ {
 			const lords = [] as $mol_int62_string[]
 			
 			for( const unit of this._unit_all.values() ) {
-				if( unit.kind() !== $hyoo_crowd_unit_kind.give ) continue
-				lords.push( unit.self )
+				
+				switch( unit.kind() ) {
+					case $hyoo_crowd_unit_kind.data: continue
+					case $hyoo_crowd_unit_kind.join: continue
+					default: lords.push( unit.self )
+				}
+				
 			}
 			
 			return lords as Readonly< typeof lords >
 		}
 		
+		/** All peers who joined to land. */
+		residents() {
+			
+			this.pub.promote()
+			
+			const lords = [] as $mol_int62_string[]
+			
+			for( const unit of this._unit_all.values() ) {
+				
+				if( unit.data === null ) continue
+				
+				switch( unit.kind() ) {
+					case $hyoo_crowd_unit_kind.data: continue
+					case $hyoo_crowd_unit_kind.give: continue
+					default: lords.push( unit.self )
+				}
+				
+			}
+			
+			return lords as Readonly< typeof lords >
+		}
+		
+		/** All peers who have alive data inside land. */
 		authors() {
 			
 			this.pub.promote()

@@ -209,15 +209,14 @@ namespace $ {
 					case $hyoo_crowd_unit_kind.grab:
 					case $hyoo_crowd_unit_kind.join: {
 					
-						if( auth_unit ) return 'Already join'
-						if( typeof unit.data !== 'string' ) return 'No join key'
+						const key_str = auth_unit?.data ?? unit.data
+						if( typeof key_str !== 'string' ) return 'No join key'
 						
-						const key_buf = unit.data
-						const self = $mol_int62_hash_string( key_buf )
+						const self = $mol_int62_hash_string( key_str )
 						
 						if( unit.self !== self ) return 'Alien join key'
 						
-						const key = await $mol_crypto_auditor_public.from( key_buf )
+						const key = await $mol_crypto_auditor_public.from( key_str )
 						const sign = bin.sign()
 						const valid = await key.verify( bin.sens(), sign )
 						
@@ -259,10 +258,10 @@ namespace $ {
 					
 				}
 				
-				if( !auth_unit ) return 'No auth key'
+				const key_str = auth_unit?.data
+				if( typeof key_str !== 'string' ) return 'No auth key'
 				
-				const key_buf = auth_unit.data as string
-				const key = await $mol_crypto_auditor_public.from( key_buf )
+				const key = await $mol_crypto_auditor_public.from( key_str )
 				const sign = bin.sign()
 				const valid = await key.verify( bin.sens(), sign )
 				
