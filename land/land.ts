@@ -315,7 +315,7 @@ namespace $ {
 			return next
 		}
 		
-		lords() {
+		peers() {
 			
 			this.pub.promote()
 			
