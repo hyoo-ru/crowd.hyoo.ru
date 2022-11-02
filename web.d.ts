@@ -1745,7 +1745,7 @@ declare namespace $ {
         join(): void;
         level_base(next?: $hyoo_crowd_peer_level): void;
         level(peer: $mol_int62_string, next?: $hyoo_crowd_peer_level): $hyoo_crowd_peer_level;
-        lords(): readonly `${string}_${string}`[];
+        peers(): readonly `${string}_${string}`[];
         authors(): Set<`${string}_${string}`>;
         first_stamp(): number | null;
         last_stamp(): number;

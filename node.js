@@ -6153,7 +6153,7 @@ var $;
             this.pub.emit();
             return next;
         }
-        lords() {
+        peers() {
             this.pub.promote();
             const lords = [];
             for (const unit of this._unit_all.values()) {
