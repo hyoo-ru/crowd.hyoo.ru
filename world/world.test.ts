@@ -150,30 +150,34 @@ namespace $ {
 			const peer = await $hyoo_crowd_peer.generate()
 			const world1 = new $hyoo_crowd_world( peer )
 			const world2 = new $hyoo_crowd_world( peer )
-			const land = await world1.grab()
+			
+			const land1 = await world1.grab()
+			const land2 = world2.land( land1.id() )
+			land2.clock_auth.tick( peer.id )
+			land2.clock_data.tick( peer.id )
 			
 			// do changes
-			land.chief.as( $hyoo_crowd_reg ).numb( 123 )
-			world2.land( land.id() ).chief.as( $hyoo_crowd_reg ).numb( 234 )
+			land1.chief.as( $hyoo_crowd_reg ).numb( 123 )
+			land2.chief.as( $hyoo_crowd_reg ).numb( 234 )
 			
-			const batch = await world1.delta_batch( land )
+			const batch = await world1.delta_batch( land1 )
 			$mol_assert_like(
 				[ ... ( await world2.apply( batch ) ).forbid.values() ],
 				[],
 			)
 			
-			$mol_assert_like( world2.land( land.id() ).delta().length, 5 )
+			$mol_assert_like( land2.delta().length, 5 )
 			
-			land.chief.as( $hyoo_crowd_reg ).numb( 345 )
-			land.leave()
+			land1.chief.as( $hyoo_crowd_reg ).numb( 345 )
+			land1.leave()
 			
-			const batch2 = await world1.delta_batch( land )
+			const batch2 = await world1.delta_batch( land1 )
 			$mol_assert_like(
 				[ ... ( await world2.apply( batch2 ) ).forbid.values() ],
 				[ 'No auth key' ],
 			)
 			$mol_assert_like(
-				world2.land( land.id() ).chief.as( $hyoo_crowd_reg ).numb(),
+				land2.chief.as( $hyoo_crowd_reg ).numb(),
 				234,
 			)
 			
