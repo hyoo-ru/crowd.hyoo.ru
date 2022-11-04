@@ -5811,11 +5811,9 @@ var $;
             for (const unit of this._unit_all.values()) {
                 if (unit.data === null)
                     continue;
-                switch (unit.kind()) {
-                    case $hyoo_crowd_unit_kind.data: continue;
-                    case $hyoo_crowd_unit_kind.give: continue;
-                    default: lords.push(unit.self);
-                }
+                if (unit.kind() !== $hyoo_crowd_unit_kind.join)
+                    continue;
+                lords.push(unit.self);
             }
             return lords;
         }
