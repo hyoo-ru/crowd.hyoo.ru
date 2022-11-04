@@ -362,7 +362,7 @@ namespace $ {
 			return lords as Readonly< typeof lords >
 		}
 		
-		/** All peers who joined to land. */
+		/** All peers who joined to land except king. */
 		residents() {
 			
 			this.pub.promote()
@@ -372,12 +372,9 @@ namespace $ {
 			for( const unit of this._unit_all.values() ) {
 				
 				if( unit.data === null ) continue
+				if( unit.kind() !== $hyoo_crowd_unit_kind.join ) continue
 				
-				switch( unit.kind() ) {
-					case $hyoo_crowd_unit_kind.data: continue
-					case $hyoo_crowd_unit_kind.give: continue
-					default: lords.push( unit.self )
-				}
+				lords.push( unit.self )
 				
 			}
 			

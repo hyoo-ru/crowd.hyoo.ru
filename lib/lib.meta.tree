@@ -1,6 +1,7 @@
 include \/hyoo/crowd/world
 include \/hyoo/crowd/land
 include \/hyoo/crowd/reg
+include \/hyoo/crowd/counter
 include \/hyoo/crowd/dict
 include \/hyoo/crowd/list
 include \/hyoo/crowd/text
