@@ -5667,8 +5667,6 @@ var $;
         _knights = new $mol_dict();
         _signs = new WeakMap();
         async grab(law = [''], mod = [], add = []) {
-            if (!law.length && !mod.length && !add.length)
-                $mol_fail(new Error('Grabbing dead land'));
             const knight = await $hyoo_crowd_peer.generate();
             this._knights.set(knight.id, knight);
             const land_inner = this.land(knight.id);
