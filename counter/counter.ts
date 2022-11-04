@@ -3,12 +3,12 @@ namespace $ {
 		
 		/** Count of counted peers. */
 		total() {
-			return this.yoke()?.residents().length ?? this.numb()
+			return this.yoke([])?.residents().length ?? this.numb()
 		}
 		
 		/** Is current peer counted. */
 		counted( next?: boolean ) {
-			const yoke = this.yoke()
+			const yoke = this.yoke([])
 			switch( next ) {
 				case true: yoke?.join(); return Boolean( yoke )
 				case false: yoke?.leave(); return false

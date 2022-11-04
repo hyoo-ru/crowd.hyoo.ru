@@ -65,7 +65,7 @@ namespace $ {
 			add = [] as readonly ( $mol_int62_string | '' )[],
 		) {
 			
-			if( !law.length && !mod.length && !add.length ) $mol_fail( new Error( 'Grabbing dead land' ) )
+			// if( !law.length && !mod.length && !add.length ) $mol_fail( new Error( 'Grabbing dead land' ) )
 			
 			const knight = await $hyoo_crowd_peer.generate()
 			this._knights.set( knight.id, knight )
