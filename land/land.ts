@@ -398,11 +398,13 @@ namespace $ {
 		}
 		
 		first_stamp() {
+			this.pub.promote()
 			const grab_unit = this._unit_all.get( `${ this.id() }/${ this.id() }` )
 			return ( grab_unit && $hyoo_crowd_time_stamp( grab_unit.time ) ) ?? null
 		}
 		
 		last_stamp() {
+			this.pub.promote()
 			return this.clock_data.last_stamp()
 		}
 		
