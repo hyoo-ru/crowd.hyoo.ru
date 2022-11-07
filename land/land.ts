@@ -275,6 +275,7 @@ namespace $ {
 			this._unit_all.set( auth_id, join_unit )
 			
 			this._joined = true
+			this.pub.emit()
 			
 		}
 		
@@ -303,6 +304,7 @@ namespace $ {
 			this._unit_all.set( auth_id, join_unit )
 			
 			this._joined = false
+			this.pub.emit()
 			
 		}
 		
