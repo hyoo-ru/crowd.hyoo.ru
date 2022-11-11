@@ -1698,6 +1698,7 @@ declare namespace $ {
         as<Node extends typeof $hyoo_crowd_node>(Node: Node): InstanceType<Node>;
         units(): readonly $hyoo_crowd_unit[];
         nodes<Node extends typeof $hyoo_crowd_node>(Node: Node): InstanceType<Node>[];
+        virgin(): boolean;
         [Symbol.toPrimitive](): string;
     }
 }
