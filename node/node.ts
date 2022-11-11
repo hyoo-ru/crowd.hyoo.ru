@@ -35,6 +35,11 @@ namespace $ {
 			return this.units().map( unit => new Node( this.land, unit.self ) as InstanceType< Node > )
 		}
 		
+		/** Returns true when node value is never changed. */
+		virgin() {
+			return this.land.unit_list( this.head ).length === 0
+		}
+		
 		[ Symbol.toPrimitive ]() {
 			return `${ this.constructor.name }("${ this.land.id() }","${ this.head }")`
 		}
