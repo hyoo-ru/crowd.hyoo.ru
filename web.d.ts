@@ -2897,6 +2897,9 @@ declare namespace $.$$ {
 declare namespace $ {
     class $mol_section extends $mol_list {
         rows(): readonly any[];
+        Title(): $$.$mol_paragraph;
+        tools(): readonly any[];
+        Tools(): $mol_view;
         head(): readonly any[];
         Head(): $mol_view;
         content(): readonly any[];
