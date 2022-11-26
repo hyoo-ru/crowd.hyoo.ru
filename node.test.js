@@ -1523,6 +1523,34 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_func_name(func) {
+        let name = func.name;
+        if (name?.length > 1)
+            return name;
+        for (let key in this) {
+            try {
+                if (this[key] !== func)
+                    continue;
+                name = key;
+                Object.defineProperty(func, 'name', { value: name });
+                break;
+            }
+            catch { }
+        }
+        return name;
+    }
+    $.$mol_func_name = $mol_func_name;
+    function $mol_func_name_from(target, source) {
+        Object.defineProperty(target, 'name', { value: source.name });
+        return target;
+    }
+    $.$mol_func_name_from = $mol_func_name_from;
+})($ || ($ = {}));
+//mol/func/name/name.ts
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_guid(length = 8, exists = () => false) {
         for (;;) {
             let id = Math.random().toString(36).substring(2, length + 2).toUpperCase();
@@ -1780,7 +1808,8 @@ var $;
             const existen = Object.getOwnPropertyDescriptor(host ?? task, field)?.value;
             if (existen)
                 return existen;
-            const key = `${host?.[Symbol.toStringTag] ?? host}.${field}`;
+            const prefix = host?.[Symbol.toStringTag] ?? (host instanceof Function ? $$.$mol_func_name(host) : host);
+            const key = `${prefix}.${field}`;
             const fiber = new $mol_wire_atom(key, task, host, []);
             (host ?? task)[field] = fiber;
             return fiber;
@@ -1788,7 +1817,8 @@ var $;
         static plex(host, task, key) {
             const field = task.name + '()';
             let dict = Object.getOwnPropertyDescriptor(host ?? task, field)?.value;
-            const id = `${host?.[Symbol.toStringTag] ?? host}.${task.name}(${$mol_key(key)})`;
+            const prefix = host?.[Symbol.toStringTag] ?? (host instanceof Function ? $$.$mol_func_name(host) : host);
+            const id = `${prefix}.${task.name}(${$mol_key(key)})`;
             if (dict) {
                 const existen = dict.get(id);
                 if (existen)
@@ -2305,34 +2335,6 @@ var $;
     $.$mol_dom_render_fields = $mol_dom_render_fields;
 })($ || ($ = {}));
 //mol/dom/render/fields/fields.ts
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_func_name(func) {
-        let name = func.name;
-        if (name?.length > 1)
-            return name;
-        for (let key in this) {
-            try {
-                if (this[key] !== func)
-                    continue;
-                name = key;
-                Object.defineProperty(func, 'name', { value: name });
-                break;
-            }
-            catch { }
-        }
-        return name;
-    }
-    $.$mol_func_name = $mol_func_name;
-    function $mol_func_name_from(target, source) {
-        Object.defineProperty(target, 'name', { value: source.name });
-        return target;
-    }
-    $.$mol_func_name_from = $mol_func_name_from;
-})($ || ($ = {}));
-//mol/func/name/name.ts
 ;
 "use strict";
 //mol/type/keys/extract/extract.ts
@@ -8562,7 +8564,8 @@ var $;
                 src: this.uri(),
                 alt: this.title(),
                 loading: this.loading(),
-                decoding: this.decoding()
+                decoding: this.decoding(),
+                crossOrigin: this.cors()
             };
         }
         minimal_width() {
@@ -8579,6 +8582,9 @@ var $;
         }
         decoding() {
             return "async";
+        }
+        cors() {
+            return "anonymous";
         }
     }
     $.$mol_image = $mol_image;
@@ -9180,7 +9186,7 @@ var $;
             if (key === 'id')
                 continue;
             if (typeof props[key] === 'string') {
-                if (key in node)
+                if (typeof node[key] === 'string')
                     node[key] = props[key];
                 node.setAttribute(key, props[key]);
             }
