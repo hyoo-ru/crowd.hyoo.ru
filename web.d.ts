@@ -1546,6 +1546,31 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    class $hyoo_crowd_node extends Object {
+        readonly land: $hyoo_crowd_land;
+        readonly head: $mol_int62_string;
+        constructor(land: $hyoo_crowd_land, head: $mol_int62_string);
+        static for<Node extends typeof $hyoo_crowd_node>(this: Node, land: $hyoo_crowd_land, head: $mol_int62_string): InstanceType<Node>;
+        world(): $hyoo_crowd_world | null;
+        as<Node extends typeof $hyoo_crowd_node>(Node: Node): InstanceType<Node>;
+        units(): readonly $hyoo_crowd_unit[];
+        nodes<Node extends typeof $hyoo_crowd_node>(Node: Node): InstanceType<Node>[];
+        virgin(): boolean;
+        [Symbol.toPrimitive](): string;
+    }
+}
+
+declare namespace $ {
+    class $hyoo_crowd_fund<Node extends typeof $hyoo_crowd_node> extends $mol_object {
+        world: $hyoo_crowd_world;
+        Node: Node;
+        constructor(world: $hyoo_crowd_world, Node: Node);
+        Item(id: $mol_int62_string | `${$mol_int62_string}!${$mol_int62_string}`): InstanceType<Node>;
+        make(law?: readonly ("" | `${string}_${string}`)[], mod?: readonly ("" | `${string}_${string}`)[], add?: readonly ("" | `${string}_${string}`)[]): InstanceType<Node>;
+    }
+}
+
+declare namespace $ {
     let $mol_dict_key: typeof $mol_key;
     class $mol_dict<Key, Value> extends Map<Key, Value> {
         get(key: Key): Value | undefined;
@@ -1685,6 +1710,7 @@ declare namespace $ {
         land_init(id: $hyoo_crowd_land): void;
         land(id: $mol_int62_string): $hyoo_crowd_land;
         land_sync(id: $mol_int62_string): $hyoo_crowd_land;
+        Fund<Item extends typeof $hyoo_crowd_node>(Item: Item): $hyoo_crowd_fund<Item>;
         home(): $hyoo_crowd_land;
         _knights: $mol_dict<`${string}_${string}`, $hyoo_crowd_peer>;
         _signs: WeakMap<$hyoo_crowd_unit, Uint8Array>;
@@ -1701,21 +1727,6 @@ declare namespace $ {
             allow: $hyoo_crowd_unit[];
             forbid: Map<$hyoo_crowd_unit, string>;
         }>;
-    }
-}
-
-declare namespace $ {
-    class $hyoo_crowd_node extends Object {
-        readonly land: $hyoo_crowd_land;
-        readonly head: $mol_int62_string;
-        constructor(land: $hyoo_crowd_land, head: $mol_int62_string);
-        static for<Node extends typeof $hyoo_crowd_node>(this: Node, land: $hyoo_crowd_land, head: $mol_int62_string): InstanceType<Node>;
-        world(): $hyoo_crowd_world | null;
-        as<Node extends typeof $hyoo_crowd_node>(Node: Node): InstanceType<Node>;
-        units(): readonly $hyoo_crowd_unit[];
-        nodes<Node extends typeof $hyoo_crowd_node>(Node: Node): InstanceType<Node>[];
-        virgin(): boolean;
-        [Symbol.toPrimitive](): string;
     }
 }
 
@@ -1772,7 +1783,7 @@ declare namespace $ {
         join(): true | undefined;
         leave(): false | undefined;
         level_base(next?: $hyoo_crowd_peer_level): void;
-        level(peer: $mol_int62_string, next?: $hyoo_crowd_peer_level): $hyoo_crowd_peer_level;
+        level(peer: $mol_int62_string | '', next?: $hyoo_crowd_peer_level): $hyoo_crowd_peer_level;
         peers(): readonly `${string}_${string}`[];
         residents(): readonly `${string}_${string}`[];
         authors(): Set<`${string}_${string}`>;

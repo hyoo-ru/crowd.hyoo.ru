@@ -5204,6 +5204,102 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    class $hyoo_crowd_node extends Object {
+        land;
+        head;
+        constructor(land, head) {
+            super();
+            this.land = land;
+            this.head = head;
+        }
+        static for(land, head) {
+            return new this(land, head);
+        }
+        world() {
+            return this.land.world();
+        }
+        as(Node) {
+            return new Node(this.land, this.head);
+        }
+        units() {
+            return this.land.unit_alives(this.head);
+        }
+        nodes(Node) {
+            return this.units().map(unit => new Node(this.land, unit.self));
+        }
+        virgin() {
+            return this.land.unit_list(this.head).length === 0;
+        }
+        [Symbol.toPrimitive]() {
+            return `${this.constructor.name}("${this.land.id()}","${this.head}")`;
+        }
+        [$mol_dev_format_head]() {
+            return $mol_dev_format_span({}, $mol_dev_format_native(this), $mol_dev_format_shade('/'), $mol_dev_format_auto(this.units().map(unit => unit.data)), $mol_dev_format_shade('/'), $mol_dev_format_auto(this.nodes($hyoo_crowd_node)));
+        }
+    }
+    $.$hyoo_crowd_node = $hyoo_crowd_node;
+})($ || ($ = {}));
+//hyoo/crowd/node/node.ts
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_wire_sync(obj) {
+        return new Proxy(obj, {
+            get(obj, field) {
+                const val = obj[field];
+                if (typeof val !== 'function')
+                    return val;
+                const temp = $mol_wire_task.getter(val);
+                return function $mol_wire_sync(...args) {
+                    const fiber = temp(obj, args);
+                    return fiber.sync();
+                };
+            },
+            apply(obj, self, args) {
+                const temp = $mol_wire_task.getter(obj);
+                const fiber = temp(self, args);
+                return fiber.sync();
+            },
+        });
+    }
+    $.$mol_wire_sync = $mol_wire_sync;
+})($ || ($ = {}));
+//mol/wire/sync/sync.ts
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crowd_fund extends $mol_object {
+        world;
+        Node;
+        constructor(world, Node) {
+            super();
+            this.world = world;
+            this.Node = Node;
+        }
+        Item(id) {
+            const [land, head = '0_0'] = id.split('!');
+            return this.world.land_sync(land).node(head, this.Node);
+        }
+        make(law = [''], mod = [], add = []) {
+            const land = $mol_wire_sync(this.world).grab(law, mod, add);
+            return this.Item(land.id());
+        }
+    }
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crowd_fund.prototype, "Item", null);
+    __decorate([
+        $mol_action
+    ], $hyoo_crowd_fund.prototype, "make", null);
+    $.$hyoo_crowd_fund = $hyoo_crowd_fund;
+})($ || ($ = {}));
+//hyoo/crowd/fund/fund.ts
+;
+"use strict";
+var $;
+(function ($) {
     $.$mol_dict_key = $mol_key;
     class $mol_dict extends Map {
         get(key) {
@@ -5732,6 +5828,9 @@ var $;
             this.land_init(land);
             return land;
         }
+        Fund(Item) {
+            return new $hyoo_crowd_fund(this, Item);
+        }
         home() {
             return this.land_sync(this.peer.id);
         }
@@ -5900,75 +5999,12 @@ var $;
             return { allow, forbid };
         }
     }
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crowd_world.prototype, "Fund", null);
     $.$hyoo_crowd_world = $hyoo_crowd_world;
 })($ || ($ = {}));
 //hyoo/crowd/world/world.ts
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crowd_node extends Object {
-        land;
-        head;
-        constructor(land, head) {
-            super();
-            this.land = land;
-            this.head = head;
-        }
-        static for(land, head) {
-            return new this(land, head);
-        }
-        world() {
-            return this.land.world();
-        }
-        as(Node) {
-            return new Node(this.land, this.head);
-        }
-        units() {
-            return this.land.unit_alives(this.head);
-        }
-        nodes(Node) {
-            return this.units().map(unit => new Node(this.land, unit.self));
-        }
-        virgin() {
-            return this.land.unit_list(this.head).length === 0;
-        }
-        [Symbol.toPrimitive]() {
-            return `${this.constructor.name}("${this.land.id()}","${this.head}")`;
-        }
-        [$mol_dev_format_head]() {
-            return $mol_dev_format_span({}, $mol_dev_format_native(this), $mol_dev_format_shade('/'), $mol_dev_format_auto(this.units().map(unit => unit.data)), $mol_dev_format_shade('/'), $mol_dev_format_auto(this.nodes($hyoo_crowd_node)));
-        }
-    }
-    $.$hyoo_crowd_node = $hyoo_crowd_node;
-})($ || ($ = {}));
-//hyoo/crowd/node/node.ts
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_wire_sync(obj) {
-        return new Proxy(obj, {
-            get(obj, field) {
-                const val = obj[field];
-                if (typeof val !== 'function')
-                    return val;
-                const temp = $mol_wire_task.getter(val);
-                return function $mol_wire_sync(...args) {
-                    const fiber = temp(obj, args);
-                    return fiber.sync();
-                };
-            },
-            apply(obj, self, args) {
-                const temp = $mol_wire_task.getter(obj);
-                const fiber = temp(self, args);
-                return fiber.sync();
-            },
-        });
-    }
-    $.$mol_wire_sync = $mol_wire_sync;
-})($ || ($ = {}));
-//mol/wire/sync/sync.ts
 ;
 "use strict";
 var $;
@@ -6217,6 +6253,8 @@ var $;
                 this.join();
             else
                 this.pub.promote();
+            if (!peer)
+                peer = this.peer_id();
             const level_id = `${this.id()}/${peer}`;
             const prev = this._unit_all.get(level_id)?.level()
                 ?? this._unit_all.get(`${this.id()}/0_0`)?.level()
