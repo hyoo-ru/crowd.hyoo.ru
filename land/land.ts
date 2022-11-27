@@ -312,10 +312,13 @@ namespace $ {
 			this.level( '0_0', next )
 		}
 		
-		level( peer: $mol_int62_string, next?: $hyoo_crowd_peer_level ) {
+		/** Access level for peer. Use empty string for current peer. **/
+		level( peer: $mol_int62_string | '', next?: $hyoo_crowd_peer_level ) {
 			
 			if( next ) this.join()
 			else this.pub.promote()
+			
+			if( !peer ) peer = this.peer_id()
 			
 			const level_id = `${ this.id() }/${ peer }` as const
 			

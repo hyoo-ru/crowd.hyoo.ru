@@ -48,6 +48,11 @@ namespace $ {
 			return land
 		}
 		
+		@ $mol_mem_key
+		Fund< Item extends typeof $hyoo_crowd_node >( Item: Item ) {
+			return new $hyoo_crowd_fund( this, Item )
+		}
+		
 		home() {
 			return this.land_sync( this.peer!.id )
 		}
