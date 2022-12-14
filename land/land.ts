@@ -348,6 +348,7 @@ namespace $ {
 		}
 		
 		grabbed() {
+			if( this.id() === this.peer_id() ) return true
 			this.pub.promote()
 			return this._unit_all.size > 0
 		}
