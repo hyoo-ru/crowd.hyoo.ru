@@ -347,6 +347,11 @@ namespace $ {
 			return next
 		}
 		
+		grabbed() {
+			this.pub.promote()
+			return this._unit_all.size > 0
+		}
+		
 		/** All peers who have special rights to write o land. */
 		peers() {
 			
