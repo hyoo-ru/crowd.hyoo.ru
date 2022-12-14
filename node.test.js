@@ -3130,7 +3130,14 @@ var $;
     (function ($$) {
         class $mol_book2 extends $.$mol_book2 {
             title() {
-                return this.pages().map(page => page?.title()).reverse().filter(Boolean).join(' | ');
+                return this.pages().map(page => {
+                    try {
+                        return page?.title();
+                    }
+                    catch (error) {
+                        $mol_fail_log(error);
+                    }
+                }).reverse().filter(Boolean).join(' | ');
             }
             sub() {
                 const next = [...this.pages(), this.Placeholder()];
@@ -6261,6 +6268,10 @@ var $;
             this._unit_all.set(level_id, level_unit);
             this.pub.emit();
             return next;
+        }
+        grabbed() {
+            this.pub.promote();
+            return this._unit_all.size > 0;
         }
         peers() {
             this.pub.promote();
