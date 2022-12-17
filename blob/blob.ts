@@ -18,8 +18,7 @@ namespace $ {
 		blob( next?: $mol_blob ) {
 			
 			if( next ) {
-				this.buffer( new Uint8Array( $mol_wire_sync( next ).arrayBuffer() ) )
-				this.type( next.type )
+				this.buffer( new Uint8Array( $mol_wire_sync( next ).arrayBuffer() ), next.type )
 				return next
 			}
 			
@@ -30,7 +29,7 @@ namespace $ {
 		}
 		
 		/** Solid byte buffer. */
-		buffer( next?: Uint8Array ) {
+		buffer( next?: Uint8Array, type = 'application/octet-stream' ) {
 			
 			if( next ) {
 				
@@ -44,6 +43,7 @@ namespace $ {
 				}
 				
 				this.list( chunks )
+				this.type( type )
 				
 				return next
 				
@@ -60,6 +60,37 @@ namespace $ {
 				}
 				
 				return res
+				
+			}
+			
+		}
+		
+		str( next?: string, type = 'text/plain' ) {
+			
+			if( next === undefined ) {
+				
+				return $mol_charset_decode( this.buffer() )
+				
+			} else {
+				
+				this.buffer( $mol_charset_encode( next ) )
+				this.type( type )
+				
+				return next
+			}
+			
+		}
+		
+		json( next?: any, type = 'application/json' ) {
+			
+			if( next === undefined ) {
+				
+				return JSON.parse( this.str() )
+				
+			} else {
+				
+				this.str( JSON.stringify( next ), type )
+				return next
 				
 			}
 			
