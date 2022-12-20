@@ -9,7 +9,9 @@ Conflict-free Reinterpretable Ordered Washed Data (Secure) - Delta based CRDT wi
 ## Conflict-free
 
 - Any states can be merged without conflicts.
-- Convergence (Strong Eventual Consistency).
+- Convergent merge.
+- [Strong Eventual Consistency](https://en.wikipedia.org/wiki/Eventual_consistency#Strong_eventual_consistency).
+- [Causal Consistency](https://jepsen.io/consistency/models/causal)).
 - Merge result is **independent of merge order** (except auth units).
 - Merge is semilattice.
 
