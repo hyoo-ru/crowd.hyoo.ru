@@ -4,8 +4,8 @@ namespace $ {
 	export class $hyoo_crowd_node extends Object {
 		
 		constructor(
-			readonly land: $hyoo_crowd_land,
-			readonly head: $mol_int62_string,
+			readonly land = new $hyoo_crowd_land,
+			readonly head: $mol_int62_string = '0_0',
 		) { super() }
 		
 		static for< Node extends typeof $hyoo_crowd_node >(
