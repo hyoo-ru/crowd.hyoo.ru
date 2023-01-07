@@ -308,6 +308,16 @@ namespace $ {
 			
 		}
 		
+		allowed_add( peer = this.peer().id ) {
+			return this.level( peer ) >= $hyoo_crowd_peer_level.add
+		}
+		allowed_mod( peer = this.peer().id ) {
+			return this.level( peer ) >= $hyoo_crowd_peer_level.mod
+		}
+		allowed_law( peer = this.peer().id ) {
+			return this.level( peer ) >= $hyoo_crowd_peer_level.law
+		}
+		
 		level_base( next?: $hyoo_crowd_peer_level ) {
 			this.level( '0_0', next )
 		}
@@ -406,6 +416,12 @@ namespace $ {
 			}
 			
 			return authors
+		}
+		
+		steal_rights( donor: $hyoo_crowd_land ) {
+			for( const peer of donor.peers() ) {
+				this.level( peer, donor.level( peer ) )
+			}
 		}
 		
 		first_stamp() {
