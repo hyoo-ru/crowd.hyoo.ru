@@ -1,6 +1,6 @@
 namespace $ {
 	
-	export type $hyoo_crowd_unit_id = `${ $mol_int62_string }/${ $mol_int62_string }`
+	export type $hyoo_crowd_unit_id = `${ $mol_int62_string }!${ $mol_int62_string }`
 	
 	const level = $mol_data_enum( 'level', $hyoo_crowd_peer_level )
 	

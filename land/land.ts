@@ -52,7 +52,7 @@ namespace $ {
 			head: $mol_int62_string,
 			self: $mol_int62_string,
 		) {
-			return this._unit_all.get(`${ head }/${ self }`)
+			return this._unit_all.get(`${ head }!${ self }`)
 		}
 		
 		/** units by head */
@@ -225,7 +225,7 @@ namespace $ {
 				
 				this._clocks[ next.group() ].see_peer( next.auth, next.time )
 				const kids = this.unit_list( next.head )
-				const next_id = `${ next.head }/${ next.self }` as const
+				const next_id = `${ next.head }!${ next.self }` as const
 				
 				let prev = this._unit_all.get( next_id )
 				if( prev ) {
@@ -257,7 +257,7 @@ namespace $ {
 			if( !auth ) return
 			if( !auth.key_public_serial ) return
 			
-			const auth_id = `${ auth.id }/${ auth.id }` as const
+			const auth_id = `${ auth.id }!${ auth.id }` as const
 			
 			const auth_unit = this._unit_all.get( auth_id )
 			if( auth_unit?.data ) return this._joined = true
@@ -286,7 +286,7 @@ namespace $ {
 			if( !auth ) return
 			if( !auth.key_public_serial ) return
 			
-			const auth_id = `${ auth.id }/${ auth.id }` as const
+			const auth_id = `${ auth.id }!${ auth.id }` as const
 			
 			const auth_unit = this._unit_all.get( auth_id )
 			if( !auth_unit || !auth_unit.data ) return this._joined = false
@@ -330,10 +330,10 @@ namespace $ {
 			
 			if( !peer ) peer = this.peer_id()
 			
-			const level_id = `${ this.id() }/${ peer }` as const
+			const level_id = `${ this.id() }!${ peer }` as const
 			
 			const prev = this._unit_all.get( level_id )?.level()
-				?? this._unit_all.get( `${ this.id() }/0_0` )?.level()
+				?? this._unit_all.get( `${ this.id() }!0_0` )?.level()
 				?? ( this.id() === peer ? $hyoo_crowd_peer_level.law : $hyoo_crowd_peer_level.get )
 			
 			if( next === undefined ) return prev
@@ -426,7 +426,7 @@ namespace $ {
 		
 		first_stamp() {
 			this.pub.promote()
-			const grab_unit = this._unit_all.get( `${ this.id() }/${ this.id() }` )
+			const grab_unit = this._unit_all.get( `${ this.id() }!${ this.id() }` )
 			return ( grab_unit && $hyoo_crowd_time_stamp( grab_unit.time ) ) ?? null
 		}
 		
@@ -449,10 +449,10 @@ namespace $ {
 			
 			this.join()
 			
-			const old_id = `${ head }/${ self }` as const
+			const old_id = `${ head }!${ self }` as const
 			let unit_old = this._unit_all.get( old_id )
 			let unit_prev = prev !== '0_0'
-				? this._unit_all.get( `${ head }/${ prev }` )!
+				? this._unit_all.get( `${ head }!${ prev }` )!
 				: null
 			
 			const unit_list = this.unit_list( head ) as $hyoo_crowd_unit[]

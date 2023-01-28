@@ -1,5 +1,5 @@
 namespace $ {
-	export class $hyoo_crowd_world extends $mol_object2 {
+	export class $hyoo_crowd_world extends $mol_object {
 		
 		constructor(
 			readonly peer?: $hyoo_crowd_peer
@@ -195,8 +195,8 @@ namespace $ {
 			}
 			
 			const get_level = ( head: $mol_int62_string, self: $mol_int62_string )=> {
-				return get_unit( `${ head }/${ self }` )?.level()
-					?? get_unit( `${ head }/0_0` )?.level()
+				return get_unit( `${ head }!${ self }` )?.level()
+					?? get_unit( `${ head }!0_0` )?.level()
 					?? $hyoo_crowd_peer_level.get
 			}
 			
@@ -206,7 +206,7 @@ namespace $ {
 					
 				if( unit.time > deadline ) return 'Far future'
 				
-				const auth_unit = get_unit( `${ unit.auth }/${ unit.auth }` )
+				const auth_unit = get_unit( `${ unit.auth }!${ unit.auth }` )
 				const kind = unit.kind()
 				
 				switch( kind ) {
@@ -227,7 +227,7 @@ namespace $ {
 						
 						if( !valid ) return 'Wrong join sign'
 						
-						all.set( `${ unit.head }/${ unit.auth }`, unit )
+						all.set( `${ unit.head }!${ unit.auth }`, unit )
 						this._signs.set( unit, sign )
 
 						return ''
@@ -251,7 +251,7 @@ namespace $ {
 						
 						if( level === $hyoo_crowd_peer_level.add ) {
 							
-							const exists = get_unit( `${ unit.head }/${ unit.self }` )
+							const exists = get_unit( `${ unit.head }!${ unit.self }` )
 							if( !exists ) break
 							
 							if( exists.auth === unit.auth ) break
@@ -272,7 +272,7 @@ namespace $ {
 				
 				if( !valid ) return 'Wrong auth sign'
 				
-				all.set( `${ unit.head }/${ unit.self }`, unit )
+				all.set( `${ unit.head }!${ unit.self }`, unit )
 				this._signs.set( unit, sign )
 				
 				return ''

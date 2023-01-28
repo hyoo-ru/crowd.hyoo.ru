@@ -4,7 +4,8 @@ namespace $ {
 		
 		/** Returns inner node for key. */
 		sub< Node extends typeof $hyoo_crowd_node >( key: string, Node: Node ) {
-			return new Node( this.land, $mol_int62_hash_string( key + '\n' + this.head ) ) as InstanceType< Node >
+			const head = $mol_int62_hash_string( key + '\n' + this.head )
+			return this.world()?.Fund( Node ).Item( `${ this.land.id() }!${ head }` ) ?? new Node( this.land, head ) as InstanceType< Node >
 		}
 		
 		yoke< Node extends typeof $hyoo_crowd_node >(

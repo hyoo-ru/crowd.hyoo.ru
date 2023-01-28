@@ -16,13 +16,19 @@ namespace $ {
 			return new this( land, head ) as InstanceType< Node >
 		}
 		
+		id() {
+			return this.head === '0_0'
+				? this.land.id()
+				: `${ this.land.id() }!${ this.head }` as $hyoo_crowd_unit_id
+		}
+		
 		world() {
 			return this.land.world()
 		}
 		
 		/** Returns another representation of this node. */
 		as< Node extends typeof $hyoo_crowd_node >( Node: Node ) {
-			return new Node( this.land, this.head ) as InstanceType< Node >
+			return this.world()?.Fund( Node ).Item( `${ this.land.id() }!${ this.head }` ) ?? new Node( this.land, this.head ) as InstanceType< Node >
 		}
 		
 		/** Ordered inner alive Units. */
@@ -31,8 +37,10 @@ namespace $ {
 		}
 		
 		/** Ordered inner alive Node. */
+		@ $mol_mem_key
 		nodes< Node extends typeof $hyoo_crowd_node >( Node: Node ) {
-			return this.units().map( unit => new Node( this.land, unit.self ) as InstanceType< Node > )
+			const fund = this.world()?.Fund( Node )
+			return this.units().map( unit => fund?.Item( `${ this.land.id() }!${ unit.self }` ) ?? new Node( this.land, unit.self ) as InstanceType< Node > )
 		}
 		
 		/** Returns true when node value is never changed. */
