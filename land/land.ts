@@ -465,7 +465,7 @@ namespace $ {
 				? this._unit_all.get( `${ head }!${ prev }` )!
 				: null
 			
-			const unit_list = this.unit_list( head ) as $hyoo_crowd_unit[]
+			const unit_list = this.unit_list( head )
 			if( unit_old ) unit_list.splice( unit_list.indexOf( unit_old ), 1 )
 			
 			const seat = unit_prev ? unit_list.indexOf( unit_prev ) + 1 : 0
