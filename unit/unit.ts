@@ -140,6 +140,8 @@ namespace $ {
 						$mol_dev_format_shade(
 							' 📦 ',
 							this.head,
+							'!',
+							this.self,
 							' ',
 						),
 						$mol_dev_format_native( this.data ),

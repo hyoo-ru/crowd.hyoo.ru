@@ -167,6 +167,12 @@ namespace $ {
 		) {
 			
 			const kids = this._unit_lists.get( head )!
+			if( !kids.dirty ) return kids
+			
+			if( kids.length < 2 ) {
+				kids.dirty = true
+				return kids
+			}
 			
 			const queue = kids.splice(0).sort(
 				( left, right )=> - $hyoo_crowd_unit_compare( left, right )
@@ -181,38 +187,42 @@ namespace $ {
 				return -1
 			}
 			
-			for( let cursor = queue.length - 1; cursor >= 0; --cursor ) {
+			while( queue.length ) {
 				
-				const kid = queue[cursor]
-				let index = 0
-
-				if( kid.prev !== '0_0' ) {
-
-					index = locate( kid.prev ) + 1
+				kids.push( queue.pop()! )
+				
+				for( let cursor = queue.length - 1; cursor >= 0; --cursor ) {
 					
-					if( !index ) {
+					const kid = queue[cursor]
+					let index = 0
 
-						index = kids.length
-						
-						if( kid.next !== '0_0' ) {
-							
-							index = locate( kid.next )
-							
-							if( index === -1 ) continue
-
-						}
-
+					if( kid.prev !== '0_0' ) {
+						index = locate( kid.prev ) + 1
+						if( !index ) continue
 					}
+					
+					while( kids[ index ] && ( $hyoo_crowd_unit_compare( kids[ index ], kid ) > 0 ) ) ++ index
+					
+					const exists = locate( kid.self )
+					if( index === exists ) {
+						if( cursor === queue.length - 1 ) queue.pop()
+						continue
+					}
+
+					if( exists >= 0 ) {
+						kids.splice( exists, 1 )
+						if( exists < index ) -- index
+					}
+					
+					kids.splice( index, 0, kid )
+					
+					if( cursor === queue.length - 1 ) queue.pop()
+					cursor = queue.length
 
 				}
 				
-				kids.splice( index, 0, kid )
-				queue.splice( cursor, 1 )
-				cursor = queue.length
-
 			}
 			
-			this._unit_lists.set( head, kids )
 			kids.dirty = false
 			
 			return kids
@@ -230,13 +240,13 @@ namespace $ {
 				let prev = this._unit_all.get( next_id )
 				if( prev ) {
 					if( $hyoo_crowd_unit_compare( prev, next ) > 0 ) continue
-					kids.splice( kids.indexOf( prev ), 1, next )
+					kids[ kids.indexOf( prev ) ] = next
 				} else {
 					kids.push( next )
 				}
 				
 				this._unit_all.set( next_id, next )
-				kids.dirty = true
+				if( kids.length > 1 ) kids.dirty = true
 				this._unit_alives.set( next.head, undefined )
 				
 			}
@@ -478,7 +488,7 @@ namespace $ {
 			unit_list.splice( seat, 0, unit_new )
 			this._unit_alives.set( head, undefined )
 			
-			// this.apply([ unit ])
+			// this.apply([ unit_new ])
 			
 			this.pub.emit()
 			
@@ -515,9 +525,21 @@ namespace $ {
 			prev: $mol_int62_string,
 		) {
 			
+			const unit_list = this.unit_list( unit.head )
+			
+			const seat = unit_list.indexOf( unit )
+			const next = unit_list[ seat + 1 ]
+			
 			this.wipe( unit )
 			
-			return this.put(
+			if( next ) this.put(
+				next.head,
+				next.self,
+				unit_list[ unit_list.indexOf( next ) - 2 ]?.self ?? '0_0',
+				next.data,
+			)
+			
+			this.put(
 				head,
 				unit.self,
 				prev,

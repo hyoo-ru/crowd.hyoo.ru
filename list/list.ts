@@ -56,7 +56,7 @@ namespace $ {
 			const units = this.units()
 			const lead = to ? units[ to - 1 ] : null
 			
-			return this.land.move( units[ from ], this.head, lead?.self ?? '0_0' )
+			this.land.move( units[ from ], this.head, lead?.self ?? '0_0' )
 			
 		}
 		

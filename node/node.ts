@@ -1,7 +1,7 @@
 namespace $ {
 	
 	/** Stateless non-unique adapter to CROWD Tree for given Head. */
-	export class $hyoo_crowd_node extends Object {
+	export class $hyoo_crowd_node extends $mol_object2 {
 		
 		constructor(
 			readonly land = new $hyoo_crowd_land,
@@ -55,10 +55,8 @@ namespace $ {
 		[ $mol_dev_format_head ]() {
 			return $mol_dev_format_span( {} ,
 				$mol_dev_format_native( this ) ,
-				$mol_dev_format_shade( '/' ) ,
-				$mol_dev_format_auto( this.units().map( unit => unit.data ) ) ,
-				$mol_dev_format_shade( '/' ) ,
-				$mol_dev_format_auto( this.nodes( $hyoo_crowd_node ) ) ,
+				$mol_dev_format_shade( ':' ) ,
+				$mol_dev_format_auto( this.land.unit_list( this.head ) ) ,
 			)
 		}
 		
