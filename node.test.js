@@ -5386,7 +5386,7 @@ var $;
                 case $hyoo_crowd_unit_kind.give:
                     return $mol_dev_format_div({}, $mol_dev_format_native(this), $mol_dev_format_shade(' 🏅 ', this.self, ' '), $mol_dev_format_native($hyoo_crowd_peer_level[this.data] ?? this.data));
                 case $hyoo_crowd_unit_kind.data:
-                    return $mol_dev_format_div({}, $mol_dev_format_native(this), $mol_dev_format_shade(' 📦 ', this.head, ' '), $mol_dev_format_native(this.data));
+                    return $mol_dev_format_div({}, $mol_dev_format_native(this), $mol_dev_format_shade(' 📦 ', this.head, '!', this.self, ' '), $mol_dev_format_native(this.data));
             }
         }
     }
@@ -5532,7 +5532,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crowd_node extends Object {
+    class $hyoo_crowd_node extends $mol_object2 {
         land;
         head;
         constructor(land = new $hyoo_crowd_land, head = '0_0') {
@@ -5568,7 +5568,7 @@ var $;
             return `${this.constructor.name}("${this.land.id()}","${this.head}")`;
         }
         [$mol_dev_format_head]() {
-            return $mol_dev_format_span({}, $mol_dev_format_native(this), $mol_dev_format_shade('/'), $mol_dev_format_auto(this.units().map(unit => unit.data)), $mol_dev_format_shade('/'), $mol_dev_format_auto(this.nodes($hyoo_crowd_node)));
+            return $mol_dev_format_span({}, $mol_dev_format_native(this), $mol_dev_format_shade(':'), $mol_dev_format_auto(this.land.unit_list(this.head)));
         }
     }
     __decorate([
@@ -6182,6 +6182,12 @@ var $;
         }
         resort(head) {
             const kids = this._unit_lists.get(head);
+            if (!kids.dirty)
+                return kids;
+            if (kids.length < 2) {
+                kids.dirty = true;
+                return kids;
+            }
             const queue = kids.splice(0).sort((left, right) => -$hyoo_crowd_unit_compare(left, right));
             const locate = (self) => {
                 for (let i = kids.length - 1; i >= 0; --i) {
@@ -6190,25 +6196,35 @@ var $;
                 }
                 return -1;
             };
-            for (let cursor = queue.length - 1; cursor >= 0; --cursor) {
-                const kid = queue[cursor];
-                let index = 0;
-                if (kid.prev !== '0_0') {
-                    index = locate(kid.prev) + 1;
-                    if (!index) {
-                        index = kids.length;
-                        if (kid.next !== '0_0') {
-                            index = locate(kid.next);
-                            if (index === -1)
-                                continue;
-                        }
+            while (queue.length) {
+                kids.push(queue.pop());
+                for (let cursor = queue.length - 1; cursor >= 0; --cursor) {
+                    const kid = queue[cursor];
+                    let index = 0;
+                    if (kid.prev !== '0_0') {
+                        index = locate(kid.prev) + 1;
+                        if (!index)
+                            continue;
                     }
+                    while (kids[index] && ($hyoo_crowd_unit_compare(kids[index], kid) > 0))
+                        ++index;
+                    const exists = locate(kid.self);
+                    if (index === exists) {
+                        if (cursor === queue.length - 1)
+                            queue.pop();
+                        continue;
+                    }
+                    if (exists >= 0) {
+                        kids.splice(exists, 1);
+                        if (exists < index)
+                            --index;
+                    }
+                    kids.splice(index, 0, kid);
+                    if (cursor === queue.length - 1)
+                        queue.pop();
+                    cursor = queue.length;
                 }
-                kids.splice(index, 0, kid);
-                queue.splice(cursor, 1);
-                cursor = queue.length;
             }
-            this._unit_lists.set(head, kids);
             kids.dirty = false;
             return kids;
         }
@@ -6221,13 +6237,14 @@ var $;
                 if (prev) {
                     if ($hyoo_crowd_unit_compare(prev, next) > 0)
                         continue;
-                    kids.splice(kids.indexOf(prev), 1, next);
+                    kids[kids.indexOf(prev)] = next;
                 }
                 else {
                     kids.push(next);
                 }
                 this._unit_all.set(next_id, next);
-                kids.dirty = true;
+                if (kids.length > 1)
+                    kids.dirty = true;
                 this._unit_alives.set(next.head, undefined);
             }
             this.pub.emit();
@@ -6391,8 +6408,13 @@ var $;
             return this.put(unit.head, unit.self, prev, null);
         }
         move(unit, head, prev) {
+            const unit_list = this.unit_list(unit.head);
+            const seat = unit_list.indexOf(unit);
+            const next = unit_list[seat + 1];
             this.wipe(unit);
-            return this.put(head, unit.self, prev, unit.data);
+            if (next)
+                this.put(next.head, next.self, unit_list[unit_list.indexOf(next) - 2]?.self ?? '0_0', next.data);
+            this.put(head, unit.self, prev, unit.data);
         }
         insert(unit, head, seat) {
             const list = this.unit_list(head);
@@ -10352,7 +10374,7 @@ var $;
         move(from, to) {
             const units = this.units();
             const lead = to ? units[to - 1] : null;
-            return this.land.move(units[from], this.head, lead?.self ?? '0_0');
+            this.land.move(units[from], this.head, lead?.self ?? '0_0');
         }
         cut(seat) {
             return this.land.wipe(this.units()[seat]);
@@ -14738,6 +14760,30 @@ var $;
             store.chief.as($hyoo_crowd_list).move(0, 2);
             $mol_assert_like(store.chief.as($hyoo_crowd_text).str(), 'BarFooLol');
         },
+        async 'Many moves'() {
+            const store = await make_land();
+            const text = store.chief.as($hyoo_crowd_text);
+            const list = store.chief.as($hyoo_crowd_list);
+            text.str('FooBarLol');
+            list.move(2, 1);
+            list.move(2, 1);
+            list.move(0, 3);
+            list.move(2, 1);
+            $mol_assert_like(text.str(), 'BarFooLol');
+        },
+        async 'Separated sublists'() {
+            const store = await make_land();
+            const text = store.chief.as($hyoo_crowd_text);
+            const list = store.chief.as($hyoo_crowd_list);
+            text.str('AaBbCcDdEeFf');
+            list.move(3, 5);
+            list.move(3, 5);
+            list.move(5, 4);
+            list.move(0, 2);
+            list.move(0, 2);
+            list.move(2, 1);
+            $mol_assert_like(text.str(), 'AaCcBbDdFfEe');
+        },
         async 'Deltas for different versions'() {
             const store = await make_land();
             Object.assign(store.peer(), { key_public_serial: null });
@@ -14883,7 +14929,7 @@ var $;
             const right_delta = right.delta(base.clocks);
             left.apply(right_delta);
             right.apply(left_delta);
-            $mol_assert_like(left.chief.as($hyoo_crowd_text).str(), right.chief.as($hyoo_crowd_text).str(), 'XxxBarFooZak');
+            $mol_assert_like(left.chief.as($hyoo_crowd_text).str(), right.chief.as($hyoo_crowd_text).str(), 'BarFooXxxZak');
         },
         async 'Insert before moved left'() {
             const base = await make_land();
@@ -14901,17 +14947,17 @@ var $;
         },
         async 'Insert before moved right'() {
             const base = await make_land();
-            base.chief.as($hyoo_crowd_text).str('FooBarZak');
+            base.chief.as($hyoo_crowd_text).str('FooBarZakPew');
             const left = base.fork(await $hyoo_crowd_peer.generate());
-            left.chief.as($hyoo_crowd_text).str('FooXxxBarZak');
+            left.chief.as($hyoo_crowd_text).str('FooXxxBarZakPew');
             const right = base.fork(await $hyoo_crowd_peer.generate());
             right.clock_data.tick(right.peer().id);
-            right.insert(right.chief.units()[1], '0_0', 3);
+            right.insert(right.chief.units()[1], '0_0', 4);
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
             left.apply(right_delta);
             right.apply(left_delta);
-            $mol_assert_like(left.chief.as($hyoo_crowd_text).str(), right.chief.as($hyoo_crowd_text).str(), 'FooXxxZakBar');
+            $mol_assert_like(left.chief.as($hyoo_crowd_text).str(), right.chief.as($hyoo_crowd_text).str(), 'FooZakXxxPewBar');
         },
         async 'Insert after removed'() {
             const base = await make_land();
@@ -14929,18 +14975,18 @@ var $;
         },
         async 'Insert after removed out'() {
             const base = await make_land();
-            $hyoo_crowd_text.for(base, '1_1').str('FooBarZak');
+            base.node('1_1', $hyoo_crowd_text).str('FooBarZak');
             const left = base.fork(await $hyoo_crowd_peer.generate());
-            $hyoo_crowd_text.for(left, '1_1').str('FooBarXxxZak');
+            left.node('1_1', $hyoo_crowd_text).str('FooBarXxxZak');
             const right = base.fork(await $hyoo_crowd_peer.generate());
             right.clock_data.tick(right.peer().id);
-            right.insert($hyoo_crowd_node.for(right, '1_1').units()[1], '2_2', 0);
+            right.insert(right.node('1_1', $hyoo_crowd_node).units()[1], '2_2', 0);
             const left_delta = left.delta(base.clocks);
             const right_delta = right.delta(base.clocks);
             left.apply(right_delta);
             right.apply(left_delta);
-            $mol_assert_like($hyoo_crowd_text.for(left, '1_1').str(), $hyoo_crowd_text.for(right, '1_1').str(), 'FooXxxZak');
-            $mol_assert_like($hyoo_crowd_text.for(left, '2_2').str(), $hyoo_crowd_text.for(right, '2_2').str(), 'Bar');
+            $mol_assert_like(left.node('1_1', $hyoo_crowd_text).str(), right.node('1_1', $hyoo_crowd_text).str(), 'FooZakXxx');
+            $mol_assert_like(left.node('2_2', $hyoo_crowd_text).str(), left.node('2_2', $hyoo_crowd_text).str(), 'Bar');
         },
         async 'Insert before changed'() {
             const base = await make_land();
