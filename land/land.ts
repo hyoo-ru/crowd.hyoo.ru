@@ -486,6 +486,7 @@ namespace $ {
 			this._unit_all.set( old_id, unit_new )
 			
 			unit_list.splice( seat, 0, unit_new )
+			unit_list.dirty = true
 			this._unit_alives.set( head, undefined )
 			
 			// this.apply([ unit_new ])
