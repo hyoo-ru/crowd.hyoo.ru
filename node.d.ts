@@ -2478,6 +2478,46 @@ declare namespace $ {
             pointermove: (event?: any) => any;
         };
         sub(): readonly any[];
+        symbols_alt(): {
+            comma: string;
+            period: string;
+            dash: string;
+            equals: string;
+            graveAccent: string;
+            forwardSlash: string;
+            E: string;
+            X: string;
+            C: string;
+            P: string;
+            H: string;
+            key0: string;
+            key8: string;
+            key2: string;
+            key3: string;
+            key4: string;
+            key6: string;
+            key7: string;
+            bracketOpen: string;
+            bracketClose: string;
+            slashBack: string;
+        };
+        symbols_alt_shift(): {
+            V: string;
+            X: string;
+            O: string;
+            key1: string;
+            key4: string;
+            key7: string;
+            comma: string;
+            period: string;
+            semicolon: string;
+            quoteSingle: string;
+            dash: string;
+            equals: string;
+            graveAccent: string;
+            bracketOpen: string;
+            bracketClose: string;
+        };
         clickable(val?: any): boolean;
         sidebar_showed(): boolean;
         press(event?: any): any;
@@ -2517,6 +2557,7 @@ declare namespace $.$$ {
     class $mol_textarea extends $.$mol_textarea {
         indent_inc(): void;
         indent_dec(): void;
+        symbol_insert(event: KeyboardEvent): void;
         hover(event: PointerEvent): void;
         press(event: KeyboardEvent): void;
         row_numb(index: number): number;
