@@ -11,8 +11,9 @@ namespace $ {
 		}
 		
 		@ $mol_mem_key
-		Item( id: $mol_int62_string | `${$mol_int62_string}!${$mol_int62_string}` ) {
-			const [ land, head = '0_0' ] = id.split( '!' ) as [ $mol_int62_string, $mol_int62_string | undefined ]
+		Item( id: $mol_int62_string | `${$mol_int62_string}!${$mol_int62_string}` ): InstanceType<Node> {
+			const [ land, head ] = id.split( '!' ) as [ $mol_int62_string, $mol_int62_string | undefined ]
+			if( !head ) return this.Item( `${land}!0_0` )
 			return this.world.land_sync( land ).node( head, this.Node )
 		}
 		
