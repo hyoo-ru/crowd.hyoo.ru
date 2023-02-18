@@ -5643,7 +5643,9 @@ var $;
             this.Node = Node;
         }
         Item(id) {
-            const [land, head = '0_0'] = id.split('!');
+            const [land, head] = id.split('!');
+            if (!head)
+                return this.Item(`${land}!0_0`);
             return this.world.land_sync(land).node(head, this.Node);
         }
         make(law = [''], mod = [], add = []) {
