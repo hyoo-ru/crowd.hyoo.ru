@@ -617,6 +617,20 @@ $mol_section $mol_list rows /
 	<= Content $mol_list
 		rows <= content /
 
+$mol_text_list $mol_text
+	auto_scroll null
+	attr *
+		^
+		mol_text_list_type <= type \
+	Paragraph* $mol_text_list_item
+		index <= item_index*
+		sub <= block_content*
+
+$mol_text_list_item $mol_paragraph
+	attr *
+		^
+		mol_text_list_item_index <= index 0
+
 $hyoo_crowd_app $mol_book2
 	Placeholder null
 	plugins /
@@ -671,17 +685,3 @@ $hyoo_crowd_app_peer $mol_page
 			title \Delta
 			content / <= Delta $mol_grid
 				records <= delta_view *
-
-$mol_text_list $mol_text
-	auto_scroll null
-	attr *
-		^
-		mol_text_list_type <= type \
-	Paragraph* $mol_text_list_item
-		index <= item_index*
-		sub <= block_content*
-
-$mol_text_list_item $mol_paragraph
-	attr *
-		^
-		mol_text_list_item_index <= index 0
