@@ -3073,7 +3073,9 @@ declare namespace $ {
 
 declare namespace $ {
     class $mol_section extends $mol_list {
+        level(): number;
         rows(): readonly any[];
+        title_dom_name(): string;
         Title(): $$.$mol_paragraph;
         tools(): readonly any[];
         Tools(): $mol_view;
@@ -3081,6 +3083,12 @@ declare namespace $ {
         Head(): $mol_view;
         content(): readonly any[];
         Content(): $$.$mol_list;
+    }
+}
+
+declare namespace $.$$ {
+    class $mol_section extends $.$mol_section {
+        title_dom_name(): string;
     }
 }
 
@@ -3132,7 +3140,7 @@ declare namespace $ {
         Stats(): $$.$mol_text;
         delta_view(): {};
         Delta(): $$.$mol_grid;
-        Delta_section(): $mol_section;
+        Delta_section(): $$.$mol_section;
     }
 }
 
