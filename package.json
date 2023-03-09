@@ -203,7 +203,6 @@
     "$mol_image",
     "$mol_embed_any",
     "$mol_embed",
-    "$mol_ghost",
     "$mol_embed_native",
     "$mol_wait_timeout",
     "$mol_wait",
