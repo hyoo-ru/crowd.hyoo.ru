@@ -5237,6 +5237,9 @@ var $;
         static for(land, head) {
             return new this(land, head);
         }
+        static toJSON() {
+            return this.name;
+        }
         id() {
             return this.head === '0_0'
                 ? this.land.id()
