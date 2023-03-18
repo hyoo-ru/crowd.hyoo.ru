@@ -205,7 +205,7 @@ namespace $ {
 			
 			land2.chief.sub( 'foo', $hyoo_crowd_reg ).numb( 234 ) // 1 unit update +1 unit
 			land2.chief.sub( 'bar', $hyoo_crowd_reg ).numb( 234 ) // +1 unit
-			land2.level( peer.id, $hyoo_crowd_peer_level.law ) // +1 unit
+			land2.level( peer.id, $hyoo_crowd_peer_level.law ) // ingnored
 			
 			$mol_assert_like( land1.delta().length, 4 )
 			
@@ -214,7 +214,7 @@ namespace $ {
 				const batch = await world2.delta_batch( land2 )
 				$mol_assert_like(
 					[ ... ( await world1.apply( batch ) ).forbid.values() ],
-					[ 'Level too low', 'Level too low', 'Level too low' ],
+					[ 'Level too low', 'Level too low' ],
 				)
 				
 				$mol_assert_like( land1.delta().length, 5 )
@@ -231,7 +231,7 @@ namespace $ {
 				const batch = await world2.delta_batch( land2 )
 				$mol_assert_like(
 					[ ... ( await world1.apply( batch ) ).forbid.values() ],
-					[ 'Level too low', 'Level too low' ],
+					[ 'Level too low' ],
 				)
 				
 				$mol_assert_like( land1.delta().length, 7 )
@@ -248,7 +248,7 @@ namespace $ {
 				const batch = await world2.delta_batch( land2 )
 				$mol_assert_like(
 					[ ... ( await world1.apply( batch ) ).forbid.values() ],
-					[ 'Level too low' ],
+					[],
 				)
 				
 				$mol_assert_like( land1.delta().length, 7 )
@@ -261,6 +261,15 @@ namespace $ {
 			level_law: {
 				
 				land1.level( land2.peer().id, $hyoo_crowd_peer_level.law )
+				
+				for await( const batch of world1.delta() ) {
+					$mol_assert_like(
+						[ ... ( await world2.apply( batch ) ).forbid.values() ],
+						[],
+					)
+				}
+				
+				land2.level( peer.id, $hyoo_crowd_peer_level.law ) // +1 unit
 				
 				const batch = await world2.delta_batch( land2 )
 				$mol_assert_like(
@@ -309,7 +318,7 @@ namespace $ {
 				const batch = await world2.delta_batch( land2 )
 				$mol_assert_like(
 					[ ... ( await world1.apply( batch ) ).forbid.values() ],
-					[ 'Level too low', 'Level too low' ],
+					[ 'Level too low' ],
 				)
 				
 				$mol_assert_like( land1.delta().length, 7 )
@@ -326,7 +335,7 @@ namespace $ {
 				const batch = await world2.delta_batch( land2 )
 				$mol_assert_like(
 					[ ... ( await world1.apply( batch ) ).forbid.values() ],
-					[ 'Level too low' ],
+					[ ],
 				)
 				
 				$mol_assert_like( land1.delta().length, 7 )
@@ -340,13 +349,22 @@ namespace $ {
 				
 				land1.level_base( $hyoo_crowd_peer_level.law )
 				
+				for await( const batch of world1.delta() ) {
+					$mol_assert_like(
+						[ ... ( await world2.apply( batch ) ).forbid.values() ],
+						[],
+					)
+				}
+				
+				land2.level( peer.id, $hyoo_crowd_peer_level.law ) //ingnored
+				
 				const batch = await world2.delta_batch( land2 )
 				$mol_assert_like(
 					[ ... ( await world1.apply( batch ) ).forbid.values() ],
 					[],
 				)
 				
-				$mol_assert_like( land1.delta().length, 8 )
+				$mol_assert_like( land1.delta().length, 7 )
 				$mol_assert_like( land1.chief.sub( 'foo', $hyoo_crowd_reg ).numb(), 234 )
 				$mol_assert_like( land1.chief.sub( 'bar', $hyoo_crowd_reg ).numb(), 234 )
 				$mol_assert_like( land1.level( peer.id ), $hyoo_crowd_peer_level.law )

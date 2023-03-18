@@ -348,6 +348,7 @@ namespace $ {
 			
 			if( next === undefined ) return prev
 			if( next <= prev ) return prev
+			if( !this.allowed_law() ) return prev
 			
 			const time = this._clocks[ $hyoo_crowd_unit_group.auth ].tick( peer )
 			const auth = this.peer_id()

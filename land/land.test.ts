@@ -1,10 +1,8 @@
 namespace $ {
 	
-	async function make_land( id = '2_b' as $mol_int62_string ) {
-		return $hyoo_crowd_land.make({
-			id: $mol_const( id ),
-			peer: $mol_const( await $hyoo_crowd_peer.generate() ),
-		})
+	async function make_land() {
+		const world = new $hyoo_crowd_world( await $hyoo_crowd_peer.generate() )
+		return world.grab()
 	}
 	
 	$mol_test({
@@ -12,19 +10,21 @@ namespace $ {
 		async 'Join & Leave'() {
 			
 			const store = await make_land()
-			$mol_assert_like( store.peers(), [] )
+			$mol_assert_like( store.peers(), [ store.id(), store.peer_id() ] )
 			$mol_assert_like( store.residents(), [] )
 			
+			const peer = await $hyoo_crowd_peer.generate()
+			
 			store.join()
-			$mol_assert_like( store.peers(), [] )
+			$mol_assert_like( store.peers(), [ store.id(), store.peer_id() ] )
 			$mol_assert_like( store.residents(), [ store.peer_id() ] )
 			
-			store.level( store.peer_id(), $hyoo_crowd_peer_level.add )
-			$mol_assert_like( store.peers(), [ store.peer_id() ] )
+			store.level( peer.id, $hyoo_crowd_peer_level.add )
+			$mol_assert_like( store.peers(), [ store.id(), store.peer_id(), peer.id ] )
 			$mol_assert_like( store.residents(), [ store.peer_id() ] )
 			
 			store.leave()
-			$mol_assert_like( store.peers(), [ store.peer_id() ] )
+			$mol_assert_like( store.peers(), [ store.id(), store.peer_id(), peer.id ] )
 			$mol_assert_like( store.residents(), [] )
 			
 		},
@@ -38,7 +38,7 @@ namespace $ {
 			$mol_assert_like( store.chief.as( $hyoo_crowd_reg ).numb(), 0 )
 			$mol_assert_like( store.chief.as( $hyoo_crowd_reg ).str(), '' )
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [] )
-			$mol_assert_like( store.delta(), [] )
+			$mol_assert_like( store.delta().length, 2 )
 			
 		},
 		
@@ -86,8 +86,8 @@ namespace $ {
 			$mol_assert_like( store.chief.as( $hyoo_crowd_list ).list(), [] )
 			
 			$mol_assert_like(
-				store.delta().map( unit => unit.data ),
-				[ null ]
+				store.delta().map( unit => unit.data ).slice(1),
+				[ 3, null ]
 			)
 			
 		},
@@ -111,7 +111,7 @@ namespace $ {
 			const left = await make_land()
 			left.chief.sub( 'foo', $hyoo_crowd_list ).list([ 111 ])
 			
-			const right = await make_land('a_2')
+			const right = await make_land()
 			right.clock_data.tick( right.peer().id )
 			right.chief.sub( 'foo', $hyoo_crowd_list ).list([ 222 ])
 			
@@ -139,8 +139,8 @@ namespace $ {
 			store.chief.as( $hyoo_crowd_list ).list( [ 'foo' ] )
 			
 			$mol_assert_like(
-				store.delta().map( unit => unit.time ),
-				[ time, time ],
+				store.delta().map( unit => unit.time ).slice(2),
+				[ time+2, time ],
 			)
 			
 		},
@@ -266,7 +266,7 @@ namespace $ {
 					new $hyoo_crowd_clock([
 						[ store.peer().id, store.clock_data.last_time - 3 ],
 					])
-				]).map( unit => unit.data ),
+				]).map( unit => unit.data ).slice(2),
 				[ 'foo', 'bar', 'lol' ],
 			)
 			
@@ -276,7 +276,7 @@ namespace $ {
 					new $hyoo_crowd_clock([
 						[ store.peer().id, store.clock_data.last_time - 2 ],
 					])
-				]).map( unit => unit.data ),
+				]).map( unit => unit.data ).slice(2),
 				[ 'bar', 'lol' ],
 			)
 			
@@ -286,7 +286,7 @@ namespace $ {
 					new $hyoo_crowd_clock([
 						[ store.peer().id, store.clock_data.last_time - 1 ],
 					])
-				]).map( unit => unit.data ),
+				]).map( unit => unit.data ).slice(2),
 				[ 'lol' ],
 			)
 			
@@ -296,7 +296,7 @@ namespace $ {
 					new $hyoo_crowd_clock([
 						[ store.peer().id, store.clock_data.last_time ],
 					])
-				]),
+				]).slice(2),
 				[],
 			)
 			
@@ -429,7 +429,7 @@ namespace $ {
 			const left = await make_land()
 			left.chief.as( $hyoo_crowd_text ).str( 'foo bar.' )
 			
-			const right = await make_land('a_2')
+			const right = await make_land()
 			right.clock_data.tick( right.peer().id )
 			right.chief.as( $hyoo_crowd_text ).str( 'xxx yyy.' )
 			
