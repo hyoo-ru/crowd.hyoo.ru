@@ -5985,6 +5985,8 @@ var $;
                 return prev;
             if (next <= prev)
                 return prev;
+            if (!this.allowed_law())
+                return prev;
             const time = this._clocks[$hyoo_crowd_unit_group.auth].tick(peer);
             const auth = this.peer_id();
             const level_unit = new $hyoo_crowd_unit(this.id(), auth, this.id(), peer, '0_0', '0_0', time, next, null);
