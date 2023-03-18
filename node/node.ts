@@ -16,6 +16,10 @@ namespace $ {
 			return new this( land, head ) as InstanceType< Node >
 		}
 		
+		static toJSON() {
+			return this.name
+		}
+		
 		id() {
 			return this.head === '0_0'
 				? this.land.id()
