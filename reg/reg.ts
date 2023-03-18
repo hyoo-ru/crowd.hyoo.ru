@@ -45,7 +45,7 @@ namespace $ {
 			let land_id = $mol_int62_string_ensure( this.value() )
 			if( land_id ) return world.land_sync( land_id )
 			
-			if( this.land.level( this.land.peer().id ) < $hyoo_crowd_peer_level.add ) return null
+			if( !this.land.allowed_add() ) return null
 			
 			const land = $mol_wire_sync( world ).grab( law, mod, add )
 			
