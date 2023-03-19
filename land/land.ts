@@ -430,6 +430,7 @@ namespace $ {
 		}
 		
 		steal_rights( donor: $hyoo_crowd_land ) {
+			if( !this.allowed_law() ) return
 			for( const peer of donor.peers() ) {
 				this.level( peer, donor.level( peer ) )
 			}
