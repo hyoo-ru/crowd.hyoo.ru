@@ -2641,6 +2641,12 @@ var $;
                     transform: 'translateZ(0)',
                 },
             },
+            '::before': {
+                display: 'none',
+            },
+            '::after': {
+                display: 'none',
+            },
             '::-webkit-scrollbar': {
                 width: rem(.25),
                 height: rem(.25),
@@ -6816,7 +6822,7 @@ var $;
         'header': /^([#=]+)(\s+)(.*?)$([\n\r]*)/,
         'list': /^((?:(?: ?([*+-])|(?:\d+[\.\)])+) +(?:[^]*?)$(?:\r?\n?)(?:  (?:[^]*?)$(?:\r?\n?))*)+)((?:\r?\n)*)/,
         'code': /^(```\s*)([\w.-]*)[\r\n]+([^]*?)^(```)$([\n\r]*)/,
-        'code-indent': /^((?:(?:  |\t)(?:[^]*?)$([\n\r]*))+)/,
+        'code-indent': /^((?:(?:  |\t)(?:[^]*?)$\r?\n?)+)([\n\r]*)/,
         'table': /((?:^\|.+?$\r?\n?)+)([\n\r]*)/,
         'grid': /((?:^ *! .*?$\r?\n?)+)([\n\r]*)/,
         'cut': /^--+$((?:\r?\n)*)/,
@@ -7417,10 +7423,13 @@ var $;
             obj.rows = () => this.rows();
             return obj;
         }
+        text_export() {
+            return "";
+        }
         Copy() {
             const obj = new this.$.$mol_button_copy();
             obj.hint = () => this.$.$mol_locale.text('$mol_text_code_Copy_hint');
-            obj.text = () => this.text();
+            obj.text = () => this.text_export();
             return obj;
         }
     }
@@ -7447,7 +7456,7 @@ var $;
                 return this.$.$mol_support_css_overflow_anchor();
             }
             text_lines() {
-                return this.text().replace(/\n$/, '').split('\n');
+                return this.text().split('\n');
             }
             rows() {
                 return this.text_lines().map((_, index) => this.Row(index + 1));
@@ -7492,6 +7501,9 @@ var $;
                     $mol_fail_log(error);
                     return null;
                 }
+            }
+            text_export() {
+                return this.text() + '\n';
             }
         }
         __decorate([
@@ -9557,7 +9569,7 @@ var $;
             }
             pre_text(index) {
                 const token = this.flow_tokens()[index];
-                return (token.chunks[2] ?? token.chunks[0].replace(/^(\t|  (?:\+\+|--|\*\*|  ))/gm, '')).replace(/[\n\r]*$/, '\n');
+                return (token.chunks[2] ?? token.chunks[0].replace(/^(\t|  (?:\+\+|--|\*\*|  ))/gm, '')).replace(/[\n\r]*$/, '');
             }
             quote_text(index) {
                 return this.flow_tokens()[index].chunks[0].replace(/^[>"] /mg, '');
