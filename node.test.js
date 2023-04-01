@@ -2420,6 +2420,9 @@ var $;
         static scale(zoom) {
             return new $mol_style_func('scale', [zoom]);
         }
+        static cubic_bezier(x1, y1, x2, y2) {
+            return new $mol_style_func('cubic-bezier', [x1, y1, x2, y2]);
+        }
     }
     $.$mol_style_func = $mol_style_func;
 })($ || ($ = {}));
@@ -4862,7 +4865,7 @@ var $;
             const en = this.texts('en')[key];
             if (!en)
                 return key;
-            const cache_key = `$mol_locale.text(${JSON.stringify(key)})`;
+            const cache_key = `$mol_locale.text(${JSON.stringify(key)}):${lang}`;
             const cached = this.$.$mol_state_local.value(cache_key);
             if (cached)
                 return cached;
