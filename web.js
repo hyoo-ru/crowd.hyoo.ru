@@ -4151,7 +4151,20 @@ var $;
     });
     function $mol_huggingface_run(space, method, ...data) {
         if (typeof method === 'number') {
-            return $mol_wire_sync(this).$mol_huggingface_async(space, method, ...data);
+            while (true) {
+                try {
+                    return $mol_wire_sync(this).$mol_huggingface_async(space, method, ...data);
+                }
+                catch (error) {
+                    if ($mol_promise_like(error))
+                        $mol_fail_hidden(error);
+                    if (error instanceof Error && error.message === `Queue full`) {
+                        $mol_fail_log(error);
+                        continue;
+                    }
+                    $mol_fail_hidden(error);
+                }
+            }
         }
         const response = $mol_fetch.json(`https://${space}.hf.space/run/${method}`, {
             method: 'post',
@@ -4179,6 +4192,8 @@ var $;
                     case 'send_hash':
                         return socket.send(JSON.stringify({ session_hash, fn_index }));
                     case 'estimation': return;
+                    case 'queue_full':
+                        fail(new Error(`Queue full`));
                     case 'send_data':
                         return socket.send(JSON.stringify({ session_hash, fn_index, data }));
                     case 'process_starts': return;
@@ -4206,7 +4221,12 @@ var $;
 var $;
 (function ($) {
     function $hyoo_lingua_translate(lang, text) {
-        return this.$mol_huggingface_run('hyoo-translate', 0, lang, text)[0];
+        const cache_key = `$hyoo_lingua_translate(${JSON.stringify(lang)},${JSON.stringify(text)})`;
+        const cached = this.$mol_state_local.value(cache_key);
+        if (cached)
+            return String(cached);
+        const translated = this.$mol_huggingface_run('hyoo-translate', 0, lang, text)[0];
+        return this.$mol_state_local.value(cache_key, translated);
     }
     $.$hyoo_lingua_translate = $hyoo_lingua_translate;
 })($ || ($ = {}));
@@ -4249,13 +4269,8 @@ var $;
             const en = this.texts('en')[key];
             if (!en)
                 return key;
-            const cache_key = `$mol_locale.text(${JSON.stringify(key)}):${lang}`;
-            const cached = this.$.$mol_state_local.value(cache_key);
-            if (cached)
-                return cached;
             try {
-                const translated = $mol_wire_sync($hyoo_lingua_translate).call(this.$, lang, en);
-                return this.$.$mol_state_local.value(cache_key, translated);
+                return $mol_wire_sync($hyoo_lingua_translate).call(this.$, lang, en);
             }
             catch (error) {
                 $mol_fail_log(error);
