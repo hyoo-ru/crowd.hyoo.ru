@@ -12,7 +12,7 @@ namespace $ {
 			
 			if( next === undefined ) {
 				
-				const res = {}
+				const res = {} as Record< string, any >
 				for( const unit of this.units() ) {
 					
 					const key = unit.data as string
