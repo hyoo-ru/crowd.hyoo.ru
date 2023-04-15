@@ -7,6 +7,13 @@ namespace $ {
 			
 			if( next ) {
 				
+				const ids = new Set< string >()
+				for( const node of next.childNodes ) {
+					if(!( node instanceof this.$.$mol_dom_context.Element )) continue
+					if( ids.has( node.id ) ) node.id = ''
+					ids.add( node.id )
+				}
+				
 				const sample = [] as ( string | Element )[]
 				function collect( next: Element | DocumentFragment ) {
 					for( const node of next.childNodes ) {
@@ -16,7 +23,7 @@ namespace $ {
 								sample.push( token[0] )
 							}
 						} else {
-							if( node.nodeName === 'span' && !Number( ( node as Element ).id ) ) {
+							if( ( node as Element ).localName === 'span' && !Number( ( node as Element ).id ) ) {
 								collect( node as Element )
 							} else {
 								sample.push( node as Element )
@@ -28,7 +35,7 @@ namespace $ {
 				collect( next )
 				
 				function attr( el: Element ) {
-					let res = {} as object
+					let res = {} as Record< string, sring >
 					for( const a of el.attributes ) {
 						if( a.name === 'id' ) continue
 						res[ a.name ] = a.value
@@ -39,9 +46,9 @@ namespace $ {
 				function val( el: Element | string ) {
 					return typeof el === 'string'
 						? el
-						: el.nodeName === 'span'
+						: el.localName === 'span'
 							? el.textContent
-							: [ el.nodeName, attr( el ) ]
+							: [ el.localName, attr( el ) ]
 				}
 				
 				let units = this.units()
@@ -53,7 +60,9 @@ namespace $ {
 					next: sample,
 					equal: ( next, prev )=> typeof next === 'string'
 						? prev.data === next
-						: String( prev.self ) === next['id'],
+						: next.localName === 'span'
+							? prev.data === next.textContent
+							: prev.self === next['id'],
 					drop: ( prev, lead )=> this.land.wipe( prev ),
 					insert: ( next, lead )=> {
 						return this.land.put(
@@ -76,10 +85,15 @@ namespace $ {
 				
 				units = this.units()
 				for( let i = 0; i < units.length; ++i ) {
+					
 					const sam = sample[i]
-					if( typeof sam !== 'string' ) {
+					if( typeof sam === 'string' ) continue
+					
+					// if( sam.localName === 'span' && $mol_int62_string_ensure( sam.id ) ) {
+					// } else {
 						$hyoo_crowd_dom.for( this.land, units[i].self ).dom( sam )
-					}
+					// }
+					
 				}
 				
 				return next

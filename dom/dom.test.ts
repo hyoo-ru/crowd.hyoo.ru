@@ -5,7 +5,7 @@ namespace $ {
 		'import exported html'() {
 			
 			const left = $hyoo_crowd_land.make({ id: ()=> '1_1' })
-			left.chief.as( $hyoo_crowd_dom ).html( '<body>foo<i data-xxx="yyy">ton</i>bar</body>' )
+			left.chief.as( $hyoo_crowd_dom ).html( '<body>foo<a data-xxx="yyy" href="hhh:zzz">ton</a>bar</body>' )
 			const html = left.chief.as( $hyoo_crowd_dom ).html()
 			
 			const right = $hyoo_crowd_land.make({ id: ()=> '2_2' })
@@ -13,7 +13,7 @@ namespace $ {
 			
 			$mol_assert_like(
 				left.chief.as( $hyoo_crowd_list ).list(),
-				[ 'foo', [ 'i', { "data-xxx": "yyy" } ], 'bar' ],
+				[ 'foo', [ 'a', { "data-xxx": "yyy", "href": "hhh:zzz" } ], 'bar' ],
 			)
 			$mol_assert_equal( left.chief.nodes( $hyoo_crowd_text )[1].text(), 'ton' )
 			
@@ -29,7 +29,7 @@ namespace $ {
 		'import wild spans'() {
 			
 			const land = $hyoo_crowd_land.make({ id: ()=> '1_1' })
-			land.chief.as( $hyoo_crowd_dom ).html( '<body><span>foo bar<a href="ton"/></span></body>' )
+			land.chief.as( $hyoo_crowd_dom ).html( '<body><span>foo bar<a href="hhh:ton"/></span></body>' )
 			
 			const dom = land.chief.as( $hyoo_crowd_dom ).dom()
 			$mol_assert_equal( dom.children[0].nodeName, 'SPAN' )
@@ -37,7 +37,7 @@ namespace $ {
 			$mol_assert_equal( dom.children[1].nodeName, 'SPAN' )
 			$mol_assert_equal( dom.children[1].textContent, ' bar' )
 			$mol_assert_equal( dom.children[2].nodeName, 'A' )
-			$mol_assert_equal( dom.children[2].getAttribute( 'href' ), 'ton' )
+			$mol_assert_equal( dom.children[2].getAttribute( 'href' ), 'hhh:ton' )
 			
 		},
 		
