@@ -35,7 +35,7 @@ namespace $ {
 				collect( next )
 				
 				function attr( el: Element ) {
-					let res = {} as Record< string, sring >
+					let res = {} as Record< string, string >
 					for( const a of el.attributes ) {
 						if( a.name === 'id' ) continue
 						res[ a.name ] = a.value
