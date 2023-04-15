@@ -56,6 +56,10 @@ namespace $ {
 			return `${ this.constructor.name }("${ this.land.id() }","${ this.head }")`
 		}
 		
+		toJSON() {
+			return this.id()
+		}
+		
 		[ $mol_dev_format_head ]() {
 			return $mol_dev_format_span( {} ,
 				$mol_dev_format_native( this ) ,
