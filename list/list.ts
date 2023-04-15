@@ -15,6 +15,7 @@ namespace $ {
 			
 		}
 		
+		@ $mol_mem
 		set( next?: ReadonlySet< string | number | boolean | null > ) {
 			return new Set( this.list( next && [ ... next ] ) )
 		}
