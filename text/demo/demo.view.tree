@@ -3,6 +3,9 @@ $hyoo_crowd_text_demo $mol_example_large
 	sub /
 		<= Sandbox $hyoo_crowd_app
 	tags /
-		\CROWD
 		\text
 		\merge
+	aspects /
+		\Application
+		\Type/String
+		\Algorithm/Merge
