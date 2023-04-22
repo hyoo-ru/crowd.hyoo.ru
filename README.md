@@ -249,9 +249,9 @@ It's both Struct and List:
 
 - `keys()` Channel for list of keys.
 - `sub( key: string, Node )` Returns inner Node for key.
-- `has( val: unknown )` Checks for value existence.
-- `add( val: unknown )` Adds value if doesn't exist.
-- `drop( val: unknown )` Removes value if exists.
+- `has( val: unknown )` Checks for key existence.
+- `add( val: unknown )` Adds key if doesn't exist.
+- `drop( val: unknown )` Removes key if exists.
 
 ## CROWD JSON
 
