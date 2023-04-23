@@ -154,6 +154,10 @@ namespace $ {
 			}
 		}
 		
+		async merge( donor: $hyoo_crowd_world ) {
+			for await( const batch of donor.delta() ) await this.apply( batch )
+		}
+		
 		async apply(
 			delta: Uint8Array,
 		) {
