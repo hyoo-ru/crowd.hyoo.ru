@@ -149,7 +149,8 @@ namespace $ {
 				
 		async *delta( clocks = new Map< $mol_int62_string, readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ] >() ) {
 			for( const land of this.lands.values() ) {
-				yield await this.delta_batch( land, clocks.get( land.id() ) )
+				const batch = await this.delta_batch( land, clocks.get( land.id() ) )
+				if( batch.length ) yield batch
 			}
 		}
 		
