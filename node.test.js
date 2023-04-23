@@ -6360,6 +6360,10 @@ var $;
                     yield batch;
             }
         }
+        async merge(donor) {
+            for await (const batch of donor.delta())
+                await this.apply(batch);
+        }
         async apply(delta) {
             const units = [];
             let bin_offset = 0;
