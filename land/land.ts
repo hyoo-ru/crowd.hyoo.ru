@@ -39,6 +39,10 @@ namespace $ {
 			return this._clocks
 		}
 		
+		get clocks_bin() {
+			return new Uint8Array( $hyoo_crowd_clock_bin.from( this.id(), this._clocks ).buffer )
+		}
+		
 		readonly pub = new $mol_wire_pub
 		readonly _clocks = [ new $hyoo_crowd_clock, new $hyoo_crowd_clock ] as const
 		

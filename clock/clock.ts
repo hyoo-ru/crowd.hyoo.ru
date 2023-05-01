@@ -26,7 +26,7 @@ namespace $ {
 			
 		}
 		
-		/** Synchronize this cloc with another. */
+		/** Synchronize this clock with another. */
 		sync( right: $hyoo_crowd_clock ) {
 			for( const [ peer, time ] of right ) {
 				this.see_peer( peer, time )
@@ -134,7 +134,7 @@ namespace $ {
 		
 		static from(
 			land_id: $mol_int62_string,
-			clocks: readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ]
+			clocks: readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ],
 		) {
 			
 			const size = offset.clocks + clocks[0].size * 16
@@ -152,6 +152,7 @@ namespace $ {
 				
 				bin.setInt32( cursor + 0, peer.lo, true )
 				bin.setInt32( cursor + 4, peer.hi, true )
+				
 				bin.setInt32( cursor + 8, time, true )
 				bin.setInt32( cursor + 12, clocks[1].get( peer_id ) ?? $hyoo_crowd_clock.begin, true )
 				
