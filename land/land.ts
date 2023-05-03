@@ -40,7 +40,7 @@ namespace $ {
 		}
 		
 		get clocks_bin() {
-			return new Uint8Array( $hyoo_crowd_clock_bin.from( this.id(), this._clocks ).buffer )
+			return new Uint8Array( $hyoo_crowd_clock_bin.from( this.id(), this._clocks, this._unit_all.size ).buffer )
 		}
 		
 		readonly pub = new $mol_wire_pub

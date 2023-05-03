@@ -4,7 +4,7 @@ namespace $ {
 		/** Atomic value. */
 		value( next?: unknown ) {
 			
-			const unit = this.units()[0]
+			const unit = this.units().at(-1)
 			if( next === undefined ) return unit?.data ?? null
 				
 			if( $mol_compare_deep( unit?.data, next ) ) return next

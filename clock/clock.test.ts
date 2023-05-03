@@ -86,7 +86,7 @@ namespace $ {
 			clocks1[ $hyoo_crowd_unit_group.auth ].see_peer( 'b_33', 1 )
 			clocks1[ $hyoo_crowd_unit_group.data ].see_peer( 'b_33', 2 )
 			
-			const bin = $hyoo_crowd_clock_bin.from( '2_b', clocks1 )
+			const bin = $hyoo_crowd_clock_bin.from( '2_b', clocks1, 0 )
 			
 			$mol_assert_like( bin.land(), '2_b' )
 			

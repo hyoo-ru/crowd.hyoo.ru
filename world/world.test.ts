@@ -178,7 +178,7 @@ namespace $ {
 			)
 			$mol_assert_like(
 				land2.chief.as( $hyoo_crowd_reg ).numb(),
-				234,
+				123,
 			)
 			
 		},

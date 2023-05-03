@@ -126,7 +126,9 @@ namespace $ {
 		land_lo: 0,
 		land_hi: 4,
 		
-		clocks: 8,
+		count: 8,
+		
+		clocks: 16,
 		
 	} as const
 	
@@ -135,6 +137,7 @@ namespace $ {
 		static from(
 			land_id: $mol_int62_string,
 			clocks: readonly[ $hyoo_crowd_clock, $hyoo_crowd_clock ],
+			count: number,
 		) {
 			
 			const size = offset.clocks + clocks[0].size * 16
@@ -144,6 +147,8 @@ namespace $ {
 			const land = $mol_int62_from_string( land_id )!
 			bin.setInt32( offset.land_lo, land.lo ^ ( 1 << 31 ), true )
 			bin.setInt32( offset.land_hi, land.hi, true )
+			
+			bin.setInt32( offset.count, count, true )
 			
 			let cursor = offset.clocks
 			for( const [ peer_id, time ] of clocks[0] ) {
@@ -167,6 +172,10 @@ namespace $ {
 				lo: this.getInt32( offset.land_lo, true ) << 1 >> 1,
 				hi: this.getInt32( offset.land_hi, true ) << 1 >> 1,
 			})
+		}
+		
+		count() {
+			return this.getInt32( offset.count, true )
 		}
 		
 	}
