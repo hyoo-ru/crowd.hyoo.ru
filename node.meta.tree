@@ -6,6 +6,7 @@
 	pack lib git \https://github.com/hyoo-ru/mam_lib.git
 	pack piterjs git \https://github.com/piterjs/piterjs.git
 	pack psb git \https://github.com/MolDevHack/psb.git
+	pack mpds git \https://github.com/mpds-io/mam_mpds
 \/hyoo
 	pack about git \https://github.com/hyoo-ru/about.hyoo.ru.git
 	pack artist git \https://github.com/hyoo-ru/artist.hyoo.ru.git
@@ -61,6 +62,7 @@
 	pack sync git \https://github.com/hyoo-ru/sync.hyoo.ru.git
 	pack home git \https://github.com/hyoo-ru/hyoo.ru.git
 	pack idea git \https://github.com/hyoo-ru/idea.hyoo.ru.git
+	pack intern git \https://github.com/hyoo-ru/intern.hyoo.ru.git
 \/mol
 	pack icon git \https://github.com/nin-jin/mol_icon.git
 \/mol/view
