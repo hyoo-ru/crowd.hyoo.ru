@@ -7,7 +7,7 @@ namespace $ {
 		law = 3,
 	}
 	
-	export class $hyoo_crowd_peer extends Object {
+	export class $hyoo_crowd_peer extends $mol_object2 {
 		
 		id: $mol_int62_string
 		
