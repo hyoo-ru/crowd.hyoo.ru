@@ -65,13 +65,21 @@ namespace $ {
 			return this.land.wipe( this.units()[ seat ] )
 		}
 		
-		has( val: string | number | boolean | null ) {
+		has( val: string | number | boolean | null, next?: boolean ) {
 			
-			for( const unit of this.units() ) {
-				if( unit.data === val ) return true 
+			if( next === undefined ) {
+				
+				for( const unit of this.units() ) {
+					if( unit.data === val ) return true 
+				}
+				
+				return false
 			}
 			
-			return false
+			if( next ) this.add( val )
+			else this.drop( val )
+
+			return next
 		}
 		
 		add( val: string | number | boolean | null ) {
