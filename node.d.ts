@@ -3158,7 +3158,7 @@ declare namespace $ {
         insert(next: readonly unknown[], from?: number, to?: number): void;
         move(from: number, to: number): void;
         cut(seat: number): $hyoo_crowd_unit;
-        has(val: string | number | boolean | null): boolean;
+        has(val: string | number | boolean | null, next?: boolean): boolean;
         add(val: string | number | boolean | null): void;
         drop(val: string | number | boolean | null): void;
         node_make<Node extends typeof $hyoo_crowd_node>(val: unknown, Node: Node): InstanceType<Node>;
