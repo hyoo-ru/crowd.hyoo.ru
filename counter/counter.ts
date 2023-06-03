@@ -1,9 +1,14 @@
 namespace $ {
 	export class $hyoo_crowd_counter extends $hyoo_crowd_reg {
 		
+		/** All counted peer ids. */
+		list() {
+			return this.yoke([])?.residents() ?? []
+		}
+		
 		/** Count of counted peers. */
 		total() {
-			return this.yoke([])?.residents().length ?? this.numb()
+			return this.list().length
 		}
 		
 		/** Is current peer counted. */
