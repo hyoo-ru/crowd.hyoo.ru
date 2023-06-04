@@ -81,6 +81,7 @@ namespace $ {
 				peer: $mol_const( knight ),
 			})
 			
+			land_outer.join()
 			for( const peer of law ) land_outer.level( peer || this.peer!.id, $hyoo_crowd_peer_level.law )
 			for( const peer of mod ) land_outer.level( peer || this.peer!.id, $hyoo_crowd_peer_level.mod )
 			for( const peer of add ) land_outer.level( peer || this.peer!.id, $hyoo_crowd_peer_level.add )
