@@ -10941,4 +10941,5 @@ var $;
 })($ || ($ = {}));
 //hyoo/crowd/app/app.view.css.ts
 
+export default $
 //# sourceMappingURL=web.js.map
