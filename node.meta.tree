@@ -7,6 +7,7 @@
 	pack piterjs git \https://github.com/piterjs/piterjs.git
 	pack psb git \https://github.com/MolDevHack/psb.git
 	pack mpds git \https://github.com/mpds-io/mam_mpds
+	pack bun git \https://github.com/spleekz/mam_bun
 \/hyoo
 	pack about git \https://github.com/hyoo-ru/about.hyoo.ru.git
 	pack artist git \https://github.com/hyoo-ru/artist.hyoo.ru.git
