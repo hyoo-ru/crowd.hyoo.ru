@@ -22,10 +22,6 @@ namespace $ {
 				.filter( $mol_guard_defined )
 		}
 
-		size() {
-			return this.ids().length
-		}
-
 		@ $mol_mem
 		items() {
 			return this.ids().map( id => this.item( id ) )
