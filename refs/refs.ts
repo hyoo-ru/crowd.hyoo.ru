@@ -27,7 +27,7 @@ namespace $ {
 		}
 
 		@ $mol_mem
-		all() {
+		items() {
 			return this.ids().map( id => this.item( id ) )
 		}
 
