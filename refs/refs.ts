@@ -32,7 +32,7 @@ namespace $ {
 		}
 
 		@ $mol_action
-		new(
+		make(
 			law = [''] as readonly ( $mol_int62_string | '' )[],
 			mod = [] as readonly ( $mol_int62_string | '' )[],
 			add = [] as readonly ( $mol_int62_string | '' )[],
