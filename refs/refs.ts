@@ -1,12 +1,12 @@
 namespace $ {
 
-	export class $hyoo_crowd_refs<Node extends typeof $hyoo_crowd_node> extends $hyoo_crowd_list {
+	export class $hyoo_crowd_refs<Item extends typeof $hyoo_crowd_node> extends $hyoo_crowd_list {
 		
-		Node: Node = $hyoo_crowd_node as Node
+		Item: Item = $hyoo_crowd_node as Item
 
 		@ $mol_mem
 		fund() {
-			return this.world()!.Fund( this.Node)
+			return this.world()!.Fund( this.Item)
 		}
 
 		@ $mol_mem_key
