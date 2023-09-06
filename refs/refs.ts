@@ -2,6 +2,12 @@ namespace $ {
 
 	export class $hyoo_crowd_refs<Item extends typeof $hyoo_crowd_node> extends $hyoo_crowd_list {
 		
+		static Make<Item extends typeof $hyoo_crowd_node>(Item: Item) {
+			return class $hyoo_crowd_refs_maked extends $hyoo_crowd_refs<Item> {
+				Item = Item
+			}
+		}
+
 		Item: Item = $hyoo_crowd_node as Item
 
 		@ $mol_mem
