@@ -34,6 +34,11 @@ namespace $ {
 		}
 
 		@ $mol_action
+		push(item: InstanceType<Item>) {
+			this.add(item.id())
+		}
+
+		@ $mol_action
 		make(
 			law = [''] as readonly ( $mol_int62_string | '' )[],
 			mod = [] as readonly ( $mol_int62_string | '' )[],
