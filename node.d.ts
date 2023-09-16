@@ -481,7 +481,7 @@ declare namespace $ {
 /// <reference types="node" />
 /// <reference types="node" />
 declare namespace $ {
-    function $mol_exec(this: $, dir: string, command: string, ...args: string[]): import("child_process").SpawnSyncReturns<Buffer>;
+    function $mol_exec(this: $, dir: string, command: string, ...args: string[]): import("node:child_process").SpawnSyncReturns<Buffer>;
 }
 
 declare namespace $ {
@@ -2601,6 +2601,7 @@ declare namespace $ {
         length_max(): number;
         selection(next?: any): readonly number[];
         submit(next?: any): any;
+        submit_with_ctrl(): boolean;
         bring(): void;
         Edit(): $mol_textarea_edit;
         row_numb(id: any): number;
