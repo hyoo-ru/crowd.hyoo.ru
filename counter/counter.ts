@@ -5,6 +5,18 @@ namespace $ {
 		list() {
 			return this.yoke([])?.residents() ?? []
 		}
+
+		/* Timestamps of counteds */
+		@ $mol_mem
+		times() {
+			const land = this.yoke([])
+			land?.pub.promote()
+			return Object.fromEntries(
+				[ ... land?._unit_all.values() ?? [] ]
+				.filter( unit => unit.data && unit.kind() === $hyoo_crowd_unit_kind.join )
+				.map( unit => [ unit.auth as $mol_int62_string, $hyoo_crowd_time_stamp( unit.time ) ] )
+			)
+		}
 		
 		/** Count of counted peers. */
 		total() {
