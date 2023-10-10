@@ -113,6 +113,9 @@ $mol_lights_toggle $mol_check_icon
 $mol_link $mol_view
 	uri \
 	dom_name \a
+	uri_off \
+	uri_native null
+	external false
 	attr *
 		^
 		href <= uri_toggle \
