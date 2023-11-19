@@ -681,6 +681,11 @@ var $;
             $mol_assert_ok($mol_compare_deep(new Uint8Array([0]), new Uint8Array([0])));
             $mol_assert_not($mol_compare_deep(new Uint8Array([0]), new Uint8Array([1])));
         },
+        'DataView'() {
+            $mol_assert_ok($mol_compare_deep(new DataView(new Uint8Array().buffer), new DataView(new Uint8Array().buffer)));
+            $mol_assert_ok($mol_compare_deep(new DataView(new Uint8Array([0]).buffer), new DataView(new Uint8Array([0]).buffer)));
+            $mol_assert_not($mol_compare_deep(new DataView(new Uint8Array([0]).buffer), new DataView(new Uint8Array([1]).buffer)));
+        },
         'Serializale'() {
             class User {
                 name;
@@ -791,7 +796,7 @@ var $;
                     if ('outerHTML' in val)
                         return val.outerHTML;
                     try {
-                        return JSON.stringify(val, null, '\t');
+                        return JSON.stringify(val, (k, v) => typeof v === 'bigint' ? String(v) : v, '\t');
                     }
                     catch (error) {
                         console.error(error);
