@@ -3,11 +3,14 @@ namespace $ {
 	/** Registry of nodes as domain entities. */
 	export class $hyoo_crowd_fund< Node extends typeof $hyoo_crowd_node > extends $mol_object {
 		
+		Node: Node
+		
 		constructor(
 			public world: $hyoo_crowd_world,
-			public Node: Node,
+			Node: Node,
 		) {
 			super()
+			this.Node = Node
 		}
 		
 		@ $mol_mem_key
