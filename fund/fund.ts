@@ -3,21 +3,18 @@ namespace $ {
 	/** Registry of nodes as domain entities. */
 	export class $hyoo_crowd_fund< Node extends typeof $hyoo_crowd_node > extends $mol_object {
 		
-		Node: Node
-		
 		constructor(
 			public world: $hyoo_crowd_world,
-			Node: Node,
+			public node_class: Node,
 		) {
 			super()
-			this.Node = Node
 		}
 		
 		@ $mol_mem_key
 		Item( id: $mol_int62_string | `${$mol_int62_string}!${$mol_int62_string}` ): InstanceType<Node> {
 			const [ land, head ] = id.split( '!' ) as [ $mol_int62_string, $mol_int62_string | undefined ]
 			if( !head ) return this.Item( `${land}!0_0` )
-			return this.world.land_sync( land ).node( head, this.Node )
+			return this.world.land_sync( land ).node( head, this.node_class )
 		}
 		
 		@ $mol_action
