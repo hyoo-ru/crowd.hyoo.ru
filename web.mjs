@@ -3170,7 +3170,12 @@ var $;
 (function ($) {
     class $mol_storage extends $mol_object2 {
         static native() {
-            return this.$.$mol_dom_context.navigator.storage;
+            return this.$.$mol_dom_context.navigator.storage ?? {
+                persisted: async () => false,
+                persist: async () => false,
+                estimate: async () => ({}),
+                getDirectory: async () => null,
+            };
         }
         static persisted(next, cache) {
             $mol_mem_persist();
@@ -3189,7 +3194,7 @@ var $;
             return next ?? $mol_wire_sync(native).persisted();
         }
         static estimate() {
-            return $mol_wire_sync(this.native()).estimate();
+            return $mol_wire_sync(this.native() ?? {}).estimate();
         }
         static dir() {
             return $mol_wire_sync(this.native()).getDirectory();
@@ -3203,7 +3208,7 @@ var $;
     ], $mol_storage, "persisted", null);
     $.$mol_storage = $mol_storage;
 })($ || ($ = {}));
-//mol/storage/storage.web.ts
+//mol/storage/storage.ts
 ;
 "use strict";
 var $;
