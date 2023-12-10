@@ -358,8 +358,6 @@ ORDER BY
 | Struct     | ⭕ first field value | ✅ Same                         | ⭕ Field values      | ❌ Field values as keys | ⭕ Empty                            | ⭕ Empty
 | List       | ⭕ fist item         | ⭕ Nullish fields               | ✅ Same              | ✅ Items as keys        | ⭕ Strings as tokens, other ignored | ⭕ Items as spans 
 | Dictionary | ⭕ first key         | ✅ keys values as fields values | ✅ Keys              | ✅ Same                 | ✅ Keys as tokens                   | ✅ Keys as tokens
-| JSON       |                      |                                  |                      |                          |                                     | 
-| String     |                      |                                  |                      |                          |                                     | 
 | Text       | ❌ first token       | ⭕ Nullish fields               | ✅ Tokens            | ❌ Tokens as keys       | ✅ Same                             | ✅ Tokens as spans 
 | DOM        | ❌ first token       | ⭕ Nullish fields               | ✅ Top level items   | ❌ Tokens as keys       | ⭕ Text from top level tokens       | ✅ Same
 
