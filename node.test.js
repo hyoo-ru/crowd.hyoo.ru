@@ -1132,7 +1132,7 @@ var $;
             };
         }
         error(message, Class = Error) {
-            return new Class(`${message}${this}`);
+            return new Class(`${message} (${this})`);
         }
         span(row, col, length) {
             return new $mol_span(this.uri, this.source, row, col, length);
@@ -1147,11 +1147,11 @@ var $;
             if (end < 0)
                 end += len;
             if (begin < 0 || begin > len)
-                this.$.$mol_fail(`Begin value '${begin}' out of range ${this}`);
+                this.$.$mol_fail(this.error(`Begin value '${begin}' out of range`, RangeError));
             if (end < 0 || end > len)
-                this.$.$mol_fail(`End value '${end}' out of range ${this}`);
+                this.$.$mol_fail(this.error(`End value '${end}' out of range`, RangeError));
             if (end < begin)
-                this.$.$mol_fail(`End value '${end}' can't be less than begin value ${this}`);
+                this.$.$mol_fail(this.error(`End value '${end}' can't be less than begin value`, RangeError));
             return this.span(this.row, this.col + begin, end - begin);
         }
     }
@@ -2198,7 +2198,9 @@ var $;
 var $;
 (function ($) {
     function $mol_wire_solid() {
-        const current = $mol_wire_auto();
+        let current = $mol_wire_auto();
+        if (current.temp)
+            current = current.host;
         if (current.reap !== nothing) {
             current?.sub_on(sub, sub.data.length);
         }
@@ -3265,6 +3267,13 @@ var $;
                         rules.push(`${key} ${query} {\n`);
                     }
                 }
+                else if (key[0] === '[' && key[key.length - 1] === ']') {
+                    const attr = key.slice(1, -1);
+                    const vals = config[key];
+                    for (let val in vals) {
+                        make_class(selector(prefix, path) + ':where([' + attr + '=' + JSON.stringify(val) + '])', [], vals[val]);
+                    }
+                }
                 else {
                     make_class(selector(prefix, path) + key, [], config[key]);
                 }
@@ -3659,7 +3668,7 @@ var $;
                 native.persist().then(actual => {
                     setTimeout(() => this.persisted(actual, 'cache'), 5000);
                     if (actual)
-                        this.$.$mol_log3_rise({ place: `$mol_storage`, message: `Persist: Yes` });
+                        this.$.$mol_log3_done({ place: `$mol_storage`, message: `Persist: Yes` });
                     else
                         this.$.$mol_log3_fail({ place: `$mol_storage`, message: `Persist: No` });
                 });
@@ -4665,269 +4674,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_dom_parse(text, type = 'application/xhtml+xml') {
-        const parser = new $mol_dom_context.DOMParser();
-        const doc = parser.parseFromString(text, type);
-        const error = doc.getElementsByTagName('parsererror');
-        if (error.length)
-            throw new Error(error[0].textContent);
-        return doc;
-    }
-    $.$mol_dom_parse = $mol_dom_parse;
-})($ || ($ = {}));
-//mol/dom/parse/parse.ts
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_fetch_response extends $mol_object2 {
-        native;
-        constructor(native) {
-            super();
-            this.native = native;
-        }
-        status() {
-            const types = ['unknown', 'inform', 'success', 'redirect', 'wrong', 'failed'];
-            return types[Math.floor(this.native.status / 100)];
-        }
-        code() {
-            return this.native.status;
-        }
-        message() {
-            return this.native.statusText || `HTTP Error ${this.code()}`;
-        }
-        headers() {
-            return this.native.headers;
-        }
-        mime() {
-            return this.headers().get('content-type');
-        }
-        stream() {
-            return this.native.body;
-        }
-        text() {
-            const buffer = this.buffer();
-            const native = this.native;
-            const mime = native.headers.get('content-type') || '';
-            const [, charset] = /charset=(.*)/.exec(mime) || [, 'utf-8'];
-            const decoder = new TextDecoder(charset);
-            return decoder.decode(buffer);
-        }
-        json() {
-            return $mol_wire_sync(this.native).json();
-        }
-        buffer() {
-            return $mol_wire_sync(this.native).arrayBuffer();
-        }
-        xml() {
-            return $mol_dom_parse(this.text(), 'application/xml');
-        }
-        xhtml() {
-            return $mol_dom_parse(this.text(), 'application/xhtml+xml');
-        }
-        html() {
-            return $mol_dom_parse(this.text(), 'text/html');
-        }
-    }
-    __decorate([
-        $mol_action
-    ], $mol_fetch_response.prototype, "stream", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch_response.prototype, "text", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch_response.prototype, "buffer", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch_response.prototype, "xml", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch_response.prototype, "xhtml", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch_response.prototype, "html", null);
-    $.$mol_fetch_response = $mol_fetch_response;
-    class $mol_fetch extends $mol_object2 {
-        static request(input, init = {}) {
-            const native = globalThis.fetch ?? $node['undici'].fetch;
-            const controller = new AbortController();
-            let done = false;
-            const promise = native(input, {
-                ...init,
-                signal: controller.signal,
-            }).finally(() => {
-                done = true;
-            });
-            return Object.assign(promise, {
-                destructor: () => {
-                    if (!done && !controller.signal.aborted)
-                        controller.abort();
-                },
-            });
-        }
-        static response(input, init) {
-            return new $mol_fetch_response($mol_wire_sync(this).request(input, init));
-        }
-        static success(input, init) {
-            const response = this.response(input, init);
-            if (response.status() === 'success')
-                return response;
-            throw new Error(response.message());
-        }
-        static stream(input, init) {
-            return this.success(input, init).stream();
-        }
-        static text(input, init) {
-            return this.success(input, init).text();
-        }
-        static json(input, init) {
-            return this.success(input, init).json();
-        }
-        static buffer(input, init) {
-            return this.success(input, init).buffer();
-        }
-        static xml(input, init) {
-            return this.success(input, init).xml();
-        }
-        static xhtml(input, init) {
-            return this.success(input, init).xhtml();
-        }
-        static html(input, init) {
-            return this.success(input, init).html();
-        }
-    }
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "response", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "success", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "stream", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "text", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "json", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "buffer", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "xml", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "xhtml", null);
-    __decorate([
-        $mol_action
-    ], $mol_fetch, "html", null);
-    $.$mol_fetch = $mol_fetch;
-})($ || ($ = {}));
-//mol/fetch/fetch.ts
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_huggingface_run(space, method, ...data) {
-        while (true) {
-            try {
-                if (typeof method === 'number') {
-                    return $mol_wire_sync(this).$mol_huggingface_ws(space, method, ...data);
-                }
-                else {
-                    return this.$mol_huggingface_rest(space, method, ...data);
-                }
-            }
-            catch (error) {
-                if ($mol_promise_like(error))
-                    $mol_fail_hidden(error);
-                if (error instanceof Error && error.message === `Queue full`) {
-                    $mol_fail_log(error);
-                    continue;
-                }
-                $mol_fail_hidden(error);
-            }
-        }
-    }
-    $.$mol_huggingface_run = $mol_huggingface_run;
-    function $mol_huggingface_rest(space, method, ...data) {
-        const uri = `https://${space}.hf.space/run/${method}`;
-        const response = $mol_fetch.json(uri, {
-            method: 'post',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data }),
-        });
-        if ('error' in response) {
-            $mol_fail(new Error(response.error ?? 'Unknown API error'));
-        }
-        return response.data;
-    }
-    $.$mol_huggingface_rest = $mol_huggingface_rest;
-    function $mol_huggingface_ws(space, fn_index, ...data) {
-        const session_hash = $mol_guid();
-        const socket = new WebSocket(`wss://${space}.hf.space/queue/join`);
-        const promise = new Promise((done, fail) => {
-            socket.onclose = event => {
-                if (event.reason)
-                    fail(new Error(event.reason));
-            };
-            socket.onerror = event => {
-                fail(new Error(`Socket error`));
-            };
-            socket.onmessage = event => {
-                const message = JSON.parse(event.data);
-                switch (message.msg) {
-                    case 'send_hash':
-                        return socket.send(JSON.stringify({ session_hash, fn_index }));
-                    case 'estimation': return;
-                    case 'queue_full':
-                        fail(new Error(`Queue full`));
-                    case 'send_data':
-                        return socket.send(JSON.stringify({ session_hash, fn_index, data }));
-                    case 'process_starts': return;
-                    case 'process_completed':
-                        if (message.success) {
-                            return done(message.output.data);
-                        }
-                        else {
-                            return fail(new Error(message.output.error ?? `Unknown API error`));
-                        }
-                    default:
-                        return fail(new Error(`Unknown message type: ${message.msg}`));
-                }
-            };
-        });
-        return Object.assign(promise, {
-            destructor: () => socket.close()
-        });
-    }
-    $.$mol_huggingface_ws = $mol_huggingface_ws;
-})($ || ($ = {}));
-//mol/huggingface/huggingface.ts
-;
-"use strict";
-var $;
-(function ($) {
-    function $hyoo_lingua_translate(lang, text) {
-        if (!text.trim())
-            return '';
-        const cache_key = `$hyoo_lingua_translate(${JSON.stringify(lang)},${JSON.stringify(text)})`;
-        const cached = this.$mol_state_local.value(cache_key);
-        if (cached)
-            return String(cached);
-        const translated = this.$mol_huggingface_run('hyoo-translate', 0, lang, text)[0];
-        return this.$mol_state_local.value(cache_key, translated);
-    }
-    $.$hyoo_lingua_translate = $hyoo_lingua_translate;
-})($ || ($ = {}));
-//hyoo/lingua/translate/translate.ts
-;
-"use strict";
-var $;
-(function ($) {
     class $mol_locale extends $mol_object {
         static lang_default() {
             return 'en';
@@ -4962,12 +4708,6 @@ var $;
             const en = this.texts('en')[key];
             if (!en)
                 return key;
-            try {
-                return $mol_wire_sync($hyoo_lingua_translate).call(this.$, lang, en);
-            }
-            catch (error) {
-                $mol_fail_log(error);
-            }
             return en;
         }
         static warn(key) {
@@ -5674,6 +5414,8 @@ var $;
                 padding: $mol_gap.block,
                 flex: {
                     direction: 'column',
+                    shrink: 1,
+                    grow: 1,
                 },
                 justify: {
                     self: 'stretch',
@@ -12612,17 +12354,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_dom_serialize(node) {
-        const serializer = new $mol_dom_context.XMLSerializer;
-        return serializer.serializeToString(node);
-    }
-    $.$mol_dom_serialize = $mol_dom_serialize;
-})($ || ($ = {}));
-//mol/dom/serialize/serialize.ts
-;
-"use strict";
-var $;
-(function ($) {
     function $mol_assert_ok(value) {
         if (value)
             return;
@@ -12642,14 +12373,12 @@ var $;
             handler();
         }
         catch (error) {
-            if (!ErrorRight)
-                return error;
             $.$mol_fail = fail;
             if (typeof ErrorRight === 'string') {
                 $mol_assert_equal(error.message, ErrorRight);
             }
             else {
-                $mol_assert_ok(error instanceof ErrorRight);
+                $mol_assert_equal(error instanceof ErrorRight, true);
             }
             return error;
         }
@@ -12659,58 +12388,47 @@ var $;
         $mol_fail(new Error('Not failed'));
     }
     $.$mol_assert_fail = $mol_assert_fail;
-    function $mol_assert_equal(...args) {
-        for (let i = 0; i < args.length; ++i) {
-            for (let j = 0; j < args.length; ++j) {
-                if (i === j)
-                    continue;
-                if (Number.isNaN(args[i]) && Number.isNaN(args[j]))
-                    continue;
-                if (args[i] !== args[j])
-                    $mol_fail(new Error(`Not equal (${i + 1}:${j + 1})\n${args[i]}\n${args[j]}`));
-            }
-        }
+    function $mol_assert_like(...args) {
+        $mol_assert_equal(...args);
     }
-    $.$mol_assert_equal = $mol_assert_equal;
+    $.$mol_assert_like = $mol_assert_like;
     function $mol_assert_unique(...args) {
         for (let i = 0; i < args.length; ++i) {
             for (let j = 0; j < args.length; ++j) {
                 if (i === j)
                     continue;
-                if (args[i] === args[j] || (Number.isNaN(args[i]) && Number.isNaN(args[j]))) {
-                    $mol_fail(new Error(`args[${i}] = args[${j}] = ${args[i]}`));
-                }
+                if (!$mol_compare_deep(args[i], args[j]))
+                    continue;
+                $mol_fail(new Error(`args[${i}] = args[${j}] = ${args[i]}`));
             }
         }
     }
     $.$mol_assert_unique = $mol_assert_unique;
-    function $mol_assert_like(head, ...tail) {
-        for (let [index, value] of Object.entries(tail)) {
-            if (!$mol_compare_deep(value, head)) {
-                const print = (val) => {
-                    if (!val)
-                        return val;
-                    if (typeof val !== 'object')
-                        return val;
-                    if ('outerHTML' in val)
-                        return val.outerHTML;
-                    try {
-                        return JSON.stringify(val, (k, v) => typeof v === 'bigint' ? String(v) : v, '\t');
-                    }
-                    catch (error) {
-                        console.error(error);
-                        return val;
-                    }
-                };
-                return $mol_fail(new Error(`Not like (1:${+index + 2})\n${print(head)}\n---\n${print(value)}`));
-            }
+    function $mol_assert_equal(...args) {
+        for (let i = 1; i < args.length; ++i) {
+            if ($mol_compare_deep(args[0], args[i]))
+                continue;
+            if (args[0] instanceof $mol_dom_context.Element && args[i] instanceof $mol_dom_context.Element && args[0].outerHTML === args[i].outerHTML)
+                continue;
+            return $mol_fail(new Error(`args[0] ≠ args[${i}]\n${print(args[0])}\n---\n${print(args[i])}`));
         }
     }
-    $.$mol_assert_like = $mol_assert_like;
-    function $mol_assert_dom(left, right) {
-        $mol_assert_equal($mol_dom_serialize(left), $mol_dom_serialize(right));
-    }
-    $.$mol_assert_dom = $mol_assert_dom;
+    $.$mol_assert_equal = $mol_assert_equal;
+    const print = (val) => {
+        if (!val)
+            return val;
+        if (typeof val !== 'object')
+            return val;
+        if ('outerHTML' in val)
+            return val.outerHTML;
+        try {
+            return JSON.stringify(val, (k, v) => typeof v === 'bigint' ? String(v) : v, '\t');
+        }
+        catch (error) {
+            console.error(error);
+            return val;
+        }
+    };
 })($ || ($ = {}));
 //mol/assert/assert.ts
 ;
@@ -12731,10 +12449,10 @@ var $;
             $mol_assert_equal(2, 2, 2);
         },
         'two must be unique'() {
-            $mol_assert_unique([3], [3]);
+            $mol_assert_unique([2], [3]);
         },
         'three must be unique'() {
-            $mol_assert_unique([3], [3], [3]);
+            $mol_assert_unique([1], [2], [3]);
         },
         'two must be alike'() {
             $mol_assert_like([3], [3]);
@@ -13444,7 +13162,7 @@ var $;
             ], App, "result", null);
             $mol_assert_equal(App.result(), 1);
             App.condition(true);
-            $mol_assert_fail(() => App.result());
+            $mol_assert_fail(() => App.result(), 'test error');
             App.condition(false);
             $mol_assert_equal(App.result(), 1);
         },
@@ -14383,14 +14101,14 @@ var $;
         },
         'slice span - out of range'($) {
             const span = new $mol_span('test.ts', '', 1, 3, 5);
-            $mol_assert_fail(() => span.slice(-1, 3));
-            $mol_assert_fail(() => span.slice(1, 6));
-            $mol_assert_fail(() => span.slice(1, 10));
+            $mol_assert_fail(() => span.slice(-1, 3), `End value '3' can't be less than begin value (test.ts#1:3/5)`);
+            $mol_assert_fail(() => span.slice(1, 6), `End value '6' out of range (test.ts#1:3/5)`);
+            $mol_assert_fail(() => span.slice(1, 10), `End value '10' out of range (test.ts#1:3/5)`);
         },
         'error handling'($) {
             const span = new $mol_span('test.ts', '', 1, 3, 4);
-            const error = span.error('Some error\n');
-            $mol_assert_equal(error.message, 'Some error\ntest.ts#1:3/4');
+            const error = span.error('Some error');
+            $mol_assert_equal(error.message, 'Some error (test.ts#1:3/4)');
         }
     });
 })($ || ($ = {}));
@@ -16192,7 +15910,7 @@ var $;
                     return prev;
                 },
             });
-            $mol_assert_dom(list, $mol_jsx("body", null,
+            $mol_assert_equal(list, $mol_jsx("body", null,
                 $mol_jsx("p", { "data-rev": "old" }, "a"),
                 $mol_jsx("p", { "data-rev": "old" }, "b"),
                 $mol_jsx("p", { "data-rev": "old" }, "c")));
@@ -16217,7 +15935,7 @@ var $;
                     return prev;
                 },
             });
-            $mol_assert_dom(list, $mol_jsx("body", null,
+            $mol_assert_equal(list, $mol_jsx("body", null,
                 $mol_jsx("p", { "data-rev": "old" }, "a"),
                 $mol_jsx("p", { "data-rev": "old" }, "b"),
                 $mol_jsx("p", { "data-rev": "new" }, "X"),
@@ -16244,7 +15962,7 @@ var $;
                     return prev;
                 },
             });
-            $mol_assert_dom(list, $mol_jsx("body", null,
+            $mol_assert_equal(list, $mol_jsx("body", null,
                 $mol_jsx("p", { "data-rev": "old" }, "a"),
                 $mol_jsx("p", { "data-rev": "new" }, "b"),
                 $mol_jsx("p", { "data-rev": "up" }, "c"),
@@ -16272,7 +15990,7 @@ var $;
                     return prev;
                 },
             });
-            $mol_assert_dom(list, $mol_jsx("body", null,
+            $mol_assert_equal(list, $mol_jsx("body", null,
                 $mol_jsx("p", { "data-rev": "old" }, "A"),
                 $mol_jsx("p", { "data-rev": "old" }, "B"),
                 $mol_jsx("p", { "data-rev": "old" }, "C"),
@@ -16298,7 +16016,7 @@ var $;
                     return prev;
                 },
             });
-            $mol_assert_dom(list, $mol_jsx("body", null,
+            $mol_assert_equal(list, $mol_jsx("body", null,
                 $mol_jsx("p", { "data-rev": "old" }, "a"),
                 $mol_jsx("p", { "data-rev": "up" }, "X"),
                 $mol_jsx("p", { "data-rev": "up" }, "Y"),
