@@ -4605,7 +4605,8 @@ var $;
                 title: this.hint_safe(),
                 target: this.target(),
                 download: this.file_name(),
-                mol_link_current: this.current()
+                mol_link_current: this.current(),
+                rel: this.relation()
             };
         }
         sub() {
@@ -4639,6 +4640,9 @@ var $;
         }
         current() {
             return false;
+        }
+        relation() {
+            return "";
         }
         event_click(event) {
             if (event !== undefined)
