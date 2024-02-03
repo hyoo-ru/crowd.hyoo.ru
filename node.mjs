@@ -229,9 +229,6 @@ var $;
         toString() {
             return this[Symbol.toStringTag] || this.constructor.name + '<>';
         }
-        toJSON() {
-            return this.toString();
-        }
     }
     $.$mol_object2 = $mol_object2;
 })($ || ($ = {}));
@@ -1501,6 +1498,9 @@ var $;
         if (typeof json.toJSON === 'function') {
             return $mol_tree2_from_json(json.toJSON());
         }
+        if (json.toString !== Object.prototype.toString) {
+            return $mol_tree2.data(json.toString(), [], span);
+        }
         if (json instanceof Error) {
             const { name, message, stack } = json;
             json = { ...json, name, message, stack };
@@ -1973,7 +1973,13 @@ var $node = new Proxy({ require }, {
                 dir = parent;
             }
         }
-        return target.require(name);
+        try {
+            return target.require(name);
+        }
+        catch (error) {
+            $.$mol_fail_log(error);
+            return null;
+        }
     },
     set(target, name, value) {
         target[name] = value;
