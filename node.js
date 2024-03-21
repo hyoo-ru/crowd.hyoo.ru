@@ -1948,32 +1948,6 @@ var $;
 
 ;
 "use strict";
-var $;
-(function ($) {
-    function $mol_wire_sync(obj) {
-        return new Proxy(obj, {
-            get(obj, field) {
-                const val = obj[field];
-                if (typeof val !== 'function')
-                    return val;
-                const temp = $mol_wire_task.getter(val);
-                return function $mol_wire_sync(...args) {
-                    const fiber = temp(obj, args);
-                    return fiber.sync();
-                };
-            },
-            apply(obj, self, args) {
-                const temp = $mol_wire_task.getter(obj);
-                const fiber = temp(self, args);
-                return fiber.sync();
-            },
-        });
-    }
-    $.$mol_wire_sync = $mol_wire_sync;
-})($ || ($ = {}));
-
-;
-"use strict";
 var $node = new Proxy({ require }, {
     get(target, name, wrapper) {
         if (target[name])
@@ -2003,11 +1977,14 @@ var $node = new Proxy({ require }, {
             }
         }
         try {
-            return $.$mol_wire_sync(target).require(name);
+            return target.require(name);
         }
         catch (error) {
             if (error.code === 'ERR_REQUIRE_ESM') {
-                return importSync(name);
+                const module = cache.get(name);
+                if (module)
+                    return module;
+                throw import(name).then(module => cache.set(name, module));
             }
             $.$mol_fail_log(error);
             return null;
@@ -2018,8 +1995,7 @@ var $node = new Proxy({ require }, {
         return true;
     },
 });
-const importAsync = async (uri) => import(uri);
-const importSync = $.$mol_wire_sync(importAsync);
+const cache = new Map();
 require = (req => Object.assign(function require(name) {
     return $node[name];
 }, req))(require);
@@ -3685,6 +3661,32 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_wire_sync(obj) {
+        return new Proxy(obj, {
+            get(obj, field) {
+                const val = obj[field];
+                if (typeof val !== 'function')
+                    return val;
+                const temp = $mol_wire_task.getter(val);
+                return function $mol_wire_sync(...args) {
+                    const fiber = temp(obj, args);
+                    return fiber.sync();
+                };
+            },
+            apply(obj, self, args) {
+                const temp = $mol_wire_task.getter(obj);
+                const fiber = temp(self, args);
+                return fiber.sync();
+            },
+        });
+    }
+    $.$mol_wire_sync = $mol_wire_sync;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     class $mol_storage extends $mol_object2 {
         static native() {
             return this.$.$mol_dom_context.navigator.storage ?? {
@@ -4532,7 +4534,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/button/button.view.css", "[mol_button] {\n\tborder: none;\n\tfont: inherit;\n\tdisplay: inline-flex;\n\tflex-shrink: 0;\n\ttext-decoration: inherit;\n\tcursor: inherit;\n\tposition: relative;\n\tbox-sizing: border-box;\n\tword-break: normal;\n\tcursor: default;\n\tuser-select: none;\n\tborder-radius: var(--mol_gap_round);\n}\n\n[mol_button]:where(:not(:disabled)):hover {\n\tz-index: var(--mol_layer_hover);\n}\n\n[mol_button]:focus-visible {\n\toutline: none;\n\tz-index: var(--mol_layer_focus);\n}\n");
+    $mol_style_attach("mol/button/button.view.css", "[mol_button] {\n\tborder: none;\n\tfont: inherit;\n\tdisplay: inline-flex;\n\tflex-shrink: 0;\n\ttext-decoration: inherit;\n\tcursor: inherit;\n\tposition: relative;\n\tbox-sizing: border-box;\n\tword-break: normal;\n\tcursor: default;\n\tuser-select: none;\n\tborder-radius: var(--mol_gap_round);\n\tbackground: transparent;\n\tcolor: inherit;\n}\n\n[mol_button]:where(:not(:disabled)):hover {\n\tz-index: var(--mol_layer_hover);\n}\n\n[mol_button]:focus-visible {\n\toutline: none;\n\tz-index: var(--mol_layer_focus);\n}\n");
 })($ || ($ = {}));
 
 ;
