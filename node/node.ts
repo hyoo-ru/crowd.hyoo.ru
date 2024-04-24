@@ -36,6 +36,7 @@ namespace $ {
 		}
 		
 		/** Ordered inner alive Units. */
+		@ $mol_mem
 		units() {
 			return this.land.unit_alives( this.head )
 		}
