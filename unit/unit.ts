@@ -176,7 +176,7 @@ namespace $ {
 		
 	} as const
 	
-	export class $hyoo_crowd_unit_bin extends DataView {
+	export class $hyoo_crowd_unit_bin extends DataView< ArrayBuffer > {
 		
 		static from_buffer( buffer: Int16Array ) {
 			const size = Math.ceil( Math.abs( buffer[ offset.size / 2 ] ) / 8 ) * 8 + offset.data + $mol_crypto_auditor_sign_size

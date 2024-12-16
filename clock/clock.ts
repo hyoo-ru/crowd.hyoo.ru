@@ -132,7 +132,7 @@ namespace $ {
 		
 	} as const
 	
-	export class $hyoo_crowd_clock_bin extends DataView {
+	export class $hyoo_crowd_clock_bin extends DataView< ArrayBuffer > {
 		
 		static from(
 			land_id: $mol_int62_string,
