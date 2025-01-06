@@ -33,7 +33,7 @@ namespace $ {
 						this.land.node( unit.self, $hyoo_crowd_text ).str( next )
 						return unit
 					},
-					update: ( next, prev, lead )=> {
+					replace: ( next, prev, lead )=> {
 						this.land.node( prev.self, $hyoo_crowd_text ).str( next )
 						return prev
 					},

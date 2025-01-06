@@ -75,7 +75,7 @@ namespace $ {
 							val( next ),
 						)
 					},
-					update: ( next, prev, lead )=> this.land.put(
+					replace: ( next, prev, lead )=> this.land.put(
 						prev.head,
 						prev.self,
 						lead?.self ?? '0_0',
