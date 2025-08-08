@@ -22,18 +22,18 @@ namespace $ {
 				return next
 			}
 			
-			return new $mol_blob( this.list() as Uint8Array[], {
+			return new $mol_blob( this.list() as Uint8Array< ArrayBuffer >[], {
 				type: this.type(),
 			} )
 			
 		}
 		
 		/** Solid byte buffer. */
-		buffer( next?: Uint8Array, type = 'application/octet-stream' ) {
+		buffer( next?: Uint8Array< ArrayBuffer >, type = 'application/octet-stream' ) {
 			
 			if( next ) {
 				
-				const chunks = [] as Uint8Array[]
+				const chunks = [] as Uint8Array< ArrayBuffer >[]
 				
 				let offset = 0
 				while( offset < next.byteLength ) {
@@ -49,7 +49,7 @@ namespace $ {
 				
 			} else {
 				
-				const chunks = this.list() as Uint8Array[]
+				const chunks = this.list() as Uint8Array< ArrayBuffer >[]
 				const size = chunks.reduce( ( sum, chunk )=> sum + chunk.byteLength, 0 )
 				const res = new Uint8Array( size )
 				
